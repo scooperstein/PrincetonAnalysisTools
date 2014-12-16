@@ -1,0 +1,12 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+type=1  name=selectedEleInd
+type=2  name=naJetsPassingCuts
+type=2  name=BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4
+type=2  name=naLeptonsPassingCuts
+type=2  name=Vtype_f
+type=2  name=absDeltaPullAngle
+type=2  name=highestCSVaJet
+type=2  name=minDeltaRaJet
+type=1  name=sampleIndex
