@@ -8,10 +8,6 @@
 #ifndef AnalysisManager_h
 #define AnalysisManager_h
 
-#define LEPTONMAX 50
-#define JETMAX 200
-
-
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -22,9 +18,10 @@
 
 #include "HelperClasses/BDTInfo.h"
 #include "HelperClasses/BranchInfo.h"
-#include "HelperClasses/infoStructs.h"
-#include "HelperClasses/SampleContainer.h"
+#include "HelperClasses/InfoStructs.h"
 #include "HelperClasses/SampleContainer.cc"
+
+//#include "HelperClasses/BaseAnalysis.h"
 
 #include <string>
 
@@ -46,17 +43,29 @@ struct Value
 
 class AnalysisManager {
 public :
+    AnalysisManager();
+    virtual ~AnalysisManager();
+    
+    void Initialize(const char* fileName);
+    
+    //File management
     TChain          *fChain;   //!pointer to the analyzed TTree or TChain
     Int_t           fCurrent; //!current Tree number in a TChain
+    TFile           *ofile; // what will be the condensed output tree's file
     TTree           *outputTree; // what will be the condensed output tree
     std::string     outputTreeName;
     TMVA::Reader    *thereader; // for evaluating the BDT
     BDTInfo         bdtInfo;
     std::vector<SampleContainer> samples; 
+    SampleContainer* cursample; 
+    void            AddSample(SampleContainer sample);
+    void            ConfigureOutputTree();
 
-    int debug;
+    int debug=0;
     bool safemode;
 
+
+    //Branch management
     std::map<std::string,BranchInfo* > branchInfos;
     
     std::map<std::string,TBranch*> branches;
@@ -66,7 +75,9 @@ public :
     std::map<std::string,float*> f;
     std::map<std::string,double*> d;
     std::map<std::string,bool*> b;
+    void m(std::string key); // scaffold for function to get values from maps
 
+    //Special branches
     // derived variables used in BDT training
     float testMass; //what is this?!?!
     HiggsInfo H;
@@ -77,27 +88,35 @@ public :
     TBranch* b_V;
     TBranch* b_METtype1corr;
  
-
-    AnalysisManager(const char* fname);
-    virtual          ~AnalysisManager();
-    double           EvalDeltaR(double eta0, double phi0, double eta1, double phi1);
-    virtual Int_t    GetEntry(Long64_t entry);
-    virtual Long64_t LoadTree(Long64_t entry);
-    virtual void     Init(TChain *tree);
-    virtual void     SetupBranch(std::string name, int type, int length=-1);
-    virtual void     SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true);
-    virtual void     SetNewBranches();
-    virtual void     ResetBranches();
-    virtual void     SetBranches();
-    virtual void     PrintBranches();
-    virtual void     Loop();
+    Int_t           GetEntry(Long64_t entry);
+    Long64_t        LoadTree(Long64_t entry);
+    void            InitChain(TChain *tree);
+    
+    void            SetupBranch(std::string name, int type, int length=-1);
+    void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true);
+    void            SetNewBranches();
+    void            ResetBranches();
+    void            SetBranches();
+    void            PrintBranches();
+    
+    void            Loop();
     //virtual void     WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring);
-    virtual void     setupBDT();
-    Value            RetrieveValue(std::string key);
-    void             m(std::string key);
-    bool             SampleWenuAnalysis();
-    void             AddSample(SampleContainer sample);
-    void             ConfigureOutputTree();
+    //Value            RetrieveValue(std::string key);
+    
+
+    //AnalysisFuctions
+    //BaseAnalysis    *analysis;
+    //void            SetAnalysis(BaseAnalysis* scaffold);
+    virtual void    InitAnalysis();
+    virtual bool    Preselection();
+    virtual bool    Analyze();
+    virtual void    FinishEvent();
+    virtual void    TermAnalysis();
+
+    // general use functions
+    double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1); 
+    void            SetupBDT();
+
 };
 
 #endif

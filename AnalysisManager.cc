@@ -9,18 +9,14 @@
 #include <TFile.h>
 #include <TMath.h>
 
+AnalysisManager::AnalysisManager(){
+}
 
-AnalysisManager::AnalysisManager(const char* fileName) : 
-    debug(0), 
-    outputTreeName("condensed_tree"),
-    safemode(1)
-    
-{
-// if parameter tree is not specified (or zero), connect the file
+void AnalysisManager::Initialize(const char* fileName) {
 // used to generate this class and read the Tree.
     TChain *chain = new TChain("tree");
     chain->Add(fileName);
-    Init(chain);
+    InitChain(chain);
 
     ui.clear();
     in.clear();
@@ -30,6 +26,12 @@ AnalysisManager::AnalysisManager(const char* fileName) :
     
     branches.clear();
     branchInfos.clear();
+
+    debug=0;
+    outputTreeName="condensed_tree";
+    safemode=1;
+    
+    return;
 }
 
 
@@ -98,17 +100,11 @@ Long64_t AnalysisManager::LoadTree(Long64_t entry)
 }
 
 
-void AnalysisManager::Init(TChain *tree)
+void AnalysisManager::InitChain(TChain *tree)
 {
-    // The Init() function is called when the selector needs to initialize
+    // The InitChain() function is called when the selector needs to initialize
     // a new tree or chain. Typically here the branch addresses and branch
     // pointers of the tree will be set.
-    // It is normally not necessary to make changes to the generated
-    // code, but the routine can be extended by the user if needed.
-    // Init() will be called many times when running on PROOF
-    // (once per file to be processed).
-    
-    // Set branch addresses and branch pointers
     if (!tree) return;
     fChain = tree;
     fCurrent = -1;
@@ -117,13 +113,10 @@ void AnalysisManager::Init(TChain *tree)
     if(debug>100) std::cout<<"Resetting branches"<<std::endl;
     ResetBranches();
 
+    // Set special branches
     fChain->SetBranchAddress("H", &H, &b_H);
     fChain->SetBranchAddress("V", &V, &b_V);
     fChain->SetBranchAddress("METtype1corr", &METtype1corr, &b_METtype1corr);
-    //fChain->SetBranchAddress("BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4", &BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4, &b_BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4);
-    //fChain->SetBranchAddress("BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4", &BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4, &b_BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4);
-    //fChain->SetBranchAddress("BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4", &BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4, &b_BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4);
-    //fChain->SetBranchAddress("BDT_8TeV_H125Sig_VVBkg_newCuts4", &BDT_8TeV_H125Sig_VVBkg_newCuts4, &b_BDT_8TeV_H125Sig_VVBkg_newCuts4);
 }
 
 
@@ -312,10 +305,11 @@ void AnalysisManager::SetNewBranches(){
 
 void AnalysisManager::Loop(){
 
+    if(debug>10) std::cout<<"Starting Loop"<<std::endl;
     SetBranches();
     
     // add new branches
-    TFile *ofile = new TFile(Form("%s.root",outputTreeName.c_str()),"recreate");
+    ofile = new TFile(Form("%s.root",outputTreeName.c_str()),"recreate");
     ofile->cd();
     //TTree *newtree = fChain->CloneTree(0);
     // for now we will use a default file to set the structure for the output tree
@@ -328,79 +322,49 @@ void AnalysisManager::Loop(){
     //}  
     // let's add some of our own branches
     SetNewBranches();
-    //Int_t selectedEleInd;
-    
-    //outputTree->Branch("selectedEleInd", &selectedEleInd, "selectedEleInd/I");
     
     
+    if(debug>10) std::cout<<"Done setting up branches; about to Init"<<std::endl;
     // eventually we'd like to set up the identifiers unique to each BDT as members of the class. These identifiers are:
     // 1. BDT name
     // 2. List of names of variables used to train BDT
     // 3. List of references to variables used to train BDT
     // 4. Reference to BDT?
     // ...etc
-    //outputTree->Branch("BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4", &BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkgj_newCuts4, "BDTBDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4/F");
-    //outputTree->Branch("naLeptonsPassingCuts", &naLeptonsPassingCuts, "naLeptonsPassingCuts/F");
-    //outputTree->Branch("Vtype_f", &Vtype_f, "Vtype_f/F");
-    //outputTree->Branch("absDeltaPullAngle", &absDeltaPullAngle, "absDeltaPullAngle/F");
-    //outputTree->Branch("highestCSVaJet", &highestCSVaJet, "highestCSVaJet/F");
-    //outputTree->Branch("minDeltaRaJet", &minDeltaRaJet, "minDeltaRaJet/F");
-    
-    //outputTree->Branch("sampleIndex", &sampleIndex, "sampleIndex/I");
-    setupBDT();
-    /*float var_BDT;
-    outputTree->Branch(bdtInfo.outputBranch, &var_BDT, Form("%s/F", bdtInfo.outputBranch));
-    setupBDT();*/
+    InitAnalysis();
     
     
+    if(debug>10) std::cout<<"About to loop over samples"<<std::endl;
     // loop through one sample at a time
     for (int i = 0; i < (int)samples.size(); i++) { 
-        SampleContainer sample = samples[i];
+        cursample = &samples[i];
         // set fChain to the TChain for the current sample
-        Init(sample.sampleChain);
+        InitChain(cursample->sampleChain);
     
+        // FIXME should have a sample name, but doesn't right now
+        //if(debug>100) std::cout<<"About to loop over events in "<<cursample->sampleName<<std::endl;
         // loop through the events
         Long64_t nentries = fChain->GetEntries();
         if(debug>1) std::cout<<"looping over "<<nentries<<std::endl;
         Long64_t nbytes = 0, nb = 0;
+        // FIXME need a loop over systematics
         for (Long64_t jentry=0; jentry<nentries;jentry++) {
+            bool presel = Preselection();
+            if(!presel) continue;
             Long64_t ientry = LoadTree(jentry);
             if (ientry < 0) break;
             nb = fChain->GetEntry(jentry);   nbytes += nb;
             if(ientry%10000==0 && debug>1)  std::cout<<"entry "<<ientry<<std::endl;
   
-            bool selectEvent=SampleWenuAnalysis();
-            if(selectEvent){
-                *in["sampleIndex"] = sample.sampleNum;
-                
-                *f["Vtype_f"] = (float) *in["Vtype"];
-                *f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
-                *f["naLeptonsPassingCuts"] = 0.;
-                for(int j=0;j<*in["nalep"]&&j<100;j++){
-                    if(f["aLepton_pt"][j]>15. && fabs(f["aLepton_eta"][j])<2.5 && f["aLepton_pfCombRelIso"][j]<0.15) *f["naLeptonsPassingCuts"] += 1.;
-                }
-                *f["naJetsPassingCuts"] = 0.;
-                *f["highestCSVaJet"] = 0.0;
-                *f["minDeltaRaJet"] = 9999.0;
-                for(int j=0;j<*in["naJets"];j++){
-                    if(f["aJet_pt"][j]>20. && fabs(f["aJet_eta"][j])<4.5) *f["naJetsPassingCuts"] += 1;
-                    if(f["aJet_pt"][j]>20. && fabs(f["aJet_eta"][j])<2.5 && f["aJet_csvReshapedNew"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = f["aJet_csvReshapedNew"][j];
-                    if(f["aJet_pt"][j]>20. && fabs(f["aJet_eta"][j])<4.5 && f["aJet_puJetIdL"][j]>0 && EvalDeltaR(f["aJet_eta"][j],f["aJet_phi"][j],H.eta,H.phi)<*f["minDeltaRaJet"]) {
-                        *f["minDeltaRaJet"] = EvalDeltaR(f["aJet_eta"][j],f["aJet_phi"][j],H.eta,H.phi);
-                    }
-                }       
-    
-                // copy some entries tree
-                //*f["BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkgj_newCuts4"] = thereader->EvaluateMVA("BDT method");
-                ofile->cd();
-                outputTree->Fill();
+            bool select = Analyze();//SampleWenuAnalysis();
+            if(select){
+                FinishEvent();
             }
         } // end event loop
     } // end sample loop
     
-    ofile->cd();
-    outputTree->Write();
-    ofile->Close();
+    
+    TermAnalysis();
     
     /*// Now let's mess around with re-evaluating the BDTs
     std::cout<<"Let's try to re-evaluate the BDTs..."<<std::endl;
@@ -408,44 +372,50 @@ void AnalysisManager::Loop(){
     */
 }
 
-//bool AnalysisManager::SampleWenuAnalysis(Int_t & selectedInd)
-bool AnalysisManager::SampleWenuAnalysis() {
-    int selectedInd=-1;
-    bool selectEvent=false;
-    float highestPt=-99;
-    if(debug>1000){
-        std::cout<<"*in[\"nvlep\"] "<<*in["nvlep"]<<std::endl;
-    }
-    for(int elInd=0; elInd<*in["nvlep"]; elInd++) {
-        if(debug>1000){
-            std::cout<<"f[\"vLepton_pt\"][elInd] "<<f["vLepton_pt"][elInd]<<std::endl;
-            std::cout<<"in[\"vLepton_wp85\"][elInd] "<<in["vLepton_wp85"][elInd]<<std::endl;
-        }
-        if(f["vLepton_pt"][elInd] > 20 && in["vLepton_wp85"][elInd]>0 && highestPt<f["vLepton_pt"][elInd]){
-            highestPt=f["vLepton_pt"][elInd];
-            selectedInd=elInd;
-            selectEvent=true;
-        }
-    }
-    *in["selectedEleInd"]=selectedInd;
 
-    return selectEvent;
+void AnalysisManager::InitAnalysis(){
+    if(debug>100) std::cout<<"InitAnalysis"<<std::endl;
 }
 
-/*//void AddBDTs(string indirname,string infilename, string outdirname,string outfilename, string cutstring="")
-void AnalysisManager::WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring) {
-    std::cout<<"Calling old AddBDTs macro to add BDTs to file"<<std::endl;
-    AddBDTs(indirname, infilename, outdirname, outfilename, cutstring);
-    std::cout<<"All done!"<<std::endl;
-}*/
+
+bool AnalysisManager::Preselection(){
+    bool sel=false;
+    if(1) sel=true;
+    return sel;
+} 
+
+
+bool AnalysisManager::Analyze(){
+    bool sel=false;
+    return sel;
+}
+
+            
+void AnalysisManager::FinishEvent(){
+    //need to fill the tree, hist, or whatever here.
+    ofile->cd();
+    outputTree->Fill();
+    return;
+}
+
+
+void AnalysisManager::TermAnalysis() {
+    // save tree here
+    ofile->cd();
+    outputTree->Write();
+    ofile->Close();
+}
 
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
-void AnalysisManager::setupBDT( ) {
+void AnalysisManager::SetupBDT( ) {
 
     // let's do 8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg as an example
-
-    thereader = new TMVA::Reader( "!Color:!Silent" );
+    if(debug>100){
+        thereader = new TMVA::Reader( "!Color:!Silent" );
+    } else {
+        thereader = new TMVA::Reader( "!Color:Silent" );
+    }
     int bdtType = 0;
     if (bdtType == 0) {
         thereader->AddVariable("H.massCorr",                &testMass); 
@@ -499,27 +469,31 @@ void AnalysisManager::m(std::string key){
         {
         case 0:
             if(debug>1000) std::cout<<"unsigned int "<<*ui[key]<<std::endl; 
+            //return *ui[key];
             break;
         case 1:
             if(debug>1000) std::cout<<"int "<<*in[key]<<std::endl; 
+            //return *in[key];
             break;
         case 2:
             if(debug>1000) std::cout<<"float "<<*f[key]<<std::endl; 
+            //return *f[key];
             break;
         default:
             if(debug>10) std::cout<<"I don't know type "<<branchInfos[key]->type<<" yet..."<<std::endl;
+            //return;
         }
     }
 }
 
 
-Value AnalysisManager::RetrieveValue(std::string key)
-{
-    //get value
-    //std::string value = *f[key];
-    std::string value("123");
-    return { value };
-}
+//Value AnalysisManager::RetrieveValue(std::string key)
+//{
+//    //get value
+//    //std::string value = *f[key];
+//    std::string value("123");
+//    return { value };
+//}
 
 
 double AnalysisManager::EvalDeltaR(double eta0, double phi0, double eta1, double phi1)

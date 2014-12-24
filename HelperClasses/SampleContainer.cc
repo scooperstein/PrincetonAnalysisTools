@@ -1,6 +1,6 @@
 // code template from https://github.com/h2gglobe/h2gglobe
 
-#include "HelperClasses/SampleContainer.h"
+#include "SampleContainer.h"
 #include <utility>
 #include <iostream>
 
