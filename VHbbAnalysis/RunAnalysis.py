@@ -7,7 +7,6 @@ import ReadInput
 ROOT.gSystem.Load("SampleContainer_cc.so")
 ROOT.gSystem.Load("BDTInfo_h.so")
 ROOT.gSystem.Load("InfoStructs_h.so")
-ROOT.gSystem.Load("BaseAnalysis_h.so")
 ROOT.gSystem.Load("VHbbAnalysis_h.so")
 ROOT.gSystem.Load("AnalysisManager_cc.so")
 
