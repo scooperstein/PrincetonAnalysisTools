@@ -1,0 +1,6 @@
+intL=19.7
+pileup=
+
+samples=cfg/samples.txt
+existingbranches=cfg/existingbranches.txt
+newbranches=cfg/newbranches.txt

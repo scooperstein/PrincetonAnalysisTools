@@ -1,0 +1,3 @@
+
+name=WH125   file=WH_125_lumiWeighted.root  type=-125001  xsec=50
+name=ZH125   file=ZH_125_lumiWeighted.root  type=-125002  xsec=10
