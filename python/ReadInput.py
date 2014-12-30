@@ -42,6 +42,13 @@ def ReadTextFile(filename, filetype, am=0):
             print "There are no samples in the config file."
             #sys.exit(0)
  
+        if settings.has_key("earlybranches"):
+            branches=ReadTextFile(settings["earlybranches"], "branchlist")
+            for branch in branches:
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], "early")
+        else:
+            print "There are no existing branches in the config file."
+
         if settings.has_key("existingbranches"):
             branches=ReadTextFile(settings["existingbranches"], "branchlist")
             for branch in branches:

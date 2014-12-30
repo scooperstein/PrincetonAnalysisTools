@@ -40,33 +40,38 @@ AnalysisManager::~AnalysisManager()
     if (!fChain) return;
     delete fChain->GetCurrentFile();
 
+    if(debug>10000) std::cout<<"uints"<<std::endl;
     for(std::map<std::string,unsigned int*>::iterator uiit=ui.begin();
             uiit!=ui.end();  ++uiit){
-        if(debug>100) std::cout<<"I'm deleting "<<uiit->first<<std::endl;
+        if(debug>1000) std::cout<<"I'm deleting "<<uiit->first<<std::endl;
         delete uiit->second;
     }
 
+    if(debug>10000) std::cout<<"ints"<<std::endl;
     for(std::map<std::string,int*>::iterator iit=in.begin();
             iit!=in.end();  ++iit){
-        if(debug>100) std::cout<<"I'm deleting "<<iit->first<<std::endl;
+        if(debug>1000) std::cout<<"I'm deleting "<<iit->first<<std::endl;
         delete iit->second;
     }
 
+    if(debug>10000) std::cout<<"floats"<<std::endl;
     for(std::map<std::string,float*>::iterator fit=f.begin();
             fit!=f.end();  ++fit){
-        if(debug>100) std::cout<<"I'm deleting "<<fit->first<<std::endl;
+        if(debug>1000) std::cout<<"I'm deleting "<<fit->first<<std::endl;
         delete fit->second;
     }
-
+    
+    if(debug>10000) std::cout<<"doubles"<<std::endl;
     for(std::map<std::string,double*>::iterator dit=d.begin();
             dit!=d.end();  ++dit){
-        if(debug>100) std::cout<<"I'm deleting "<<dit->first<<std::endl;
+        if(debug>1000) std::cout<<"I'm deleting "<<dit->first<<std::endl;
         delete dit->second;
     }
 
+    if(debug>10000) std::cout<<"bools"<<std::endl;
     for(std::map<std::string,bool*>::iterator bit=b.begin();
             bit!=b.end();  ++bit){
-        if(debug>100) std::cout<<"I'm deleting "<<bit->first<<std::endl;
+        if(debug>1000) std::cout<<"I'm deleting "<<bit->first<<std::endl;
         delete bit->second;
     }
 }
@@ -114,15 +119,15 @@ void AnalysisManager::InitChain(TChain *tree)
     ResetBranches();
 
     // Set special branches
-    fChain->SetBranchAddress("H", &H, &b_H);
-    fChain->SetBranchAddress("V", &V, &b_V);
-    fChain->SetBranchAddress("METtype1corr", &METtype1corr, &b_METtype1corr);
+    //fChain->SetBranchAddress("H", &H, &b_H);
+    //fChain->SetBranchAddress("V", &V, &b_V);
+    //fChain->SetBranchAddress("METtype1corr", &METtype1corr, &b_METtype1corr);
 }
 
 
-void AnalysisManager::SetupBranch(std::string name, int type, int length){
+void AnalysisManager::SetupBranch(std::string name, int type, int length, std::string prov){
     branches[name] = new TBranch;
-    branchInfos[name] = new BranchInfo(name,type,length,"existing");
+    branchInfos[name] = new BranchInfo(name,type,length,prov);
 
     // Only 0-9 are setup with types for the moment.
     if(type>9 || type<0) {
@@ -242,7 +247,7 @@ void AnalysisManager::ResetBranches(){
     for(std::map<std::string,BranchInfo*>::iterator biit=branchInfos.begin();
             biit!=branchInfos.end(); ++biit) {
         if(debug>100) std::cout<<"Branch "<<biit->second->name<<" of type, prov "<<biit->second->type<<" "<<biit->second->prov<<std::endl;
-        if(biit->second->prov == "existing"){
+        if(biit->second->prov == "existing" || biit->second->prov == "early"){
             std::string name(biit->first);
             if(biit->second->type>9 || biit->second->type<0){
                 std::cout<<"Branch "<<name<<" of unknown type "<<biit->second->type<<std::endl;
@@ -280,7 +285,7 @@ void AnalysisManager::SetBranches(){
     fChain->SetBranchStatus("*", 0);
     for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
             ibranch!=branchInfos.end(); ++ibranch){
-        if(ibranch->second->prov == "existing") {
+        if(ibranch->second->prov == "existing" || ibranch->second->prov == "early") {
             if(debug>100) std::cout<<"fChain->SetBranchStatus("<<ibranch->first.c_str()<<", 1);"<<std::endl;
             fChain->SetBranchStatus(ibranch->first.c_str(), 1);
         }
@@ -302,6 +307,15 @@ void AnalysisManager::SetNewBranches(){
     }
 }
 
+void AnalysisManager::GetEarlyEntries(Long64_t entry){
+    for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
+            ibranch!=branchInfos.end(); ++ibranch){
+        if(ibranch->second->prov == "early") {
+            if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
+            branches[ibranch->first]->GetEntry(entry);
+        }
+    }
+}
 
 void AnalysisManager::Loop(){
 
@@ -349,19 +363,27 @@ void AnalysisManager::Loop(){
         Long64_t nbytes = 0, nb = 0;
         // FIXME need a loop over systematics
         for (Long64_t jentry=0; jentry<nentries;jentry++) {
+            if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry "<<jentry<<std::endl;
+            
+            GetEarlyEntries(jentry);
+            if(debug>100000) std::cout<<"checking preselection"<<std::endl;
             bool presel = Preselection();
             if(!presel) continue;
+
+            if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
             Long64_t ientry = LoadTree(jentry);
             if (ientry < 0) break;
             nb = fChain->GetEntry(jentry);   nbytes += nb;
-            if(ientry%10000==0 && debug>1)  std::cout<<"entry "<<ientry<<std::endl;
   
-            bool select = Analyze();//SampleWenuAnalysis();
+            if(debug>1000) std::cout<<"running analysis"<<std::endl;
+            bool select = Analyze();
             if(select){
+                if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
                 FinishEvent();
             }
         } // end event loop
     } // end sample loop
+    if(debug>1000) std::cout<<"Finished looping"<<std::endl;
     
     
     TermAnalysis();
@@ -494,15 +516,21 @@ void AnalysisManager::m(std::string key){
 //    std::string value("123");
 //    return { value };
 //}
+double AnalysisManager::EvalDeltaPhi(double phi0, double phi1){
+    double dPhi = fabs(phi0-phi1);
+
+    if(dPhi > 3.1415926536)
+        dPhi = 2.0*3.1415926536 - dPhi;
+    
+    return dPhi;
+}
 
 
 double AnalysisManager::EvalDeltaR(double eta0, double phi0, double eta1, double phi1)
 {
   double dEta = fabs(eta0-eta1);
-  double dPhi = fabs(phi0-phi1);
+  double dPhi = EvalDeltaPhi(phi0, phi1);
 
-  if(dPhi > 3.14159)
-    dPhi = 2.0*3.14159 - dPhi;
 
   return TMath::Sqrt(TMath::Power(dEta,2)+TMath::Power(dPhi,2));
 }

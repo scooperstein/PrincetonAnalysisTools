@@ -11,3 +11,4 @@ type=2  name=highestCSVaJet
 type=2  name=minDeltaRaJet
 type=1  name=sampleIndex
 type=1  name=eventClass
+type=3  name=elMetDPhi

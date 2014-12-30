@@ -92,12 +92,13 @@ public :
     Long64_t        LoadTree(Long64_t entry);
     void            InitChain(TChain *tree);
     
-    void            SetupBranch(std::string name, int type, int length=-1);
+    void            SetupBranch(std::string name, int type, int length=-1, std::string prov="existing");
     void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true);
     void            SetNewBranches();
     void            ResetBranches();
     void            SetBranches();
     void            PrintBranches();
+    void            GetEarlyEntries(Long64_t entry);
     
     void            Loop();
     //virtual void     WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring);
@@ -115,6 +116,7 @@ public :
 
     // general use functions
     double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1); 
+    double          EvalDeltaPhi(double phi0, double phi1); 
     void            SetupBDT();
 
 };
