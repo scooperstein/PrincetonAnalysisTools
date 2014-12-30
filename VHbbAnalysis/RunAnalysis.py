@@ -14,19 +14,14 @@ ROOT.gSystem.Load("InfoStructs_h.so")
 ROOT.gSystem.Load("VHbbAnalysis_h.so")
 ROOT.gSystem.Load("AnalysisManager_cc.so")
 
-
-# the file passed to the constructor is just the template for all the other files. For now all added files will need to match this structure.
-vhbba = ROOT.VHbbAnalysis()
-vhbba.Initialize("WH_HToBB_WToLNu_M-125_13TeV_V4_tree.root")
-vhbba.debug=2
-
-
 # reads samples, existing branches and new branches
-ReadInput.ReadTextFile(sys.argv[1], "cfg", vhbba)
+am=ReadInput.ReadTextFile(sys.argv[1], "cfg")
+am.debug=2
 
-if(vhbba.debug>100):
-    vhbba.PrintBranches()
+if(am.debug>100):
+    am.PrintBranches()
 
 # loop over all the samples
 # FIXME - need to add the possibility of doing a small portion of files
-vhbba.Loop()
+am.Loop()
+

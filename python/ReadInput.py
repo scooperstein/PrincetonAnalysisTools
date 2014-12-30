@@ -1,12 +1,13 @@
 #~ /usr/bin/python
 import sys
 import ROOT
-ROOT.gSystem.Load("../HelperClasses/SampleContainer_cc.so")
-ROOT.gSystem.Load("../AnalysisManager_cc.so")
+ROOT.gSystem.Load("SampleContainer_cc.so")
+ROOT.gSystem.Load("AnalysisManager_cc.so")
+ROOT.gSystem.Load("VHbbAnalysis_h.so")
 
 debug=0
 
-def ReadTextFile(filename, filetype, am=0):
+def ReadTextFile(filename, filetype):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
@@ -19,13 +20,14 @@ def ReadTextFile(filename, filetype, am=0):
     if debug > 1000:
         print filelines
     if filetype is "cfg":
-        if am == 0:
-            print "You need to pass the Analysis Manager."
-            #sys.exit(0)
 
         settings=MakeConfigMap(filelines)
 
+        if settings.has_key("analysis"):
+            am=ROOT.__getattr__(settings["analysis"])()
+
         if settings.has_key("samples"):
+            aminitialized=0
             samples=ReadTextFile(settings["samples"], "samplefile")
             for sample in samples:
                 #print sample, sampledic[sample]
@@ -35,6 +37,11 @@ def ReadTextFile(filename, filetype, am=0):
                 samplecon.kfactor   = samples[sample][2]
                 samplecon.scale     = samples[sample][3]
                 for filename in samples[sample][4]:
+                    # AnalysisManager needs to be initialized
+                    # with one file at the beginning
+                    if aminitialized == 0:
+                        am.Initialize(filename)
+                        aminitialized=1
                     samplecon.AddFile(filename)
                 am.AddSample(samplecon)
 

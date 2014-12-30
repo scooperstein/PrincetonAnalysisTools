@@ -1,5 +1,6 @@
 intL=19.7
 pileup=
+analysis=VHbbAnalysis
 
 samples=cfg/samples_heppytest_dec2014.txt
 earlybranches=cfg/earlybranches.txt
