@@ -1,6 +1,7 @@
 intL=19.7
 pileup=
 
-samples=cfg/samples.txt
+samples=cfg/samples_heppytest_dec2014.txt
+earlybranches=cfg/earlybranches.txt
 existingbranches=cfg/existingbranches.txt
 newbranches=cfg/newbranches.txt
