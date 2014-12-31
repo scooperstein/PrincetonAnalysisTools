@@ -41,7 +41,10 @@ bool VHbbAnalysis::Analyze(){
     std::pair<int,int> bjets=HighestPtBJets(0.5);
    
     // there aren't two acceptable jets
-    if(bjets.second==-1) return sel;
+    if(bjets.first==-1 || bjets.second==-1) return sel;
+    *in["hJetInd1"]=bjets.first;
+    *in["hJetInd2"]=bjets.second;
+
     if(debug>1000) {
         std::cout<<"found two bjets with pt "
             <<d["Jet_pt"][bjets.first]<<" "

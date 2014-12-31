@@ -1,2 +1,5 @@
 
-name=WH125   file=WH_HToBB_WToLNu_M-125_13TeV_V4_tree.root  type=-125001  xsec=50
+name=WH125      file=WH_HToBB_WToLNu_M-125_13TeV_V4_tree.root   type=-125001  xsec=0.261
+name=QCD1000    dir=QCD_HT_1000ToInf_13TeV-madgraph             type=10       xsec=769.7
+#name=QCD500     dir=QCD_HT_500To1000_13TeV-madgraph             type=11       xsec=26740
+#name=QCD250     dir=QCD_HT_250To500_13TeV-madgraph              type=12       xsec=670500

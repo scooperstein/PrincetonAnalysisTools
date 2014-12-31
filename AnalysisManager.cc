@@ -12,11 +12,9 @@
 AnalysisManager::AnalysisManager(){
 }
 
-void AnalysisManager::Initialize(const char* fileName) {
+void AnalysisManager::Initialize(std::string filename) {
 // used to generate this class and read the Tree.
-    TChain *chain = new TChain("tree");
-    chain->Add(fileName);
-    InitChain(chain);
+    InitChain(filename);
 
     ui.clear();
     in.clear();
@@ -105,13 +103,13 @@ Long64_t AnalysisManager::LoadTree(Long64_t entry)
 }
 
 
-void AnalysisManager::InitChain(TChain *tree)
+void AnalysisManager::InitChain(std::string filename)
 {
     // The InitChain() function is called when the selector needs to initialize
     // a new tree or chain. Typically here the branch addresses and branch
     // pointers of the tree will be set.
-    if (!tree) return;
-    fChain = tree;
+    fChain = new TChain("tree");
+    fChain->Add(filename.c_str());
     fCurrent = -1;
     fChain->SetMakeClass(1);
 
@@ -352,36 +350,41 @@ void AnalysisManager::Loop(){
     // loop through one sample at a time
     for (int i = 0; i < (int)samples.size(); i++) { 
         cursample = &samples[i];
-        // set fChain to the TChain for the current sample
-        InitChain(cursample->sampleChain);
+        
+        for(int ifile=0; ifile<(int)(cursample->files.size()); ifile++){
+            // set fChain to the TChain for the current sample
+            InitChain(cursample->files[ifile]);
     
-        // FIXME should have a sample name, but doesn't right now
-        //if(debug>100) std::cout<<"About to loop over events in "<<cursample->sampleName<<std::endl;
-        // loop through the events
-        Long64_t nentries = fChain->GetEntries();
-        if(debug>1) std::cout<<"looping over "<<nentries<<std::endl;
-        Long64_t nbytes = 0, nb = 0;
-        // FIXME need a loop over systematics
-        for (Long64_t jentry=0; jentry<nentries;jentry++) {
-            if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry "<<jentry<<std::endl;
-            
-            GetEarlyEntries(jentry);
-            if(debug>100000) std::cout<<"checking preselection"<<std::endl;
-            bool presel = Preselection();
-            if(!presel) continue;
+            // FIXME should have a sample name, but doesn't right now
+            if(debug>100) std::cout<<"About to loop over events in "<<cursample->files[ifile]<<std::endl;
+            // loop through the events
+            Long64_t nentries = fChain->GetEntries();
+            if(debug>1) std::cout<<"looping over "<<nentries<<std::endl;
+            Long64_t nbytes = 0, nb = 0;
+            int saved=0;
+            // FIXME need a loop over systematics
+            for (Long64_t jentry=0; jentry<nentries;jentry++) {
+                if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved "<<jentry<<" "<<saved<<std::endl;
+                
+                GetEarlyEntries(jentry);
+                if(debug>100000) std::cout<<"checking preselection"<<std::endl;
+                bool presel = Preselection();
+                if(!presel) continue;
 
-            if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
-            Long64_t ientry = LoadTree(jentry);
-            if (ientry < 0) break;
-            nb = fChain->GetEntry(jentry);   nbytes += nb;
+                if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
+                Long64_t ientry = LoadTree(jentry);
+                if (ientry < 0) break;
+                nb = fChain->GetEntry(jentry);   nbytes += nb;
   
-            if(debug>1000) std::cout<<"running analysis"<<std::endl;
-            bool select = Analyze();
-            if(select){
-                if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                FinishEvent();
-            }
-        } // end event loop
+                if(debug>1000) std::cout<<"running analysis"<<std::endl;
+                bool select = Analyze();
+                if(select){
+                    if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
+                    FinishEvent();
+                    saved++;
+                }
+            } // end event loop
+        } // end file loop
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;
     

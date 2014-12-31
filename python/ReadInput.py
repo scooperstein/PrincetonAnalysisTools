@@ -137,7 +137,13 @@ def MakeSampleMap(lines):
             if name.find("file") is 0:
                 samplepaths.append(str(value))
             if name.find("dir") is 0:
-                print "Need to put a function here that 'ls's the content of a dir and appends the list"
+                from os import listdir
+                from os.path import isfile, join
+                onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
+                for rootfile in onlyfiles:
+                    print rootfile
+                    if rootfile.find(".root") != -1:
+                        samplepaths.append(str(value)+"/"+str(rootfile))
             if name.find("type") is 0:
                 sampletype=int(value)
             if name.find("xsec") is 0:
