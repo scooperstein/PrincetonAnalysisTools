@@ -61,6 +61,9 @@ public :
     void                            AddSample(SampleContainer sample);
     void                            ConfigureOutputTree();
 
+    //General Physics Information
+    float intL;
+
     int debug=0;
     bool safemode;
 

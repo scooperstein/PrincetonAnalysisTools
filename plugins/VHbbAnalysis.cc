@@ -70,6 +70,7 @@ bool VHbbAnalysis::Analyze(){
 
 void VHbbAnalysis::FinishEvent(){
     *in["sampleIndex"] = cursample->sampleNum;
+    *f["weight"] = cursample->intWeight;
     
     *f["Vtype_f"] = (float) *d["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);

@@ -5,6 +5,8 @@ type=1  name=hJetInd1
 type=1  name=hJetInd2
 type=1  name=eventClass
 type=3  name=elMetDPhi
+type=1  name=sampleIndex
+type=2  name=weight
 
 
 type=2  name=naJetsPassingCuts
@@ -14,4 +16,3 @@ type=2  name=Vtype_f
 type=2  name=absDeltaPullAngle
 type=2  name=highestCSVaJet
 type=2  name=minDeltaRaJet
-type=1  name=sampleIndex

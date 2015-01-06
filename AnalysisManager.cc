@@ -10,6 +10,7 @@
 #include <TMath.h>
 
 AnalysisManager::AnalysisManager(){
+    intL=20000; // pb^-1
 }
 
 void AnalysisManager::Initialize(std::string filename) {
@@ -350,13 +351,14 @@ void AnalysisManager::Loop(){
     // loop through one sample at a time
     for (int i = 0; i < (int)samples.size(); i++) { 
         cursample = &samples[i];
-        
+        cursample->ComputeWeight(intL);
+         
         for(int ifile=0; ifile<(int)(cursample->files.size()); ifile++){
             // set fChain to the TChain for the current sample
             InitChain(cursample->files[ifile]);
     
             // FIXME should have a sample name, but doesn't right now
-            if(debug>100) std::cout<<"About to loop over events in "<<cursample->files[ifile]<<std::endl;
+            if(debug>0) std::cout<<"About to loop over events in "<<cursample->files[ifile]<<std::endl;
             // loop through the events
             Long64_t nentries = fChain->GetEntries();
             if(debug>1) std::cout<<"looping over "<<nentries<<std::endl;
@@ -364,7 +366,7 @@ void AnalysisManager::Loop(){
             int saved=0;
             // FIXME need a loop over systematics
             for (Long64_t jentry=0; jentry<nentries;jentry++) {
-                if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved "<<jentry<<" "<<saved<<std::endl;
+                if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
                 GetEarlyEntries(jentry);
                 if(debug>100000) std::cout<<"checking preselection"<<std::endl;

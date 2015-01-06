@@ -13,7 +13,7 @@ SampleContainer::~SampleContainer()
 //	extweight(extw)
 SampleContainer::SampleContainer() 
 {
-	/*intweight = 1;
+	/*intWeight = 1;
 	itype = 0;
 	ind = 0;
 	histoplotit = 1;
@@ -30,26 +30,34 @@ SampleContainer::SampleContainer()
     sampleNum = 0;
     sampleChain = new TChain("tree");
     xsec = 0;
-    kfactor= 1;
+    kFactor= 1;
     scale = 1;
     files.clear();
+    processedEvents=0;
+    intWeight=1;
 }
 
 void SampleContainer::AddFile(char* fname) {
     //std::cout<<"fname "<<fname<<std::endl;
     sampleChain->Add(fname);
     files.push_back(fname);
+    
+    TFile file(fname);
+    TH1F* counter = (TH1F*)file.Get("Count");
+    processedEvents+=counter->GetBinContent(1);
+    
 }
 
-/*void SampleContainer::computeWeight(float intL) {
-  if(itype==0) { //this is data
-    intweight = 1; 
-  } else {
-    std::cout << "Computing Weight for type - " << itype << ", Using " << ntot << " Processed Events" << std::endl;
-    intweight = kfactor*scale*xsec*intL/ntot;
-  }
+void SampleContainer::ComputeWeight(float intL) {
+    if(sampleNum==0) { //this is data
+        intWeight = 1; 
+    } else {
+        //std::cout << "Computing Weight for type - " << sampleNum << ", Using " << processedEvents << " Processed Events" << std::endl;
+        intWeight = kFactor*scale*xsec*intL/processedEvents;
+    }
 }
- 
+
+/* 
 // ----------------------------------------------------------------------------------------------------------------------
 void SampleContainer::addGoodLumi(int run, int lumi1, int lumi2 )
 {

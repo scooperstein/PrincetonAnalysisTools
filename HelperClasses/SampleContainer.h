@@ -8,6 +8,8 @@
 #include <vector>
 
 #include <TChain.h>
+#include <TFile.h>
+#include <TH1F.h>
 
 class SampleContainer {
 	
@@ -23,13 +25,13 @@ class SampleContainer {
     std::string sampleName;
     int sampleNum;
     float xsec;
-    float kfactor; 
+    float kFactor; 
     float scale;
+    int processedEvents;
+    float intWeight;
     
     void AddFile(char* fname);
-
-
-  //void computeWeight(float);
+    void ComputeWeight(float);
 
   /** adds a lumi section range to 'goodLumis' (typically
       taken from a 'json' file containing the list of 
@@ -42,7 +44,7 @@ class SampleContainer {
   //void addEventToList(int run, int lumi, int event );
   
   //bool isdata() const { return itype == 0; };
-  //float weight() const { return ( (extweight!=0 && *extweight > 0 && ! isdata()) ? (*extweight)*intweight : intweight); };
+  //float weight() const { return ( (extweight!=0 && *extweight > 0 && ! isdata()) ? (*extweight)*intWeight : intWeight); };
  
  
   /*int itype;
@@ -63,7 +65,7 @@ class SampleContainer {
   
  //private:
   //const float * extweight;
-  //float intweight;
+  //float intWeight;
 
 
 };
