@@ -11,6 +11,7 @@
 
 AnalysisManager::AnalysisManager(){
     intL=20000; // pb^-1
+    settingsTree = new TTree("settings","settings");
 }
 
 void AnalysisManager::Initialize(std::string filename) {
@@ -73,6 +74,9 @@ AnalysisManager::~AnalysisManager()
         if(debug>1000) std::cout<<"I'm deleting "<<bit->first<<std::endl;
         delete bit->second;
     }
+    
+    //if(debug>1000) std::cout<<"deleting settingsTree"<<std::endl;
+    //delete settingsTree;
 }
 
 
@@ -183,12 +187,30 @@ void AnalysisManager::ConfigureOutputTree() {
     outputTree = fChain->CloneTree(0);
 }
 
-void AnalysisManager::SetupNewBranch(std::string name, int type, int length, bool newmem){
+void AnalysisManager::SetupNewBranch(std::string name, int type, int length, bool newmem, std::string treetype, float val){
+    
+    TTree* treeptr;
+    if(treetype=="output") { // outputtree
+        treeptr=outputTree;
+    } else if(treetype=="settings") { // settingstree
+        treeptr=settingsTree;
+    } else {
+        std::cout<<"treetype "<<treetype<<" is unknown.  Not setting up "<<name<<std::endl;
+        return;
+    }
+    //treeptr=outputTree;
+        
     if(debug>1000) {
         std::cout<<"SetupNewBranch "<<name<<std::endl;
-        std::cout<<"\ttype length newmem "<<type<<" "<<length<<" "<<newmem<<std::endl;
+        std::cout<<"treetype name type length val \t"<<treetype<<" "<<name<<" "<<type<<" "<<length<<" "<<val<<std::endl;
     }
-    if(newmem) branchInfos[name] = new BranchInfo(name,type,length,"new");
+    if(newmem) {
+        if(treetype=="output") { // outputtree
+            branchInfos[name] = new BranchInfo(name,type,length,"new");
+        } else if(treetype=="settings") { // settingstree
+            branchInfos[name] = new BranchInfo(name,type,length,"settings",val);
+        }
+    }
     if(debug>1000) std::cout<<"BranchInfo instaniated"<<std::endl; 
        
 
@@ -199,19 +221,19 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
 
     if(type==0) {
         if(newmem) ui[name] = new unsigned int;
-        branches[name] = outputTree->Branch(name.c_str(), ui[name], Form("%s/i",name.c_str()));
+        branches[name] = treeptr->Branch(name.c_str(), ui[name], Form("%s/i",name.c_str()));
     } else if(type==1) {
         if(newmem) in[name] = new int;
-        branches[name] = outputTree->Branch(name.c_str(), in[name], Form("%s/I",name.c_str()));
+        branches[name] = treeptr->Branch(name.c_str(), in[name], Form("%s/I",name.c_str()));
     } else if(type==2) {
         if(newmem) f[name] = new float;
-        branches[name] = outputTree->Branch(name.c_str(), f[name], Form("%s/F",name.c_str()));
+        branches[name] = treeptr->Branch(name.c_str(), f[name], Form("%s/F",name.c_str()));
     } else if(type==3) {
         if(newmem) d[name] = new double;
-        branches[name] = outputTree->Branch(name.c_str(), d[name], Form("%s/D",name.c_str()));
+        branches[name] = treeptr->Branch(name.c_str(), d[name], Form("%s/D",name.c_str()));
     } else if(type==4) {
         if(newmem) b[name] = new bool;
-        branches[name] = outputTree->Branch(name.c_str(), b[name], Form("%s/O",name.c_str()));
+        branches[name] = treeptr->Branch(name.c_str(), b[name], Form("%s/O",name.c_str()));
     }
 
 
@@ -223,19 +245,19 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
 
     if(type==5) {
         if(newmem) ui[name] = new unsigned int[length];
-        branches[name] = outputTree->Branch(Form("%s[%i]",name.c_str(),length), ui[name], Form("%s/i",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), ui[name], Form("%s/i",name.c_str()));
     } else if(type==6) {
         if(newmem) in[name] = new int[length];
-        branches[name] = outputTree->Branch(Form("%s[%i]",name.c_str(),length), in[name], Form("%s/I",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), in[name], Form("%s/I",name.c_str()));
     } else if(type==7) {
         if(newmem) f[name] = new float[length];
-        branches[name] = outputTree->Branch(Form("%s[%i]",name.c_str(),length), f[name], Form("%s/F",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), f[name], Form("%s/F",name.c_str()));
     } else if(type==8) {
         if(newmem) d[name] = new double[length];
-        branches[name] = outputTree->Branch(Form("%s[%i]",name.c_str(),length), d[name], Form("%s/D",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), d[name], Form("%s/D",name.c_str()));
     } else if(type==9) {
         if(newmem) b[name] = new bool[length];
-        branches[name] = outputTree->Branch(Form("%s[%i]",name.c_str(),length), b[name], Form("%s/O",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), b[name], Form("%s/O",name.c_str()));
     }
 
     return;
@@ -265,15 +287,14 @@ void AnalysisManager::ResetBranches(){
             } 
         }
     }
-   
 }
 
 
 void AnalysisManager::PrintBranches(){
-    std::cout<<"Branches in branch map WHY"<<std::endl;
+    std::cout<<"Branches in branch map"<<std::endl;
     for(std::map<std::string,TBranch*>::iterator ibranch=branches.begin(); 
             ibranch!=branches.end(); ++ibranch){
-        std::cout<<ibranch->first<<std::endl;
+        std::cout<<ibranch->first<<" "<<branchInfos[ibranch->first]->prov<<std::endl;
     }
 }
 
@@ -303,6 +324,13 @@ void AnalysisManager::SetNewBranches(){
             if(debug>100) std::cout<<"SetupNewBranch "<<ibranch->first.c_str()<<std::endl;
             SetupNewBranch(ibranch->first, ibranch->second->type, ibranch->second->length, false); //newmem is false
         }
+        if(ibranch->second->prov == "settings") {
+            if(debug>100) std::cout<<"Setting value "<<ibranch->first.c_str()<<std::endl;
+            // Branch is already setup properly
+            //SetupNewBranch(ibranch->first, ibranch->second->type, ibranch->second->length, false, "settings", ibranch->second->val); //newmem is false
+            // Set the value to val which is read from settings.txt
+            *f[ibranch->second->name]=ibranch->second->val;
+        }
     }
 }
 
@@ -315,6 +343,10 @@ void AnalysisManager::GetEarlyEntries(Long64_t entry){
         }
     }
 }
+
+
+
+
 
 void AnalysisManager::Loop(){
 
@@ -335,7 +367,10 @@ void AnalysisManager::Loop(){
     //}  
     // let's add some of our own branches
     SetNewBranches();
-    
+    settingsTree->Fill();
+    settingsTree->Write();
+    delete settingsTree;
+ 
     
     if(debug>10) std::cout<<"Done setting up branches; about to Init"<<std::endl;
     // eventually we'd like to set up the identifiers unique to each BDT as members of the class. These identifiers are:
@@ -351,7 +386,7 @@ void AnalysisManager::Loop(){
     // loop through one sample at a time
     for (int i = 0; i < (int)samples.size(); i++) { 
         cursample = &samples[i];
-        cursample->ComputeWeight(intL);
+        cursample->ComputeWeight(*f["intL"]);
          
         for(int ifile=0; ifile<(int)(cursample->files.size()); ifile++){
             // set fChain to the TChain for the current sample

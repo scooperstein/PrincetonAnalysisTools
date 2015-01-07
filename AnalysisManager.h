@@ -49,12 +49,13 @@ public :
     void Initialize(std::string filename);
     
     //File management
-    TChain                          *fChain;   //!pointer to the analyzed TTree or TChain
-    Int_t                           fCurrent; //!current Tree number in a TChain
-    TFile                           *ofile; // what will be the condensed output tree's file
-    TTree                           *outputTree; // what will be the condensed output tree
+    TChain                          *fChain;        //!pointer to the analyzed TTree or TChain
+    Int_t                           fCurrent;       //!current Tree number in a TChain
+    TFile                           *ofile;         // what will be the trees saved here
+    TTree                           *outputTree;    // what will be the condensed output tree
+    TTree                           *settingsTree;  // contains analysis settings
     std::string                     outputTreeName;
-    TMVA::Reader                    *thereader; // for evaluating the BDT
+    TMVA::Reader                    *thereader;     // for evaluating the BDT
     BDTInfo                         bdtInfo;
     std::vector<SampleContainer>    samples; 
     SampleContainer*                cursample; 
@@ -96,7 +97,7 @@ public :
     void            InitChain(std::string filename);
     
     void            SetupBranch(std::string name, int type, int length=-1, std::string prov="existing");
-    void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true);
+    void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true, std::string treetype="output", float val=-999);
     void            SetNewBranches();
     void            ResetBranches();
     void            SetBranches();

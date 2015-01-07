@@ -7,3 +7,4 @@ To transfer files at pisa:
 Need to do voms-proxy-init and SetCrab before you can do lcg-* commands
 FIXME:  Write a script that will recursively transfer files to Princeton or to FNAL
 
+Must have intL in settings.txt

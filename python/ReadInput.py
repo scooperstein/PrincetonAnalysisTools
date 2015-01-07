@@ -47,7 +47,7 @@ def ReadTextFile(filename, filetype):
 
         else:
             print "There are no samples in the config file."
-            #sys.exit(0)
+            sys.exit(0)
  
         if settings.has_key("earlybranches"):
             branches=ReadTextFile(settings["earlybranches"], "branchlist")
@@ -71,6 +71,14 @@ def ReadTextFile(filename, filetype):
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1])
         else:
             print "There are no new branches in the config file."
+        
+        if settings.has_key("settings"):
+            branches=ReadTextFile(settings["settings"], "branchlist")
+            for branch in branches:
+                print branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2]
+                am.SetupNewBranch(branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2])
+        else:
+            print "There are no settings branches in the config file."
         
         return am    
     elif filetype is "samplefile":
@@ -168,6 +176,7 @@ def MakeBranchMap(lines):
         branchname=""
         branchtype=-1
         arraylength=-1
+        val=-999
         
         for item in line.split():
             name,value = item.split("=")
@@ -177,8 +186,10 @@ def MakeBranchMap(lines):
                 branchtype=int(value)
             if name.find("max") is 0:
                 arraylength=int(value)
+            if name.find("val") is 0:
+                val=float(value)
 
-        branches[branchname]= [branchtype,arraylength]
+        branches[branchname]= [branchtype,arraylength,val]
 
     return branches            
 

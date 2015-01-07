@@ -1,0 +1,14 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+# ONLY USE FLOATS
+type=2  name=vetolep            val=1
+type=2  name=intL               val=19700 # 1/pb
+
+type=2  name=hptcut             val=100
+type=2  name=vptcut             val=100
+type=2  name=eptcut             val=40
+type=2  name=metcut             val=100
+type=2  name=erelisocut         val=0.5
+type=2  name=elMetDPhiCut       val=0.785 # pi/4
+

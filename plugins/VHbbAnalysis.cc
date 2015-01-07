@@ -115,10 +115,10 @@ bool VHbbAnalysis::WenuHbbSelection(){
 
     // there is only one selected electron for Vtype == 3 which is the electron tag
     // FIXME add configurable cuts
-    if(d["selLeptons_pt"][0]> 40 
+    if(d["selLeptons_pt"][0]> *f["eptcut"] 
         && abs(in["selLeptons_pdgId"][0])==11 
-        && d["selLeptons_relIso03"][0]<1.0
-        && *d["met_pt"] > 45){
+        && d["selLeptons_relIso03"][0]< *f["erelisocut"]
+        && *d["met_pt"] > *f["metcut"]){
         *d["elMetDPhi"]=abs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
         
         if(*d["elMetDPhi"]<3.1415926536/4){
