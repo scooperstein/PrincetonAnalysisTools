@@ -38,7 +38,7 @@ bool VHbbAnalysis::Analyze(){
     if(debug>1000) {
         std::cout<<"selecting bjets"<<std::endl;
     }
-    std::pair<int,int> bjets=HighestPtBJets(0.5);
+    std::pair<int,int> bjets=HighestPtBJets();
    
     // there aren't two acceptable jets
     if(bjets.first==-1 || bjets.second==-1) return sel;
@@ -115,17 +115,18 @@ bool VHbbAnalysis::WenuHbbSelection(){
 
     // there is only one selected electron for Vtype == 3 which is the electron tag
     // FIXME add configurable cuts
-    if(d["selLeptons_pt"][0]> *f["eptcut"] 
-        && abs(in["selLeptons_pdgId"][0])==11 
+    if(fabs(in["selLeptons_pdgId"][0])==11 
+        && d["selLeptons_pt"][0]      > *f["eptcut"] 
         && d["selLeptons_relIso03"][0]< *f["erelisocut"]
-        && *d["met_pt"] > *f["metcut"]){
-        *d["elMetDPhi"]=abs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
+        && *d["met_pt"]               > *f["metcut"]){
+        *d["elMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
+        //*d["HVDPhi"]   =fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
         
-        if(*d["elMetDPhi"]<3.1415926536/4){
+        if(*d["elMetDPhi"] < *f["elMetDPhiCut"]){
+            //&& *d["HVDPhi"]> *f["HVDPhiCut"]  ){
             selectEvent=true;
         }
     }
-
     return selectEvent;
 }
 
@@ -137,29 +138,62 @@ bool VHbbAnalysis::WmunuHbbSelection(){
 }
 
 
-std::pair<int,int> VHbbAnalysis::HighestPtBJets(float minCSV){
+std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     std::pair<int,int> pair(-1,-1);
 
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] == 1
-            && d["Jet_pt"][i]>30
-            && d["Jet_btagCSV"][i]>minCSV) {
+            && d["Jet_pt"][i]>*f["j1ptCut"]
+            && d["Jet_btagCSV"][i]>*f["j1ptCSV"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
-            } else {
-                // pt of this jet is larger than both jets
-                // bump 1st to 2nd and put this jet in 1st
-                if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
-                    pair.second=pair.first;
-                    pair.first=i;
-                } else if( pair.second == -1 ){
-                    pair.second = i;
-                // pt of this jet is between the two
-                // replace 2nd jet
-                } else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
-                    pair.second=i;
-                }
-                // else the jet is lower pt than both the selected jets
+            } else if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
+                pair.first = i;
+            }
+        }
+    }
+
+    for(int i=0; i<*in["nJet"]; i++){
+        if(i==pair.first) continue;
+        if(in["Jet_puId"][i] == 1
+            && d["Jet_pt"][i]>*f["j2ptCut"]
+            && d["Jet_btagCSV"][i]>*f["j2ptCSV"]) {
+            if( pair.second == -1 ) {
+                pair.second = i;
+            } else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
+                pair.second = i;
+            }
+        }
+    }
+
+    return pair;
+}
+
+
+std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
+    std::pair<int,int> pair(-1,-1);
+
+    for(int i=0; i<*in["nJet"]; i++){
+        if(in["Jet_puId"][i] == 1
+            && d["Jet_pt"][i]>*f["j1ptCut"]
+            && d["Jet_btagCSV"][i]>*f["j1ptCSV"]) {
+            if( pair.first == -1 ) {
+                pair.first = i;
+            } else if(d["Jet_btagCSV"][pair.first]<d["Jet_btagCSV"][i]){
+                pair.first = i;
+            }
+        }
+    }
+
+    for(int i=0; i<*in["nJet"]; i++){
+        if(i==pair.first) continue;
+        if(in["Jet_puId"][i] == 1
+            && d["Jet_pt"][i]>*f["j2ptCut"]
+            && d["Jet_btagCSV"][i]>*f["j2ptCSV"]) {
+            if( pair.second == -1 ) {
+                pair.second = i;
+            } else if(d["Jet_btagCSV"][pair.second]<d["Jet_btagCSV"][i]){
+                pair.second = i;
             }
         }
     }

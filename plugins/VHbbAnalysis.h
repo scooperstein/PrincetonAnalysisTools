@@ -25,6 +25,7 @@ class VHbbAnalysis : public AnalysisManager {
 
     bool WenuHbbSelection();
     bool WmunuHbbSelection();
-    std::pair<int,int> HighestPtBJets(float minCSV=0.0);
+    std::pair<int,int> HighestPtBJets();
+    std::pair<int,int> HighestCSVBJets();
 };
 

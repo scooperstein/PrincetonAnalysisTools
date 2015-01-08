@@ -1,4 +1,5 @@
 analysis=VHbbAnalysis
+outputname=output
 
 samples=cfg/samples_heppytest_dec2014.txt
 

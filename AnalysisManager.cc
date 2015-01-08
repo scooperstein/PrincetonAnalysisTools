@@ -28,7 +28,9 @@ void AnalysisManager::Initialize(std::string filename) {
     branchInfos.clear();
 
     debug=0;
-    outputTreeName="condensed_tree";
+    if(outputTreeName==""){
+        outputTreeName="condensed_tree";
+    }
     safemode=1;
     
     return;

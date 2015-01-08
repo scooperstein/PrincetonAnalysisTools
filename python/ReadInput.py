@@ -42,6 +42,8 @@ def ReadTextFile(filename, filetype):
                     if aminitialized == 0:
                         am.Initialize(filename)
                         aminitialized=1
+                        if settings.has_key("outputname"):
+                            am.outputTreeName=settings["outputname"]
                     samplecon.AddFile(filename)
                 am.AddSample(samplecon)
 
@@ -75,7 +77,6 @@ def ReadTextFile(filename, filetype):
         if settings.has_key("settings"):
             branches=ReadTextFile(settings["settings"], "branchlist")
             for branch in branches:
-                print branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2]
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2])
         else:
             print "There are no settings branches in the config file."
