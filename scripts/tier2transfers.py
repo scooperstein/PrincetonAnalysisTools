@@ -16,7 +16,7 @@ tier2transfer.py [options]
 
 pisapre='srm://stormfe1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/user/'
 cernpre='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/'
-fnalpre='srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/user/'
+fnalpre='srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/user/'
 
 sourcepre=''
 destpre=''
@@ -87,9 +87,8 @@ def LCG_LS_WRAP(args):
 
 
 def LCG_CP_WRAP(input, output):
-    print input
-    print output
-    cmd=['lcg-cp',input,output]
+    cmd=['lcg-cp','-b','-D','srmv2',input,output]
+    #print cmd
     subprocess.Popen(cmd)
 
 
