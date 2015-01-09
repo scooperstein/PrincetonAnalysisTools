@@ -80,7 +80,7 @@ else:
 
 
 def LCG_LS_WRAP(args):
-    cmd=['lcg-ls']
+    cmd=['lcg-ls','-b','-D','srmv2']
     cmd.extend(args)
     checkOutput = subprocess.check_output(cmd)
     return checkOutput
