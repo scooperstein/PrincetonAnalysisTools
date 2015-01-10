@@ -94,6 +94,7 @@ def LCG_CP_WRAP(input, output):
 
 def DoesFileExist(inpath,outpath):
     try:
+        #print inpath
         outls=LCG_LS_WRAP(["-l",outpath])
         #check that file is the right size
         inls=LCG_LS_WRAP(["-l",inpath])
@@ -140,7 +141,7 @@ def SetMaxThreads():
     for coreline in corelines:
         cores=cores+int(coreline.split()[-1])
 
-    return cores*2
+    return cores
 
 
 MaxThreads=SetMaxThreads()
@@ -161,15 +162,13 @@ if len(files) is 0:
     sys.exit(0)
 
 print "MaxThreads files ",MaxThreads,len(files)
-while ifile!=len(files)-1:
+while ifile!=len(files):
     out=[line for line in subprocess.check_output(["ps"]).split("\n") if line.find("lcg-cp") !=-1 ]
    
     #if ifile>13:
     #    break
 
     if len(out)< MaxThreads:
-        ifile=ifile+1
-
         if files[ifile].find("user/") is not -1:
             files[ifile]=files[ifile].split("user/")[-1]
         outpath=files[ifile].replace(inputDir,"")
@@ -191,6 +190,8 @@ while ifile!=len(files)-1:
             else:
                 LCG_CP_WRAP(inpath, outpath)
                 newsleep=1
+        
+        ifile=ifile+1
     else:
         isleep=isleep+1
         if newsleep == 1:
