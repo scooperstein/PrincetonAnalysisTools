@@ -29,6 +29,7 @@ class SampleContainer {
     float scale;
     int processedEvents;
     float intWeight;
+    bool nProFromFile;
     
     void AddFile(char* fname);
     void ComputeWeight(float);

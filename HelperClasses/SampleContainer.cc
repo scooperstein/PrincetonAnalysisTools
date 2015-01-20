@@ -35,6 +35,7 @@ SampleContainer::SampleContainer()
     files.clear();
     processedEvents=0;
     intWeight=1;
+    nProFromFile=false;
 }
 
 void SampleContainer::AddFile(char* fname) {
@@ -42,9 +43,12 @@ void SampleContainer::AddFile(char* fname) {
     sampleChain->Add(fname);
     files.push_back(fname);
     
-    TFile file(fname);
-    TH1F* counter = (TH1F*)file.Get("Count");
-    processedEvents+=counter->GetBinContent(1);
+    if(nProFromFile) {
+        TFile file(fname);
+        TH1F* counter = (TH1F*)file.Get("Count");
+        processedEvents+=counter->GetBinContent(1);
+        file.Close();
+    }
     
 }
 

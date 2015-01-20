@@ -3,7 +3,8 @@ import sys
 import ROOT
 ROOT.gSystem.Load("SampleContainer_cc.so")
 ROOT.gSystem.Load("AnalysisManager_cc.so")
-ROOT.gSystem.Load("VHbbAnalysis_h.so")
+#ROOT.gSystem.Load("VHbbAnalysis_h.so")
+ROOT.gSystem.Load("VHbbTrigger_h.so")
 
 debug=0
 
@@ -29,19 +30,29 @@ def ReadTextFile(filename, filetype):
         if settings.has_key("samples"):
             aminitialized=0
             samples=ReadTextFile(settings["samples"], "samplefile")
-            for sample in samples:
+            for name in samples:
+                sample=samples[name]
                 #print sample, sampledic[sample]
                 samplecon = ROOT.SampleContainer()
-                samplecon.sampleNum = samples[sample][0]
-                samplecon.xsec      = samples[sample][1]
-                samplecon.kfactor   = samples[sample][2]
-                samplecon.scale     = samples[sample][3]
-                for filename in samples[sample][4]:
+                if sample.has_key("type"):
+                    samplecon.sampleNum         = sample["type"]
+                if sample.has_key("xsec"):
+                    samplecon.xsec              = sample["xsec"]
+                if sample.has_key("kfac"):
+                    samplecon.kFactor           = sample["kfac"]
+                if sample.has_key("scale"):
+                    samplecon.scale             = sample["scale"]
+                if sample.has_key("npro"):
+                    samplecon.processedEvents   = sample["npro"]
+                else:
+                    samplecon.nProFromFile      = True
+                for filename in sample["files"]:
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
                     if aminitialized == 0:
                         am.Initialize(filename)
                         aminitialized=1
+                        # FIXME can this go elsewhere?
                         if settings.has_key("outputname"):
                             am.outputTreeName=settings["outputname"]
                     samplecon.AddFile(filename)
@@ -138,11 +149,12 @@ def MakeSampleMap(lines):
         samplexsec=-1
         samplekfac=1
         samplescale=1
+        sample={}
 
         for item in line.split():
             name,value=item.split("=")
             if name.find("name") is 0:
-                samplename=str(value)
+                sample["name"]=str(value)
             if name.find("file") is 0:
                 samplepaths.append(str(value))
             if name.find("dir") is 0:
@@ -150,20 +162,23 @@ def MakeSampleMap(lines):
                 from os.path import isfile, join
                 onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
                 for rootfile in onlyfiles:
-                    print rootfile
+                    #print rootfile
                     if rootfile.find(".root") != -1:
                         samplepaths.append(str(value)+"/"+str(rootfile))
             if name.find("type") is 0:
-                sampletype=int(value)
+                sample["type"]=int(value)
             if name.find("xsec") is 0:
-                samplexsec=float(value)
+                sample["xsec"]=float(value)
             if name.find("kfac") is 0:
-                samplekfac=float(value)
+                sample["kfac"]=float(value)
             if name.find("scale") is 0:
-                samplescale=float(value)
-        
-        if samplename != "":
-            samples[samplename]=[sampletype,samplexsec,samplekfac,samplescale,samplepaths]
+                sample["scale"]=float(value)
+            if name.find("npro") is 0:
+                sample["npro"]=int(value)
+       
+        sample["files"]=samplepaths 
+        if sample.has_key("name"):
+            samples[sample["name"]]=sample
         else:
             print "sample name is empty",samplename,"not filling"
     
