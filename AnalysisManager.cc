@@ -86,6 +86,32 @@ void AnalysisManager::AddSample(SampleContainer sample){
     samples.push_back(sample);
 }
 
+void AnalysisManager::AddBDT(BDTInfo bdt) {
+    bdtInfos.push_back(bdt);
+    SetupBDT(bdt);
+}
+
+void AnalysisManager::SetJetEnergyRegression(BDTInfo reg1, BDTInfo reg2) {
+    jet1EnergyRegression = reg1;
+    jet2EnergyRegression = reg2;
+    jetEnergyRegressionIsSet = true;
+    if(debug>10000) {
+        PrintBDTInfoValues(reg1);
+        PrintBDTInfoValues(reg2);
+    }
+    SetupBDT(reg1);
+    SetupBDT(reg2);
+}
+
+void AnalysisManager::PrintBDTInfoValues(BDTInfo bdt) {
+    std::cout<<"Printing information for BDT "<<bdt.bdtname<<"..."<<std::endl;
+    for (unsigned int i=0; i<bdt.inputNames.size(); i++) {
+         std::cout<<"Input variable: "<<bdt.inputNames[i].c_str()<<", reference in tree: "<<bdt.localVarNames[i].c_str()<<", current value: "<<*f[bdt.localVarNames[i]]<<std::endl;
+     }
+     for (unsigned int i=0; i<bdt.inputSpectatorNames.size(); i++) {
+         std::cout<<"Spectator variable: "<<bdt.inputSpectatorNames[i].c_str()<<", reference in tree: "<<bdt.localSpectatorVarNames[i].c_str()<<", current value: "<<*f[bdt.localSpectatorVarNames[i]]<<std::endl;
+     }
+}
 
 Int_t AnalysisManager::GetEntry(Long64_t entry)
 {
@@ -201,7 +227,12 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
         return;
     }
     //treeptr=outputTree;
-        
+    /*if(branchInfos.count(name) != 0) {
+        // branch already exists
+        std::cout<<Form("Attempting to setup new branch %s, but it already exists in the output tree!", name.c_str())<<std::endl;
+        return;
+    } */   
+    
     if(debug>1000) {
         std::cout<<"SetupNewBranch "<<name<<std::endl;
         std::cout<<"treetype name type length val \t"<<treetype<<" "<<name<<" "<<type<<" "<<length<<" "<<val<<std::endl;
@@ -457,6 +488,7 @@ bool AnalysisManager::Analyze(){
             
 void AnalysisManager::FinishEvent(){
     //need to fill the tree, hist, or whatever here.
+   
     ofile->cd();
     outputTree->Fill();
     return;
@@ -472,15 +504,15 @@ void AnalysisManager::TermAnalysis() {
 
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
-void AnalysisManager::SetupBDT( ) {
+void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
 
     // let's do 8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg as an example
-    if(debug>100){
-        thereader = new TMVA::Reader( "!Color:!Silent" );
-    } else {
-        thereader = new TMVA::Reader( "!Color:Silent" );
-    }
-    int bdtType = 0;
+    //if(debug>100){
+    //    thereader = new TMVA::Reader( "!Color:!Silent" );
+    //} else {
+    //    thereader = new TMVA::Reader( "!Color:Silent" );
+    //}
+    /*int bdtType = 0;
     if (bdtType == 0) {
         thereader->AddVariable("H.massCorr",                &testMass); 
         thereader->AddVariable("H.ptCorr",                  &H.ptCorr);
@@ -503,17 +535,23 @@ void AnalysisManager::SetupBDT( ) {
 
         thereader->BookMVA("BDT method","aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml");
         //thereader->BookMVA("BDT method",bdtInfo.xmlFile);
+    }*/
+    //std::cout<<Form("Setting up variables for BDT %s", bdtInfo.bdtname)<<std::endl;
+    TMVA::Reader *thereader = bdtInfo.reader;
+    
+    for(unsigned int i=0; i<bdtInfo.inputNames.size(); i++) {
+        //std::cout<<Form("Adding variable to BDT: %s (localName = %s) ",bdtInfo.inputNames[i], bdtInfo.localVarNames[i])<<std::endl;
+        
+        bdtInfo.reader->AddVariable(bdtInfo.inputNames[i], f[bdtInfo.localVarNames[i]]);
     }
 
-    /*for (std::map<char*,Float_t&>::iterator it = bdtInfo.inputs.begin(); it != bdtInfo.inputs.end(); ++it) {
-        thereader->AddVariable(it->first, it->second);
+    for(unsigned int i=0; i<bdtInfo.inputSpectatorNames.size(); i++) {
+        //std::cout<<Form("Adding spectator variable to BDT: %s (localName = %s) ",bdtInfo.inputSpectatorNames[i], bdtInfo.localSpectatorVarNames[i])<<std::endl;
+        bdtInfo.reader->AddSpectator(bdtInfo.inputSpectatorNames[i], f[bdtInfo.localSpectatorVarNames[i]]);
     }
 
-    for (std::map<char*, Float_t&>::iterator it = bdtInfo.secInputs.begin(); it!= bdtInfo.secInputs.end(); ++it) {
-        thereader->AddSpectator(it->first, it->second);
-    }
 
-    thereader->BookMVA(bdtInfo.method, bdtInfo.xmlFile);*/
+    thereader->BookMVA(bdtInfo.bdtname, bdtInfo.xmlFile);
 
 }
 

@@ -27,3 +27,24 @@ type=8  name=Jet_btagCSV                        max=100
 type=8  name=Jet_pt                             max=100
 type=8  name=Jet_eta                            max=100
 type=8  name=Jet_phi                            max=100
+
+# variables needed for the jet energy regression, maybe we can find a way to
+# not save these?
+type=8  name=hJets_pt                           max=100
+type=8  name=hJets_rawPt                        max=100
+type=8  name=hJets_eta                          max=100
+type=8  name=hJets_mass                          max=100
+type=8  name=hJets_leadTrackPt                          max=100
+type=8  name=hJets_leptonPtRel                          max=100
+type=8  name=hJets_leptonPt                          max=100
+type=8  name=hJets_leptonDeltaR                          max=100
+type=8  name=hJets_chEmEF                          max=100
+type=8  name=hJets_chHEF                          max=100
+type=8  name=hJets_neHEF                          max=100
+type=8  name=hJets_neEmEF                          max=100
+type=8  name=hJets_chMult                          max=100
+type=8  name=hJets_puId                          max=100
+#type=8  name=hJets_vtxMass                          max=100
+#type=8  name=hJets_vtx3DVal                          max=100
+#type=8  name=hJets_vtxNtracks                          max=100
+type=8  name=hJets_phi                            max=100

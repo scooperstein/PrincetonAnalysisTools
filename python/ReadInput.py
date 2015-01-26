@@ -4,6 +4,7 @@ import ROOT
 ROOT.gSystem.Load("SampleContainer_cc.so")
 ROOT.gSystem.Load("AnalysisManager_cc.so")
 ROOT.gSystem.Load("VHbbAnalysis_h.so")
+ROOT.gSystem.Load("BDTInfo_h.so")
 
 debug=0
 
@@ -80,7 +81,33 @@ def ReadTextFile(filename, filetype):
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2])
         else:
             print "There are no settings branches in the config file."
-        
+             
+        if settings.has_key("bdtsettings"):
+            print "Adding a BDT configuration..."
+            bdtInfo=ReadTextFile(settings["bdtsettings"], "bdt")
+            print "read the BDT settings text file for BDT %s" % bdtInfo.bdtname
+            # now set up any of the branches if they don't exist yet (must be floats for BDT)
+            for varname in bdtInfo.localVarNames:
+                am.SetupNewBranch(varname, 2)
+            for varname in bdtInfo.localSpectatorVarNames:
+                am.SetupNewBranch(varname, 2)       
+            am.AddBDT(bdtInfo)
+            print "added BDT to analysis manager"
+        if settings.has_key("regsettings"):
+            print "Adding a Jet Energy Regresion..."
+            reg1, reg2 = ReadTextFile(settings["regsettings"], "bdt") 
+            for varname in reg1.localVarNames:
+                am.SetupNewBranch(varname, 2)
+            for varname in reg1.localSpectatorVarNames:
+                am.SetupNewBranch(varname, 2) 
+            for varname in reg2.localVarNames:
+                am.SetupNewBranch(varname, 2)
+            for varname in reg2.localSpectatorVarNames:
+                am.SetupNewBranch(varname, 2)
+            am.SetJetEnergyRegression(reg1, reg2)
+            print "added Jet Energy Regression to analysis manager"
+
+ 
         return am    
     elif filetype is "samplefile":
         samples=MakeSampleMap(filelines)
@@ -88,6 +115,9 @@ def ReadTextFile(filename, filetype):
     elif filetype is "branchlist":
         branches=MakeBranchMap(filelines)
         return branches
+    elif filetype is "bdt":
+        bdtInfo=SetupBDT(filelines)
+        return bdtInfo
     else:
         print "Unknown filetype ", filetype
 
@@ -194,3 +224,59 @@ def MakeBranchMap(lines):
 
     return branches            
 
+def SetupBDT(lines):
+    bdtname = ""
+    xmlFile = ""
+    inputNames = []
+    localVarNames = []
+    vars = {} 
+
+    for line in lines:
+        inputName = ""
+        localVarName = ""
+        type = -1
+        order = -1
+        print line
+        for item in line.split():
+            print item
+            name,value = item.split("=")
+            if name.find("bdtname") is 0:
+                bdtname=value
+                break
+            #if name.find("method") is 0:
+            #    method=value.replace('@', ' ')
+            #    print "method set to %s" % method
+            #    break
+            if name.find("xmlFile") is 0:
+                xmlFile=value
+                break
+            if name.find("name") is 0:
+                inputName=value
+            if name.find("lname") is 0:
+                localVarName=value
+            if name.find("type") is 0:
+                type=int(value)
+            if name.find("order") is 0:
+                order=int(value)
+        vars[order] = (inputName,localVarName,type)
+   
+    reg1 = ROOT.BDTInfo(bdtname+"_1", xmlFile) # JEReg for leading jet
+    reg2 = ROOT.BDTInfo(bdtname+"_2", xmlFile) # JEReg for second leading jet
+    
+    keys = vars.keys()
+    print keys
+    keys.sort()
+    print keys    
+ 
+    for key in keys:
+        if (key == -1): continue
+        name, lname, type = vars[key]
+        if (type == 1):
+            print "adding variable %s (%s) " % (name,lname)
+            reg1.AddVariable(name, lname+"_0")
+            reg2.AddVariable(name, lname+"_1")
+        if (type == 0):
+            print "adding spectator variable %s (%s) " % (name,lname)
+            reg1.AddSpectatorVariable(name, lname+"_0")
+            reg2.AddSpectatorVariable(name, lname+"_1")
+    return (reg1, reg2) 

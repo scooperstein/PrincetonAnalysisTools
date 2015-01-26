@@ -7,6 +7,8 @@
 
 #include "VHbbAnalysis.h"
 
+#include "TLorentzVector.h"
+
 // initialize parameters
 VHbbAnalysis::VHbbAnalysis(){
     if(debug>10) std::cout<<"Constructing VHbbAnalysis"<<std::endl;
@@ -86,6 +88,87 @@ void VHbbAnalysis::FinishEvent(){
     //    if(f["aJet_pt"][j]>20. && fabs(f["aJet_eta"][j])<4.5) *f["naJetsPassingCuts"] += 1;
     //}       
     
+    std::cout<<"Let's evaluate the BDT's..."<<std::endl;
+    for (unsigned int i=0; i<bdtInfos.size(); i++) {
+       BDTInfo tmpBDT = bdtInfos[i];
+       if(debug>5000) PrintBDTInfoValues(tmpBDT);
+       std::cout<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname)<<std::endl;
+       *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname);
+    }
+
+    std::cout<<"jetEnergyRegressionIsSet evaluates to: "<<jetEnergyRegressionIsSet<<std::endl;
+    if(jetEnergyRegressionIsSet) {
+        *f["hJets_pt_0"] = float(d["hJets_pt"][0]);
+        *f["hJets_rawPt_0"] = float(d["hJets_rawPt"][0]);
+        *f["hJets_eta_0"] = float(d["hJets_eta"][0]);
+        *f["hJets_mt_0"] = 0.; // FIXME
+        *f["hJets_leadTrackPt_0"] = float(d["hJets_leadTrackPt"][0]);
+        *f["hJets_leptonPtRel_0"] = float(d["hJets_leptonPtRel"][0]);
+        *f["hJets_leptonPt_0"] = float(d["hJets_leptonPt"][0]);
+        *f["hJets_leptonDeltaR_0"] = float(d["hJets_leptonDeltaR"][0]);
+        *f["hJets_chEmEF_0"] = float(d["hJets_chEmEF"][0]);
+        *f["hJets_chHEF_0"] = float(d["hJets_chHEF"][0]);
+        *f["hJets_neHEF_0"] = float(d["hJets_neHEF"][0]);
+        *f["hJets_neEmEF_0"] = float(d["hJets_neEmEF"][0]);
+        *f["hJets_chMult_0"] = float(d["hJets_chMult"][0]);
+        *f["hJets_puId_0"] = float(d["hJets_puId"][0]);
+        *f["hJets_vtxMass_0"] = 0.; // FIXME
+        *f["hJets_vtx3DVal_0"] = 0.;
+        *f["hJets_vtxNtracks_0"] = 0.;
+        //*f["hJets_vtxMass_0"] = float(d["hJets_vtxMass"][0]);
+        //*f["hJets_vtx3DVal_0"] = float(d["hJets_vtx3DVal"][0]);
+        //*f["hJets_vtxNtracks_0"] = float(d["hJets_vtxNtracks"][0]);
+
+        *f["hJets_pt_1"] = float(d["hJets_pt"][1]);
+        *f["hJets_rawPt_1"] = float(d["hJets_rawPt"][1]);
+        *f["hJets_eta_1"] = float(d["hJets_eta"][1]);
+        *f["hJets_mt_1"] = 0.; // FIXME
+        *f["hJets_leadTrackPt_1"] = float(d["hJets_leadTrackPt"][1]);
+        *f["hJets_leptonPtRel_1"] = float(d["hJets_leptonPtRel"][1]);
+        *f["hJets_leptonPt_1"] = float(d["hJets_leptonPt"][1]);
+        *f["hJets_leptonDeltaR_1"] = float(d["hJets_leptonDeltaR"][1]);
+        *f["hJets_chEmEF_1"] = float(d["hJets_chEmEF"][1]);
+        *f["hJets_chHEF_1"] = float(d["hJets_chHEF"][1]);
+        *f["hJets_neHEF_1"] = float(d["hJets_neHEF"][1]);
+        *f["hJets_neEmEF_1"] = float(d["hJets_neEmEF"][1]);
+        *f["hJets_chMult_1"] = float(d["hJets_chMult"][1]);
+        *f["hJets_puId_1"] = float(d["hJets_puId"][1]);
+        *f["hJets_vtxMass_1"] = 0.; // FIXME
+        *f["hJets_vtx3DVal_1"] = 0.;
+        *f["hJets_vtxNtracks_1"] = 0.;
+        //*f["hJets_vtxMass_1"] = float(d["hJets_vtxMass"][1]);
+        //*f["hJets_vtx3DVal_1"] = float(d["hJets_vtx3DVal"][1]);
+        //*f["hJets_vtxNtracks_1"] = float(d["hJets_vtxNtracks"][1]);
+        
+        if(debug>10000) {
+            std::cout<<"Evaluating the Jet Energy Regression..."<<std::endl;
+            PrintBDTInfoValues(jet1EnergyRegression);
+            PrintBDTInfoValues(jet2EnergyRegression);
+        }
+        double r1Pt = jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtname)[0];
+        double r2Pt = jet2EnergyRegression.reader->EvaluateRegression(jet2EnergyRegression.bdtname)[0];
+
+        *f["Jet1_regWeight"] = r1Pt/(*f["hJets_pt_0"]);
+        *f["Jet2_regWeight"] = r2Pt/(*f["hJets_pt_1"]);
+
+        TLorentzVector hJ1 = TLorentzVector();
+        TLorentzVector hJ2 = TLorentzVector();
+ 
+        *f["Jet1_pt_reg"] = r1Pt;
+        *f["Jet2_pt_reg"] = r2Pt;
+        hJ1.SetPtEtaPhiM(r1Pt, *f["hJets_eta_0"], d["hJets_phi"][0], d["hJets_mass"][0]);
+        hJ2.SetPtEtaPhiM(r2Pt, *f["hJets_eta_1"], d["hJets_phi"][1], d["hJets_mass"][1]);
+           
+        TLorentzVector H_vec = hJ1 + hJ2;
+        *f["H_mass_reg"] = H_vec.M();
+        *f["H_pt_reg"] = H_vec.Pt();
+        *f["H_eta_reg"] = H_vec.Eta();
+        *f["H_phi_reg"] = H_vec.Phi();
+        *f["H_dR_reg"] = hJ1.DeltaR(hJ2);
+        *f["H_dPhi_reg"] = hJ1.DeltaPhi(hJ2);
+        *f["H_dEta_reg"] = fabs(hJ1.Eta() - hJ2.Eta() );
+     }
+
     ofile->cd();
     outputTree->Fill();
     return;
