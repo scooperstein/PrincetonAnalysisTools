@@ -236,9 +236,7 @@ def SetupBDT(lines):
         localVarName = ""
         type = -1
         order = -1
-        print line
         for item in line.split():
-            print item
             name,value = item.split("=")
             if name.find("bdtname") is 0:
                 bdtname=value
@@ -264,9 +262,7 @@ def SetupBDT(lines):
     reg2 = ROOT.BDTInfo(bdtname+"_2", xmlFile) # JEReg for second leading jet
     
     keys = vars.keys()
-    print keys
     keys.sort()
-    print keys    
  
     for key in keys:
         if (key == -1): continue
