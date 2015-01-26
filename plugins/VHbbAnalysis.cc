@@ -88,7 +88,6 @@ void VHbbAnalysis::FinishEvent(){
     //    if(f["aJet_pt"][j]>20. && fabs(f["aJet_eta"][j])<4.5) *f["naJetsPassingCuts"] += 1;
     //}       
     
-    std::cout<<"Let's evaluate the BDT's..."<<std::endl;
     for (unsigned int i=0; i<bdtInfos.size(); i++) {
        BDTInfo tmpBDT = bdtInfos[i];
        if(debug>5000) PrintBDTInfoValues(tmpBDT);
@@ -96,7 +95,6 @@ void VHbbAnalysis::FinishEvent(){
        *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname);
     }
 
-    std::cout<<"jetEnergyRegressionIsSet evaluates to: "<<jetEnergyRegressionIsSet<<std::endl;
     if(jetEnergyRegressionIsSet) {
         *f["hJets_pt_0"] = float(d["hJets_pt"][0]);
         *f["hJets_rawPt_0"] = float(d["hJets_rawPt"][0]);

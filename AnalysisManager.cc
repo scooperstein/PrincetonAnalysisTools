@@ -231,7 +231,7 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
         // branch already exists
         std::cout<<Form("Attempting to setup new branch %s, but it already exists in the output tree!", name.c_str())<<std::endl;
         return;
-    } */   
+    }*/   
     
     if(debug>1000) {
         std::cout<<"SetupNewBranch "<<name<<std::endl;

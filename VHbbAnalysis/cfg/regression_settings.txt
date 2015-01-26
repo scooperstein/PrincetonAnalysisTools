@@ -1,5 +1,5 @@
 bdtname="Jet_pt_regression"
-xmlFile=/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/JetEnergyRegression/weights/Wln_noMET.xml
+xmlFile=../JetEnergyRegression/weights/Wln_noMET.xml
 
 name=Jet_pt              lname=hJets_pt            type=1 order=1
 name=Jet_rawPt           lname=hJets_rawPt         type=1 order=2
