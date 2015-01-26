@@ -1,3 +1,6 @@
+# type 0 -> Spectator variable
+# type 1 -> Variable used in BDT training
+
 bdtname="Jet_pt_regression"
 xmlFile=../JetEnergyRegression/weights/Wln_noMET.xml
 
