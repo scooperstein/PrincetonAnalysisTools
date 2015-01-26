@@ -4,26 +4,34 @@
 #include <map>
 #include <string>
 
+#include "TMVA/Reader.h"
+
 class BDTInfo{
 
 public:
-  std::map<char*,float*> inputs;
-  std::map<char*,float*> secInputs;
-  std::string method;
+  std::string bdtname;
+  std::vector<std::string> inputNames;
+  std::vector<std::string> localVarNames;
+  std::vector<std::string> inputSpectatorNames;
+  std::vector<std::string> localSpectatorVarNames;
+  //std::string method;
   std::string xmlFile;
-  std::string outputBranch;
+  TMVA::Reader *reader;
 
-  BDTInfo(std::map<char*,float*>, std::map<char*,float*>, char*, char*, char*);
+  BDTInfo(std::string, std::string);
   BDTInfo();
+  void AddVariable(std::string, std::string);
+  void AddSpectatorVariable(std::string, std::string);
 
 };
 
-BDTInfo::BDTInfo(std::map<char*,float*> _inputs, std::map<char*,float*> _secInputs, char* _method, char* _xmlFile, char* _outputBranch) {
-    inputs = _inputs;
-    secInputs = _secInputs;
-    method = _method;
+BDTInfo::BDTInfo(std::string _bdtname, std::string _xmlFile) {
+    bdtname = _bdtname;
+    inputNames = std::vector<std::string>();
+    localVarNames = std::vector<std::string>();
+    //method = _method;
     xmlFile = _xmlFile;
-    outputBranch = _outputBranch;
+    reader = new TMVA::Reader( "!Color:Silent" );    
 
    /* map<char*,float*> floatMap;
   floatMap["H.massCorr"] = &H.massCorr;
@@ -48,12 +56,17 @@ BDTInfo::BDTInfo(std::map<char*,float*> _inputs, std::map<char*,float*> _secInpu
 }
 
 BDTInfo::BDTInfo() {
-    inputs = std::map<char*,float*>();
-    secInputs = std::map<char*,float*>();
-    method = "";
-    xmlFile = "";
-    outputBranch = "";
+    BDTInfo("", "");
 }
 
+void BDTInfo::AddVariable(std::string varName, std::string localVarName) {
+    inputNames.push_back(varName);
+    localVarNames.push_back(localVarName);
+}
+
+void BDTInfo::AddSpectatorVariable(std::string varName, std::string localVarName) {
+    inputSpectatorNames.push_back(varName);
+    localSpectatorVarNames.push_back(localVarName);
+}
 
 #endif

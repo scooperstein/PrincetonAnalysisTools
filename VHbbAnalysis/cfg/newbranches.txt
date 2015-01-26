@@ -16,3 +16,16 @@ type=2  name=Vtype_f
 type=2  name=absDeltaPullAngle
 type=2  name=highestCSVaJet
 type=2  name=minDeltaRaJet
+
+# jet energy regression variables
+type=2  name=Jet1_pt_reg
+type=2  name=Jet2_pt_reg
+type=2  name=H_mass_reg
+type=2  name=H_pt_reg
+type=2  name=H_eta_reg
+type=2  name=H_phi_reg
+type=2  name=H_dR_reg
+type=2  name=H_dPhi_reg
+type=2  name=H_dEta_reg
+type=2  name=Jet1_regWeight
+type=2  name=Jet2_regWeight
