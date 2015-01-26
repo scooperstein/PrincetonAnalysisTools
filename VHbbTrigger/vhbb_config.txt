@@ -1,0 +1,10 @@
+analysis=VHbbTrigger
+outputname=output
+
+samples=cfg/samples.txt
+
+earlybranches=cfg/earlybranches.txt
+existingbranches=cfg/existingbranches.txt
+newbranches=cfg/newbranches.txt
+
+settings=cfg/settings.txt

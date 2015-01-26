@@ -8,6 +8,7 @@
 #ifndef AnalysisManager_h
 #define AnalysisManager_h
 
+#define PI 3.14159265358979323846
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>

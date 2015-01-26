@@ -1,0 +1,8 @@
+
+name=WH125   file=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/WH_1252.root  type=-125  xsec=1  npro=200000
+#name=WH125   file=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/WH_1252.root  type=-125  xsec=0.261  npro=200000
+
+#hacking for rate
+name=NuGun   file=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/nuGun2.root   type=100   xsec=11246   npro=45716756    scale=2508  kfac=1
+#name=NuGun   file=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/nuGun2.root   type=100   xsec=64     npro=45716756    scale=23.8
+

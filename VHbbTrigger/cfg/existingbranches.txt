@@ -1,0 +1,39 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+type=2  name=b1Eta_gen
+type=2  name=b1Phi_gen
+type=2  name=b2Eta_gen
+type=2  name=b2Phi_gen
+
+type=2  name=genElePhi
+type=2  name=genEleEta
+
+type=2  name=pfmet
+type=2  name=pfmetPhi
+
+type=1  name=nmuons
+type=7  name=muonPt        max=10
+type=7  name=muonPhi       max=10
+type=7  name=muonEta       max=10
+
+type=1  name=neleNonIso
+type=7  name=eleNonIsoPt    max=10
+type=7  name=eleNonIsoPhi   max=10
+type=7  name=eleNonIsoEta   max=10
+type=7  name=eleNonIsoIso   max=10
+
+type=1  name=neleIso
+type=7  name=eleIsoPt    max=10
+type=7  name=eleIsoPhi   max=10
+type=7  name=eleIsoEta   max=10
+type=7  name=eleIsoIso   max=10
+
+type=2  name=mhtPt
+type=2  name=metPhi
+type=2  name=metEta
+type=2  name=genHPt
+type=2  name=genWPt
+
+type=7  name=jetPhi         max=30
+type=7  name=jetEta         max=30

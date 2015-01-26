@@ -1,0 +1,34 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+type=2  name=dphijets
+type=2  name=dphijet1met
+type=2  name=dphijet1e
+type=2  name=phijj
+
+type=2  name=dr_eiso
+type=2  name=dr_jet1
+type=2  name=dr_jet2
+
+
+type=1  name=jetInd1
+type=2  name=jetPt1
+type=2  name=jetPhi1
+type=1  name=jetInd2
+type=2  name=jetPt2
+type=2  name=jetPhi2
+type=1  name=muInd
+type=2  name=muPt
+type=2  name=muEta
+type=1  name=elInd
+type=2  name=elPt
+type=1  name=elIsoInd
+type=2  name=elIsoPt
+type=2  name=elIsoEta
+type=2  name=elIsoPhi
+type=2  name=elIsoIso
+
+type=1  name=eventClass
+type=1  name=sampleIndex
+type=2  name=weight
+

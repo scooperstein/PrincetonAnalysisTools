@@ -142,6 +142,9 @@ void AnalysisManager::InitChain(std::string filename)
     // a new tree or chain. Typically here the branch addresses and branch
     // pointers of the tree will be set.
     fChain = new TChain("tree");
+    //std::cout<<"opening "<<filename.c_str()<<std::endl;
+    //TFile* tf = TFile::Open(filename.c_str());
+    //std::cout<<"adding to chain"<<std::endl;
     fChain->Add(filename.c_str());
     fCurrent = -1;
     fChain->SetMakeClass(1);
@@ -598,9 +601,10 @@ void AnalysisManager::m(std::string key){
 //}
 double AnalysisManager::EvalDeltaPhi(double phi0, double phi1){
     double dPhi = fabs(phi0-phi1);
+    //std::cout<<"dPhi PI "<<dPhi<<" "<<PI<<std::endl;
 
-    if(dPhi > 3.1415926536)
-        dPhi = 2.0*3.1415926536 - dPhi;
+    if(dPhi > PI)
+        dPhi = 2.0*PI - dPhi;
     
     return dPhi;
 }
