@@ -2,7 +2,7 @@
 
 ROOTFLAGS = $(shell root-config --cflags)
 ROOTLIBS  = $(shell root-config --libs)
-HOMEDIR = /uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools
+HOMEDIR = ${PWD}
 
 all: HelperClasses/SampleContainer_cc.so HelperClasses/InfoStructs_h.so HelperClasses/BDTInfo_h.so AnalysisManager_cc.so plugins/VHbbAnalysis_cc.so
 
