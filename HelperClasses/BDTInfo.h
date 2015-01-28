@@ -25,7 +25,7 @@ public:
 
 };
 
-BDTInfo::BDTInfo(std::string _bdtname, std::string _xmlFile) {
+inline BDTInfo::BDTInfo(std::string _bdtname, std::string _xmlFile) {
     bdtname = _bdtname;
     inputNames = std::vector<std::string>();
     localVarNames = std::vector<std::string>();
@@ -55,16 +55,16 @@ BDTInfo::BDTInfo(std::string _bdtname, std::string _xmlFile) {
   */
 }
 
-BDTInfo::BDTInfo() {
+inline BDTInfo::BDTInfo() {
     BDTInfo("", "");
 }
 
-void BDTInfo::AddVariable(std::string varName, std::string localVarName) {
+inline void BDTInfo::AddVariable(std::string varName, std::string localVarName) {
     inputNames.push_back(varName);
     localVarNames.push_back(localVarName);
 }
 
-void BDTInfo::AddSpectatorVariable(std::string varName, std::string localVarName) {
+inline void BDTInfo::AddSpectatorVariable(std::string varName, std::string localVarName) {
     inputSpectatorNames.push_back(varName);
     localSpectatorVarNames.push_back(localVarName);
 }

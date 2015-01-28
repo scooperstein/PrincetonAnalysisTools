@@ -16,7 +16,7 @@ public:
 
 };
 
-BranchInfo::BranchInfo(std::string _name, int _type, int _length, std::string _prov, float _val) :
+inline BranchInfo::BranchInfo(std::string _name, int _type, int _length, std::string _prov, float _val) :
     name(_name),
     type(_type),
     length(_length),

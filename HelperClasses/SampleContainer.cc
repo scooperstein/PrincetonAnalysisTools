@@ -4,14 +4,14 @@
 #include <utility>
 #include <iostream>
 
-SampleContainer::~SampleContainer() 
+inline SampleContainer::~SampleContainer() 
 {}
 
 //float SampleContainer::defaultextw=1.;
 
 //SampleContainer::SampleContainer(const float * extw) :
 //	extweight(extw)
-SampleContainer::SampleContainer() 
+inline SampleContainer::SampleContainer() 
 {
 	/*intWeight = 1;
 	itype = 0;
@@ -38,7 +38,7 @@ SampleContainer::SampleContainer()
     nProFromFile=false;
 }
 
-void SampleContainer::AddFile(char* fname) {
+inline void SampleContainer::AddFile(char* fname) {
     //std::cout<<"fname "<<fname<<std::endl;
     sampleChain->Add(fname);
     files.push_back(fname);
@@ -52,7 +52,7 @@ void SampleContainer::AddFile(char* fname) {
     
 }
 
-void SampleContainer::ComputeWeight(float intL) {
+inline void SampleContainer::ComputeWeight(float intL) {
     if(sampleNum==0) { //this is data
         intWeight = 1; 
     } else {
