@@ -91,15 +91,20 @@ void AnalysisManager::AddBDT(BDTInfo bdt) {
     SetupBDT(bdt);
 }
 
-void AnalysisManager::SetJetEnergyRegression(BDTInfo reg1, BDTInfo reg2) {
+void AnalysisManager::SetJet1EnergyRegression(BDTInfo reg1) {
     jet1EnergyRegression = reg1;
-    jet2EnergyRegression = reg2;
-    jetEnergyRegressionIsSet = true;
+    jet1EnergyRegressionIsSet = true;
     if(debug>10000) {
         PrintBDTInfoValues(reg1);
-        PrintBDTInfoValues(reg2);
     }
     SetupBDT(reg1);
+}
+void AnalysisManager::SetJet2EnergyRegression(BDTInfo reg2) {
+    jet2EnergyRegression = reg2;
+    jet2EnergyRegressionIsSet = true;
+    if(debug>10000) {
+        PrintBDTInfoValues(reg2);
+    }
     SetupBDT(reg2);
 }
 

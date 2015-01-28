@@ -104,21 +104,22 @@ def ReadTextFile(filename, filetype):
                 am.SetupNewBranch(varname, 2)       
             am.AddBDT(bdtInfo)
             print "added BDT to analysis manager"
-        if settings.has_key("regsettings"):
-            print "Adding a Jet Energy Regresion..."
-            reg1, reg2 = ReadTextFile(settings["regsettings"], "bdt") 
+        if settings.has_key("reg1settings"):
+            print "Adding a Jet 1 Energy Regresion..."
+            reg1 = ReadTextFile(settings["reg1settings"], "bdt") 
             for varname in reg1.localVarNames:
                 am.SetupNewBranch(varname, 2)
             for varname in reg1.localSpectatorVarNames:
                 am.SetupNewBranch(varname, 2) 
+            am.SetJet1EnergyRegression(reg1) 
+        if settings.has_key("reg2settings"):
+            print "Adding a Jet 2 Energy Regresion..."
+            reg2 = ReadTextFile(settings["reg2settings"], "bdt") 
             for varname in reg2.localVarNames:
                 am.SetupNewBranch(varname, 2)
             for varname in reg2.localSpectatorVarNames:
-                am.SetupNewBranch(varname, 2)
-            am.SetJetEnergyRegression(reg1, reg2)
-            print "added Jet Energy Regression to analysis manager"
-
- 
+                am.SetupNewBranch(varname, 2) 
+            am.SetJet2EnergyRegression(reg2) 
         return am    
     elif filetype is "samplefile":
         samples=MakeSampleMap(filelines)
@@ -273,8 +274,7 @@ def SetupBDT(lines):
                 order=int(value)
         vars[order] = (inputName,localVarName,type)
    
-    reg1 = ROOT.BDTInfo(bdtname+"_1", xmlFile) # JEReg for leading jet
-    reg2 = ROOT.BDTInfo(bdtname+"_2", xmlFile) # JEReg for second leading jet
+    bdt = ROOT.BDTInfo(bdtname, xmlFile)
     
     keys = vars.keys()
     keys.sort()
@@ -284,10 +284,8 @@ def SetupBDT(lines):
         name, lname, type = vars[key]
         if (type == 1):
             print "adding variable %s (%s) " % (name,lname)
-            reg1.AddVariable(name, lname+"_0")
-            reg2.AddVariable(name, lname+"_1")
+            bdt.AddVariable(name, lname)
         if (type == 0):
             print "adding spectator variable %s (%s) " % (name,lname)
-            reg1.AddSpectatorVariable(name, lname+"_0")
-            reg2.AddSpectatorVariable(name, lname+"_1")
-    return (reg1, reg2) 
+            bdt.AddSpectatorVariable(name, lname)
+    return bdt 

@@ -60,12 +60,14 @@ public :
     std::vector<BDTInfo>            bdtInfos;
     BDTInfo                         jet1EnergyRegression;
     BDTInfo                         jet2EnergyRegression;
-    bool                            jetEnergyRegressionIsSet = false;
+    bool                            jet1EnergyRegressionIsSet = false;
+    bool                            jet2EnergyRegressionIsSet = false;
     std::vector<SampleContainer>    samples; 
     SampleContainer*                cursample; 
     void                            AddSample(SampleContainer sample);
     void                            AddBDT(BDTInfo bdtInfo);
-    void                            SetJetEnergyRegression(BDTInfo reg1, BDTInfo reg2);
+    void                            SetJet1EnergyRegression(BDTInfo reg1);
+    void                            SetJet2EnergyRegression(BDTInfo reg2);
     void                            ConfigureOutputTree();
 
     //General Physics Information
