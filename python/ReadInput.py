@@ -1,11 +1,12 @@
 #~ /usr/bin/python
 import sys
 import ROOT
-ROOT.gSystem.Load("SampleContainer_cc.so")
-ROOT.gSystem.Load("AnalysisManager_cc.so")
-ROOT.gSystem.Load("VHbbAnalysis_cc.so")
-ROOT.gSystem.Load("BDTInfo_h.so")
-ROOT.gSystem.Load("VHbbTrigger_h.so")
+#ROOT.gSystem.Load("SampleContainer_cc.so")
+#ROOT.gSystem.Load("AnalysisManager_cc.so")
+#ROOT.gSystem.Load("VHbbAnalysis_cc.so")
+#ROOT.gSystem.Load("BDTInfo_h.so")
+#ROOT.gSystem.Load("VHbbTrigger_h.so")
+ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=0
 
