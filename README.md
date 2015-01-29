@@ -23,4 +23,4 @@ For now, make .so libraries by hand in ROOT
 
 cd VHbbAnalysis
 
-python RunAnalysis.py
+python RunAnalysis.py vhbb_config.txt

@@ -56,11 +56,18 @@ public :
     TTree                           *outputTree;    // what will be the condensed output tree
     TTree                           *settingsTree;  // contains analysis settings
     std::string                     outputTreeName;
-    TMVA::Reader                    *thereader;     // for evaluating the BDT
-    BDTInfo                         bdtInfo;
+    //TMVA::Reader                    *thereader;     // for evaluating the BDT
+    std::vector<BDTInfo>            bdtInfos;
+    BDTInfo                         jet1EnergyRegression;
+    BDTInfo                         jet2EnergyRegression;
+    bool                            jet1EnergyRegressionIsSet = false;
+    bool                            jet2EnergyRegressionIsSet = false;
     std::vector<SampleContainer>    samples; 
     SampleContainer*                cursample; 
     void                            AddSample(SampleContainer sample);
+    void                            AddBDT(BDTInfo bdtInfo);
+    void                            SetJet1EnergyRegression(BDTInfo reg1);
+    void                            SetJet2EnergyRegression(BDTInfo reg2);
     void                            ConfigureOutputTree();
 
     //General Physics Information
@@ -104,6 +111,7 @@ public :
     void            SetBranches();
     void            PrintBranches();
     void            GetEarlyEntries(Long64_t entry);
+    void            PrintBDTInfoValues(BDTInfo bdt);
     
     void            Loop();
     //virtual void     WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring);
@@ -122,7 +130,7 @@ public :
     // general use functions
     double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1); 
     double          EvalDeltaPhi(double phi0, double phi1); 
-    void            SetupBDT();
+    void            SetupBDT(BDTInfo bdtInfo);
 
 };
 
