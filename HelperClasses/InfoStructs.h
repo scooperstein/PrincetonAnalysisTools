@@ -1,3 +1,6 @@
+#ifndef InfoStructs_h
+#define InfoStructs_h
+
 typedef struct
 {
   int HiggsFlag;
@@ -25,3 +28,5 @@ typedef struct
   float sig;
   float phi;
 } METInfo;
+
+#endif
