@@ -27,8 +27,8 @@ def ReadTextFile(filename, filetype):
         settings=MakeConfigMap(filelines)
 
         if settings.has_key("analysis"):
-            am=ROOT.__getattr__(settings["analysis"])()
-            
+            am=ROOT.__getattr__(settings["analysis"])()  
+        
         if settings.has_key("samples"):
             aminitialized=0
             samples=ReadTextFile(settings["samples"], "samplefile")
