@@ -60,8 +60,8 @@ public :
     std::vector<BDTInfo>            bdtInfos;
     BDTInfo                         jet1EnergyRegression;
     BDTInfo                         jet2EnergyRegression;
-    bool                            jet1EnergyRegressionIsSet = false;
-    bool                            jet2EnergyRegressionIsSet = false;
+    bool                            jet1EnergyRegressionIsSet;
+    bool                            jet2EnergyRegressionIsSet;
     std::vector<SampleContainer>    samples; 
     SampleContainer*                cursample; 
     void                            AddSample(SampleContainer sample);
@@ -73,7 +73,7 @@ public :
     //General Physics Information
     float intL;
 
-    int debug=0;
+    int debug;
     bool safemode;
 
 

@@ -36,6 +36,8 @@ def ReadTextFile(filename, filetype):
                 sample=samples[name]
                 #print sample, sampledic[sample]
                 samplecon = ROOT.SampleContainer()
+                if sample.has_key("name"):
+                    samplecon.sampleName        = sample["name"]
                 if sample.has_key("type"):
                     samplecon.sampleNum         = sample["type"]
                 if sample.has_key("xsec"):

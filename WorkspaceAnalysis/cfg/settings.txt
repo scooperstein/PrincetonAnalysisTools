@@ -1,0 +1,30 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+# ONLY USE FLOATS
+type=2  name=vetolep            val=1
+type=2  name=intL               val=19700 # 1/pb
+
+type=2  name=j1ptCut            val=30
+type=2  name=j2ptCut            val=30
+type=2  name=j1ptCSV            val=0.9
+type=2  name=j2ptCSV            val=0.5
+
+type=2  name=eptcut             val=40
+type=2  name=metcut             val=100
+type=2  name=erelisocut         val=0.5
+type=2  name=elMetDPhiCut       val=0.785 # pi/4
+
+#not implemented yet
+type=2  name=VHDPhiCut          val=2.95
+type=2  name=hptcut             val=100
+type=2  name=vptcut             val=100
+
+# for creating workspace
+type=2  name=modelDimension     val=1 # 1 or 2
+type=2  name=nBinsX             val=100
+type=2  name=varMinX            val=-1
+type=2  name=varMaxX            val=1
+type=2  name=nBinsY             val=100
+type=2  name=varMinY            val=0
+type=2  name=varMaxY            val=300
