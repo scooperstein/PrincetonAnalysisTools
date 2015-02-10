@@ -1,0 +1,10 @@
+# configure workspace analysis
+analysis=WorkspaceAnalysis
+outputname=workspace
+
+samples=cfg/samples.txt
+
+existingbranches=cfg/existingbranches.txt
+newbranches=cfg/newbranches.txt
+
+settings=cfg/settings.txt

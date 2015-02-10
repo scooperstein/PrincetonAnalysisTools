@@ -12,6 +12,9 @@
 AnalysisManager::AnalysisManager(){
     intL=20000; // pb^-1
     settingsTree = new TTree("settings","settings");
+    debug = 0;
+    jet1EnergyRegressionIsSet = false;
+    jet2EnergyRegressionIsSet = false;
 }
 
 void AnalysisManager::Initialize(std::string filename) {
@@ -414,12 +417,6 @@ void AnalysisManager::Loop(){
  
     
     if(debug>10) std::cout<<"Done setting up branches; about to Init"<<std::endl;
-    // eventually we'd like to set up the identifiers unique to each BDT as members of the class. These identifiers are:
-    // 1. BDT name
-    // 2. List of names of variables used to train BDT
-    // 3. List of references to variables used to train BDT
-    // 4. Reference to BDT?
-    // ...etc
     InitAnalysis();
     
     
