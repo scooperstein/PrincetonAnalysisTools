@@ -388,10 +388,17 @@ void AnalysisManager::GetEarlyEntries(Long64_t entry){
     }
 }
 
+// Return a std::vector of the names of the samples
+std::vector<std::string> AnalysisManager::ListSampleNames() {
+    std::vector<std::string> snlist = std::vector<std::string>();
+    for(int i=0; i < (int)samples.size(); i++) {
+        snlist.push_back(samples[i].sampleName);
+    }
+    return snlist;
+}
 
 
-
-
+// Process all input samples and all events
 void AnalysisManager::Loop(){
 
     if(debug>10) std::cout<<"Starting Loop"<<std::endl;
@@ -465,13 +472,89 @@ void AnalysisManager::Loop(){
     
     
     TermAnalysis();
-    
-    /*// Now let's mess around with re-evaluating the BDTs
-    std::cout<<"Let's try to re-evaluate the BDTs..."<<std::endl;
-    WriteBDTs("./", Form("%s.root",outputTreeName), "./", Form("%s_reevaluated.root",outputTreeName),"");
-    */
 }
 
+void AnalysisManager::LoopSample(std::string samplename ){
+
+    int sampleindex = -1; // index of individual sample in samples vector
+    for(int i=0; i<(int)samples.size(); i++) {
+        if(samplename == samples[i].sampleName) {
+            sampleindex = i;
+        } 
+    }
+    if(sampleindex == -1) {
+        std::cout<<"Analysis Manager tried to loop over the individual sample "<<samplename<<", but this sample is not in the samples list. Skipping..."<<std::endl;
+        return;
+    }
+
+    if(debug>10) std::cout<<"Starting Loop over individual sample %s"<<samplename<<std::endl;
+    SetBranches();
+    
+    // add new branches
+    ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samplename.c_str()),"recreate");
+    ofile->cd();
+    //TTree *newtree = fChain->CloneTree(0);
+    // for now we will use a default file to set the structure for the output tree
+    outputTree = fChain->CloneTree(0); // need this one to only keep the branches you want 
+    
+    // it would probably be smarter to check also if SetupBranch() has been called since the last time outputTree was initialized
+    //if (!outputTree) {
+    //    std::cout<<"Did not call ConfigureOutputTree() before Loop(). Assuming there are no new branches..."<<std::endl;
+    //    outputTree = fChain->CloneTree(0);
+    //}  
+    // let's add some of our own branches
+    SetNewBranches();
+    settingsTree->Fill();
+    settingsTree->Write();
+    delete settingsTree;
+ 
+    
+    if(debug>10) std::cout<<"Done setting up branches; about to Init"<<std::endl;
+    InitAnalysis();
+    
+    
+    cursample = &samples[sampleindex];
+    cursample->ComputeWeight(*f["intL"]);
+         
+    for(int ifile=0; ifile<(int)(cursample->files.size()); ifile++){
+        // set fChain to the TChain for the current sample
+        InitChain(cursample->files[ifile]);
+    
+        // FIXME should have a sample name, but doesn't right now
+        if(debug>0) std::cout<<"About to loop over events in "<<cursample->files[ifile]<<std::endl;
+        // loop through the events
+        Long64_t nentries = fChain->GetEntries();
+        if(debug>1) std::cout<<"looping over "<<nentries<<std::endl;
+        Long64_t nbytes = 0, nb = 0;
+        int saved=0;
+        // FIXME need a loop over systematics
+        for (Long64_t jentry=0; jentry<nentries;jentry++) {
+            if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
+                
+            GetEarlyEntries(jentry);
+            if(debug>100000) std::cout<<"checking preselection"<<std::endl;
+            bool presel = Preselection();
+            if(!presel) continue;
+
+            if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
+            Long64_t ientry = LoadTree(jentry);
+            if (ientry < 0) break;
+            nb = fChain->GetEntry(jentry);   nbytes += nb;
+  
+            if(debug>1000) std::cout<<"running analysis"<<std::endl;
+            bool select = Analyze();
+            if(select){
+                if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
+                FinishEvent();
+                saved++;
+            }
+        } // end event loop
+    } // end file loop
+    if(debug>1000) std::cout<<"Finished looping"<<std::endl;
+    
+    
+    TermAnalysis();
+}
 
 void AnalysisManager::InitAnalysis(){
     if(debug>100) std::cout<<"InitAnalysis"<<std::endl;
