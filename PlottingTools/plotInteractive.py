@@ -1,6 +1,22 @@
 import ROOT
 import sys,time,math
 
+#
+#   This program takes a ROOT file containing
+#   histograms with names of a particular format.
+#   Various histograms with identical parameters
+#   but containing different samples are plotted
+#   together.
+#
+#   This program is based on a program written
+#   by Sean Simon (UCSD).  It was re-written in 
+#   python and made stand-alone by Chris Palmer
+#   (Princeton).  Matteo Sani (UCSD) also 
+#   contributed to the development of this 
+#   software.
+#
+
+
 NFILES=-1
 NIND=-1
 
