@@ -1,0 +1,17 @@
+file=rawhists.root
+
+dolegend=True  dolog=False
+dotitles=False 
+legx1=0.6  legy1=0.5 legx2=0.9 legy2=0.73
+textx1=0.5  texty1=0.75 textx2=0.85 texty2=0.86
+linewidth=3
+
+xsize=1000 ysize=1000
+
+text=CMS Preliminary 2011 \n#sqrt{s}=7 TeV L_{int} = 5.1 fb^{-1}
+
+name=Data            itype=0       order=0   plot=1  leg=1    scale=1.     color=0     marker=1  displayname=Data
+name=DiPhotonJets    itype=4       order=1   plot=1  leg=0    scale=1.     color=592   marker=0  displayname=2@Prompt@#gamma                 
+name=Box25           itype=14      order=2   plot=1  leg=1    scale=1.     color=592   marker=0  displayname=2@Prompt@#gamma                 
+name=GJet40_pf       itype=32      order=3   plot=1  leg=0    scale=1.     color=406   marker=0  displayname=GJet40_pf                       
+name=VBF124          itype=-125100 order=27  plot=1  leg=1    scale=500    color=632   marker=0  displayname=VBF125@\times@500                
