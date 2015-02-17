@@ -16,13 +16,6 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
 )
 (options, args) = parser.parse_args()
 
-# do stuff :)
-# FIXME - link all libraries with proper Makefile
-#ROOT.gSystem.Load("SampleContainer_cc.so")
-#ROOT.gSystem.Load("BDTInfo_h.so")
-#ROOT.gSystem.Load("InfoStructs_h.so")
-#ROOT.gSystem.Load("VHbbAnalysis_h.so")
-#ROOT.gSystem.Load("AnalysisManager_cc.so")
 ROOT.gSystem.Load("AnalysisDict.so")
 
 # reads samples, existing branches and new branches

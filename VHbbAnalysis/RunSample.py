@@ -19,4 +19,4 @@ if(am.debug>100):
 # loop over all the samples
 # FIXME - need to add the possibility of doing a small portion of files
 #am.Loop()
-am.LoopSample(sys.argv[2])
+am.Loop(sys.argv[2])
