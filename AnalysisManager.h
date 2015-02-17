@@ -114,8 +114,7 @@ public :
     std::vector<std::string>      ListSampleNames();
     void            PrintBDTInfoValues(BDTInfo bdt);
     
-    void            Loop();
-    void            LoopSample(std::string samplename);
+    void            Loop(std::string sampleName="");
     //virtual void     WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring);
     //Value            RetrieveValue(std::string key);
     

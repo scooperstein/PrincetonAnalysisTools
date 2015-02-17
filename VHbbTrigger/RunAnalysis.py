@@ -6,13 +6,6 @@ if len(sys.argv) < 2:
     print "Please give one argument:  the cfg file"
     sys.exit(0)
 
-# do stuff :)
-# FIXME - link all libraries with proper Makefile
-#ROOT.gSystem.Load("SampleContainer_cc.so")
-#ROOT.gSystem.Load("BDTInfo_h.so")
-#ROOT.gSystem.Load("InfoStructs_h.so")
-#ROOT.gSystem.Load("VHbbTrigger_h.so")
-#ROOT.gSystem.Load("AnalysisManager_cc.so")
 ROOT.gSystem.Load("AnalysisDict.so")
 
 # reads samples, existing branches and new branches
