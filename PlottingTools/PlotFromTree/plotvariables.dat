@@ -1,0 +1,7 @@
+#htyp=0  ncat=50 xbins=70  ybins=0   xmin=0      xmax=70     ymin=0 ymax=0    name=testcuts    xaxis=EG@Seed@P_{T}  yaxis= var=elIsoPt            catType=test
+htyp=0  ncat=1  xbins=70  ybins=0   xmin=0      xmax=70     ymin=0 ymax=0    name=eisopt0     xaxis=EG@Seed@P_{T}  yaxis= var=elPt            catType=none
+htyp=0  ncat=1  xbins=60  ybins=0   xmin=-3.0   xmax=3.0    ymin=0 ymax=0    name=eisoeta     xaxis=EG@Seed@#eta    yaxis= var=elEta          catType=none
+htyp=0  ncat=1  xbins=30  ybins=0   xmin=-3.0   xmax=0      ymin=0 ymax=0    name=abseisoeta  xaxis=EG@Seed-|#eta|    yaxis= var=-abs(elEta)          catType=none
+htyp=0  ncat=1  xbins=31  ybins=0   xmin=-0.01  xmax=3.142  ymin=0 ymax=0    name=dphiejet    xaxis=#DeltaphiJet1e  yaxis= var=dphijet1e       catType=none
+htyp=0  ncat=1  xbins=30  ybins=0   xmin=0      xmax=300    ymin=0 ymax=0    name=leadjetpt   xaxis=LeadJetP_{T}   yaxis= var=jetPt1             catType=none
+htyp=0  ncat=1  xbins=30  ybins=0   xmin=0      xmax=150    ymin=0 ymax=0    name=subjetpt    xaxis=SubLJetP_{T}   yaxis= var=jetPt2             catType=none
