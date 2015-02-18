@@ -87,7 +87,7 @@ domean=False
 
 allintegrals=False
 
-dataitype=0
+datasampleIndex=0
 
 linex=-1
 dodata=True
@@ -175,7 +175,7 @@ class PlotInfo:
 
 class SampleInfo:
     def __init__(self):
-        self.itype=-99999
+        self.sampleIndex=-99999
         self.inshortnames=""
         self.plotsample=1
         self.addtoleg=1
@@ -186,7 +186,7 @@ class SampleInfo:
         self.configline=""
 
     def Print(self):
-        print "itype",         self.itype
+        print "sampleIndex",         self.sampleIndex
         print "inshortnames",  self.inshortnames
         print "plotsample",    self.plotsample
         print "addtoleg",      self.addtoleg
@@ -201,7 +201,7 @@ class SampleInfo:
         if self.configline is not "":
             items=self.configline.split()
             for item in items:
-                if item.find("itype=") is not -1:
+                if item.find("sampleIndex=") is not -1:
                     continue
                 elif item.find("order=") is not -1:
                     self.order=int(item.split("=")[1])
@@ -215,7 +215,7 @@ class SampleInfo:
                     self.maker=int(item.split("=")[1])
                 elif item.find("scale=") is not -1:
                     self.scale=float(item.split("=")[1])
-                elif item.find("displayname=") is not -1:
+                elif item.find("displayName=") is not -1:
                     self.displayname=ROOT.TString(item.split("=")[1])
                     self.displayname.ReplaceAll("@"," ")
                 else:
@@ -226,7 +226,7 @@ class SampleInfo:
    
 
 
-NEWVALS=["dataitype","linex","stackmax","stackmin","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2"]
+NEWVALS=["datasampleIndex","linex","stackmax","stackmin","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2"]
 
 PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
@@ -317,7 +317,7 @@ def ListCMDs():
     print "START:               Read in plotvariables and inputfiles trees"
     print "ls:                  List plots"
     print "samples:             List samples"
-    print "ploton itype:        Turns sample with itype on/off"
+    print "ploton sampleIndex:        Turns sample with sampleIndex on/off"
     print "resize x y           Resizes the canvas"
     print "j #:                 Standard plot of #th plot in plot list"
     print "p:                   Previous plot"
@@ -342,15 +342,15 @@ def ListCMDs():
 
 
 ### sample editing functions
-def PlotSample(itype):
-    if samples.has_key(itype):
-        if samples[itype].plotsample == 1:
-            samples[itype].plotsample=0
+def PlotSample(sampleIndex):
+    if samples.has_key(sampleIndex):
+        if samples[sampleIndex].plotsample == 1:
+            samples[sampleIndex].plotsample=0
         else:
-            samples[itype].plotsample=1
+            samples[sampleIndex].plotsample=1
         ReDraw()
     else:
-        print "no sample",itype
+        print "no sample",sampleIndex
         PrintSamples(samples)
         
 
@@ -472,8 +472,8 @@ def PrintPlotNames(plotinfos):
 
 def PrintSamples(samples):
     samplenames = samples.keys()
-    for itype in samplenames:
-        print "Plotting:",samples[itype].plotsample," itype:",itype,"\t",samples[itype].inshortnames
+    for sampleIndex in samplenames:
+        print "Plotting:",samples[sampleIndex].plotsample," sampleIndex:",sampleIndex,"\t",samples[sampleIndex].inshortnames
 
 
 
@@ -507,8 +507,8 @@ def Startup(configfilename):
     
     AssociateConfigToSample(configlines)
 
-    for itype in samples:
-        samples[itype].ParseConfigLines()
+    for sampleIndex in samples:
+        samples[sampleIndex].ParseConfigLines()
 
     #if DoFileSave:
     #    SetupSaveFile(outfilename)
@@ -522,13 +522,13 @@ def AssociateConfigToSample(configlines):
             items=line.split()
             for item in items:
                 print item
-                if item.find("itype=") is not -1:
-                    itype_config=int(item.split("=")[1])
-                    if samples.has_key(itype_config) == False:
+                if item.find("sampleIndex=") is not -1:
+                    sampleIndex_config=int(item.split("=")[1])
+                    if samples.has_key(sampleIndex_config) == False:
                         if DebugNew:
-                            print "add new sample with name and itype from line"
+                            print "add new sample with name and sampleIndex from line"
                         newsample=SampleInfo()
-                        newsample.itype         = itype_config
+                        newsample.sampleIndex         = sampleIndex_config
                         if DebugNew:
                             print "find the new name"
                         name=""
@@ -540,11 +540,11 @@ def AssociateConfigToSample(configlines):
                                     print "found name",name
                                 break
                         newsample.inshortnames  = str(name)
-                        samples[itype_config]=newsample
-                    if samples[itype_config].configline=="":
-                        samples[itype_config].configline=line
+                        samples[sampleIndex_config]=newsample
+                    if samples[sampleIndex_config].configline=="":
+                        samples[sampleIndex_config].configline=line
                     elif DebugNew:
-                        print "Found another input line for",itype_config
+                        print "Found another input line for",sampleIndex_config
                         print "line",line
 
 
@@ -639,9 +639,9 @@ def ReadInputFiles(rootfile):
 
     for ifile in range(NIND):
         newsample=SampleInfo()
-        newsample.itype           =inputfiles.itype[ifile]
+        newsample.sampleIndex           =inputfiles.sampleIndex[ifile]
         newsample.inshortnames    =inputfiles.inshortnames[ifile].GetString()
-        samples[inputfiles.itype[ifile]]=newsample
+        samples[inputfiles.sampleIndex[ifile]]=newsample
 
 
 #def SetupSaveFile(outfilename):
@@ -841,9 +841,9 @@ def Plot(num,printsuffix="",printcat=-1):
             if Debug:
                 print "lineorder",lineorder
             for index in lineorder:
-                itype=index[1]
+                sampleIndex=index[1]
                 if dolegend:
-                    legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep"); 
+                    legend.AddEntry(stacks["datalines"][index],str(samples[sampleIndex].displayname),"ep"); 
             #dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
             print dataIntegral
         if DebugNew:
@@ -853,9 +853,9 @@ def Plot(num,printsuffix="",printcat=-1):
         lineorder.sort()
         lineorder.reverse()
         for index in lineorder:
-            itype=index[1]
+            sampleIndex=index[1]
             if dolegend:
-                legend.AddEntry(stacks["siglines"][index],str(samples[itype].displayname),"l"); 
+                legend.AddEntry(stacks["siglines"][index],str(samples[sampleIndex].displayname),"l"); 
             #sigIntegral = stacks["siglines"+str(icat)][index].Integral()
             #print sigIntegral
         
@@ -873,19 +873,19 @@ def Plot(num,printsuffix="",printcat=-1):
         else:
             toscale=1.0
         for index in lineorder:
-            itype=index[1]
+            sampleIndex=index[1]
             if DebugNew:
                 print "index",index
-                print "itype",itype
-                print "samples[itype].color",samples[itype].color
+                print "sampleIndex",sampleIndex
+                print "samples[sampleIndex].color",samples[sampleIndex].color
             stacks["bkglines"][index].SetLineColor(ROOT.kBlack)
             stacks["bkglines"][index].SetLineWidth(linewidth*plotscale)
             stacks["bkglines"][index].SetFillStyle(1001)
-            stacks["bkglines"][index].SetFillColor(int(samples[itype].color))
+            stacks["bkglines"][index].SetFillColor(int(samples[sampleIndex].color))
             stacks["bkglines"][index].Scale(toscale)
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
-                legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
+                legend.AddEntry(stacks["bkglines"][index],str(samples[sampleIndex].displayname),"f"); 
         #print "bkg integral",stacks["bkglines"+str(icat)][lineorder[0]].Integral()
         
         if dointegrals:
@@ -896,7 +896,7 @@ def Plot(num,printsuffix="",printcat=-1):
         lineorder.sort()
         lineorder.reverse()
         for index in lineorder:
-            itype=index[1]
+            sampleIndex=index[1]
             stacks["siglines"][index].Draw("histsame")
             #stacks["siglines"+str(icat)][index].Draw("histsame")
        
@@ -910,7 +910,7 @@ def Plot(num,printsuffix="",printcat=-1):
             lineorder.sort()
             lineorder.reverse()
             for index in lineorder:
-                itype=index[1]
+                sampleIndex=index[1]
                 stacks["datalines"][index].Draw("epsame")
                 #stacks["datalines"+str(icat)][index].Draw("epsame")
             
@@ -1007,9 +1007,9 @@ def Plot(num,printsuffix="",printcat=-1):
                 lineorder.sort()
                 lineorder.reverse()
                 for index in lineorder:
-                    itype=index[1]
+                    sampleIndex=index[1]
                     if dolegend and icat==cats[0]:
-                        legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
+                        legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[sampleIndex].displayname),"ep"); 
                 dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
                 print "data int ", dataIntegral
                 if domean:
@@ -1021,9 +1021,9 @@ def Plot(num,printsuffix="",printcat=-1):
             lineorder.sort()
             lineorder.reverse()
             for index in lineorder:
-                itype=index[1]
+                sampleIndex=index[1]
                 if dolegend and icat==cats[0]:
-                    legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
+                    legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[sampleIndex].displayname),"l"); 
                 sigIntegral = stacks["siglines"+str(icat)][index].Integral()
                 print "sig int ", sigIntegral
  
@@ -1042,19 +1042,19 @@ def Plot(num,printsuffix="",printcat=-1):
                 else:
                     toscale=1.0
                 for index in lineorder:
-                    itype=index[1]
+                    sampleIndex=index[1]
                     if DebugNew:
                         print "index",index
-                        print "itype",itype
-                        print "samples[itype].color",samples[itype].color
+                        print "sampleIndex",sampleIndex
+                        print "samples[sampleIndex].color",samples[sampleIndex].color
                     stacks["bkglines"+str(icat)][index].SetLineColor(ROOT.kBlack)
                     stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth*plotscale)
                     stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
-                    stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
+                    stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[sampleIndex].color))
                     stacks["bkglines"+str(icat)][index].Scale(toscale)
                     stacks["bkglines"+str(icat)][index].Draw("histsame")
                     if dolegend and icat==cats[0]:
-                        legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[itype].displayname),"f"); 
+                        legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[sampleIndex].displayname),"f"); 
                     if dodivide:
                         if (index == lineorder[0]):
                             mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
@@ -1076,7 +1076,7 @@ def Plot(num,printsuffix="",printcat=-1):
             lineorder.sort()
             lineorder.reverse()
             for index in lineorder:
-                itype=index[1]
+                sampleIndex=index[1]
                 stacks["siglines"+str(icat)][index].Draw("histsame")
                 if dodivide:
                     if (index == lineorder[0] and mcTot[icat] == ""):
@@ -1091,7 +1091,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 lineorder.sort()
                 lineorder.reverse()
                 for index in lineorder:
-                    itype=index[1]
+                    sampleIndex=index[1]
                     stacks["datalines"+str(icat)][index].Draw("epsame")
                 
                 if dointegrals:
@@ -1185,22 +1185,22 @@ def AutoGroupNames():
     return names
 
 def SampleMap(sampletype):
-    itypes={}  # key is order, maps to itype
+    sampleIndexs={}  # key is order, maps to sampleIndex
     for sample in samples:
         if Debug:
-            print "SampleMap, itype:",samples[sample].itype
+            print "SampleMap, sampleIndex:",samples[sample].sampleIndex
         if samples[sample].plotsample==0:
             continue
-        if sampletype == "sig" and sample < dataitype:
-            itypes[samples[sample].order]=samples[sample].itype
-        elif sampletype == "data" and sample == dataitype:
-            itypes[samples[sample].order]=samples[sample].itype
-        elif sampletype == "bkg" and sample >dataitype:
-            itypes[samples[sample].order]=samples[sample].itype
+        if sampletype == "sig" and sample < datasampleIndex:
+            sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
+        elif sampletype == "data" and sample == datasampleIndex:
+            sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
+        elif sampletype == "bkg" and sample >datasampleIndex:
+            sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
         elif sampletype == "all":
-            itypes[samples[sample].order]=samples[sample].itype
+            sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
 
-    return itypes
+    return sampleIndexs
 
 
 def MakeMergeStack(sampletype):
@@ -1209,29 +1209,29 @@ def MakeMergeStack(sampletype):
     if DebugNew:
         print "MakeMergeStack(sampletype)",sampletype
     
-    itypes=SampleMap(sampletype)
-    order = itypes.keys()
+    sampleIndexs=SampleMap(sampletype)
+    order = sampleIndexs.keys()
     order.sort()
 
     for index in order:
-        itype = itypes[index]
+        sampleIndex = sampleIndexs[index]
         stacktop=False
         if DebugNew:
             print "SampleMap  index", index
-            print "SampleMap samples[itype].plotsample",samples[itype].plotsample
-        if samples[itype].plotsample == 1:
+            print "SampleMap samples[sampleIndex].plotsample",samples[sampleIndex].plotsample
+        if samples[sampleIndex].plotsample == 1:
             for icat in xrange(cur_plot.ncat):
                 if icat == xrange(cur_plot.ncat)[-1] and index == order[-1]:
                     if DebugNew:
                         print "icat,cur_plot.ncat,index,order[-1]",icat,cur_plot.ncat,index,order[-1]
                         print "icat == xrange(cur_plot.ncat)[-1]",icat == xrange(cur_plot.ncat)[-1]
                     stacktop=True
-                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[sampleIndex].inshortnames)
                 if DebugNew:
                     print "SampleMap histname",histname
                 rootfile.cd()
                 hist=ROOT.gROOT.FindObject(histname).Clone()
-                hist=FormatHistFull(hist,itype,sampletype,stacktop)
+                hist=FormatHistFull(hist,sampleIndex,sampletype,stacktop)
                 theStack.Add(hist)
         
     return theStack
@@ -1240,23 +1240,23 @@ def MakeMergeStack(sampletype):
 
 def MakeStack(sampletype, icat):
 
-    itypes=SampleMap(sampletype)
-    order = itypes.keys()
+    sampleIndexs=SampleMap(sampletype)
+    order = sampleIndexs.keys()
     order.sort()
 
     theStack = ROOT.THStack(sampletype+str(icat),sampletype+str(icat))
     for index in order:
-        itype = itypes[index]
+        sampleIndex = sampleIndexs[index]
         if Debug:
             print "SampleMap  index", index
-            print "SampleMap samples[itype].plotsample",samples[itype].plotsample
-        if samples[itype].plotsample == 1:
-            histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+            print "SampleMap samples[sampleIndex].plotsample",samples[sampleIndex].plotsample
+        if samples[sampleIndex].plotsample == 1:
+            histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[sampleIndex].inshortnames)
             if Debug:
                 print "SampleMap histname",histname
             rootfile.cd()
             hist=ROOT.gROOT.FindObject(histname).Clone()
-            hist=FormatHist(hist,itype,sampletype)
+            hist=FormatHist(hist,sampleIndex,sampletype)
             theStack.Add(hist)
         
     return theStack
@@ -1264,8 +1264,8 @@ def MakeStack(sampletype, icat):
 
 def GetSampleIntegrals():
    
-    itypes=SampleMap("all")
-    order = itypes.keys()
+    sampleIndexs=SampleMap("all")
+    order = sampleIndexs.keys()
     order.sort()
     
     integrals={}    
@@ -1273,62 +1273,62 @@ def GetSampleIntegrals():
     if Debug:
         print "order",order
     for index in order:
-        itype = itypes[index]
-        integrals[itype]={}
+        sampleIndex = sampleIndexs[index]
+        integrals[sampleIndex]={}
         if Debug:
-            print "samples[itype].plotsample",samples[itype].plotsample
-            print "samples[itype].addtoleg",samples[itype].addtoleg
-        if samples[itype].plotsample == 1:
+            print "samples[sampleIndex].plotsample",samples[sampleIndex].plotsample
+            print "samples[sampleIndex].addtoleg",samples[sampleIndex].addtoleg
+        if samples[sampleIndex].plotsample == 1:
             for icat in xrange(cur_plot.ncat):
                 if Debug:
                     print "icat",icat
-                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[sampleIndex].inshortnames)
                 if Debug:
                     print "histname",histname
                 thishist=ROOT.gROOT.FindObject(histname)
                 oflowbin = int(thishist.GetNbinsX()+1)
                 if Debug:
                     print "oflowbin",oflowbin
-                integrals[itype][icat]=thishist.Integral(0,oflowbin)
+                integrals[sampleIndex][icat]=thishist.Integral(0,oflowbin)
 
     for index in order:
-        itype = itypes[index]
+        sampleIndex = sampleIndexs[index]
         summed=0
         for icat in xrange(cur_plot.ncat):
             if domergecats:
-                summed=summed+integrals[itype][icat]
+                summed=summed+integrals[sampleIndex][icat]
             else:
-                print samples[itype].inshortnames,icat,integrals[itype][icat]
+                print samples[sampleIndex].inshortnames,icat,integrals[sampleIndex][icat]
         if domergecats:
-            print samples[itype].inshortnames,summed
+            print samples[sampleIndex].inshortnames,summed
                 
         
 
 def MakeMergeOverlayLines(sampletype):
 
-    itypes=SampleMap(sampletype)
+    sampleIndexs=SampleMap(sampletype)
     if DebugNew:
-        print "MakeOverlayLines", itypes
-    order = itypes.keys()
+        print "MakeOverlayLines", sampleIndexs
+    order = sampleIndexs.keys()
     order.sort()
     if Debug:
         print "order",order
    
-    # the key is a dictionary from order to itype
-    # need itype info for plot properties 
+    # the key is a dictionary from order to sampleIndex
+    # need sampleIndex info for plot properties 
     histmap={}
 
     first=1
     for index in order:
         if DebugNew:
             print "index",index
-        itype = itypes[index]
+        sampleIndex = sampleIndexs[index]
         if DebugNew:
-            print "samples[itype].plotsample",samples[itype].plotsample
-            print "samples[itype].addtoleg",samples[itype].addtoleg
-        if samples[itype].plotsample == 1:
+            print "samples[sampleIndex].plotsample",samples[sampleIndex].plotsample
+            print "samples[sampleIndex].addtoleg",samples[sampleIndex].addtoleg
+        if samples[sampleIndex].plotsample == 1:
             for icat in xrange(cur_plot.ncat):
-                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+                histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[sampleIndex].inshortnames)
                 if DebugNew:
                     print "histname",histname
                 rootfile.cd()
@@ -1337,24 +1337,24 @@ def MakeMergeOverlayLines(sampletype):
                     thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_index"+str(index))
                     if allintegrals:
                         print histname,thishist.Integral()
-                    thishist=FormatHist(thishist,itype,sampletype)
+                    thishist=FormatHist(thishist,sampleIndex,sampletype)
                     fullhist=thishist.Clone("fullhist")
                 else:
                     thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_index"+str(index))
-                    thishist=FormatHist(thishist,itype,sampletype)
+                    thishist=FormatHist(thishist,sampleIndex,sampletype)
                     if allintegrals:
                         print histname,thishist.Integral()
                     thishist.Add(fullhist)
-                    fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname).Clone(),itype,sampletype))
+                    fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname).Clone(),sampleIndex,sampletype))
                         
-                if  samples[itype].addtoleg is 1:
+                if  samples[sampleIndex].addtoleg is 1:
                     if DebugNew:
                         print "thishist.GetMaximum()",thishist.GetMaximum()
                         print "fullhist.GetMaximum()",fullhist.GetMaximum()
-                        print "index,itype",index,itype
+                        print "index,sampleIndex",index,sampleIndex
                     # individual histogram properties
-                    #thishist.SetFillColor(samples[itype].color)
-                    key=index,itype
+                    #thishist.SetFillColor(samples[sampleIndex].color)
+                    key=index,sampleIndex
                     histmap[key]=thishist
 
     if DebugNew:
@@ -1364,50 +1364,50 @@ def MakeMergeOverlayLines(sampletype):
 
 def MakeOverlayLines(sampletype, icat):
 
-    itypes=SampleMap(sampletype)
+    sampleIndexs=SampleMap(sampletype)
     if DebugNew:
-        print "MakeOverlayLines", itypes
-    order = itypes.keys()
+        print "MakeOverlayLines", sampleIndexs
+    order = sampleIndexs.keys()
     order.sort()
     if Debug:
         print "order",order
    
-    # the key is a dictionary from order to itype
-    # need itype info for plot properties 
+    # the key is a dictionary from order to sampleIndex
+    # need sampleIndex info for plot properties 
     histmap={}
 
     first=1
     for index in order:
         if DebugNew:
             print "index",index
-        itype = itypes[index]
+        sampleIndex = sampleIndexs[index]
         if DebugNew:
-            print "samples[itype].plotsample",samples[itype].plotsample
-            print "samples[itype].addtoleg",samples[itype].addtoleg
-        if samples[itype].plotsample == 1:
-            histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[itype].inshortnames)
+            print "samples[sampleIndex].plotsample",samples[sampleIndex].plotsample
+            print "samples[sampleIndex].addtoleg",samples[sampleIndex].addtoleg
+        if samples[sampleIndex].plotsample == 1:
+            histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[sampleIndex].inshortnames)
             if DebugNew:
                 print "histname",histname
             rootfile.cd()
             if first == 1:
                 first=0
                 thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_cat"+str(icat)+"_index"+str(index))
-                thishist=FormatHist(thishist,itype,sampletype)
+                thishist=FormatHist(thishist,sampleIndex,sampletype)
                 fullhist=thishist.Clone("fullhist")
             else:
                 thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_cat"+str(icat)+"_index"+str(index))
-                thishist=FormatHist(thishist,itype,sampletype)
+                thishist=FormatHist(thishist,sampleIndex,sampletype)
                 thishist.Add(fullhist)
-                fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname).Clone(),itype,sampletype))
+                fullhist.Add(FormatHist(ROOT.gROOT.FindObject(histname).Clone(),sampleIndex,sampletype))
                     
-            if  samples[itype].addtoleg is 1:
+            if  samples[sampleIndex].addtoleg is 1:
                 if DebugNew:
                     print "thishist.GetMaximum()",thishist.GetMaximum()
                     print "fullhist.GetMaximum()",fullhist.GetMaximum()
-                    print "index,itype",index,itype
+                    print "index,sampleIndex",index,sampleIndex
                 # individual histogram properties
-                #thishist.SetFillColor(samples[itype].color)
-                key=index,itype
+                #thishist.SetFillColor(samples[sampleIndex].color)
+                key=index,sampleIndex
                 histmap[key]=thishist
 
     if DebugNew:
@@ -1415,17 +1415,17 @@ def MakeOverlayLines(sampletype, icat):
     return histmap
             
 
-def FormatHist(hist,itype,sampletype):
-    return FormatHistFull(hist,itype,sampletype,True)
+def FormatHist(hist,sampleIndex,sampletype):
+    return FormatHistFull(hist,sampleIndex,sampletype,True)
 
 
-def FormatHistFull(hist,itype,sampletype,stacktop):
+def FormatHistFull(hist,sampleIndex,sampletype,stacktop):
   
     if DebugNew:
         print "stacktop",stacktop
  
     if doscale: 
-        hist.Scale(samples[itype].scale)
+        hist.Scale(samples[sampleIndex].scale)
     
     if douflow:
         uflow = hist.GetBinContent(0)
@@ -1440,7 +1440,7 @@ def FormatHistFull(hist,itype,sampletype,stacktop):
     
     if stacktop == True:
         if sampletype=="sig":
-            hist.SetLineColor(int(samples[itype].color))
+            hist.SetLineColor(int(samples[sampleIndex].color))
             hist.SetLineWidth(linewidth*plotscale)
 
         if sampletype=="data":
