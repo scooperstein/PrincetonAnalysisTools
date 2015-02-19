@@ -21,7 +21,7 @@ echo "successfully set up the enviroment"
 
 echo "moving text files to their respective directories"
 mkdir -p cfg
-mv samples_heppytest_dec2014.txt earlybranches.txt existingbranches.txt newbranches.txt bdtsettings.txt reg1_settings.txt reg2_settings.txt settings.txt cfg
+mv samples.txt earlybranches.txt existingbranches.txt newbranches.txt bdtsettings.txt reg1_settings.txt reg2_settings.txt settings_veryloose.txt cfg
 mkdir -p aux
 mv new-weights-23Jan.xml TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml aux
 

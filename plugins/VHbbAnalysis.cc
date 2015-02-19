@@ -30,7 +30,8 @@ void VHbbAnalysis::InitAnalysis(){
 //default to false in the future
 bool VHbbAnalysis::Preselection(){
     bool sel=false;
-    if( *d["Vtype"]==3 ) sel=true;
+    //if( *d["Vtype"]==3 ) sel=true;
+    if( *d["Vtype"]>=0 && *d["Vtype"]<=3) sel=true;
     return sel;
 }
 
@@ -71,10 +72,30 @@ bool VHbbAnalysis::Analyze(){
 }
 
 void VHbbAnalysis::FinishEvent(){
+    
+    // General use variables
     *in["sampleIndex"] = cursample->sampleNum;
+   
+    // Split WJets and ZJets samples by jet parton flavor
+    if (cursample->doJetFlavorSplit) {
+        int nBJets = 0;
+        //std::cout<<fabs(d["hJets_mcFlavour"][0])<<std::endl;
+        if (fabs(in["hJets_mcFlavour"][0]) == 5) nBJets++;
+        if (fabs(in["hJets_mcFlavour"][1]) == 5) nBJets++;
+        *in["sampleIndex"] = (*in["sampleIndex"]*1000 + nBJets);
+    } 
+
     *f["weight"] = cursample->intWeight;
     *f["Vtype_f"] = (float) *d["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
+    *f["selLeptons_pt_0"] = d["selLeptons_pt"][0];
+    *f["selLeptons_eta_0"] = d["selLeptons_eta"][0];
+    *f["selLeptons_phi_0"] = d["selLeptons_phi"][0];
+    *in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][0];    
+    *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][0];
+    *f["selLeptons_relIso03_0"] = d["selLeptons_relIso03"][0];  
+    
+
     *f["naLeptonsPassingCuts"] = 0.;
     for(int j=0;j<*in["naLeptons"]&&j<100;j++){
         //if(f["aLepton_pt"][j]>15. && fabs(f["aLepton_eta"][j])<2.5 && f["aLepton_pfCombRelIso"][j]<0.15) *f["naLeptonsPassingCuts"] += 1.;
@@ -219,7 +240,7 @@ bool VHbbAnalysis::WenuHbbSelection(){
         std::cout<<"d[\"selLeptons_relIso03\"] "<<d["selLeptons_relIso03"][0]<<std::endl;
         std::cout<<"*d[\"met_pt\"] "<<*d["met_pt"]<<std::endl;
     }
-
+    
     // there is only one selected electron for Vtype == 3 which is the electron tag
     // FIXME add configurable cuts
     if(fabs(in["selLeptons_pdgId"][0])==11 
@@ -229,8 +250,22 @@ bool VHbbAnalysis::WenuHbbSelection(){
         *d["elMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
         //*d["HVDPhi"]   =fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
         
-        if(*d["elMetDPhi"] < *f["elMetDPhiCut"]){
-            //&& *d["HVDPhi"]> *f["HVDPhiCut"]  ){
+        TLorentzVector W,El, MET, Hbb, HJ1, HJ2;
+        // Reconstruct W
+        MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
+        El.SetPtEtaPhiM(d["selLeptons_pt"][0], d["selLeptons_eta"][0], d["selLeptons_phi"][0], d["selLeptons_mass"][0]); 
+        W = MET + El; 
+        //*d["V_pt"] = W.Pt() // uncomment this line if we want to recalculate W.pt ourselves
+ 
+        // Reconstruct Higgs
+        HJ1.SetPtEtaPhiM(d["hJets_pt"][0], d["hJets_eta"][0], d["hJets_phi"][0], d["hJets_mass"][0]);
+        HJ1.SetPtEtaPhiM(d["hJets_pt"][1], d["hJets_eta"][1], d["hJets_phi"][1], d["hJets_mass"][1]);
+        Hbb = HJ1 + HJ2;
+        
+        // Now we can calculate whatever we want (transverse) with W and H four-vectors
+
+        if(*d["elMetDPhi"] < *f["elMetDPhiCut"] && *d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
+            && *d["H_pt"] > *f["hptcut"]  ){
             selectEvent=true;
         }
     }

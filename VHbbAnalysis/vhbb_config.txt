@@ -10,4 +10,4 @@ newbranches=cfg/newbranches.txt
 bdtsettings=cfg/bdtsettings.txt
 reg1settings=cfg/reg1_settings.txt
 reg2settings=cfg/reg2_settings.txt
-settings=cfg/settings.txt
+settings=cfg/settings_veryloose.txt

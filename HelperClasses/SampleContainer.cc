@@ -36,6 +36,7 @@ inline SampleContainer::SampleContainer()
     processedEvents=0;
     intWeight=1;
     nProFromFile=false;
+    doJetFlavorSplit = false;
 }
 
 inline void SampleContainer::AddFile(char* fname) {
