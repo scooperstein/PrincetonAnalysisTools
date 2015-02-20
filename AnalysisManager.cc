@@ -422,6 +422,7 @@ void AnalysisManager::Loop(std::string sampleName){
     SetBranches();
     
     // add new branches
+    //ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
     ofile = new TFile(Form("%s.root",outputTreeName.c_str()),"recreate");
     ofile->cd();
     //TTree *newtree = fChain->CloneTree(0);

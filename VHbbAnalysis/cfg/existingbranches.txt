@@ -2,8 +2,9 @@
 #     array +5;   vector +10;
 
 type=8  name=selLeptons_pt                      max=10
-#type=8  name=selLeptons_eta                     max=10
+type=8  name=selLeptons_eta                     max=10
 type=8  name=selLeptons_phi                     max=10
+type=8  name=selLeptons_mass                    max=10
 type=8  name=selLeptons_relIso03                max=10
 type=6  name=selLeptons_pdgId                   max=10
 type=6  name=selLeptons_eleCutIdCSA14_25ns_v1   max=10
@@ -55,6 +56,7 @@ type=8  name=hJets_vtxNtracks                   max=100
 type=8  name=hJets_vtxPt                        max=100
 type=8  name=hJets_phi                          max=100
 type=8  name=hJets_btagCSV                      max=100
+type=6  name=hJets_mcFlavour                    max=100
 
 type=8  name=aJets_pt                           max=100
 type=8  name=aJets_eta                          max=100
