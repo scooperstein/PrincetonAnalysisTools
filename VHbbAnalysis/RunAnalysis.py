@@ -58,7 +58,7 @@ else:
         content += "Log    = %s.log\n"    % sampleName
         content += "Notification = never\n"
         content += "WhenToTransferOutput=On_Exit\n"
-        content += "transfer_input_files = ../%s,../cfg/samples.txt,../cfg/earlybranches.txt,../cfg/existingbranches.txt,../cfg/newbranches.txt,../cfg/bdtsettings.txt,../cfg/reg1_settings.txt,../cfg/reg2_settings.txt,../cfg/settings_veryloose.txt,../aux/new-weights-23Jan.xml,../aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml,../RunSample.py,../../AnalysisDict.so\n" % options.configFile
+        content += "transfer_input_files = ../%s,../cfg/samples.txt,../cfg/earlybranches.txt,../cfg/existingbranches.txt,../cfg/newbranches.txt,../cfg/bdtsettings.txt,../cfg/reg1_settings.txt,../cfg/reg2_settings.txt,../cfg/settings.txt,../aux/new-weights-23Jan.xml,../aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml,../RunSample.py,../../AnalysisDict.so\n" % options.configFile
         content += "Queue = 1\n"
         print content
         submitFile.write(content)

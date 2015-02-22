@@ -31,7 +31,7 @@ void VHbbAnalysis::InitAnalysis(){
 bool VHbbAnalysis::Preselection(){
     bool sel=false;
     //if( *d["Vtype"]==3 ) sel=true;
-    if( *d["Vtype"]>=0 && *d["Vtype"]<=3) sel=true;
+    if( *d["Vtype"]==3) sel=true;
     return sel;
 }
 
@@ -44,7 +44,7 @@ bool VHbbAnalysis::Analyze(){
     std::pair<int,int> bjets=HighestPtBJets();
    
     // there aren't two acceptable jets
-    if(bjets.first==-1 || bjets.second==-1) return sel;
+    //if(bjets.first==-1 || bjets.second==-1) return sel;
     *in["hJetInd1"]=bjets.first;
     *in["hJetInd2"]=bjets.second;
 
@@ -54,6 +54,9 @@ bool VHbbAnalysis::Analyze(){
             <<d["Jet_pt"][bjets.second]<<" "
             <<std::endl;
     }
+    
+    // For now use higgs bjet selection from step 2 ntuples
+    if(d["hJets_btagCSV"][0] < *f["j1ptCSV"] || d["hJets_btagCSV"][1] < *f["j2ptCSV"]) return false;
  
     //check if event passes any event class
     if(WmunuHbbSelection()) {
@@ -84,6 +87,11 @@ void VHbbAnalysis::FinishEvent(){
         if (fabs(in["hJets_mcFlavour"][1]) == 5) nBJets++;
         *in["sampleIndex"] = (*in["sampleIndex"]*1000 + nBJets);
     } 
+
+    // Split by boost category
+    if(*d["V_pt"] >= 100 && *d["V_pt"] < 150) *in["eventClass"] = 1;
+    else if(*d["V_pt"] >= 150) *in["eventClass"] = 0;
+    else *in["eventClass"] = -1;
 
     *f["weight"] = cursample->intWeight;
     *f["Vtype_f"] = (float) *d["Vtype"];
@@ -266,6 +274,8 @@ bool VHbbAnalysis::WenuHbbSelection(){
 
         if(*d["elMetDPhi"] < *f["elMetDPhiCut"] && *d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
             && *d["H_pt"] > *f["hptcut"]  ){
+            
+            if (*in["naJets"] > 0 || *in["naLeptons"] > 0) return false;
             selectEvent=true;
         }
     }
