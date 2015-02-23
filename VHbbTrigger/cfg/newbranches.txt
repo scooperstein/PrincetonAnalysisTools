@@ -4,12 +4,18 @@
 type=2  name=dphijets
 type=2  name=dphijet1met
 type=2  name=dphijet1e
+type=2  name=dphijet1eiso
 type=2  name=phijj
 
+type=2  name=dr_e
 type=2  name=dr_eiso
 type=2  name=dr_jet1
 type=2  name=dr_jet2
 
+type=4  name=pass_eleHLT
+type=4  name=pass_elePlusMetHLT
+type=4  name=notPassBaseline
+type=4  name=passCurrentL1
 
 type=1  name=jetInd1
 type=2  name=jetPt1
@@ -22,6 +28,9 @@ type=2  name=muPt
 type=2  name=muEta
 type=1  name=elInd
 type=2  name=elPt
+type=2  name=elEta
+type=2  name=elPhi
+type=2  name=elIso
 type=1  name=elIsoInd
 type=2  name=elIsoPt
 type=2  name=elIsoEta

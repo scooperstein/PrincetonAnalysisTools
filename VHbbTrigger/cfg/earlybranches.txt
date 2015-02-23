@@ -5,6 +5,8 @@ type=1  name=njets
 type=7  name=jetPt          max=30
 
 type=2  name=b1Pt_gen
+type=2  name=b1Phi_gen
 type=2  name=b2Pt_gen
+type=2  name=b2Phi_gen
 type=2  name=genElePt
 

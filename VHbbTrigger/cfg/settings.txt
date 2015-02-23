@@ -2,19 +2,21 @@
 #     array +5;   vector +10;
 
 # ONLY USE FLOATS
-type=2  name=jetPtPreCut        val=20
+type=2  name=jetPtPreCut        val=0
 type=2  name=intL               val=1 # 1/pb
 
-type=2  name=genJ1PtCut         val=10
-type=2  name=genJ2PtCut         val=0
-type=2  name=genElPtCut         val=1
+type=2  name=genJ1PtCut         val=20
+type=2  name=genJ1PhiCut        val=2.4
+type=2  name=genJ2PtCut         val=20
+type=2  name=genJ2PhiCut        val=2.4
+type=2  name=genElPtCut         val=0.001
 
-type=2  name=preselNJets        val=1
+type=2  name=preselNJets        val=0
 
 type=2  name=j1ptCut            val=20
 type=2  name=j2ptCut            val=-1
 
-type=2  name=elIsoPtCut         val=-10
-type=2  name=elPtCut            val=-10
+type=2  name=elIsoPtCut         val=10
+type=2  name=elPtCut            val=10
 type=2  name=muPtCut            val=1000000
 type=2  name=metPtCut           val=1000000

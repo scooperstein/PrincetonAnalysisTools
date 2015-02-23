@@ -30,9 +30,19 @@ bool VHbbTrigger::Preselection(){
     bool sel=false;
 
     if(cursample->sampleNum<0){
-        if( *f["b1Pt_gen"]<*f["genJ1PtCut"]
-            ||*f["b2Pt_gen"]<*f["genJ2PtCut"]
-            ||*f["genElePt"]<*f["genElPtCut"]){
+        if(debug>100000){
+            std::string str[] = {"b1Pt_gen","genJ1PtCut","b1Phi_gen", "b2Pt_gen","genJ2PtCut","b2Phi_gen" };
+            std::vector<std::string> names(str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );  
+            for(int ind=0; ind< (int)names.size(); ind++){
+                std::cout<<names[ind]<<" "<<*f[names[ind]]<<std::endl;
+            }
+        }
+
+        if( *f["b1Pt_gen"]          <*f["genJ1PtCut"]
+            ||fabs(*f["b1Phi_gen"]) >*f["genJ1PhiCut"]
+            ||*f["b2Pt_gen"]        <*f["genJ2PtCut"]
+            ||fabs(*f["b2Phi_gen"]) >*f["genJ2PhiCut"]
+            ||*f["genElePt"]        <*f["genElPtCut"]){
             return sel;
         }
     }
@@ -49,12 +59,11 @@ bool VHbbTrigger::Preselection(){
 bool VHbbTrigger::Analyze(){
     bool sel=false;
 
+    if(debug>100000) std::cout<<"finding highest pt isolated electron"<<std::endl;
     *in["elIsoInd"]=-1;
-    *f["elIsoPt"]=-1;
+    *f["elIsoPt"]=-20;
     for(int iel=0; iel<*in["neleIso"]; iel++){
-        if(f["eleIsoPt"][iel] < 10 || fabs(f["eleIsoEta"][iel]) > 2.4) continue;
-        //if(EvalDeltaR(f["jetEta"][jets.first],f["jetPhi"][jets.first],f["eleIsoEta"][iel],f["eleIsoPhi"][iel])<0.5) continue;
-        //if(EvalDeltaR(f["jetEta"][jets.second],f["jetPhi"][jets.second],f["eleIsoEta"][iel],f["eleIsoPhi"][iel])<0.5) continue;
+        if(f["eleIsoPt"][iel] < *f["elIsoPtCut"] ) continue;
         if(*in["elIsoInd"]==-1){
             *in["elIsoInd"]=iel;
             *f["elIsoPt"]=f["eleIsoPt"][iel];
@@ -65,16 +74,85 @@ bool VHbbTrigger::Analyze(){
     }
     
      
+    if(debug>100000) std::cout<<"finding highest pt non-isolated electron"<<std::endl;
+    *in["elInd"]=-1;
+    *f["elPt"]=-20;
+    for(int iel=0; iel<*in["neleNonIso"]; iel++){
+        if(f["eleNonIsoPt"][iel] < *f["elPtCut"] ) continue;
+        if(*in["elInd"]==-1){
+            *in["elInd"]=iel;
+            *f["elPt"]=f["eleNonIsoPt"][iel];
+        } else if(*f["elPt"]<f["eleNonIsoPt"][iel]) {
+            *in["elInd"]=iel;
+            *f["elPt"]=f["eleNonIsoPt"][iel];
+        }
+    }
+   
+    if(debug>100000) std::cout<<"setting some iso electron branches"<<std::endl;
+    if(*in["elIsoInd"]!=-1){
+        *f["elIsoEta"]=f["eleIsoEta"][*in["elIsoInd"]];
+        *f["elIsoPhi"]=f["eleIsoPhi"][*in["elIsoInd"]];
+        *f["dr_eiso"]=EvalDeltaR(f["eleIsoEta"][*in["elIsoInd"]],f["eleIsoPhi"][*in["elIsoInd"]],*f["genEleEta"],*f["genElePhi"]);
+    } else {
+        *f["elIsoEta"]=-20;
+        *f["elIsoPhi"]=-20;
+        *f["dr_eiso"]=-20;
+    }    
+
+    if(debug>100000) std::cout<<"setting some non-iso electron branches"<<std::endl;
+    if(*in["elInd"]!=-1){
+        *f["elEta"]=f["eleNonIsoEta"][*in["elInd"]];
+        *f["elPhi"]=f["eleNonIsoPhi"][*in["elInd"]];
+        *f["dr_e"]=EvalDeltaR(f["eleNonIsoEta"][*in["elInd"]],f["eleNonIsoPhi"][*in["elInd"]],*f["genEleEta"],*f["genElePhi"]);
+    } else {
+        *f["dphijet1e"]=-20;
+        *f["elEta"]=-20;
+        *f["elPhi"]=-20;
+        *f["dr_e"]=-20;
+    }    
+
+    if(debug>100000) std::cout<<"re-setting some non-iso electron branches"<<std::endl;
+    if(*in["elIsoInd"]!=-1 && (*f["elPt"]<*f["elIsoPt"]) && *f["elIsoPt"]>*f["elPtCut"]){
+        *f["elEta"]=    *f["elIsoEta"];
+        *f["elPhi"]=    *f["elIsoPhi"];
+        *f["elPt"]=     *f["elIsoPt"];
+        *f["dr_e"]=     *f["dr_eiso"];
+    }
+
+     
     if(debug>1000) {
         std::cout<<"selecting bjets"<<std::endl;
     }
-    std::pair<int,int> jets= (*in["elIsoInd"]!=-1)?HighestPtJets(f["eleIsoPhi"][*in["elIsoInd"]],f["eleIsoEta"][*in["elIsoInd"]]):HighestPtJets();
+    std::pair<int,int> jets= (*f["elPt"]>0)?HighestPtJets(*f["elPhi"]):HighestPtJets();
+    //std::pair<int,int> jets= (*f["elPt"]>0)?HighestPtJets(*f["elPhi"],*f["elEta"]):HighestPtJets();
+    //std::pair<int,int> jets= (*in["elIsoInd"]!=-1)?HighestPtJets(f["eleIsoPhi"][*in["elIsoInd"]],f["eleIsoEta"][*in["elIsoInd"]]):HighestPtJets();
    
     // there aren't two acceptable jets
     if(*f["preselNJets"]==2 && (jets.first==-1 || jets.second==-1)) return sel;
     if(*f["preselNJets"]==1 && jets.first==-1) return sel;
+    if(*f["preselNJets"]==0 && jets.first==-1) {
+        //dummy to protect assumption of jet below
+        jets.first=0;
+    }
     *in["jetInd1"]=jets.first;
     *in["jetInd2"]=jets.second;
+
+    if(*f["elPhi"]!=-20){
+        *f["dphijet1e"]=EvalDeltaPhi(*f["elPhi"],f["jetPhi"][jets.first]);
+    } else {
+        *f["dphijet1e"]=-20;
+    }
+
+    if(*in["elIsoInd"]!=-1){
+        *f["dphijet1eiso"]=EvalDeltaPhi(*f["elIsoPhi"],f["jetPhi"][jets.first]);
+    } else {
+        *f["dphijet1eiso"]=-20;
+    }    
+    
+    //FIXME
+    if(*in["elIsoInd"]!=-1 && (*f["elPt"]<*f["elIsoPt"]) && *f["elIsoPt"]>*f["elPtCut"]){
+        *f["dphijet1e"]=*f["dphijet1eiso"];
+    }
 
     if(debug>1000) {
         std::cout<<"found two bjets with pt ";
@@ -126,10 +204,11 @@ bool VHbbTrigger::Analyze(){
         }
     }
         
-        
-    if(     *f["elIsoPt"] <  *f["elIsoPtCut"]  
-        &&  *f["muPt"] <  *f["muPtCut"]  
-        &&  *f["mhtPt"] <  *f["metPtCut"]  ) {
+    // could be wrong if elIsoPtCut>elPtCut      
+    if(     (*f["elIsoPt"] <  *f["elIsoPtCut"]  
+        || *in["elIsoInd"]==-1)
+        &&  (*f["elPt"] <  *f["elPtCut"]  
+        || *in["elInd"]==-1)){
         return sel;
     }
     sel=true;
@@ -149,6 +228,8 @@ bool VHbbTrigger::Analyze(){
 
     if(jets.second!=-1) {
         *f["dr_jet2"]=std::min(EvalDeltaR(f["jetEta"][jets.second],f["jetPhi"][jets.second],*f["b1Eta_gen"],*f["b1Phi_gen"]),EvalDeltaR(f["jetEta"][jets.second],f["jetPhi"][jets.second],*f["b2Eta_gen"],*f["b2Phi_gen"]));
+    } else {
+        *f["dr_jet2"]=-1;
     } 
 
     if(jets.first!=-1 && jets.second!=-1) {
@@ -178,22 +259,6 @@ bool VHbbTrigger::Analyze(){
     } //end dijet if
     
 
-    if(*in["elIsoInd"]!=-1){
-        *f["elIsoEta"]=f["eleIsoEta"][*in["elIsoInd"]];
-        *f["elIsoPhi"]=f["eleIsoPhi"][*in["elIsoInd"]];
-        *f["elIsoIso"]=f["eleIsoIso"][*in["elIsoInd"]];
-        *f["dphijet1e"]=EvalDeltaPhi(*f["elIsoPhi"],f["jetPhi"][jets.first]);
-        *f["dr_eiso"]=EvalDeltaR(f["eleIsoEta"][*in["elIsoInd"]],f["eleIsoPhi"][*in["elIsoInd"]],*f["genEleEta"],*f["genElePhi"]);
-    } else {
-        *f["dphijet1e"]=-20;
-        *f["elIsoEta"]=-20;
-        *f["elIsoPhi"]=-20;
-        *f["elIsoIso"]=-20;
-    }    
-
-    if(*f["dphijet1e"]<0 && *f["dphijet1e"]>-19) {
-        std::cout<<"e j dphi "<<*f["elIsoPhi"]<<" "<<f["jetPhi"][jets.first]<<" "<<*f["dphijet1e"]<<std::endl;
-    }
     if(*in["muInd"]!=-1){
         //*f["dphijetselmu"]=EvalDeltaPhi(dijetPhi,f["muonPhi"][*in["muInd"]]);
         *f["muEta"]=f["muonEta"][*in["muInd"]];
@@ -210,8 +275,21 @@ bool VHbbTrigger::Analyze(){
 void VHbbTrigger::FinishEvent(){
     *in["sampleIndex"] = cursample->sampleNum;
     *f["weight"] = cursample->intWeight;
+  
+    *b["pass_eleHLT"] = 
+        ((*f["elPt"]>35 || *f["elIsoPt"]>30) 
+        && *f["hltEleWP85Pt"]>35 && fabs(*f["hltEleWP85Eta"])<2.1); 
+        //&& *f["hltElePt"]>35 && fabs(*f["hltEleEta"])<2.1); 
+    *b["pass_elePlusMetHLT"] = 
+        ((*f["elPt"]>35 || *f["elIsoPt"]>30 || *f["mhtPt"]>70) 
+        && *f["hltEleWP85Pt"]>25 && fabs(*f["hltEleWP85Eta"])<2.1
+        //&& *f["hltElePt"]>25 && fabs(*f["hltEleEta"])<2.1
+        && *f["pfmet"]>80 ); 
    
-    
+    *b["passCurrentL1"] = 
+        (*f["elPt"]>35 || *f["elIsoPt"]>30 || *f["mhtPt"]>70); 
+ 
+    *b["notPassBaseline"]=(!*b["pass_eleHLT"] && !*b["pass_elePlusMetHLT"]);
     ofile->cd();
     outputTree->Fill();
     return;
@@ -249,6 +327,11 @@ std::pair<int,int> VHbbTrigger::HighestPtJets(float vetoPhi, float vetoEta){
     for(int ijet=0; ijet<*in["njets"]; ijet++){
         if(f["jetPt"][ijet]>*f["j2ptCut"]) {
             if(ijet==pair.first) continue;
+            if(vetoEta!=-10 && vetoPhi!=-10){
+                if(EvalDeltaR(f["jetEta"][ijet],f["jetPhi"][ijet],vetoEta,vetoPhi)<0.5) continue;
+            } else if(vetoEta==-10 && vetoPhi!=-10){
+                if(EvalDeltaPhi(f["jetPhi"][ijet],vetoPhi)<0.3) continue;
+            }
             if( pair.second == -1 ) {
                 pair.second = ijet;
             } else if(f["jetPt"][pair.second]<f["jetPt"][ijet]){
