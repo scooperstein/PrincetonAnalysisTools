@@ -1,7 +1,7 @@
 analysis=VHbbTrigger
 outputname=output
 
-samples=cfg/samples.txt
+samples=cfg/samples_feb6.txt
 
 earlybranches=cfg/earlybranches.txt
 existingbranches=cfg/existingbranches.txt

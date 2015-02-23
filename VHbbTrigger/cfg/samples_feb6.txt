@@ -1,0 +1,11 @@
+
+name=WH125   file=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/Feb6/WenuHbbHLT_PU40_Feb6_CRAB3_tree.root  type=-125  xsec=1  npro=200000
+#name=WH125   file=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/WH_1252.root  type=-125  xsec=0.261  npro=200000
+
+#hacking for rate
+#14360239+3147678+3323913+3475030+3664164+3399245+3392020+3568531+3404725=41735545
+
+name=NuGun   dir=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/Feb6/Neutrino_Pt-2to20_gun_PU40_Feb6_CRAB3   type=11   xsec=11246   npro=41735545    scale=2508  kfac=0.843
+# 1130/1340 jobs completed--> kfac
+#name=NuGun   file=/Users/capalmer/WorkingArea/Higgs/Hbb/2015/PrAT_angulartriggers/VHbbTrigger/samples/nuGun2.root   type=100   xsec=64     npro=45716756    scale=23.8
+
