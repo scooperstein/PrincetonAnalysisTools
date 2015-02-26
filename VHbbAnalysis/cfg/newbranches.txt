@@ -3,6 +3,7 @@
 
 type=1  name=hJetInd1
 type=1  name=hJetInd2
+type=1  name=nHJetsMatched
 type=1  name=eventClass
 type=3  name=elMetDPhi
 type=1  name=sampleIndex
@@ -23,6 +24,11 @@ type=2  name=selLeptons_eta_0
 type=1  name=selLeptons_pdgId_0
 type=1  name=selLeptons_eleCutIdCSA14_25ns_v1_0
 type=2  name=selLeptons_relIso03_0
+
+type=3  name=hJets_pt_0_Andrea
+type=3  name=hJets_pt_1_Andrea
+type=3  name=hJets_btagCSV_0_Andrea
+type=3  name=hJets_btagCSV_1_Andrea
 
 # jet energy regression variables
 type=2  name=Jet1_pt_reg
