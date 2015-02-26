@@ -26,13 +26,28 @@ type=6  name=aLeptons_eleCutIdCSA14_25ns_v1     max=50
 
 type=1  name=naJets
 
-type=6  name=Jet_id                             max=100
-type=6  name=Jet_puId                           max=100
-type=8  name=Jet_btagCSV                        max=100
-
-type=8  name=Jet_pt                             max=100
-type=8  name=Jet_eta                            max=100
-type=8  name=Jet_phi                            max=100
+type=6  name=Jet_id                           max=100
+type=6  name=Jet_puId                         max=100
+type=8  name=Jet_btagCSV                      max=100
+type=8  name=Jet_pt                           max=100
+type=8  name=Jet_rawPt                        max=100
+type=8  name=Jet_eta                          max=100
+type=8  name=Jet_mass                         max=100
+type=8  name=Jet_leadTrackPt                  max=100
+type=8  name=Jet_leptonPtRel                  max=100
+type=8  name=Jet_leptonPt                     max=100
+type=8  name=Jet_leptonDeltaR                 max=100
+type=8  name=Jet_chEmEF                       max=100
+type=8  name=Jet_chHEF                        max=100
+type=8  name=Jet_neHEF                        max=100
+type=8  name=Jet_neEmEF                       max=100
+type=8  name=Jet_chMult                       max=100
+type=8  name=Jet_vtxMass                      max=100
+type=8  name=Jet_vtx3DVal                     max=100
+type=8  name=Jet_vtxNtracks                   max=100
+type=8  name=Jet_vtxPt                        max=100
+type=8  name=Jet_phi                          max=100
+type=6  name=Jet_mcFlavour                    max=100
 
 # variables needed for the jet energy regression, maybe we can find a way to
 # not save these?
