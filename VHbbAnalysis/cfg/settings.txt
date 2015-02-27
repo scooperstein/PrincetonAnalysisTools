@@ -11,9 +11,14 @@ type=2  name=j1ptCSV            val=0.898
 type=2  name=j2ptCSV            val=0.5
 
 type=2  name=eptcut             val=30
+type=2  name=muptcut            val=30
 type=2  name=metcut             val=45
 type=2  name=erelisocut         val=0.5
+type=2  name=murelisocut        val=0.5
 type=2  name=elMetDPhiCut       val=1.571 # pi/2
+type=2  name=muMetDPhiCut       val=1.571
+type=2  name=elidcut            val=4 # tight
+type=2  name=muidcut            val=1 # tight
 
 #not implemented yet
 type=2  name=HVDPhiCut          val=2.95

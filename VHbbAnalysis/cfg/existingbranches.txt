@@ -8,6 +8,7 @@ type=8  name=selLeptons_mass                    max=10
 type=8  name=selLeptons_relIso03                max=10
 type=6  name=selLeptons_pdgId                   max=10
 type=6  name=selLeptons_eleCutIdCSA14_25ns_v1   max=10
+type=6  name=selLeptons_tightId                 max=10
 
 type=3  name=H_mass                            
 type=3  name=H_pt
