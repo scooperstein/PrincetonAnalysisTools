@@ -11,6 +11,9 @@ type=2  name=weight
 type=1  name=isWenu
 type=1  name=isWmunu
 
+type=1  name=nAddJets
+type=1  name=nAddLeptons
+
 type=2  name=naJetsPassingCuts
 type=2  name=BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4
 type=2  name=naLeptonsPassingCuts
