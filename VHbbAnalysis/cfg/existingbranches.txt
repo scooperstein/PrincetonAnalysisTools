@@ -76,5 +76,9 @@ type=6  name=hJets_mcFlavour                    max=100
 
 type=8  name=aJets_pt                           max=100
 type=8  name=aJets_eta                          max=100
+type=6  name=aJets_id                           max=100
 type=8  name=aJets_btagCSV                      max=100
 
+type=8  name=aLeptons_pt                        max=50
+type=8  name=aLeptons_eta                       max=50
+type=8  name=aLeptons_relIso03                  max=50

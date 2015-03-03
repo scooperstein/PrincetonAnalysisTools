@@ -90,7 +90,24 @@ bool VHbbAnalysis::Analyze(){
         *in["isWenu"] = 1;
         *in["eventClass"]=1000;
     }
-
+    
+    // count the number of additional leptons and jets, then cut on this number
+    int nAddJet = 0;
+    int nAddLep = 0;          
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>20 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+            nAddJet++;
+        }  
+    }           
+    for(int i=0; i < *in["naLeptons"]; i++) {
+        if(d["aLeptons_pt"][i]>15 && fabs(d["aLeptons_eta"][i])<2.5 && d["aLeptons_relIso03"][i]<0.1) {
+            nAddLep++;
+        }
+    }
+    *in["nAddJets"] = nAddJet;
+    *in["nAddLeptons"] = nAddLep;
+    if(nAddJet >= *f["nAddJetsCut"] || nAddLep>= *f["nAddLeptonsCut"]) return false; 
+    
     if(debug>1000) {
         std::cout<<"selecting event"<<std::endl;
     }
@@ -317,6 +334,7 @@ bool VHbbAnalysis::WenuHbbSelection(){
             && *d["H_pt"] > *f["hptcut"]  ){
             
             //if (*in["naJets"] > 0 || *in["naLeptons"] > 0) return false;
+
             selectEvent=true;
         }
     }
