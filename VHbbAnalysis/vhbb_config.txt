@@ -1,7 +1,7 @@
 analysis=VHbbAnalysis
 outputname=output
 
-samples=cfg/samples_feb20_sigHLT.txt
+samples=cfg/samples.txt
 
 earlybranches=cfg/earlybranches.txt
 existingbranches=cfg/existingbranches.txt
