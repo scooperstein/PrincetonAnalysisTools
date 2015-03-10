@@ -12,30 +12,96 @@ type=2  name=dr_eiso
 type=2  name=dr_jet1
 type=2  name=dr_jet2
 
-type=4  name=pass_eleHLT
-type=4  name=pass_elePlusMetHLT
-type=4  name=notPassBaseline
-type=4  name=passCurrentL1
+type=4  name=L1_EG40
+type=4  name=L1_EG40er
+type=4  name=L1_EG40iso
+type=4  name=L1_EG35
+type=4  name=L1_EG35er
+type=4  name=L1_EG35iso
+type=4  name=L1_EG35isoer
+type=4  name=L1_EG25
+type=4  name=L1_EG25er
+type=4  name=L1_EG25iso
+type=4  name=L1_EG25isoer
+type=4  name=L1_EG30
+type=4  name=L1_EG30iso
+type=4  name=L1_EG30isoer
+type=4  name=L1_EG22isoer
+type=4  name=L1_EG20
+type=4  name=L1_EG20iso
+type=4  name=L1_EG20isoer
+type=4  name=L1EG20iso_L1Jet25Eta35
+type=4  name=L1EG30iso_L1Jet30Eta30
 
-type=1  name=jetInd1
-type=2  name=jetPt1
-type=2  name=jetPhi1
-type=1  name=jetInd2
-type=2  name=jetPt2
-type=2  name=jetPhi2
-type=1  name=muInd
-type=2  name=muPt
-type=2  name=muEta
+type=4  name=HLT_Ele32_WP75
+type=4  name=HLT_Ele32_WP85
+type=4  name=HLT_Ele35_WP85
+type=4  name=HLT_Ele40_WP75
+type=4  name=HLT_Ele40_WP85
+type=4  name=HLT_Ele45_WP75
+type=4  name=HLT_Ele45_WP85
+type=4  name=HLT_Ele45_WP85_NoER
+type=4  name=HLT_Ele45_WP75_NoER
+type=4  name=HLT_Ele40_WP75_NoER
+type=4  name=HLT_Ele50_WP85
+type=4  name=HLT_Ele40_WP85_OLDL1
+
+type=4  name=L1EG20iso_L1Jet25Eta35
+type=4  name=L1EG25_L1Jet40Eta25
+type=4  name=L1EG25er_L1Jet40Eta25
+type=4  name=L1EG25iso_L1Jet40Eta25
+type=4  name=L1EG25eriso_L1Jet40Eta25
+type=4  name=L1EG30iso_L1Jet30Eta30
+type=4  name=L1EG30iso_L1Jet30Eta25
+type=4  name=L1EG25iso_L1Jet50Eta25
+type=4  name=L1EG20iso_L1Jet50Eta25
+type=4  name=L1EG20iso_L1Jet40Eta25
+type=4  name=L1EG20iso_L1Jet30Eta25
+
+type=4  name=HLT_Ele30_WP85_PFJet30
+type=1  name=HLT_Ele30_WP85_PFJet30_ElInd
+type=1  name=HLT_Ele30_WP85_PFJet30_JetInd
+
+type=4  name=HLT_Ele30_WP85_PFJet50
+type=1  name=HLT_Ele30_WP85_PFJet50_ElInd
+type=1  name=HLT_Ele30_WP85_PFJet50_JetInd
+
+type=4  name=HLT_Ele30_WP85_PFJet50_L1EG25_L1Jet40Eta25
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25_L1Jet40Eta25_ElInd
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25_L1Jet40Eta25_JetInd
+
+type=4  name=HLT_Ele30_WP85_PFJet50_L1EG25er_L1Jet40Eta25
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25er_L1Jet40Eta25_ElInd
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25er_L1Jet40Eta25_JetInd
+
+type=4  name=HLT_Ele30_WP85_PFJet50_L1EG25iso_L1Jet40Eta25
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25iso_L1Jet40Eta25_ElInd
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25iso_L1Jet40Eta25_JetInd
+
+type=4  name=HLT_Ele30_WP85_PFJet50_L1EG25eriso_L1Jet40Eta25
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25eriso_L1Jet40Eta25_ElInd
+type=1  name=HLT_Ele30_WP85_PFJet50_L1EG25eriso_L1Jet40Eta25_JetInd
+
+type=9  name=hltEleWP75ReComp     max=30
+type=9  name=hltEleWP85ReComp     max=30
+
+type=1  name=l1JetInd1
+type=2  name=l1JetPt1
+type=2  name=l1JetPhi1
+type=1  name=l1JetInd2
+type=2  name=l1JetPt2
+type=2  name=l1JetPhi2
+#type=1  name=muInd
+#type=2  name=muPt
+#type=2  name=muEta
 type=1  name=elInd
 type=2  name=elPt
 type=2  name=elEta
 type=2  name=elPhi
-type=2  name=elIso
 type=1  name=elIsoInd
 type=2  name=elIsoPt
 type=2  name=elIsoEta
 type=2  name=elIsoPhi
-type=2  name=elIsoIso
 
 type=1  name=eventClass
 type=1  name=sampleIndex
