@@ -50,6 +50,11 @@ type=8  name=Jet_vtxPt                        max=100
 type=8  name=Jet_phi                          max=100
 type=6  name=Jet_mcFlavour                    max=100
 
+type=3  name=HLT_ELE27
+type=3  name=HLT_ELE32
+type=3  name=HLT_ELE27JET30
+
+
 # variables needed for the jet energy regression, maybe we can find a way to
 # not save these?
 type=8  name=hJets_pt                           max=100
