@@ -7,11 +7,13 @@ type=2  name=intL               val=19700 # 1/pb
 
 type=2  name=j1ptCut            val=30
 type=2  name=j2ptCut            val=30
-type=2  name=j1ptCSV            val=0.898
+type=2  name=j1ptCSV            val=0.7
 type=2  name=j2ptCSV            val=0.5
 
 type=2  name=eptcut             val=30
 type=2  name=muptcut            val=30
+type=2  name=eletacut           val=2.4
+type=2  name=muetacut           val=2.4
 type=2  name=metcut             val=45
 type=2  name=erelisocut         val=0.5
 type=2  name=murelisocut        val=0.5
@@ -20,9 +22,9 @@ type=2  name=muMetDPhiCut       val=1.571
 type=2  name=elidcut            val=4 # tight
 type=2  name=muidcut            val=1 # tight
 
-type=2  name=HVDPhiCut          val=2.95
+type=2  name=HVDPhiCut          val=2.0
 type=2  name=hptcut             val=100
-type=2  name=vptcut             val=0 # use eventClass variable instead
+type=2  name=vptcut             val=100 # use eventClass variable instead
 
 # events must have number of add. jets/leptons < this value
 type=2  name=nAddJetsCut        val=100

@@ -79,16 +79,21 @@ bool VHbbAnalysis::Analyze(){
      
 
     //check if event passes any event class
+    *in["lepInd"] = -1;
     *in["isWmunu"] = 0;
     *in["isWenu"] = 0;
     if(WmunuHbbSelection()) {
         sel=true;
         *in["isWmunu"] = 1;
         *in["eventClass"]=0;
+        *in["lepInd"] = *in["muInd"];
     } else if(WenuHbbSelection()) {
         sel=true;
         *in["isWenu"] = 1;
-        *in["eventClass"]=1000;
+        if (!(*in["isWmunu"])) {
+            *in["eventClass"]=1000;
+            *in["lepInd"] = *in["elInd"];
+        }
     }
     
     // count the number of additional leptons and jets, then cut on this number
@@ -151,14 +156,25 @@ void VHbbAnalysis::FinishEvent(){
     *f["weight"] = cursample->intWeight;
     *f["Vtype_f"] = (float) *d["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
-    *f["selLeptons_pt_0"] = d["selLeptons_pt"][0];
-    *f["selLeptons_eta_0"] = d["selLeptons_eta"][0];
-    *f["selLeptons_phi_0"] = d["selLeptons_phi"][0];
-    *in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][0];    
-    *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][0];
-    *in["selLeptons_tightId_0"] = in["selLeptons_tightId"][0];
-    *f["selLeptons_relIso03_0"] = d["selLeptons_relIso03"][0];  
-    
+    *f["selLeptons_pt_0"] = d["selLeptons_pt"][*in["lepInd"]];
+    *f["selLeptons_eta_0"] = d["selLeptons_eta"][*in["lepInd"]];
+    *f["selLeptons_phi_0"] = d["selLeptons_phi"][*in["lepInd"]];
+    *in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
+    *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
+    *in["selLeptons_tightId_0"] = in["selLeptons_tightId"][*in["lepInd"]];
+    *f["selLeptons_relIso03_0"] = d["selLeptons_relIso03"][*in["lepInd"]];  
+   
+    if (*in["nGenLep"] == 0) {
+        // gen lep is originally a tau?
+        *f["selLeptons_genEleDR_0"] = -1;
+    }
+    else {
+        TLorentzVector GenLep, El;
+        GenLep.SetPtEtaPhiM(d["GenLep_pt"][0],d["GenLep_eta"][0],d["GenLep_phi"][0],d["GenLep_mass"][0]);
+        El.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]);
+        *f["selLeptons_genEleDR_0"] = El.DeltaR(GenLep);
+    }
+ 
 
     *f["naLeptonsPassingCuts"] = 0.;
     for(int j=0;j<*in["naLeptons"]&&j<100;j++){
@@ -308,36 +324,44 @@ bool VHbbAnalysis::WenuHbbSelection(){
     
     // there is only one selected electron for Vtype == 3 which is the electron tag
     // FIXME add configurable cuts
-    if(fabs(in["selLeptons_pdgId"][0])==11 
-        && d["selLeptons_pt"][0]      > *f["eptcut"] 
-        && d["selLeptons_relIso03"][0]< *f["erelisocut"]
-        && in["selLeptons_eleCutIdCSA14_25ns_v1"][0] >= *f["elidcut"]
-        && *d["met_pt"]               > *f["metcut"]){
-        *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        //*d["HVDPhi"]   =fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        
-        TLorentzVector W,El, MET, Hbb, HJ1, HJ2;
-        // Reconstruct W
-        MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-        El.SetPtEtaPhiM(d["selLeptons_pt"][0], d["selLeptons_eta"][0], d["selLeptons_phi"][0], d["selLeptons_mass"][0]); 
-        W = MET + El; 
-        *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
- 
-        // Reconstruct Higgs
-        HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-        HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-        Hbb = HJ1 + HJ2;
-        
-        // Now we can calculate whatever we want (transverse) with W and H four-vectors
-
-        if(*d["lepMetDPhi"] < *f["elMetDPhiCut"] && *d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
-            && *d["H_pt"] > *f["hptcut"]  ){
-            
-            //if (*in["naJets"] > 0 || *in["naLeptons"] > 0) return false;
-
-            selectEvent=true;
+    *in["elInd"] = -1;
+    float elMaxPt = 0; // max pt of the electrons we select
+    for (int i =0; i<*in["nselLeptons"]; i++) {
+        if(fabs(in["selLeptons_pdgId"][i])==11 
+            && d["selLeptons_pt"][i]      > *f["eptcut"] 
+            && fabs(d["selLeptons_eta"][i]) < *f["eletacut"]
+            && d["selLeptons_relIso03"][i]< *f["erelisocut"]
+            && in["selLeptons_eleCutIdCSA14_25ns_v1"][i] >= *f["elidcut"]
+            && *d["met_pt"]               > *f["metcut"]){
+            *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][i],*d["met_phi"]));
+            if (*d["lepMetDPhi"] < *f["elMetDPhiCut"] && d["selLeptons_pt"][i] > elMaxPt) {
+                elMaxPt = d["selLeptons_pt"][i];
+                *in["elInd"] = i;
+            }
         }
     }
+    if (*in["elInd"] == -1) return false;
+        
+    TLorentzVector W,El, MET, Hbb, HJ1, HJ2;
+    // Reconstruct W
+    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    El.SetPtEtaPhiM(d["selLeptons_pt"][*in["elInd"]], d["selLeptons_eta"][*in["elInd"]], d["selLeptons_phi"][*in["elInd"]], d["selLeptons_mass"][*in["elInd"]]); 
+    W = MET + El; 
+    *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
+ 
+    // Reconstruct Higgs
+    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
+    Hbb = HJ1 + HJ2;
+        
+    // Now we can calculate whatever we want (transverse) with W and H four-vectors
+    *d["HVdPhi"] = Hbb.DeltaPhi(W);
+
+    if(*d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
+        && *d["H_pt"] > *f["hptcut"]  ){
+        selectEvent=true;
+    }
+
     return selectEvent;
 }
 
@@ -355,34 +379,42 @@ bool VHbbAnalysis::WmunuHbbSelection(){
     
     // there is only one selected electron for Vtype == 3 which is the electron tag
     // FIXME add configurable cuts
-    if(fabs(in["selLeptons_pdgId"][0])==13 
-        && d["selLeptons_pt"][0]      > *f["muptcut"] 
-        && d["selLeptons_relIso03"][0]< *f["murelisocut"]
-        && in["selLeptons_tightId"][0] >= *f["muidcut"]
-        && *d["met_pt"]               > *f["metcut"]){
-        *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        //*d["HVDPhi"]   =fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        
-        TLorentzVector W,Mu, MET, Hbb, HJ1, HJ2;
-        // Reconstruct W
-        MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-        Mu.SetPtEtaPhiM(d["selLeptons_pt"][0], d["selLeptons_eta"][0], d["selLeptons_phi"][0], d["selLeptons_mass"][0]); 
-        W = MET + Mu; 
-        *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
- 
-        // Reconstruct Higgs
-        HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-        HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-        Hbb = HJ1 + HJ2;
-        
-        // Now we can calculate whatever we want (transverse) with W and H four-vectors
-
-        if(*d["lepMetDPhi"] < *f["muMetDPhiCut"] && *d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
-            && *d["H_pt"] > *f["hptcut"]  ){
-            
-            //if (*in["naJets"] > 0 || *in["naLeptons"] > 0) return false;
-            selectEvent=true;
+    *in["muInd"] = -1;
+    float muMaxPt = 0; // max pt of the muons we select 
+    for (int i=0; i<*in["nselLeptons"]; i++) {
+        if(fabs(in["selLeptons_pdgId"][i])==13 
+            && d["selLeptons_pt"][i]      > *f["muptcut"]
+            && fabs(d["selLeptons_eta"][i]) < *f["muetacut"]
+            && d["selLeptons_relIso03"][i]< *f["murelisocut"]
+            && in["selLeptons_tightId"][i] >= *f["muidcut"]
+            && *d["met_pt"]               > *f["metcut"]){
+            *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][i],*d["met_phi"]));
+            if (*d["lepMetDPhi"] < *f["muMetDPhiCut"] && d["selLeptons_pt"][i] > muMaxPt) {
+                muMaxPt = d["selLeptons_pt"][i];
+                *in["muInd"] = i;
+            }
         }
+    }
+
+    if (*in["muInd"] == -1) return false;
+    TLorentzVector W,Mu, MET, Hbb, HJ1, HJ2;
+    // Reconstruct W
+    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    Mu.SetPtEtaPhiM(d["selLeptons_pt"][*in["muInd"]], d["selLeptons_eta"][*in["muInd"]], d["selLeptons_phi"][*in["muInd"]], d["selLeptons_mass"][*in["muInd"]]); 
+    W = MET + Mu; 
+    *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
+ 
+    // Reconstruct Higgs
+    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
+    Hbb = HJ1 + HJ2;
+        
+    // Now we can calculate whatever we want (transverse) with W and H four-vectors
+    *d["HVdPhi"] = Hbb.DeltaPhi(W);
+
+    if(*d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
+        && *d["H_pt"] > *f["hptcut"]  ){  
+        selectEvent=true;
     }
     return selectEvent;
 }
