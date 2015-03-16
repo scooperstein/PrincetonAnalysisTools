@@ -10,6 +10,9 @@ type=2  name=genEleEta
 type=2  name=hltpfmet
 type=2  name=hltpfmetPhi
 
+type=2  name=hltpfht
+type=2  name=l1htTot
+
 type=1  name=nevent
 
 type=1  name=nmuons

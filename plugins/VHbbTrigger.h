@@ -32,5 +32,6 @@ class VHbbTrigger : public AnalysisManager {
     bool PassEGPlusJetL1(float EGPtCut=20, bool EGiso=true, bool EGer=false, float jetPtCut=20, float jetEtaCut=3.5);
     bool PassElePlusJetHLT(std::vector<std::string> L1seeds, float elPtCut, std::string elWP, bool elEtaRestricted, float jetPtCut, float jetEtaCut, int* elInd=0, int* jetInd=0);
     void RecomputeWPs();
+    void GenMatchElectrons();
 };
 

@@ -1,7 +1,8 @@
 analysis=VHbbTrigger
-outputname=output
+outputname=output_march11_march13_open
 
-samples=cfg/samples_march6.txt
+samples=cfg/samples_march11_open.txt
+#samples=cfg/samples_march11.txt
 
 earlybranches=cfg/earlybranches.txt
 existingbranches=cfg/existingbranches.txt
