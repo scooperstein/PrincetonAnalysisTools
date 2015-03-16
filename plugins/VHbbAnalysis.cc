@@ -99,66 +99,265 @@ bool VHbbAnalysis::Analyze(){
     // count the number of additional leptons and jets, then cut on this number
     int nAddJet = 0;
     int nAddJet30 = 0;
+    int nAddJet35 = 0;
     int nAddJet40 = 0;
+    int nAddJet45 = 0;
     int nAddJet50 = 0;
-    int nAddJet3p5 = 0;
-    int nAddJet2p5 = 0;
+    int nAddJet303p5 = 0;
+    int nAddJet302p5 = 0;
+    int nAddJet353p5 = 0;
+    int nAddJet352p5 = 0;
     int nAddJet403p5 = 0;
     int nAddJet402p5 =0;
+    int nAddJet453p5 = 0;
+    int nAddJet452p5 =0;
+    int nAddJet503p5 = 0;
+    int nAddJet502p5 =0;
+    int nAddJet_puid = 0;
+    int nAddJet30_puid = 0;
+    int nAddJet35_puid = 0;
+    int nAddJet40_puid = 0;
+    int nAddJet45_puid = 0;
+    int nAddJet50_puid = 0;
+    int nAddJet303p5_puid = 0;
+    int nAddJet302p5_puid = 0;
+    int nAddJet353p5_puid = 0;
+    int nAddJet352p5_puid = 0;
+    int nAddJet403p5_puid = 0;
+    int nAddJet402p5_puid =0;
+    int nAddJet453p5_puid = 0;
+    int nAddJet452p5_puid =0;
+    int nAddJet503p5_puid = 0;
+    int nAddJet502p5_puid = 0;
     int nAddLep = 0;          
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>20 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
             nAddJet++;
         }  
     }           
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>30 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
             nAddJet30++;
         }  
     }           
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>40 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet35++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
             nAddJet40++;
         }  
     }           
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>50 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet45++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
             nAddJet50++;
         }  
     }           
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>30 && fabs(d["aJets_eta"][i])<3.5 && in["aJets_id"][i]>0) {
-            nAddJet3p5++;
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet303p5++;
         }  
     }           
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>30 && fabs(d["aJets_eta"][i])<2.5 && in["aJets_id"][i]>0) {
-            nAddJet2p5++;
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet302p5++;
         }  
     }           
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>40 && fabs(d["aJets_eta"][i])<3.5 && in["aJets_id"][i]>0) {
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet353p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet352p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
             nAddJet403p5++;
         }  
     }           
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>40 && fabs(d["aJets_eta"][i])<2.5 && in["aJets_id"][i]>0) {
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
             nAddJet402p5++;
         }  
     }           
-    for(int i=0; i < *in["naLeptons"]; i++) {
-        if(d["aLeptons_pt"][i]>15 && fabs(d["aLeptons_eta"][i])<2.5 && d["aLeptons_relIso03"][i]<0.1) {
-            nAddLep++;
-        }
-    }
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet453p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet452p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet503p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet502p5++;
+        }  
+    }          
+
+    
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet30_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet35_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet40_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet45_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet50_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet303p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet302p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet353p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet352p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet403p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet402p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet453p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet452p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet503p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet502p5_puid++;
+        }  
+    }           
+ 
     *in["nAddJets"] = nAddJet;
     *in["nAddJets30"] = nAddJet30;
+    *in["nAddJets35"] = nAddJet35;
     *in["nAddJets40"] = nAddJet40;
+    *in["nAddJets45"] = nAddJet45;
     *in["nAddJets50"] = nAddJet50;
-    *in["nAddJets3p5"] = nAddJet3p5;
-    *in["nAddJets2p5"] = nAddJet2p5;
+    *in["nAddJets303p5"] = nAddJet303p5;
+    *in["nAddJets302p5"] = nAddJet302p5; 
+    *in["nAddJets353p5"] = nAddJet353p5;
+    *in["nAddJets352p5"] = nAddJet352p5;
     *in["nAddJets403p5"] = nAddJet403p5;
     *in["nAddJets402p5"] = nAddJet402p5;
+    *in["nAddJets453p5"] = nAddJet453p5;
+    *in["nAddJets452p5"] = nAddJet452p5;
+    *in["nAddJets503p5"] = nAddJet503p5;
+    *in["nAddJets502p5"] = nAddJet502p5;
+    
+    *in["nAddJets_puid"] = nAddJet_puid;
+    *in["nAddJets30_puid"] = nAddJet30_puid;
+    *in["nAddJets35_puid"] = nAddJet35_puid;
+    *in["nAddJets40_puid"] = nAddJet40_puid;
+    *in["nAddJets45_puid"] = nAddJet45_puid;
+    *in["nAddJets50_puid"] = nAddJet50_puid;
+    *in["nAddJets303p5_puid"] = nAddJet303p5_puid;
+    *in["nAddJets302p5_puid"] = nAddJet302p5_puid; 
+    *in["nAddJets353p5_puid"] = nAddJet353p5_puid;
+    *in["nAddJets352p5_puid"] = nAddJet352p5_puid;
+    *in["nAddJets403p5_puid"] = nAddJet403p5_puid;
+    *in["nAddJets402p5_puid"] = nAddJet402p5_puid;
+    *in["nAddJets453p5_puid"] = nAddJet453p5_puid;
+    *in["nAddJets452p5_puid"] = nAddJet452p5_puid;
+    *in["nAddJets503p5_puid"] = nAddJet503p5_puid;
+    *in["nAddJets502p5_puid"] = nAddJet502p5_puid;
     *in["nAddLeptons"] = nAddLep;
     if(nAddJet >= *f["nAddJetsCut"] || nAddLep>= *f["nAddLeptonsCut"]) return false; 
     
