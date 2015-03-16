@@ -98,10 +98,52 @@ bool VHbbAnalysis::Analyze(){
     
     // count the number of additional leptons and jets, then cut on this number
     int nAddJet = 0;
+    int nAddJet30 = 0;
+    int nAddJet40 = 0;
+    int nAddJet50 = 0;
+    int nAddJet3p5 = 0;
+    int nAddJet2p5 = 0;
+    int nAddJet403p5 = 0;
+    int nAddJet402p5 =0;
     int nAddLep = 0;          
     for(int i=0; i < *in["naJets"]; i++) {
         if(d["aJets_pt"][i]>20 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
             nAddJet++;
+        }  
+    }           
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>30 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+            nAddJet30++;
+        }  
+    }           
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>40 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+            nAddJet40++;
+        }  
+    }           
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>50 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+            nAddJet50++;
+        }  
+    }           
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>30 && fabs(d["aJets_eta"][i])<3.5 && in["aJets_id"][i]>0) {
+            nAddJet3p5++;
+        }  
+    }           
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>30 && fabs(d["aJets_eta"][i])<2.5 && in["aJets_id"][i]>0) {
+            nAddJet2p5++;
+        }  
+    }           
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>40 && fabs(d["aJets_eta"][i])<3.5 && in["aJets_id"][i]>0) {
+            nAddJet403p5++;
+        }  
+    }           
+    for(int i=0; i < *in["naJets"]; i++) {
+        if(d["aJets_pt"][i]>40 && fabs(d["aJets_eta"][i])<2.5 && in["aJets_id"][i]>0) {
+            nAddJet402p5++;
         }  
     }           
     for(int i=0; i < *in["naLeptons"]; i++) {
@@ -110,6 +152,13 @@ bool VHbbAnalysis::Analyze(){
         }
     }
     *in["nAddJets"] = nAddJet;
+    *in["nAddJets30"] = nAddJet30;
+    *in["nAddJets40"] = nAddJet40;
+    *in["nAddJets50"] = nAddJet50;
+    *in["nAddJets3p5"] = nAddJet3p5;
+    *in["nAddJets2p5"] = nAddJet2p5;
+    *in["nAddJets403p5"] = nAddJet403p5;
+    *in["nAddJets402p5"] = nAddJet402p5;
     *in["nAddLeptons"] = nAddLep;
     if(nAddJet >= *f["nAddJetsCut"] || nAddLep>= *f["nAddLeptonsCut"]) return false; 
     
@@ -163,7 +212,16 @@ void VHbbAnalysis::FinishEvent(){
     *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
     *in["selLeptons_tightId_0"] = in["selLeptons_tightId"][*in["lepInd"]];
     *f["selLeptons_relIso03_0"] = d["selLeptons_relIso03"][*in["lepInd"]];  
-   
+  
+    // electron ID variables
+    *f["selLeptons_eleSieie_0"] = d["selLeptons_eleSieie"][*in["lepInd"]];
+    *f["selLeptons_eleDEta_0"] = d["selLeptons_eleDEta"][*in["lepInd"]];
+    *f["selLeptons_eleDPhi_0"] = d["selLeptons_eleDPhi"][*in["lepInd"]];
+    *f["selLeptons_eleHoE_0"] = d["selLeptons_eleHoE"][*in["lepInd"]];
+    *f["selLeptons_eleMissingHits_0"] = d["selLeptons_eleMissingHits"][*in["lepInd"]];
+    *f["selLeptons_eleChi2_0"] = d["selLeptons_eleChi2"][*in["lepInd"]];
+     
+ 
     if (*in["nGenLep"] == 0) {
         // gen lep is originally a tau?
         *f["selLeptons_genEleDR_0"] = -1;

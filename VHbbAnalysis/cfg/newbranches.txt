@@ -15,6 +15,13 @@ type=1  name=isWenu
 type=1  name=isWmunu
 
 type=1  name=nAddJets
+type=1  name=nAddJets30
+type=1  name=nAddJets40
+type=1  name=nAddJets50
+type=1  name=nAddJets3p5
+type=1  name=nAddJets2p5
+type=1  name=nAddJets403p5
+type=1  name=nAddJets402p5
 type=1  name=nAddLeptons
 
 type=2  name=naJetsPassingCuts
@@ -33,6 +40,12 @@ type=1  name=selLeptons_eleCutIdCSA14_25ns_v1_0
 type=1  name=selLeptons_tightId_0
 type=2  name=selLeptons_relIso03_0
 type=2  name=selLeptons_genEleDR_0
+type=2  name=selLeptons_eleSieie_0               
+type=2  name=selLeptons_eleDEta_0                
+type=2  name=selLeptons_eleDPhi_0               
+type=2  name=selLeptons_eleHoE_0                
+type=2  name=selLeptons_eleMissingHits_0       
+type=2  name=selLeptons_eleChi2_0        
 
 type=3  name=hJets_pt_0_Andrea
 type=3  name=hJets_pt_1_Andrea
