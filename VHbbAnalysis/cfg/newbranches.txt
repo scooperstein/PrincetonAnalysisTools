@@ -3,6 +3,9 @@
 
 type=1  name=hJetInd1
 type=1  name=hJetInd2
+type=1  name=elInd
+type=1  name=muInd
+type=1  name=lepInd
 type=1  name=nHJetsMatched
 type=1  name=eventClass
 type=3  name=lepMetDPhi
@@ -12,6 +15,37 @@ type=1  name=isWenu
 type=1  name=isWmunu
 
 type=1  name=nAddJets
+type=1  name=nAddJets30
+type=1  name=nAddJets35
+type=1  name=nAddJets40
+type=1  name=nAddJets45
+type=1  name=nAddJets50
+type=1  name=nAddJets303p5
+type=1  name=nAddJets302p5
+type=1  name=nAddJets353p5
+type=1  name=nAddJets352p5
+type=1  name=nAddJets403p5
+type=1  name=nAddJets402p5
+type=1  name=nAddJets453p5
+type=1  name=nAddJets452p5
+type=1  name=nAddJets503p5
+type=1  name=nAddJets502p5
+type=1  name=nAddJets_puid
+type=1  name=nAddJets30_puid
+type=1  name=nAddJets35_puid
+type=1  name=nAddJets40_puid
+type=1  name=nAddJets45_puid
+type=1  name=nAddJets50_puid
+type=1  name=nAddJets303p5_puid
+type=1  name=nAddJets302p5_puid
+type=1  name=nAddJets353p5_puid
+type=1  name=nAddJets352p5_puid
+type=1  name=nAddJets403p5_puid
+type=1  name=nAddJets402p5_puid
+type=1  name=nAddJets453p5_puid
+type=1  name=nAddJets452p5_puid
+type=1  name=nAddJets503p5_puid
+type=1  name=nAddJets502p5_puid
 type=1  name=nAddLeptons
 
 type=2  name=naJetsPassingCuts
@@ -29,6 +63,13 @@ type=1  name=selLeptons_pdgId_0
 type=1  name=selLeptons_eleCutIdCSA14_25ns_v1_0
 type=1  name=selLeptons_tightId_0
 type=2  name=selLeptons_relIso03_0
+type=2  name=selLeptons_genEleDR_0
+type=2  name=selLeptons_eleSieie_0               
+type=2  name=selLeptons_eleDEta_0                
+type=2  name=selLeptons_eleDPhi_0               
+type=2  name=selLeptons_eleHoE_0                
+type=2  name=selLeptons_eleMissingHits_0       
+type=2  name=selLeptons_eleChi2_0        
 
 type=3  name=hJets_pt_0_Andrea
 type=3  name=hJets_pt_1_Andrea

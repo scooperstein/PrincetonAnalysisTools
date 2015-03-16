@@ -79,32 +79,285 @@ bool VHbbAnalysis::Analyze(){
      
 
     //check if event passes any event class
+    *in["lepInd"] = -1;
     *in["isWmunu"] = 0;
     *in["isWenu"] = 0;
     if(WmunuHbbSelection()) {
         sel=true;
         *in["isWmunu"] = 1;
         *in["eventClass"]=0;
+        *in["lepInd"] = *in["muInd"];
     } else if(WenuHbbSelection()) {
         sel=true;
         *in["isWenu"] = 1;
-        *in["eventClass"]=1000;
+        if (!(*in["isWmunu"])) {
+            *in["eventClass"]=1000;
+            *in["lepInd"] = *in["elInd"];
+        }
     }
     
     // count the number of additional leptons and jets, then cut on this number
     int nAddJet = 0;
+    int nAddJet30 = 0;
+    int nAddJet35 = 0;
+    int nAddJet40 = 0;
+    int nAddJet45 = 0;
+    int nAddJet50 = 0;
+    int nAddJet303p5 = 0;
+    int nAddJet302p5 = 0;
+    int nAddJet353p5 = 0;
+    int nAddJet352p5 = 0;
+    int nAddJet403p5 = 0;
+    int nAddJet402p5 =0;
+    int nAddJet453p5 = 0;
+    int nAddJet452p5 =0;
+    int nAddJet503p5 = 0;
+    int nAddJet502p5 =0;
+    int nAddJet_puid = 0;
+    int nAddJet30_puid = 0;
+    int nAddJet35_puid = 0;
+    int nAddJet40_puid = 0;
+    int nAddJet45_puid = 0;
+    int nAddJet50_puid = 0;
+    int nAddJet303p5_puid = 0;
+    int nAddJet302p5_puid = 0;
+    int nAddJet353p5_puid = 0;
+    int nAddJet352p5_puid = 0;
+    int nAddJet403p5_puid = 0;
+    int nAddJet402p5_puid =0;
+    int nAddJet453p5_puid = 0;
+    int nAddJet452p5_puid =0;
+    int nAddJet503p5_puid = 0;
+    int nAddJet502p5_puid = 0;
     int nAddLep = 0;          
-    for(int i=0; i < *in["naJets"]; i++) {
-        if(d["aJets_pt"][i]>20 && fabs(d["aJets_eta"][i])<4.5 && in["aJets_id"][i]>0) {
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
             nAddJet++;
         }  
     }           
-    for(int i=0; i < *in["naLeptons"]; i++) {
-        if(d["aLeptons_pt"][i]>15 && fabs(d["aLeptons_eta"][i])<2.5 && d["aLeptons_relIso03"][i]<0.1) {
-            nAddLep++;
-        }
-    }
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet30++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet35++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet40++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet45++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet50++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet303p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet302p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet353p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet352p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet403p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet402p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet453p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet452p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet503p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet502p5++;
+        }  
+    }          
+
+    
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet30_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet35_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet40_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet45_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet50_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet303p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet302p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet353p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>35 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet352p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet403p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>40 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet402p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet453p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>45 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet452p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet503p5_puid++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet502p5_puid++;
+        }  
+    }           
+ 
     *in["nAddJets"] = nAddJet;
+    *in["nAddJets30"] = nAddJet30;
+    *in["nAddJets35"] = nAddJet35;
+    *in["nAddJets40"] = nAddJet40;
+    *in["nAddJets45"] = nAddJet45;
+    *in["nAddJets50"] = nAddJet50;
+    *in["nAddJets303p5"] = nAddJet303p5;
+    *in["nAddJets302p5"] = nAddJet302p5; 
+    *in["nAddJets353p5"] = nAddJet353p5;
+    *in["nAddJets352p5"] = nAddJet352p5;
+    *in["nAddJets403p5"] = nAddJet403p5;
+    *in["nAddJets402p5"] = nAddJet402p5;
+    *in["nAddJets453p5"] = nAddJet453p5;
+    *in["nAddJets452p5"] = nAddJet452p5;
+    *in["nAddJets503p5"] = nAddJet503p5;
+    *in["nAddJets502p5"] = nAddJet502p5;
+    
+    *in["nAddJets_puid"] = nAddJet_puid;
+    *in["nAddJets30_puid"] = nAddJet30_puid;
+    *in["nAddJets35_puid"] = nAddJet35_puid;
+    *in["nAddJets40_puid"] = nAddJet40_puid;
+    *in["nAddJets45_puid"] = nAddJet45_puid;
+    *in["nAddJets50_puid"] = nAddJet50_puid;
+    *in["nAddJets303p5_puid"] = nAddJet303p5_puid;
+    *in["nAddJets302p5_puid"] = nAddJet302p5_puid; 
+    *in["nAddJets353p5_puid"] = nAddJet353p5_puid;
+    *in["nAddJets352p5_puid"] = nAddJet352p5_puid;
+    *in["nAddJets403p5_puid"] = nAddJet403p5_puid;
+    *in["nAddJets402p5_puid"] = nAddJet402p5_puid;
+    *in["nAddJets453p5_puid"] = nAddJet453p5_puid;
+    *in["nAddJets452p5_puid"] = nAddJet452p5_puid;
+    *in["nAddJets503p5_puid"] = nAddJet503p5_puid;
+    *in["nAddJets502p5_puid"] = nAddJet502p5_puid;
     *in["nAddLeptons"] = nAddLep;
     if(nAddJet >= *f["nAddJetsCut"] || nAddLep>= *f["nAddLeptonsCut"]) return false; 
     
@@ -151,14 +404,34 @@ void VHbbAnalysis::FinishEvent(){
     *f["weight"] = cursample->intWeight;
     *f["Vtype_f"] = (float) *d["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
-    *f["selLeptons_pt_0"] = d["selLeptons_pt"][0];
-    *f["selLeptons_eta_0"] = d["selLeptons_eta"][0];
-    *f["selLeptons_phi_0"] = d["selLeptons_phi"][0];
-    *in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][0];    
-    *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][0];
-    *in["selLeptons_tightId_0"] = in["selLeptons_tightId"][0];
-    *f["selLeptons_relIso03_0"] = d["selLeptons_relIso03"][0];  
-    
+    *f["selLeptons_pt_0"] = d["selLeptons_pt"][*in["lepInd"]];
+    *f["selLeptons_eta_0"] = d["selLeptons_eta"][*in["lepInd"]];
+    *f["selLeptons_phi_0"] = d["selLeptons_phi"][*in["lepInd"]];
+    *in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
+    *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
+    *in["selLeptons_tightId_0"] = in["selLeptons_tightId"][*in["lepInd"]];
+    *f["selLeptons_relIso03_0"] = d["selLeptons_relIso03"][*in["lepInd"]];  
+  
+    // electron ID variables
+    *f["selLeptons_eleSieie_0"] = d["selLeptons_eleSieie"][*in["lepInd"]];
+    *f["selLeptons_eleDEta_0"] = d["selLeptons_eleDEta"][*in["lepInd"]];
+    *f["selLeptons_eleDPhi_0"] = d["selLeptons_eleDPhi"][*in["lepInd"]];
+    *f["selLeptons_eleHoE_0"] = d["selLeptons_eleHoE"][*in["lepInd"]];
+    *f["selLeptons_eleMissingHits_0"] = d["selLeptons_eleMissingHits"][*in["lepInd"]];
+    *f["selLeptons_eleChi2_0"] = d["selLeptons_eleChi2"][*in["lepInd"]];
+     
+ 
+    if (*in["nGenLep"] == 0) {
+        // gen lep is originally a tau?
+        *f["selLeptons_genEleDR_0"] = -1;
+    }
+    else {
+        TLorentzVector GenLep, El;
+        GenLep.SetPtEtaPhiM(d["GenLep_pt"][0],d["GenLep_eta"][0],d["GenLep_phi"][0],d["GenLep_mass"][0]);
+        El.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]);
+        *f["selLeptons_genEleDR_0"] = El.DeltaR(GenLep);
+    }
+ 
 
     *f["naLeptonsPassingCuts"] = 0.;
     for(int j=0;j<*in["naLeptons"]&&j<100;j++){
@@ -308,36 +581,44 @@ bool VHbbAnalysis::WenuHbbSelection(){
     
     // there is only one selected electron for Vtype == 3 which is the electron tag
     // FIXME add configurable cuts
-    if(fabs(in["selLeptons_pdgId"][0])==11 
-        && d["selLeptons_pt"][0]      > *f["eptcut"] 
-        && d["selLeptons_relIso03"][0]< *f["erelisocut"]
-        && in["selLeptons_eleCutIdCSA14_25ns_v1"][0] >= *f["elidcut"]
-        && *d["met_pt"]               > *f["metcut"]){
-        *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        //*d["HVDPhi"]   =fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        
-        TLorentzVector W,El, MET, Hbb, HJ1, HJ2;
-        // Reconstruct W
-        MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-        El.SetPtEtaPhiM(d["selLeptons_pt"][0], d["selLeptons_eta"][0], d["selLeptons_phi"][0], d["selLeptons_mass"][0]); 
-        W = MET + El; 
-        *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
- 
-        // Reconstruct Higgs
-        HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-        HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-        Hbb = HJ1 + HJ2;
-        
-        // Now we can calculate whatever we want (transverse) with W and H four-vectors
-
-        if(*d["lepMetDPhi"] < *f["elMetDPhiCut"] && *d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
-            && *d["H_pt"] > *f["hptcut"]  ){
-            
-            //if (*in["naJets"] > 0 || *in["naLeptons"] > 0) return false;
-
-            selectEvent=true;
+    *in["elInd"] = -1;
+    float elMaxPt = 0; // max pt of the electrons we select
+    for (int i =0; i<*in["nselLeptons"]; i++) {
+        if(fabs(in["selLeptons_pdgId"][i])==11 
+            && d["selLeptons_pt"][i]      > *f["eptcut"] 
+            && fabs(d["selLeptons_eta"][i]) < *f["eletacut"]
+            && d["selLeptons_relIso03"][i]< *f["erelisocut"]
+            && in["selLeptons_eleCutIdCSA14_25ns_v1"][i] >= *f["elidcut"]
+            && *d["met_pt"]               > *f["metcut"]){
+            *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][i],*d["met_phi"]));
+            if (*d["lepMetDPhi"] < *f["elMetDPhiCut"] && d["selLeptons_pt"][i] > elMaxPt) {
+                elMaxPt = d["selLeptons_pt"][i];
+                *in["elInd"] = i;
+            }
         }
     }
+    if (*in["elInd"] == -1) return false;
+        
+    TLorentzVector W,El, MET, Hbb, HJ1, HJ2;
+    // Reconstruct W
+    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    El.SetPtEtaPhiM(d["selLeptons_pt"][*in["elInd"]], d["selLeptons_eta"][*in["elInd"]], d["selLeptons_phi"][*in["elInd"]], d["selLeptons_mass"][*in["elInd"]]); 
+    W = MET + El; 
+    *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
+ 
+    // Reconstruct Higgs
+    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
+    Hbb = HJ1 + HJ2;
+        
+    // Now we can calculate whatever we want (transverse) with W and H four-vectors
+    *d["HVdPhi"] = Hbb.DeltaPhi(W);
+
+    if(*d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
+        && *d["H_pt"] > *f["hptcut"]  ){
+        selectEvent=true;
+    }
+
     return selectEvent;
 }
 
@@ -355,34 +636,42 @@ bool VHbbAnalysis::WmunuHbbSelection(){
     
     // there is only one selected electron for Vtype == 3 which is the electron tag
     // FIXME add configurable cuts
-    if(fabs(in["selLeptons_pdgId"][0])==13 
-        && d["selLeptons_pt"][0]      > *f["muptcut"] 
-        && d["selLeptons_relIso03"][0]< *f["murelisocut"]
-        && in["selLeptons_tightId"][0] >= *f["muidcut"]
-        && *d["met_pt"]               > *f["metcut"]){
-        *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        //*d["HVDPhi"]   =fabs(EvalDeltaPhi(d["selLeptons_phi"][0],*d["met_phi"]));
-        
-        TLorentzVector W,Mu, MET, Hbb, HJ1, HJ2;
-        // Reconstruct W
-        MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-        Mu.SetPtEtaPhiM(d["selLeptons_pt"][0], d["selLeptons_eta"][0], d["selLeptons_phi"][0], d["selLeptons_mass"][0]); 
-        W = MET + Mu; 
-        *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
- 
-        // Reconstruct Higgs
-        HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-        HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-        Hbb = HJ1 + HJ2;
-        
-        // Now we can calculate whatever we want (transverse) with W and H four-vectors
-
-        if(*d["lepMetDPhi"] < *f["muMetDPhiCut"] && *d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
-            && *d["H_pt"] > *f["hptcut"]  ){
-            
-            //if (*in["naJets"] > 0 || *in["naLeptons"] > 0) return false;
-            selectEvent=true;
+    *in["muInd"] = -1;
+    float muMaxPt = 0; // max pt of the muons we select 
+    for (int i=0; i<*in["nselLeptons"]; i++) {
+        if(fabs(in["selLeptons_pdgId"][i])==13 
+            && d["selLeptons_pt"][i]      > *f["muptcut"]
+            && fabs(d["selLeptons_eta"][i]) < *f["muetacut"]
+            && d["selLeptons_relIso03"][i]< *f["murelisocut"]
+            && in["selLeptons_tightId"][i] >= *f["muidcut"]
+            && *d["met_pt"]               > *f["metcut"]){
+            *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][i],*d["met_phi"]));
+            if (*d["lepMetDPhi"] < *f["muMetDPhiCut"] && d["selLeptons_pt"][i] > muMaxPt) {
+                muMaxPt = d["selLeptons_pt"][i];
+                *in["muInd"] = i;
+            }
         }
+    }
+
+    if (*in["muInd"] == -1) return false;
+    TLorentzVector W,Mu, MET, Hbb, HJ1, HJ2;
+    // Reconstruct W
+    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    Mu.SetPtEtaPhiM(d["selLeptons_pt"][*in["muInd"]], d["selLeptons_eta"][*in["muInd"]], d["selLeptons_phi"][*in["muInd"]], d["selLeptons_mass"][*in["muInd"]]); 
+    W = MET + Mu; 
+    *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
+ 
+    // Reconstruct Higgs
+    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
+    Hbb = HJ1 + HJ2;
+        
+    // Now we can calculate whatever we want (transverse) with W and H four-vectors
+    *d["HVdPhi"] = Hbb.DeltaPhi(W);
+
+    if(*d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
+        && *d["H_pt"] > *f["hptcut"]  ){  
+        selectEvent=true;
     }
     return selectEvent;
 }

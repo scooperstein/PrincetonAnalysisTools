@@ -1,6 +1,7 @@
 # types:  unsigned int=0, int=1, float=2, double=3, bool=4
 #     array +5;   vector +10;
 
+type=1  name=nselLeptons 
 type=8  name=selLeptons_pt                      max=10
 type=8  name=selLeptons_eta                     max=10
 type=8  name=selLeptons_phi                     max=10
@@ -9,6 +10,12 @@ type=8  name=selLeptons_relIso03                max=10
 type=6  name=selLeptons_pdgId                   max=10
 type=6  name=selLeptons_eleCutIdCSA14_25ns_v1   max=10
 type=6  name=selLeptons_tightId                 max=10
+type=8  name=selLeptons_eleSieie                max=10
+type=8  name=selLeptons_eleDEta                 max=10
+type=8  name=selLeptons_eleDPhi                 max=10
+type=8  name=selLeptons_eleHoE                  max=10
+type=8  name=selLeptons_eleMissingHits          max=10
+type=8  name=selLeptons_eleChi2                 max=10
 
 type=3  name=H_mass                            
 type=3  name=H_pt
@@ -17,6 +24,12 @@ type=3  name=HVdPhi
 type=3  name=met_pt
 type=3  name=met_phi
 type=3  name=met_sumEt
+
+type=1  name=nGenLep
+type=8  name=GenLep_pt                          max=10
+type=8  name=GenLep_eta                         max=10
+type=8  name=GenLep_phi                         max=10
+type=8  name=GenLep_mass                        max=10
 
 type=1  name=naLeptons
 type=8  name=aLeptons_pt                        max=50
