@@ -60,7 +60,7 @@ bool VHbbTrigger::Analyze(){
     bool sel=false;
 
     *b["L1_EG20"]       =   PassEGL1(20.0,false,false);
-    if( *b["L1_EG20"] ) sel=true;
+    if( *b["L1_EG20"] || *f["l1htTot"]>100) sel=true;
     else return sel;
 
     *b["L1_EG40"]       =   PassEGL1(40.0,false,false);
@@ -93,31 +93,39 @@ bool VHbbTrigger::Analyze(){
     *b["L1EG30iso_L1Jet30Eta30"]   =   PassEGPlusJetL1(30., true, false, 30, 3.0);
     *b["L1EG30iso_L1Jet30Eta25"]   =   PassEGPlusJetL1(30., true, false, 30, 2.5);
 
- 
-    if(*f["recomputeWPs"]==1) RecomputeWPs();
 
+    
+ 
     return sel;
 }
 
 void VHbbTrigger::FinishEvent(){
     *in["sampleIndex"] = cursample->sampleNum;
     *f["weight"] = cursample->intWeight;
+    
+    if(*f["doGenMatching"]==1) GenMatchElectrons();
+    if(*f["recomputeWPs"]==1) RecomputeWPs();
+
   
     std::vector<std::string> L1seeds;
     L1seeds.clear();
-    L1seeds.push_back("L1_EG22isoer");
-    *b["HLT_Ele32_WP75"] = PassEleHLT(32., "WP75", L1seeds, true);
+    L1seeds.push_back("L1_EG30isoer");
+    *b["HLT_Ele32_WP75"] = PassEleHLT(32., "WP75", L1seeds, true, in["HLT_Ele32_WP75_ElInd"]);
     *b["HLT_Ele32_WP85"] = PassEleHLT(32., "WP85", L1seeds, true);
+    L1seeds.push_back("L1_EG40");
+    *b["HLT_Ele32_WP75_ADD40"] = PassEleHLT(32., "WP75", L1seeds, true);
+    *b["HLT_Ele32_WP85_ADD40"] = PassEleHLT(32., "WP85", L1seeds, true);
     L1seeds.clear();
     L1seeds.push_back("L1_EG30isoer");
     L1seeds.push_back("L1_EG40");
     *b["HLT_Ele35_WP85"] = PassEleHLT(35., "WP85", L1seeds, true);
     *b["HLT_Ele40_WP85"] = PassEleHLT(40., "WP85", L1seeds, true);
     *b["HLT_Ele45_WP85"] = PassEleHLT(45., "WP85", L1seeds, true);
+    *b["HLT_Ele40_WP85_NoER"] = PassEleHLT(40., "WP85", L1seeds, false);
     *b["HLT_Ele45_WP85_NoER"] = PassEleHLT(45., "WP85", L1seeds, false);
     *b["HLT_Ele45_WP75_NoER"] = PassEleHLT(45., "WP75", L1seeds, false);
     *b["HLT_Ele40_WP75_NoER"] = PassEleHLT(40., "WP75", L1seeds, false);
-    *b["HLT_Ele50_WP85"] = PassEleHLT(50., "WP85", L1seeds, true);
+    *b["HLT_Ele50_WP85"] = PassEleHLT(50., "WP85", L1seeds, true, in["HLT_Ele50_WP85_ElInd"]);
     *b["HLT_Ele40_WP75"] = PassEleHLT(40., "WP75", L1seeds, true);
     *b["HLT_Ele45_WP75"] = PassEleHLT(45., "WP75", L1seeds, true);
         
@@ -125,6 +133,10 @@ void VHbbTrigger::FinishEvent(){
     L1seeds.push_back("L1_EG30isoer");
     L1seeds.push_back("L1_EG35er");
     *b["HLT_Ele40_WP85_OLDL1"] = PassEleHLT(40., "WP85", L1seeds, true);
+    
+    L1seeds.clear();
+    L1seeds.push_back("L1_EG30isoer");
+    *b["HLT_Ele50_WP85_No40"] = PassEleHLT(50., "WP85", L1seeds, true);
         
     L1seeds.clear();
     L1seeds.push_back("L1EG30iso_L1Jet30Eta30");
@@ -440,8 +452,6 @@ void VHbbTrigger::RecomputeWPs(){
     if(debug>1000000) printEvent=true;
 
     for(int ihlt=0; ihlt<*in["nhltele"]; ihlt++){
-        if(b["hltEleWP75"][ihlt]==1&&f["hltElePt"][ihlt]<34&&f["hltElePt"][ihlt]>27) printEvent=true;
-        else printEvent=(debug>1000000);
         b["hltEleWP75ReComp"][ihlt]=false;
         b["hltEleWP85ReComp"][ihlt]=false;
         if(fabs(f["hltEleEta"][ihlt])<1.5) { //EB cuts
@@ -472,7 +482,7 @@ void VHbbTrigger::RecomputeWPs(){
             if(f["hltEleSieie"][ihlt]<0.011){
             if(f["hltEleECalIso"][ihlt]/f["hltElePt"][ihlt]<0.16){
             if(f["hltEleHCalIso"][ihlt]/f["hltElePt"][ihlt]<0.20){
-            if(f["hltEleOneOESuperMinusOneOP"][ihlt]<0.016){
+            if(f["hltEleOneOESuperMinusOneOP"][ihlt]<0.012){
             if(in["hltEleMissingHits"][ihlt]<2){
             if(f["hltEleDEta"][ihlt]<0.005){
             if(f["hltEleDPhi"][ihlt]<0.03){
@@ -514,7 +524,7 @@ void VHbbTrigger::RecomputeWPs(){
             if(f["hltEleSieie"][ihlt]<0.033){
             if(f["hltEleECalIso"][ihlt]/f["hltElePt"][ihlt]<0.12){
             if(f["hltEleHCalIso"][ihlt]/f["hltElePt"][ihlt]<0.30){
-            if(f["hltEleOneOESuperMinusOneOP"][ihlt]<0.010){
+            if(f["hltEleOneOESuperMinusOneOP"][ihlt]<0.009){
             if(in["hltEleMissingHits"][ihlt]<2){
             if(f["hltEleDEta"][ihlt]<0.010){
             if(f["hltEleDPhi"][ihlt]<0.03){
@@ -524,6 +534,30 @@ void VHbbTrigger::RecomputeWPs(){
             if(printEvent) std::cout<<"pass all"<<std::endl;
                 b["hltEleWP85ReComp"][ihlt]=true;
             }}}}}}}}}
+        }
+    }
+}
+    
+void VHbbTrigger::GenMatchElectrons(){
+    if(debug>10000000) std::cout<<"nhltele "<<*in["nhltele"]<<std::endl;
+    *f["hltEleBestMatchDR"]=9999;
+    *in["hltEleBestMatch"]=-1;
+    for(int ihlt=0; ihlt<*in["nhltele"]; ihlt++){
+        if(debug>10000000) {
+            std::cout<<"ihlt "<<ihlt<<std::endl;
+            std::cout<<"eta phi "<<f["hltEleEta"][ihlt]<<" "<<f["hltElePhi"][ihlt]<<std::endl;
+        }
+        if(*in["sampleIndex"]<0){
+            f["hltEleMatchDR"][ihlt]=EvalDeltaR(f["hltEleEta"][ihlt],f["hltElePhi"][ihlt],*f["genEleEta"],*f["genElePhi"]);
+            b["hltEleMatch"][ihlt]=(f["hltEleMatchDR"][ihlt]<0.15);
+
+            if(f["hltEleMatchDR"][ihlt]<*f["hltEleBestMatchDR"]){
+                *f["hltEleBestMatchDR"]=f["hltEleMatchDR"][ihlt];
+                *in["hltEleBestMatch"]=ihlt;
+            }
+        } else {
+            f["hltEleMatchDR"][ihlt]=9999;
+            b["hltEleMatch"][ihlt]=0;
         }
     }
 }

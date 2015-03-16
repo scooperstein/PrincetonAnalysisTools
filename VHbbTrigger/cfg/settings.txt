@@ -23,3 +23,4 @@ type=2  name=muPtCut            val=1000000
 type=2  name=metPtCut           val=1000000
 
 type=2  name=recomputeWPs       val=1
+type=2  name=doGenMatching      val=1
