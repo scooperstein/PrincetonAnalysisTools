@@ -98,11 +98,17 @@ bool VHbbAnalysis::Analyze(){
     
     // count the number of additional leptons and jets, then cut on this number
     int nAddJet = 0;
+    int nAddJet20 = 0;
+    int nAddJet25 = 0;
     int nAddJet30 = 0;
     int nAddJet35 = 0;
     int nAddJet40 = 0;
     int nAddJet45 = 0;
     int nAddJet50 = 0;
+    int nAddJet203p5 = 0;
+    int nAddJet202p5 = 0;
+    int nAddJet253p5 = 0;
+    int nAddJet252p5 = 0;
     int nAddJet303p5 = 0;
     int nAddJet302p5 = 0;
     int nAddJet353p5 = 0;
@@ -114,11 +120,17 @@ bool VHbbAnalysis::Analyze(){
     int nAddJet503p5 = 0;
     int nAddJet502p5 =0;
     int nAddJet_puid = 0;
+    int nAddJet20_puid = 0;
+    int nAddJet25_puid = 0;
     int nAddJet30_puid = 0;
     int nAddJet35_puid = 0;
     int nAddJet40_puid = 0;
     int nAddJet45_puid = 0;
     int nAddJet50_puid = 0;
+    int nAddJet203p5_puid = 0;
+    int nAddJet202p5_puid = 0;
+    int nAddJet253p5_puid = 0;
+    int nAddJet252p5_puid = 0;
     int nAddJet303p5_puid = 0;
     int nAddJet302p5_puid = 0;
     int nAddJet353p5_puid = 0;
@@ -134,6 +146,18 @@ bool VHbbAnalysis::Analyze(){
         if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
         if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
             nAddJet++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet20++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>25 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
+            nAddJet25++;
         }  
     }           
     for(int i=0; i < *in["nJet"]; i++) {
@@ -164,6 +188,30 @@ bool VHbbAnalysis::Analyze(){
         if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
         if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
             nAddJet50++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet203p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet202p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>25 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
+            nAddJet253p5++;
+        }  
+    }           
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>25 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
+            nAddJet252p5++;
         }  
     }           
     for(int i=0; i < *in["nJet"]; i++) {
@@ -233,6 +281,18 @@ bool VHbbAnalysis::Analyze(){
         if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
             nAddJet_puid++;
         }  
+    }
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet20_puid++;
+        }
+    }
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>25 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
+            nAddJet25_puid++;
+        }
     }           
     for(int i=0; i < *in["nJet"]; i++) {
         if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
@@ -263,7 +323,31 @@ bool VHbbAnalysis::Analyze(){
         if(d["Jet_pt"][i]>50 && fabs(d["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
             nAddJet50_puid++;
         }  
-    }           
+    }       
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet203p5_puid++;
+        }
+    }
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>20 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet202p5_puid++;
+        }
+    }
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>25 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
+            nAddJet253p5_puid++;
+        }
+    }
+    for(int i=0; i < *in["nJet"]; i++) {
+        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][i]>25 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
+            nAddJet252p5_puid++;
+        }
+    }    
     for(int i=0; i < *in["nJet"]; i++) {
         if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
         if(d["Jet_pt"][i]>30 && fabs(d["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
@@ -326,11 +410,17 @@ bool VHbbAnalysis::Analyze(){
     }           
  
     *in["nAddJets"] = nAddJet;
+    *in["nAddJets20"] = nAddJet20;
+    *in["nAddJets25"] = nAddJet25;
     *in["nAddJets30"] = nAddJet30;
     *in["nAddJets35"] = nAddJet35;
     *in["nAddJets40"] = nAddJet40;
     *in["nAddJets45"] = nAddJet45;
     *in["nAddJets50"] = nAddJet50;
+    *in["nAddJets203p5"] = nAddJet203p5;
+    *in["nAddJets202p5"] = nAddJet202p5; 
+    *in["nAddJets253p5"] = nAddJet253p5;
+    *in["nAddJets252p5"] = nAddJet252p5; 
     *in["nAddJets303p5"] = nAddJet303p5;
     *in["nAddJets302p5"] = nAddJet302p5; 
     *in["nAddJets353p5"] = nAddJet353p5;
@@ -343,11 +433,17 @@ bool VHbbAnalysis::Analyze(){
     *in["nAddJets502p5"] = nAddJet502p5;
     
     *in["nAddJets_puid"] = nAddJet_puid;
+    *in["nAddJets20_puid"] = nAddJet20_puid;
+    *in["nAddJets25_puid"] = nAddJet25_puid;
     *in["nAddJets30_puid"] = nAddJet30_puid;
     *in["nAddJets35_puid"] = nAddJet35_puid;
     *in["nAddJets40_puid"] = nAddJet40_puid;
     *in["nAddJets45_puid"] = nAddJet45_puid;
     *in["nAddJets50_puid"] = nAddJet50_puid;
+    *in["nAddJets203p5_puid"] = nAddJet203p5_puid;
+    *in["nAddJets202p5_puid"] = nAddJet202p5_puid; 
+    *in["nAddJets253p5_puid"] = nAddJet253p5_puid;
+    *in["nAddJets252p5_puid"] = nAddJet252p5_puid; 
     *in["nAddJets303p5_puid"] = nAddJet303p5_puid;
     *in["nAddJets302p5_puid"] = nAddJet302p5_puid; 
     *in["nAddJets353p5_puid"] = nAddJet353p5_puid;
@@ -358,6 +454,20 @@ bool VHbbAnalysis::Analyze(){
     *in["nAddJets452p5_puid"] = nAddJet452p5_puid;
     *in["nAddJets503p5_puid"] = nAddJet503p5_puid;
     *in["nAddJets502p5_puid"] = nAddJet502p5_puid;
+
+    // count additional leptons (check both collections, which are exclusive)
+    for (int i=0; i<*in["nselLeptons"]; i++) {
+        if (i == *in["lepInd"]) continue; // don't look at the lepton we've selected from the W
+        if (d["selLeptons_pt"][i]>15 && fabs(d["selLeptons_eta"][i])<2.5 && d["selLeptons_relIso03"][i]<0.1) {
+            nAddLep++;
+        }
+    }
+    for (int i=0; i<*in["naLeptons"]; i++) {
+        if (d["aLeptons_pt"][i]>15 && fabs(d["aLeptons_eta"][i])<2.5 && d["aLeptons_relIso03"][i]<0.1) {
+            nAddLep++;
+        }
+    } 
+
     *in["nAddLeptons"] = nAddLep;
     if(nAddJet >= *f["nAddJetsCut"] || nAddLep>= *f["nAddLeptonsCut"]) return false; 
     

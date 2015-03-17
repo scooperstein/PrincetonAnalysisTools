@@ -15,11 +15,17 @@ type=1  name=isWenu
 type=1  name=isWmunu
 
 type=1  name=nAddJets
+type=1  name=nAddJets20
+type=1  name=nAddJets25
 type=1  name=nAddJets30
 type=1  name=nAddJets35
 type=1  name=nAddJets40
 type=1  name=nAddJets45
 type=1  name=nAddJets50
+type=1  name=nAddJets203p5
+type=1  name=nAddJets202p5
+type=1  name=nAddJets253p5
+type=1  name=nAddJets252p5
 type=1  name=nAddJets303p5
 type=1  name=nAddJets302p5
 type=1  name=nAddJets353p5
@@ -31,11 +37,17 @@ type=1  name=nAddJets452p5
 type=1  name=nAddJets503p5
 type=1  name=nAddJets502p5
 type=1  name=nAddJets_puid
+type=1  name=nAddJets20_puid
+type=1  name=nAddJets25_puid
 type=1  name=nAddJets30_puid
 type=1  name=nAddJets35_puid
 type=1  name=nAddJets40_puid
 type=1  name=nAddJets45_puid
 type=1  name=nAddJets50_puid
+type=1  name=nAddJets203p5_puid
+type=1  name=nAddJets202p5_puid
+type=1  name=nAddJets253p5_puid
+type=1  name=nAddJets252p5_puid
 type=1  name=nAddJets303p5_puid
 type=1  name=nAddJets302p5_puid
 type=1  name=nAddJets353p5_puid
