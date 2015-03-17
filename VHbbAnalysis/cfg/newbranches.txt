@@ -83,14 +83,15 @@ type=2  name=selLeptons_eleHoE_0
 type=2  name=selLeptons_eleMissingHits_0       
 type=2  name=selLeptons_eleChi2_0        
 
-type=3  name=hJets_pt_0_Andrea
-type=3  name=hJets_pt_1_Andrea
-type=3  name=hJets_btagCSV_0_Andrea
-type=3  name=hJets_btagCSV_1_Andrea
+type=3  name=hJets_pt_0_step2
+type=3  name=hJets_pt_1_step2
+type=3  name=hJets_btagCSV_0_step2
+type=3  name=hJets_btagCSV_1_step2
 
 # jet energy regression variables
 type=2  name=Jet1_pt_reg
 type=2  name=Jet2_pt_reg
+type=2  name=H_mass_step2
 type=2  name=H_mass_reg
 type=2  name=H_pt_reg
 type=2  name=H_eta_reg

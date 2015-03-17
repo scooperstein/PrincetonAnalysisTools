@@ -505,11 +505,11 @@ void VHbbAnalysis::FinishEvent(){
         else *in["eventClass"] += 4;
     }
 
-    // debugging
-    *d["hJets_pt_0_Andrea"] = d["hJets_pt"][0];
-    *d["hJets_pt_1_Andrea"] = d["hJets_pt"][1];
-    *d["hJets_btagCSV_0_Andrea"] = d["hJets_btagCSV"][0];
-    *d["hJets_btagCSV_1_Andrea"] = d["hJets_btagCSV"][1];
+    // compare our Higgs jet selection with step 2 
+    *d["hJets_pt_0_step2"] = d["hJets_pt"][0];
+    *d["hJets_pt_1_step2"] = d["hJets_pt"][1];
+    *d["hJets_btagCSV_0_step2"] = d["hJets_btagCSV"][0];
+    *d["hJets_btagCSV_1_step2"] = d["hJets_btagCSV"][1];
 
     *f["weight"] = cursample->intWeight;
     *f["Vtype_f"] = (float) *d["Vtype"];
@@ -543,18 +543,29 @@ void VHbbAnalysis::FinishEvent(){
     }
  
 
-    *f["naLeptonsPassingCuts"] = 0.;
-    for(int j=0;j<*in["naLeptons"]&&j<100;j++){
-        //if(f["aLepton_pt"][j]>15. && fabs(f["aLepton_eta"][j])<2.5 && f["aLepton_pfCombRelIso"][j]<0.15) *f["naLeptonsPassingCuts"] += 1.;
-        if(d["aLeptons_pt"][j]>15. && fabs(d["aLeptons_eta"][j])<2.5 && in["aLeptons_eleCutIdCSA14_25ns_v1"][j]) *f["naLeptonsPassingCuts"] += 1.;
-    }
-    *f["naJetsPassingCuts"] = 0.;
+    *f["naLeptonsPassingCuts"] = *in["nAddLeptons"]; // no need to calculate this twice
+    *f["naJetsPassingCuts"] = *in["nAddJets"];
     *f["highestCSVaJet"] = 0.0;
     *f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
-    for(int j=0;j<*in["naJets"];j++){
-        if(d["aJets_pt"][j]>20. && fabs(d["aJets_eta"][j])<4.5) *f["naJetsPassingCuts"] += 1;
-        if(d["aJets_pt"][j]>20 && fabs(d["aJets_eta"][j])<2.5 && d["aJets_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = d["aJets_btagCSV"][j];
+    for(int j=0;j<*in["nJet"];j++){
+        if (j == *in["hJetInd1"] || j == *in["hJetInd2"]) continue;
+        if(d["Jet_pt"][j]>20 && fabs(d["Jet_eta"][j])<2.5 && d["Jet_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = d["Jet_btagCSV"][j];
       }       
+    
+    // Reconstruct Higgs and W and recalculate variables ourselves
+    TLorentzVector MET,Lep,W,HJ1,HJ2,Hbb;
+    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    Lep.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]);
+    W = MET + Lep;
+
+    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
+    Hbb = HJ1 + HJ2;
+    
+    *d["H_mass"] = Hbb.M();
+    *d["H_pt"] = Hbb.Pt();
+    *d["V_pt"] = W.Pt();
+    *d["HVdPhi"] = Hbb.DeltaPhi(W);
     
     // Set variables used by the BDT
     *f["H_mass_f"] = (float) *d["H_mass"];
@@ -565,13 +576,9 @@ void VHbbAnalysis::FinishEvent(){
     *f["HVdPhi_f"] = (float) *d["HVdPhi"];
     *f["H_dEta"] = fabs(d["Jet_eta"][*in["hJetInd1"]] - d["Jet_eta"][*in["hJetInd2"]]);
    
-    TLorentzVector hJ1 = TLorentzVector();
-    TLorentzVector hJ2 = TLorentzVector();
-    hJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-    hJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-    *f["hJets_mt_0"] = hJ1.Mt();
-    *f["hJets_mt_1"] = hJ2.Mt();
-    *f["H_dR"] = (float) hJ1.DeltaR(hJ2);   
+    *f["hJets_mt_0"] = HJ1.Mt();
+    *f["hJets_mt_1"] = HJ2.Mt();
+    *f["H_dR"] = (float) HJ1.DeltaR(HJ2);   
     *f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
     *f["hJet_ptCorr_0"] = (float) d["Jet_pt"][*in["hJetInd1"]];
     *f["hJet_ptCorr_1"] = (float) d["Jet_pt"][*in["hJetInd2"]];
@@ -723,6 +730,8 @@ bool VHbbAnalysis::WenuHbbSelection(){
         
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *d["HVdPhi"] = Hbb.DeltaPhi(W);
+    *f["H_mass_step2"] = *d["H_mass"];
+    *d["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
 
     if(*d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
         && *d["H_pt"] > *f["hptcut"]  ){
@@ -778,6 +787,8 @@ bool VHbbAnalysis::WmunuHbbSelection(){
         
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *d["HVdPhi"] = Hbb.DeltaPhi(W);
+    *f["H_mass_step2"] = *d["H_mass"];
+    *d["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
 
     if(*d["HVdPhi"]> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
         && *d["H_pt"] > *f["hptcut"]  ){  
