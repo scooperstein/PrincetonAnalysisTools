@@ -63,29 +63,34 @@ type=8  name=Jet_vtxPt                        max=100
 type=8  name=Jet_phi                          max=100
 type=6  name=Jet_mcFlavour                    max=100
 
+type=8  name=GenBQuarkFromHafterISR_pt        max=2
+type=8  name=GenBQuarkFromHafterISR_eta       max=2
+type=8  name=GenBQuarkFromHafterISR_phi       max=2
+type=8  name=GenBQuarkFromHafterISR_mass      max=2
+
 # variables needed for the jet energy regression, maybe we can find a way to
 # not save these?
-type=8  name=hJets_pt                           max=100
-type=8  name=hJets_rawPt                        max=100
-type=8  name=hJets_eta                          max=100
-type=8  name=hJets_mass                         max=100
-type=8  name=hJets_leadTrackPt                  max=100
-type=8  name=hJets_leptonPtRel                  max=100
-type=8  name=hJets_leptonPt                     max=100
-type=8  name=hJets_leptonDeltaR                 max=100
-type=8  name=hJets_chEmEF                       max=100
-type=8  name=hJets_chHEF                        max=100
-type=8  name=hJets_neHEF                        max=100
-type=8  name=hJets_neEmEF                       max=100
-type=8  name=hJets_chMult                       max=100
-type=8  name=hJets_puId                         max=100
-type=8  name=hJets_vtxMass                      max=100
-type=8  name=hJets_vtx3DVal                     max=100
-type=8  name=hJets_vtxNtracks                   max=100
-type=8  name=hJets_vtxPt                        max=100
-type=8  name=hJets_phi                          max=100
-type=8  name=hJets_btagCSV                      max=100
-type=6  name=hJets_mcFlavour                    max=100
+type=8  name=hJets_pt                           max=2
+type=8  name=hJets_rawPt                        max=2
+type=8  name=hJets_eta                          max=2
+type=8  name=hJets_mass                         max=2
+type=8  name=hJets_leadTrackPt                  max=2
+type=8  name=hJets_leptonPtRel                  max=2
+type=8  name=hJets_leptonPt                     max=2
+type=8  name=hJets_leptonDeltaR                 max=2
+type=8  name=hJets_chEmEF                       max=2
+type=8  name=hJets_chHEF                        max=2
+type=8  name=hJets_neHEF                        max=2
+type=8  name=hJets_neEmEF                       max=2
+type=8  name=hJets_chMult                       max=2
+type=8  name=hJets_puId                         max=2
+type=8  name=hJets_vtxMass                      max=2
+type=8  name=hJets_vtx3DVal                     max=2
+type=8  name=hJets_vtxNtracks                   max=2
+type=8  name=hJets_vtxPt                        max=2
+type=8  name=hJets_phi                          max=2
+type=8  name=hJets_btagCSV                      max=2
+type=6  name=hJets_mcFlavour                    max=2
 
 type=8  name=aJets_pt                           max=100
 type=8  name=aJets_eta                          max=100

@@ -54,7 +54,7 @@ bool VHbbAnalysis::Analyze(){
             <<d["Jet_pt"][bjets.second]<<" "
             <<std::endl;
     }
-    *in["nHJetsMatched"] = 0;
+   /* *in["nHJetsMatched"] = 0;
     if(d["hJets_pt"][0] == d["Jet_pt"][*in["hJetInd1"]]) *in["nHJetsMatched"] += 1;
     if(d["hJets_pt"][1] == d["Jet_pt"][*in["hJetInd2"]]) *in["nHJetsMatched"] += 1; 
     
@@ -66,13 +66,13 @@ bool VHbbAnalysis::Analyze(){
             std::cout<<"lead jet1 pt = "<<d["Jet_pt"][*in["hJetInd1"]]<<std::endl;
             std::cout<<"sublead jet2 pt = "<<d["Jet_pt"][*in["hJetInd2"]]<<std::endl;
         }
-    }
+    }*/
 
     /*// For now use higgs bjet selection from step 2 ntuples
     if(d["hJets_btagCSV"][0] < *f["j1ptCSV"] || d["hJets_btagCSV"][1] < *f["j2ptCSV"]) return false;
     if(d["hJets_pt"][0] < *f["j1ptCut"] || d["hJets_pt"][1] < *f["j2ptCut"]) return false;
     */
- 
+
     // Cut on the bjets that we select
     if(d["Jet_btagCSV"][*in["hJetInd1"]] < *f["j1ptCSV"] || d["Jet_btagCSV"][*in["hJetInd2"]] < *f["j2ptCSV"]) return false;
     if(d["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || d["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) return false; 
@@ -94,6 +94,20 @@ bool VHbbAnalysis::Analyze(){
             *in["eventClass"]=1000;
             *in["lepInd"] = *in["elInd"];
         }
+    }
+
+    // Match Jets with Gen Higgs Jets
+    for (int i=0; i<*in["nJet"]; i++) {
+        TLorentzVector GenHJ1, GenHJ2, Jet;
+        GenHJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0],d["GenBQuarkFromHafterISR_eta"][0],d["GenBQuarkFromHafterISR_phi"][0],d["GenBQuarkFromHafterISR_mass"][0]);
+        GenHJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1],d["GenBQuarkFromHafterISR_eta"][1],d["GenBQuarkFromHafterISR_phi"][1],d["GenBQuarkFromHafterISR_mass"][1]);
+        Jet.SetPtEtaPhiM(d["Jet_pt"][i], d["Jet_eta"][i], d["Jet_phi"][i], d["Jet_mass"][i]);
+      
+        double dR1 = Jet.DeltaR(GenHJ1);
+        double dR2 = Jet.DeltaR(GenHJ2);
+        d["Jet_genHJetMinDR"][i] = min(dR1, dR2);
+        if(dR1 <= dR2) d["Jet_genHJetIndex"][i] = 1;
+        else d["Jet_genHJetIndex"][i] = 2;
     }
     
     // count the number of additional leptons and jets, then cut on this number

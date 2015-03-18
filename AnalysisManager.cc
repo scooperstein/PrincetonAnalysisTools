@@ -289,19 +289,19 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
 
     if(type==5) {
         if(newmem) ui[name] = new unsigned int[length];
-        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), ui[name], Form("%s/i",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s",name.c_str()), ui[name], Form("%s[%i]/i",name.c_str(),length));
     } else if(type==6) {
         if(newmem) in[name] = new int[length];
-        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), in[name], Form("%s/I",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s",name.c_str()), in[name], Form("%s[%i]/I",name.c_str(),length));
     } else if(type==7) {
         if(newmem) f[name] = new float[length];
-        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), f[name], Form("%s/F",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s",name.c_str()), f[name], Form("%s[%i]/F",name.c_str(),length));
     } else if(type==8) {
         if(newmem) d[name] = new double[length];
-        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), d[name], Form("%s/D",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s",name.c_str()), d[name], Form("%s[%i]/D",name.c_str(),length));
     } else if(type==9) {
         if(newmem) b[name] = new bool[length];
-        branches[name] = treeptr->Branch(Form("%s[%i]",name.c_str(),length), b[name], Form("%s/O",name.c_str()));
+        branches[name] = treeptr->Branch(Form("%s",name.c_str()), b[name], Form("%s[%i]/O",name.c_str(),length));
     }
 
     return;
