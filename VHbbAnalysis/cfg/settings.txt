@@ -3,16 +3,16 @@
 
 # ONLY USE FLOATS
 type=2  name=vetolep            val=1
-type=2  name=intL               val=19700 # 1/pb
+type=2  name=intL               val=10000 # 1/pb
 
 type=2  name=j1ptCut            val=30
 type=2  name=j2ptCut            val=30
-type=2  name=j1ptCSV            val=0.7
-type=2  name=j2ptCSV            val=0.5
+type=2  name=j1ptCSV            val=0.5
+type=2  name=j2ptCSV            val=0.3
 
 type=2  name=eptcut             val=30
 type=2  name=muptcut            val=30
-type=2  name=eletacut           val=2.4
+type=2  name=eletacut           val=2.5
 type=2  name=muetacut           val=2.4
 type=2  name=metcut             val=45
 type=2  name=erelisocut         val=0.5
