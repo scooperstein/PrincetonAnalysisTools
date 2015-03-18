@@ -6,6 +6,7 @@
 //
 
 #include "VHbbTrigger.h"
+#include <TLorentzVector.h>
 
 // initialize parameters
 VHbbTrigger::VHbbTrigger(){
@@ -60,8 +61,13 @@ bool VHbbTrigger::Analyze(){
     bool sel=false;
 
     *b["L1_EG20"]       =   PassEGL1(20.0,false,false);
-    if( *b["L1_EG20"] || *f["l1htTot"]>100) sel=true;
-    else return sel;
+    *b["L1_HTT175"] = (*f["l1htTot"]>175);  
+    *b["L1_ETM70"] = (*f["l1metPt"]>70); 
+ 
+    if( *b["L1_EG20"] || *b["L1_HTT175"] || *b["L1_ETM70"] ) sel=true;
+    else if ((*f["genElePt"]>20&&abs(*f["genEleEta"])<2.5&&*f["b2Pt_gen"]>25&&*f["b1Pt_gen"]>25&&abs(*f["b2Eta_gen"])<2.5&&abs(*f["b1Eta_gen"])<2.5&& *f["genHPt"]>100)){
+        sel=true;
+    } else return sel;
 
     *b["L1_EG40"]       =   PassEGL1(40.0,false,false);
     *b["L1_EG40er"]     =   PassEGL1(40.0,false,true);
@@ -94,8 +100,6 @@ bool VHbbTrigger::Analyze(){
     *b["L1EG30iso_L1Jet30Eta25"]   =   PassEGPlusJetL1(30., true, false, 30, 2.5);
 
 
-    
- 
     return sel;
 }
 
@@ -111,6 +115,7 @@ void VHbbTrigger::FinishEvent(){
     L1seeds.clear();
     L1seeds.push_back("L1_EG30isoer");
     *b["HLT_Ele32_WP75"] = PassEleHLT(32., "WP75", L1seeds, true, in["HLT_Ele32_WP75_ElInd"]);
+    *b["HLT_Ele32_WP75_NoER"] = PassEleHLT(32., "WP75", L1seeds, false);
     *b["HLT_Ele32_WP85"] = PassEleHLT(32., "WP85", L1seeds, true);
     L1seeds.push_back("L1_EG40");
     *b["HLT_Ele32_WP75_ADD40"] = PassEleHLT(32., "WP75", L1seeds, true);
@@ -118,8 +123,9 @@ void VHbbTrigger::FinishEvent(){
     L1seeds.clear();
     L1seeds.push_back("L1_EG30isoer");
     L1seeds.push_back("L1_EG40");
+    *b["HLT_Ele35_WP85_NoER"] = PassEleHLT(35., "WP85", L1seeds, false);
     *b["HLT_Ele35_WP85"] = PassEleHLT(35., "WP85", L1seeds, true);
-    *b["HLT_Ele40_WP85"] = PassEleHLT(40., "WP85", L1seeds, true);
+    *b["HLT_Ele40_WP85"] = PassEleHLT(40., "WP85", L1seeds, true, in["HLT_Ele40_WP85_ElInd"]);
     *b["HLT_Ele45_WP85"] = PassEleHLT(45., "WP85", L1seeds, true);
     *b["HLT_Ele40_WP85_NoER"] = PassEleHLT(40., "WP85", L1seeds, false);
     *b["HLT_Ele45_WP85_NoER"] = PassEleHLT(45., "WP85", L1seeds, false);
@@ -128,11 +134,14 @@ void VHbbTrigger::FinishEvent(){
     *b["HLT_Ele50_WP85"] = PassEleHLT(50., "WP85", L1seeds, true, in["HLT_Ele50_WP85_ElInd"]);
     *b["HLT_Ele40_WP75"] = PassEleHLT(40., "WP75", L1seeds, true);
     *b["HLT_Ele45_WP75"] = PassEleHLT(45., "WP75", L1seeds, true);
-        
+       
     L1seeds.clear();
     L1seeds.push_back("L1_EG30isoer");
     L1seeds.push_back("L1_EG35er");
     *b["HLT_Ele40_WP85_OLDL1"] = PassEleHLT(40., "WP85", L1seeds, true);
+    *b["HLT_Ele40_WP85_OLDL1_NoER"] = PassEleHLT(40., "WP85", L1seeds, false);
+    *b["HLT_Ele35_WP85_OLDL1"] = PassEleHLT(35., "WP85", L1seeds, true);
+    *b["HLT_Ele35_WP85_OLDL1_NoER"] = PassEleHLT(35., "WP85", L1seeds, false);
     
     L1seeds.clear();
     L1seeds.push_back("L1_EG30isoer");
@@ -163,6 +172,45 @@ void VHbbTrigger::FinishEvent(){
     
     *in["eventClass"]=0;
  
+    L1seeds.clear();
+    //L1seeds.push_back("L1_EG20");
+    L1seeds.push_back("L1_EG30isoer");
+    L1seeds.push_back("L1_HTT175");
+    L1seeds.push_back("L1_ETM70");
+    int eg20ind=-1;
+    bool HLT_Ele20=PassEleHLT(20., "WP85", L1seeds, false, &eg20ind);
+    *b["HLT_40CSV0p5_ETA2p4_BESTPT"]=FindBestCSVHLTJet(50, 2.4, 0.5);//, std::string discriminator, int* jetInd)
+    *b["HLT_Ele20_WP85_40CSV0p5_ETA2p4_BESTPT"] = *b["HLT_40CSV0p5_ETA2p4_BESTPT"] && HLT_Ele20;
+    std::pair<int,int> pair=(eg20ind!=-1)?HighestPtPFJets(30,2.5,f["hltElePhi"][eg20ind]):HighestPtPFJets(30,2.5);
+
+    TLorentzVector dijet(0,0,0,0);
+    if(pair.first!=-1 && pair.second!=-1){
+        TLorentzVector jet1(0,0,0,0);
+        TLorentzVector jet2(0,0,0,0);
+
+        jet1.SetPtEtaPhiE(f["hltpfjetPt"][pair.first],f["hltpfjetEta"][pair.first],f["hltpfjetPhi"][pair.first],f["hltpfjetE"][pair.first]);
+        jet2.SetPtEtaPhiE(f["hltpfjetPt"][pair.second],f["hltpfjetEta"][pair.second],f["hltpfjetPhi"][pair.second],f["hltpfjetE"][pair.second]);
+        dijet=jet1+jet2;
+
+        //std::cout<<"dijet mass "<<dijet.M()<<std::endl;
+    }
+    
+    *b["HLT_Ele20_WP85_DijetPT50"]  = dijet.Pt()>50 && HLT_Ele20;
+    *b["HLT_Ele20_WP85_DijetPT100"] = dijet.Pt()>100 && HLT_Ele20;
+    *b["HLT_Ele20_WP85_DijetPT150"] = dijet.Pt()>150 && HLT_Ele20;
+    
+    *b["HLT_Ele30_WP85_DijetPT50"]  = false;
+    *b["HLT_Ele30_WP85_DijetPT100"] = false;
+    *b["HLT_Ele30_WP85_DijetPT150"] = false;
+    if(HLT_Ele20){
+        if(f["hltElePt"][eg20ind]>30){
+            *b["HLT_Ele30_WP85_DijetPT50"]  = dijet.Pt()>50 && HLT_Ele20;
+            *b["HLT_Ele30_WP85_DijetPT100"] = dijet.Pt()>100 && HLT_Ele20;
+            *b["HLT_Ele30_WP85_DijetPT150"] = dijet.Pt()>150 && HLT_Ele20;
+        }
+    }
+
+
     ofile->cd();
     outputTree->Fill();
     return;
@@ -387,7 +435,7 @@ bool VHbbTrigger::PassEleHLT(float ptCut, std::string WP, std::vector<std::strin
     for(int iEl=0; iEl<*in["nhltele"]; iEl++){
         if(f["hltElePt"][iEl]<ptCut) continue;
         if(debug>100000)  std::cout<<iEl<<" with "<<f["hltElePt"][iEl]<<std::endl;
-        if(etaRestricted && fabs(f["hltEleEta"][iEl])>2.1) continue;
+        if(etaRestricted && fabs(f["hltEleEta"][iEl])>2.17) continue;
         if(debug>100000)  std::cout<<iEl<<" with "<<f["hltEleEta"][iEl]<<std::endl;
         if(*f["recomputeWPs"]==1){
             if(WP=="WP85" && b["hltEleWP85ReComp"][iEl]==false) continue;
@@ -397,7 +445,7 @@ bool VHbbTrigger::PassEleHLT(float ptCut, std::string WP, std::vector<std::strin
             if(WP=="WP75" && b["hltEleWP75"][iEl]==false) continue;
         }
         if(debug>100000)  std::cout<<"WP75 WP85  "<<b["hltEleWP75ReComp"][iEl]<<" "<<b["hltEleWP85ReComp"][iEl]<<std::endl;
-        
+         
         if(selInd==-1 || selPt< f["hltElePt"][iEl]){
             selInd=iEl;
             selPt=f["hltElePt"][iEl];
@@ -410,6 +458,30 @@ bool VHbbTrigger::PassEleHLT(float ptCut, std::string WP, std::vector<std::strin
 
     return passHLT;
 }
+
+
+bool VHbbTrigger::FindBestCSVHLTJet(float ptCut, float etaCut, float CSVCut, std::string discriminator, int* jetInd){
+    int selInd=-1;
+   
+    if(debug>100000000) std::cout<<"nCSVhltPF  "<<*in["nCSVhltPF"]<<std::endl;
+    for(int ibjet=0; ibjet<*in["nCSVhltPF"]; ibjet++){
+        if(f["CSVhltPF_jetPt"][ibjet]>ptCut){
+            if(fabs(f["CSVhltPF_jetEta"][ibjet])<etaCut){
+                if(debug>100000000) std::cout<<"CSVhltPF_jetCSV "<<f["CSVhltPF_jetCSV"][ibjet]<<std::endl;
+                if(f["CSVhltPF_jetCSV"][ibjet]>CSVCut){
+                    selInd=ibjet;
+                    if(discriminator=="PT") ptCut=f["CSVhltPF_jetPt"][ibjet];
+                    if(discriminator=="CSV") CSVCut=f["CSVhltPF_jetCSV"][ibjet];
+                }
+            }
+        }
+    }
+
+    if(jetInd) *jetInd=selInd;
+
+    return selInd!=-1;
+}
+
 
 
 bool VHbbTrigger::PassElePlusJetHLT(std::vector<std::string> L1seeds, float elPtCut, std::string elWP, bool elEtaRestricted, float jetPtCut, float jetEtaCut, int* elInd, int* jetInd){ 
