@@ -36,13 +36,18 @@ type=4  name=L1_EG20iso
 type=4  name=L1_EG20isoer
 type=4  name=L1EG20iso_L1Jet25Eta35
 type=4  name=L1EG30iso_L1Jet30Eta30
+type=4  name=L1_HTT175
+type=4  name=L1_ETM70
 
+type=4  name=HLT_Ele32_WP75_NoER
 type=4  name=HLT_Ele32_WP75
 type=1  name=HLT_Ele32_WP75_ElInd
 type=4  name=HLT_Ele32_WP85
 type=4  name=HLT_Ele32_WP75_ADD40
 type=4  name=HLT_Ele32_WP85_ADD40
 type=4  name=HLT_Ele35_WP85
+type=4  name=HLT_Ele35_WP85_NoER
+type=1  name=HLT_Ele40_WP85_ElInd
 type=4  name=HLT_Ele40_WP75
 type=4  name=HLT_Ele40_WP85
 type=4  name=HLT_Ele40_WP85_NoER
@@ -55,6 +60,17 @@ type=4  name=HLT_Ele50_WP85
 type=1  name=HLT_Ele50_WP85_ElInd
 type=4  name=HLT_Ele50_WP85_No40
 type=4  name=HLT_Ele40_WP85_OLDL1
+type=4  name=HLT_Ele40_WP85_OLDL1_NoER
+type=4  name=HLT_Ele35_WP85_OLDL1
+type=4  name=HLT_Ele35_WP85_OLDL1_NoER
+type=4  name=HLT_Ele20_WP85_40CSV0p5_ETA2p4_BESTPT
+type=4  name=HLT_40CSV0p5_ETA2p4_BESTPT
+type=4  name=HLT_Ele20_WP85_DijetPT50
+type=4  name=HLT_Ele20_WP85_DijetPT100
+type=4  name=HLT_Ele20_WP85_DijetPT150
+type=4  name=HLT_Ele30_WP85_DijetPT50
+type=4  name=HLT_Ele30_WP85_DijetPT100
+type=4  name=HLT_Ele30_WP85_DijetPT150
 
 type=4  name=L1EG20iso_L1Jet25Eta35
 type=4  name=L1EG25_L1Jet40Eta25

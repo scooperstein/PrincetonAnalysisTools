@@ -11,7 +11,6 @@ type=2  name=hltpfmet
 type=2  name=hltpfmetPhi
 
 type=2  name=hltpfht
-type=2  name=l1htTot
 
 type=1  name=nevent
 
@@ -37,6 +36,9 @@ type=2  name=l1metPhi
 type=2  name=l1metEta
 type=2  name=genHPt
 type=2  name=genWPt
+
+type=2  name=l1htTot
+type=2  name=l1metPt
 
 type=1  name=nhltele
 type=9  name=hltEleWP75                 max=20
@@ -65,3 +67,8 @@ type=7  name=hltpfjetPt       max=200
 type=7  name=hltpfjetPhi      max=200
 type=7  name=hltpfjetEta      max=200
 type=7  name=hltpfjetE        max=200
+
+type=1  name=nCSVhltPF
+type=7  name=CSVhltPF_jetPt        max=20
+type=7  name=CSVhltPF_jetEta       max=20
+type=7  name=CSVhltPF_jetCSV       max=20
