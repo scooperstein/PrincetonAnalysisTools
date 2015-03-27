@@ -21,20 +21,28 @@ WorkspaceAnalysis::~WorkspaceAnalysis(){
 
 void WorkspaceAnalysis::InitAnalysis() {
     if(debug>1000) std::cout<<"Called InitAnalysis()"<<std::endl;
-    // initialize histograms
-    for(int i=0; i < (int)samples.size(); i++) {
-        if(debug>1000) std::cout<<"Initializing histograms for sample: "<<samples[i].sampleName.c_str()<<std::endl;
-        const char* sname = samples[i].sampleName.c_str();
-        float nBinsX = *f["nBinsX"];
-        float varMinX = *f["varMinX"];
-        float varMaxX = *f["varMaxX"];
-        float nBinsY = *f["nBinsY"];
-        float varMinY = *f["varMinY"];
-        float varMaxY = *f["varMaxY"];
-        hists1D.push_back(new TH1F(sname, sname, nBinsX, varMinX, varMaxX) );
-        hists2D.push_back(new TH2F(sname, sname, nBinsX, varMinX, varMaxX, nBinsY, varMinY, varMaxY) );
-    }
+    // specify categories, for now do this manually
+    catTypes.push_back("WenLowPt");    
+    catTypes.push_back("WenHighPt");    
+    catTypes.push_back("WmnLowPt");    
+    catTypes.push_back("WmnMidPt");    
+    catTypes.push_back("WmnHighPt");    
 
+    // initialize histograms
+    for (int j=0; j < (int)catTypes.size(); j++) {
+        for(int i=0; i < (int)samples.size(); i++) {
+            if(debug>1000) std::cout<<"Initializing histograms for sample: "<<samples[i].sampleName.c_str()<<std::endl;
+            const char* sname = samples[i].sampleName.c_str();
+            float nBinsX = *f["nBinsX"];
+            float varMinX = *f["varMinX"];
+            float varMaxX = *f["varMaxX"];
+            float nBinsY = *f["nBinsY"];
+            float varMinY = *f["varMinY"];
+            float varMaxY = *f["varMaxY"];
+            hists1D[catTypes[j]].push_back( new TH1F(sname, sname, nBinsX, varMinX, varMaxX) );
+            hists2D[catTypes[j]].push_back(new TH2F(Form("%s_2D",sname), Form("%s_2D",sname), nBinsX, varMinX, varMaxX, nBinsY, varMinY, varMaxY) );
+        }
+    }
     // create output file for histograms
     histout = new TFile("hists.root", "recreate");
 }
@@ -51,66 +59,87 @@ bool WorkspaceAnalysis::Analyze() {
 }
 
 void WorkspaceAnalysis::FinishEvent() {
-    for(int i=0; i < (int)samples.size(); i++) {
-        // fill histograms with current values of BDT, Hmass
-        float BDT = *f["BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4"];
-        float H_mass = *f["H_mass_f"];
-        float H_mass_reg = *f["H_mass_reg"];
-        int sNum = *in["sampleIndex"];        
-        float weight = samples[i].intWeight;
-        if(sNum != samples[i].sampleNum) continue; 
-        ofile->cd();
-        hists1D[i]->Fill(BDT, weight);
-        if(debug>20000) std::cout<<"1D hist filled with BDT value: "<<BDT<<" and weight: "<<weight<<std::endl;
-        hists2D[i]->Fill(BDT, H_mass_reg, weight);
-        if(debug>20000) std::cout<<"2D hist filled with BDT value: "<<BDT<<", Mjj value: "<<H_mass_reg<<" and weight: "<<weight<<std::endl;
+    for(int j=0; j < (int)catTypes.size(); j++) {
+        for(int i=0; i < (int)samples.size(); i++) {
+            // fill histograms with current values of BDT, Hmass
+            float BDT = *f["BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4"];
+            float H_mass = *f["H_mass_f"];
+            float H_mass_reg = *f["H_mass_reg"];
+            int sNum = *in["sampleIndex"];        
+            //float weight = samples[i].intWeight;
+            float weight = *f["weight"];
+            //std::cout<<"sNum = "<<sNum<<std::endl;
+            //std::cout<<"samples[i].sampleNum = "<<samples[i].sampleNum<<std::endl; 
+            if(sNum != samples[i].sampleNum) continue; 
+            //std::cout<<sNum<<" == "<<samples[i].sampleNum<<std::endl;
+            // match to category
+            bool pass = false;
+            //std::cout<<catTypes[j].c_str()<<std::endl;
+            //std::cout<<"eventClass = "<<*in["eventClass"]<<std::endl;
+            if (catTypes[j] == "WenLowPt" && *in["eventClass"]==1002) pass=true;
+            if (catTypes[j] == "WenHighPt" && *in["eventClass"]==1001) pass=true;
+            if (catTypes[j] == "WmnLowPt" && *in["eventClass"]==3) pass=true;
+            if (catTypes[j] == "WmnMidPt" && *in["eventClass"]==2) pass=true;
+            if (catTypes[j] == "WmnHighPt" && *in["eventClass"]==1) pass=true;
+            if (!pass) continue;
+            //std::cout<<"passed!"<<std::endl;
+            ofile->cd();
+            hists1D[catTypes[j]][i]->Fill(H_mass, weight);
+            std::cout<<"1D hist filled with Mjj value: "<<H_mass<<" and weight: "<<weight<<std::endl;
+            hists2D[catTypes[j]][i]->Fill(BDT, H_mass_reg, weight);
+            if(debug>20000) std::cout<<"2D hist filled with BDT value: "<<BDT<<", Mjj value: "<<H_mass_reg<<" and weight: "<<weight<<std::endl;
+        }
     }
-    
 }
 
 void WorkspaceAnalysis::TermAnalysis() {
 
     // initialize all the RooHistPDF's
-    RooWorkspace *WS = new RooWorkspace("workspace", "workspace");
-    RooArgList *obs;
     float varMinX = *f["varMinX"];
     float varMaxX = *f["varMaxX"];
     float varMinY = *f["varMinY"];
     float varMaxY = *f["varMaxY"];
-    WS->factory(Form("CMS_vhbb_BDT_Wln_8TeV[%f,%f]",varMinX,varMaxX));
-    WS->factory(Form("CMS_vhbb_Mjj_Wln_8TeV[%f,%f]",varMinY,varMaxY));
+    for(int j=0; j < (int)catTypes.size(); j++) {
+        RooWorkspace *WS = new RooWorkspace(catTypes[j].c_str(), catTypes[j].c_str());
+        RooArgList *obs;
+        WS->factory(Form("CMS_vhbb_BDT_Wln_8TeV[%f,%f]",varMinX,varMaxX));
+        WS->factory(Form("CMS_vhbb_Mjj_Wln_8TeV[%f,%f]",varMinY,varMaxY));
   
-    for(int i=0; i < (int)samples.size(); i++) {
-        // N.B.: This will only work correctly if the samples list hasn't changed at all since calling InitAnalysis()
-        SampleContainer *csample = &samples[i];
-        RooDataHist *tmpRDH = new RooDataHist();
-       if(debug>1000) std::cout<<"modelDimension set to: "<<int(*f["modelDimension"])<<::std::endl;
-        switch(int(*f["modelDimension"]))
-        {
-        case 1: 
-            obs = new RooArgList(*WS->var("CMS_vhbb_BDT_Wln_8TeV"));
-            tmpRDH = new RooDataHist(csample->sampleName.c_str(), csample->sampleName.c_str(), *obs, hists1D[i]);
-            break;
-        case 2: 
-            obs = new RooArgList(*WS->var("CMS_vhbb_BDT_Wln_8TeV"), *WS->var("CMS_vhbb_Mjj_Wln_8TeV"));
-            tmpRDH = new RooDataHist(csample->sampleName.c_str(), csample->sampleName.c_str(), *obs, hists2D[i]);
-            break;
-        default:
-            std::cerr<<"modelDimension must be set to 1 or 2! It is currently set to: "<<*f["modelDimension"]<<std::endl;
-        }
+        TDirectory *wsdir = histout->mkdir(catTypes[j].c_str());
+        for(int i=0; i < (int)samples.size(); i++) {
+            // N.B.: This will only work correctly if the samples list hasn't changed at all since calling InitAnalysis()
+            SampleContainer *csample = &samples[i];
+            RooDataHist *tmpRDH = new RooDataHist();
+            if(debug>1000) std::cout<<"modelDimension set to: "<<int(*f["modelDimension"])<<::std::endl;
+            switch(int(*f["modelDimension"]))
+            {
+            case 1: 
+                obs = new RooArgList(*WS->var("CMS_vhbb_Mjj_Wln_8TeV"));
+                tmpRDH = new RooDataHist(csample->sampleName.c_str(), csample->sampleName.c_str(), *obs, hists1D[catTypes[j]][i]);
+                break;
+            case 2: 
+                obs = new RooArgList(*WS->var("CMS_vhbb_BDT_Wln_8TeV"), *WS->var("CMS_vhbb_Mjj_Wln_8TeV"));
+                tmpRDH = new RooDataHist(csample->sampleName.c_str(), csample->sampleName.c_str(), *obs, hists2D[catTypes[j]][i]);
+                break;
+            default:
+                std::cerr<<"modelDimension must be set to 1 or 2! It is currently set to: "<<*f["modelDimension"]<<std::endl;
+            }
 
-        RooHistPdf *tmpRHP = new RooHistPdf(samples[i].sampleName.c_str(), samples[i].sampleName.c_str(), *obs, *tmpRDH);        
-        if(debug>2000) std::cout<<"created RooHistPDF for sample: "<<samples[i].sampleName.c_str()<<std::endl;
-        WS->import(*tmpRHP); 
-        if(debug>2000) std::cout<<"imported RooHistPdf into workspace"<<std::endl;
-        histout->cd();
-        hists1D[i]->Write();
-        hists2D[i]->Write();
-    }
+            RooHistPdf *tmpRHP = new RooHistPdf(samples[i].sampleName.c_str(), samples[i].sampleName.c_str(), *obs, *tmpRDH);        
+            if(debug>2000) std::cout<<"created RooHistPDF for sample: "<<samples[i].sampleName.c_str()<<std::endl;
+            WS->import(*tmpRHP); 
+            if(debug>2000) std::cout<<"imported RooHistPdf into workspace"<<std::endl; 
+            histout->cd();
+            wsdir->cd();
+            hists1D[catTypes[j]][i]->Write();
+            hists2D[catTypes[j]][i]->Write();
+        }
     // do fits
 
     // delete variables/etc
     ofile->cd();
-    WS->writeToFile(Form("%s.root",outputTreeName.c_str()));
+    WS->writeToFile(Form("%s_%s.root",outputTreeName.c_str(),catTypes[j].c_str()));
+    }
     ofile->Close();
+    histout->Close();
 }

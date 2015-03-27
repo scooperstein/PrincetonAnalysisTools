@@ -23,8 +23,8 @@ type=2  name=vptcut             val=100
 # for creating workspace
 type=2  name=modelDimension     val=1 # 1 or 2
 type=2  name=nBinsX             val=100
-type=2  name=varMinX            val=-1
-type=2  name=varMaxX            val=1
+type=2  name=varMinX            val=0
+type=2  name=varMaxX            val=500
 type=2  name=nBinsY             val=100
 type=2  name=varMinY            val=0
 type=2  name=varMaxY            val=300

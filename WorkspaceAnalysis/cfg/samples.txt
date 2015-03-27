@@ -1,1 +1,10 @@
-name=WH125 file=../VHbbAnalysis/output.root type=-12501  xsec=0.261 npro=376
+name=WH    file=output.root type=-12501  npro=1
+name=ZH    file=output.root  type=-12502  npro=1
+name=Wj0b       file=output.root type=2200 npro=1
+name=Wj1b       file=output.root type=2201 npro=1
+name=Wj2b       file=output.root type=2202 npro=1
+name=Zj0b       file=output.root  type=2300 npro=1
+name=Zj1b       file=output.root  type=2301 npro=1
+name=Zj2b       file=output.root  type=2302 npro=1
+name=TT   file=output.root   type=100 npro=1
+name=s_Top  file=output.root type=101 npro=1
