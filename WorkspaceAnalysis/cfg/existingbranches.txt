@@ -3,7 +3,9 @@
 # types:  unsigned int=0, int=1, float=2, double=3, bool=4
 # #     array +5;   vector +10;
 
+type=2  name=weight
 type=2  name=BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4
 type=2  name=H_mass_f
 type=2  name=H_mass_reg
-type=1  name=sampleIndex 
+type=1  name=sampleIndex
+type=1  name=eventClass 

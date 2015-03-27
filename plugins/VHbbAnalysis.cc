@@ -31,7 +31,7 @@ void VHbbAnalysis::InitAnalysis(){
 bool VHbbAnalysis::Preselection(){
     bool sel=false;
     //if( *d["Vtype"]==3 ) sel=true;
-    if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
+    //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
     return sel;
 }
 
