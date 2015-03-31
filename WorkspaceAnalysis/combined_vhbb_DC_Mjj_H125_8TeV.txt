@@ -2,14 +2,14 @@ imax 5 number of bins
 jmax 11 number of processes minus 1
 kmax 0 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
-shapes *           ch1_Wenu    workspace_WenLowPt.root WenLowPt:$PROCESS WenLowPt:$PROCESS_$SYSTEMATIC
-shapes *           ch1_Wenu3   workspace_WenHighPt.root WenHighPt:$PROCESS WenHighPt:$PROCESS_$SYSTEMATIC
-shapes *           ch2_Wmunu   workspace_WmnLowPt.root WmnLowPt:$PROCESS WmnLowPt:$PROCESS_$SYSTEMATIC
-shapes *           ch2_Wmunu2  workspace_WmnMidPt.root WmnMidPt:$PROCESS WmnMidPt:$PROCESS_$SYSTEMATIC
-shapes *           ch2_Wmunu3  workspace_WmnHighPt.root WmnHighPt:$PROCESS WmnHighPt:$PROCESS_$SYSTEMATIC
+shapes *           ch1_Wenu    hists_WenLowPt.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes *           ch1_Wenu3   hists_WenHighPt.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes *           ch2_Wmunu   hists_WmnLowPt.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes *           ch2_Wmunu2  hists_WmnMidPt.root $PROCESS $PROCESS_$SYSTEMATIC
+shapes *           ch2_Wmunu3  hists_WmnHighPt.root $PROCESS $PROCESS_$SYSTEMATIC
 ----------------------------------------------------------------------------------------------------------------------------------
 bin          ch1_Wenu    ch1_Wenu3   ch2_Wmunu   ch2_Wmunu2  ch2_Wmunu3
-observation  4238.1340   3880.6112   3743.2466   4106.9717   2704.4752     
+observation  4238.1340   3880.6112   3743.2466   4106.9717   2704.4752
 ----------------------------------------------------------------------------------------------------------------------------------
 bin                                                         ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu    ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch1_Wenu3   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu   ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu2  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3  ch2_Wmunu3
 process                                                     ZH          WH          s_Top       Zj1b        TT          Zj0b        Wj0b        Wj1b        Wj2b        Zj2b        ZH          WH          s_Top       Zj1b        TT          Zj0b        Wj0b        Wj1b        Wj2b        Zj2b        ZH          WH          s_Top       Zj1b        TT          Zj0b        Wj0b        Wj1b        Wj2b        Zj2b        ZH          WH          s_Top       Zj1b        TT          Zj0b        Wj0b        Wj1b        Wj2b        Zj2b        ZH          WH          s_Top       Zj1b        TT          Zj0b        Wj0b        Wj1b        Wj2b        Zj2b          

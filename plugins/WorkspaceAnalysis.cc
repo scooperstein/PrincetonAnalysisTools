@@ -42,9 +42,9 @@ void WorkspaceAnalysis::InitAnalysis() {
             hists1D[catTypes[j]].push_back( new TH1F(sname, sname, nBinsX, varMinX, varMaxX) );
             hists2D[catTypes[j]].push_back(new TH2F(Form("%s_2D",sname), Form("%s_2D",sname), nBinsX, varMinX, varMaxX, nBinsY, varMinY, varMaxY) );
         }
-    }
     // create output file for histograms
-    histout = new TFile("hists.root", "recreate");
+    histout[catTypes[j]] = new TFile(Form("hists_%s.root",catTypes[j].c_str()), "recreate");
+    }
 }
 
 bool WorkspaceAnalysis::Preselection() {
@@ -105,7 +105,8 @@ void WorkspaceAnalysis::TermAnalysis() {
         WS->factory(Form("CMS_vhbb_BDT_Wln_8TeV[%f,%f]",varMinX,varMaxX));
         WS->factory(Form("CMS_vhbb_Mjj_Wln_8TeV[%f,%f]",varMinY,varMaxY));
   
-        TDirectory *wsdir = histout->mkdir(catTypes[j].c_str());
+        //TDirectory *wsdir = histout[catTypes[j]]->mkdir(catTypes[j].c_str());
+        std::cout<<catTypes[j].c_str()<<std::endl; 
         for(int i=0; i < (int)samples.size(); i++) {
             // N.B.: This will only work correctly if the samples list hasn't changed at all since calling InitAnalysis()
             SampleContainer *csample = &samples[i];
@@ -129,11 +130,12 @@ void WorkspaceAnalysis::TermAnalysis() {
             if(debug>2000) std::cout<<"created RooHistPDF for sample: "<<samples[i].sampleName.c_str()<<std::endl;
             WS->import(*tmpRHP); 
             if(debug>2000) std::cout<<"imported RooHistPdf into workspace"<<std::endl; 
-            histout->cd();
-            wsdir->cd();
+            histout[catTypes[j]]->cd();
+            //wsdir->cd();
             hists1D[catTypes[j]][i]->Write();
             hists2D[catTypes[j]][i]->Write();
         }
+        //histout[catTypes[j]]->Close();
     // do fits
 
     // delete variables/etc
@@ -141,5 +143,4 @@ void WorkspaceAnalysis::TermAnalysis() {
     WS->writeToFile(Form("%s_%s.root",outputTreeName.c_str(),catTypes[j].c_str()));
     }
     ofile->Close();
-    histout->Close();
 }
