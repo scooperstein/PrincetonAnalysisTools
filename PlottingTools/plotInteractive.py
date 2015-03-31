@@ -63,6 +63,8 @@ Debug=False
 DebugNew=False
 
 dodivide=False
+dosoverb=False
+dosoversqrtb=False
 dolog=False
 dogridx=False
 dogridy=False
@@ -228,7 +230,7 @@ class SampleInfo:
 
 NEWVALS=["datasampleIndex","linex","stackmax","stackmin","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2"]
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "Normalize" ,"Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "dosoverb", "dosoversqrtb", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -692,7 +694,7 @@ def Plot(num,printsuffix="",printcat=-1):
         
     elif docats:
         nCanvases = Ncol*Nrow
-        if (not dodivide):
+        if (not dodivide and not dosoverb and not dosoversqrtb):
             can.Divide(Ncol, Nrow)
             for ican in range(1, nCanvases+1):
                 can.cd(ican)
@@ -934,6 +936,7 @@ def Plot(num,printsuffix="",printcat=-1):
         hist_1 = [""]*cur_plot.ncat
         dataTot = [""]*cur_plot.ncat
         mcTot = [""]*cur_plot.ncat
+        sigTot = [""]*cur_plot.ncat
         for icat in cats:
             stackmaxima[icat].sort()
             if StaticMax:
@@ -947,7 +950,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 print "docats stackmax",stackmax
 
             if docats:
-                if (not dodivide):
+                if (not dodivide and not dosoverb and not dosoversqrtb):
                     if DebugNew:
                         print "don't divide"
                     can.cd(icat+1)
@@ -1026,6 +1029,8 @@ def Plot(num,printsuffix="",printcat=-1):
                     legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[sampleIndex].displayname),"l"); 
                 sigIntegral = stacks["siglines"+str(icat)][index].Integral()
                 print "sig int ", sigIntegral
+                if dosoverb or dosoversqrtb:
+                    sigTot[icat] =  stacks["siglines"+str(icat)][lineorder[0]].Clone("sigTot")
  
             if dobkg:
                 lineorder = stacks["bkglines"+str(icat)].keys()
@@ -1055,9 +1060,12 @@ def Plot(num,printsuffix="",printcat=-1):
                     stacks["bkglines"+str(icat)][index].Draw("histsame")
                     if dolegend and icat==cats[0]:
                         legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[sampleIndex].displayname),"f"); 
-                    if dodivide:
+                    if dodivide or dosoverb or dosoversqrtb:
                         if (index == lineorder[0]):
                             mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
+                            if dosoversqrtb:
+                                for bin in range(0,mcTot[icat].GetNbinsX()+1):
+                                    mcTot[icat].SetBinContent(bin,math.sqrt(mcTot[icat].GetBinContent(bin)))
                 if stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries() > 0:
                     error=math.sqrt(1/float(stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries()))*stacks["bkglines"+str(icat)][lineorder[0]].Integral() 
                     print "bkg int","%.2f"%stacks["bkglines"+str(icat)][lineorder[0]].Integral(),"+/-","%.2f"%error
@@ -1119,24 +1127,50 @@ def Plot(num,printsuffix="",printcat=-1):
                 dataTot[icat].GetYaxis().SetNdivisions(505)
                 dataTot[icat].SetTitle('')
                 dataTot[icat].GetYaxis().SetLabelSize(0.15)
-                dataTot[icat].GetXaxis().SetTitle('')
                 dataTot[icat].GetYaxis().SetTitle('')
+                # FIXME need to make the font larger... how?
+                #dataTot[icat].GetYaxis().SetTitle('Data/Bkg MC')
                 dataTot[icat].Draw('PE')
 
+            if dosoverb or dosoversqrtb:
+                pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 + 1) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                can.cd(pad_id)
+                can.GetPad(pad_id).SetGrid(True)
+                sigTot[icat].Sumw2()
+                mcTot[icat].Sumw2()
+                sigTot[icat].Divide(mcTot[icat])
+                sigTot[icat].SetMarkerColor(4)
+                sigTot[icat].SetMarkerSize(0.8)
+                sigTot[icat].SetMarkerStyle(20)
+                sigTot[icat].SetLineColor(4)
+                sigTot[icat].SetLineWidth(2)
+                #sigTot[icat].SetMaximum(1.4)
+                #sigTot[icat].SetMinimum(0.6)
+                sigTot[icat].GetYaxis().SetNdivisions(505)
+                sigTot[icat].SetTitle('')
+                sigTot[icat].GetYaxis().SetLabelSize(0.15)
+                sigTot[icat].GetXaxis().SetTitle('')
+                # FIXME need to make the font larger... how?
+                #if dosoverb:
+                #    sigTot[icat].GetYaxis().SetTitle('S/B')
+                #if dosoversqrtb:
+                #    sigTot[icat].GetYaxis().SetTitle('S/#sqrt{B}')
+                sigTot[icat].Draw('PE')
+
             if dolegend:
-                if dodivide:
+                if dodivide or dosoverb or dosoversqrtb:
                     cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
                     can.cd(cat)
                 legend.Draw()
  
             if dotext:
-                if dodivide:
+                if dodivide or dosoverb or dosoversqrtb:
                     cat = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol 
                     can.cd(cat)
                 plottext.Draw()
         
             if doline:
-                if dodivide:
+                if dodivide or dosoverb or dosoversqrtb:
                     cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
                     can.cd(cat)
                 cutline.SetLineWidth(4*plotscale)
@@ -1144,7 +1178,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
  
             if docats: 
-                if dodivide:
+                if dodivide or dosoverb or dosoversqrtb:
                     pad_id = icat + 1 + (icat/Ncol)*Nrow  # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
                 else:
                     pad_id = icat + 1
