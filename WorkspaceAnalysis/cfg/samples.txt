@@ -1,3 +1,4 @@
+name=data_obs file=output.root type=100 npro=1 # hack since the combine tool needs something named 'data_obs'
 name=WH    file=output.root type=-12501  npro=1
 name=ZH    file=output.root  type=-12502  npro=1
 name=Wj0b       file=output.root type=2200 npro=1
