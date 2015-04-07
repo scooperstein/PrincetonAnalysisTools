@@ -54,109 +54,16 @@ bool VHbbAnalysis::Analyze(){
     *in["isWmunu"] = 0;
     *in["isWenu"] = 0;
     bool doCutFlow = bool(*f["doCutFlow"]);
-    if (doCutFlow) {
-         sel = true;
-        // let all events pass, but keep track of which selection they fail first
-        *in["cutFlow"] = 0;
-        if(*d["V_pt"] >= *f["vptcut"] && *d["H_pt"] >= *f["hptcut"]) {
-            *in["cutFlow"]=1;
-            std::pair<int,int> bjets=HighestPtBJets();
-            // there aren't two acceptable jets
-            // FIXME safe only because of preselection!!
-            //if(bjets.first==-1 || bjets.second==-1) return true;
-            *in["hJetInd1"]=bjets.first;
-            *in["hJetInd2"]=bjets.second;
-            if(d["Jet_btagCSV"][*in["hJetInd1"]] > *f["j1ptCSV"] && d["Jet_btagCSV"][*in["hJetInd2"]] > *f["j2ptCSV"] &&
-                d["Jet_pt"][*in["hJetInd1"]] > *f["j1ptCut"] && d["Jet_pt"][*in["hJetInd2"]] > *f["j2ptCut"]) {
-                *in["cutFlow"]=2;
-                if(*d["met_pt"] > *f["metcut"]) {
-                    *in["cutFlow"]=3;
-                    *in["elInd"] = -1;
-                    float elMaxPt = 0; // max pt of the electrons we select
-                    for (int i =0; i<*in["nselLeptons"]; i++) {
-                        if(fabs(in["selLeptons_pdgId"][i])==11 
-                            && d["selLeptons_pt"][i]      > *f["eptcut"] 
-                            && fabs(d["selLeptons_eta"][i]) < *f["eletacut"]
-                            && d["selLeptons_relIso03"][i]< *f["erelisocut"]
-                            && in["selLeptons_eleCutIdCSA14_25ns_v1"][i] >= *f["elidcut"]
-                            ){
-                            if (d["selLeptons_pt"][i] > elMaxPt) {
-                                elMaxPt = d["selLeptons_pt"][i];
-                                *in["elInd"] = i;
-                            }
-                        }
-                    }
-                    
-                    *in["muInd"] = -1;
-                   float muMaxPt = 0; // max pt of the muons we select 
-                   for (int i=0; i<*in["nselLeptons"]; i++) {
-                       if(fabs(in["selLeptons_pdgId"][i])==13 
-                       && d["selLeptons_pt"][i]      > *f["muptcut"]
-                       && fabs(d["selLeptons_eta"][i]) < *f["muetacut"]
-                       && d["selLeptons_relIso03"][i]< *f["murelisocut"]
-                       && in["selLeptons_tightId"][i] >= *f["muidcut"]
-                       ){
-                           if (d["selLeptons_pt"][i] > muMaxPt) {
-                               muMaxPt = d["selLeptons_pt"][i];
-                               *in["muInd"] = i;
-                           }
-                       }
-                   }
-                   *in["lepInd"] = -1;
-                   *in["isWmunu"] = 0;
-                   *in["isWenu"] = 0;
-                   if (*in["muInd"] != -1) {
-                       *in["isWmunu"] = 1;
-                       *in["lepInd"] = *in["muInd"];
-                   }
-                   else if (*in["elInd"] != -1) {
-                       *in["isWenu"] = 1;
-                       *in["lepInd"] = *in["elInd"];
-                   }
-                   if (*in["lepInd"] != -1) {
-                        *in["cutFlow"]=4;
-                         *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][*in["lepInd"]],*d["met_phi"]));
-                        if (*d["lepMetDPhi"] < *f["elMetDPhiCut"]) {
-                            *in["cutFlow"]=5;
-                            int nAddLep = 0;
-                            // count additional leptons (check both collections, which are exclusive)
-                            for (int i=0; i<*in["nselLeptons"]; i++) {
-                                if (i == *in["lepInd"]) continue; // don't look at the lepton we've selected from the W
-                                if (d["selLeptons_pt"][i]>15 && fabs(d["selLeptons_eta"][i])<2.5 && d["selLeptons_relIso03"][i]<0.1) {
-                                    nAddLep++;
-                                 }
-                            }
-                            for (int i=0; i<*in["naLeptons"]; i++) {
-                                if (d["aLeptons_pt"][i]>15 && fabs(d["aLeptons_eta"][i])<2.5 && d["aLeptons_relIso03"][i]<0.1) {
-                                    nAddLep++;
-                                 }
-                            }
-                            if (nAddLep < *f["nAddLeptonsCut"]) {
-                                *in["cutFlow"]=6;
-                                int nAddJet = 0; 
-                                for(int i=0; i < *in["nJet"]; i++) {
-                                    if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-                                    if(d["Jet_pt"][i]>25 && fabs(d["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-                                        nAddJet++;
-                                    }
-                                } 
-                                if (nAddJet < *f["nAddJetsCut"]) {
-                                    *in["cutFlow"]=7;
-                                    if (fabs(*d["HVdPhi"]) > *f["HVDPhiCut"]) {
-                                        *in["cutFlow"]=8;
-                                    }
-                                } 
-                            } 
-                        }
-                    }
-                }
-            }
-            
-        }  
-        //if (*in["cutFlow"]>0) std::cout<<"cutFlow = "<<*in["cutFlow"]<<std::endl; 
-        //return true; // select all events
+
+    if(debug>1000 && doCutFlow) {
+        std::cout<<"Running cutflow"<<std::endl;
     }
-    else *in["cutFlow"] = -1; 
+
+    if(debug>1000) {
+        std::cout<<"cutting on V and H pt"<<std::endl;
+    }
+    if(*d["V_pt"] < *f["vptcut"] || *d["H_pt"] < *f["hptcut"]) sel = false;
+    if (sel) *in["cutFlow"] += 1;
 
     if(debug>1000) {
         std::cout<<"selecting bjets"<<std::endl;
@@ -175,12 +82,6 @@ bool VHbbAnalysis::Analyze(){
         *in["hJetInd2"]=bjets.second;
     }
 
-    if(debug>1000) {
-        std::cout<<"found two bjets with pt "
-            <<d["Jet_pt"][bjets.first]<<" "
-            <<d["Jet_pt"][bjets.second]<<" "
-            <<std::endl;
-    }
    /* *in["nHJetsMatched"] = 0;
     if(d["hJets_pt"][0] == d["Jet_pt"][*in["hJetInd1"]]) *in["nHJetsMatched"] += 1;
     if(d["hJets_pt"][1] == d["Jet_pt"][*in["hJetInd2"]]) *in["nHJetsMatched"] += 1; 
@@ -200,30 +101,72 @@ bool VHbbAnalysis::Analyze(){
     if(d["hJets_pt"][0] < *f["j1ptCut"] || d["hJets_pt"][1] < *f["j2ptCut"]) return false;
     */
 
-    /*// Cut on the bjets that we select
-    if(d["Jet_btagCSV"][*in["hJetInd1"]] < *f["j1ptCSV"] || d["Jet_btagCSV"][*in["hJetInd2"]] < *f["j2ptCSV"]) return false;
-    if(d["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || d["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) return false; 
-     */
+    // Cut on the bjets that we select
+    if(d["Jet_btagCSV"][*in["hJetInd1"]] < *f["j1ptCSV"] || d["Jet_btagCSV"][*in["hJetInd2"]] < *f["j2ptCSV"]) sel = false;
+    if(d["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || d["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) sel = false; 
+    if (sel) *in["cutFlow"] += 1; 
 
+    if(debug>1000) {
+        std::cout<<"found two bjets with pt and CSV "
+            <<d["Jet_pt"][*in["hJetInd1"]]<<" "
+            <<d["Jet_btagCSV"][*in["hJetInd1"]]<<" "
+            <<d["Jet_pt"][*in["hJetInd2"]]<<" "
+            <<d["Jet_btagCSV"][*in["hJetInd2"]]<<" "
+            <<std::endl;
+    }
+    
+    if (*d["met_pt"] < *f["metcut"]) sel = false;
+    if (sel) *in["cutFlow"] += 1;
+    
     //check if event passes any event class
     if(WmunuHbbSelection()) {
-        sel=true;
         *in["isWmunu"] = 1;
         *in["eventClass"]=0;
         *in["lepInd"] = *in["muInd"];
+        *in["cutFlow"] += 1;
     } else if(WenuHbbSelection()) {
-        sel=true;
         *in["isWenu"] = 1;
         if (!(*in["isWmunu"])) {
             *in["eventClass"]=1000;
             *in["lepInd"] = *in["elInd"];
+            *in["cutFlow"] += 1;
         }
     }
+    else sel = false;
+    if (sel) *in["cutFlow"] += 1;
+    
     if (*in["lepInd"] == -1) {
         // not Wenu or Wmunu, use preselected lepton
         *in["lepInd"] = 0;
     }
 
+    if(debug>1000) {
+        std::cout<<"cutting on dphi(lep, met)"<<std::endl;
+    }
+    *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][*in["lepInd"]],*d["met_phi"]));
+    if (*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"]) sel = false;
+    else if (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]) sel = false;
+    if (sel) *in["cutFlow"] += 1;   
+
+
+    TLorentzVector W,Lep, MET, Hbb, HJ1, HJ2;
+    // Reconstruct W
+    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    Lep.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]); 
+    W = MET + Lep; 
+    *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
+ 
+    // Reconstruct Higgs
+    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
+    Hbb = HJ1 + HJ2;
+        
+    // Now we can calculate whatever we want (transverse) with W and H four-vectors
+    *d["HVdPhi"] = Hbb.DeltaPhi(W);
+    *f["H_mass_step2"] = *d["H_mass"];
+    *d["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
+    *d["H_pt"] = Hbb.Pt();
+ 
     // Match Jets with Gen Higgs Jets
     for (int i=0; i<*in["nJet"]; i++) {
         TLorentzVector GenHJ1, GenHJ2, Jet;
@@ -611,13 +554,21 @@ bool VHbbAnalysis::Analyze(){
     } 
 
     *in["nAddLeptons"] = nAddLep;
-    //if(nAddJet252p5_puid >= *f["nAddJetsCut"] || nAddLep>= *f["nAddLeptonsCut"]) return false; 
+    if (nAddLep>= *f["nAddLeptonsCut"]) sel = false;
+    if (sel) *in["cutFlow"] += 1;
+
+    if(nAddJet252p5_puid >= *f["nAddJetsCut"]) sel = false;
+    if (sel) *in["cutFlow"] += 1; 
     
+    if(fabs(*d["HVdPhi"]) < *f["HVDPhiCut"]) sel = false;
+     if (sel) *in["cutFlow"] += 1;
+ 
     if(debug>1000) {
         std::cout<<"selecting event"<<std::endl;
     }
 
-    return sel;
+    if (doCutFlow) return true; // keep all preselected events for cutflow
+    else return sel;
 }
 
 void VHbbAnalysis::FinishEvent(){
@@ -832,9 +783,7 @@ void VHbbAnalysis::TermAnalysis(){
 }
 
 bool VHbbAnalysis::WenuHbbSelection(){
-    int selectedInd=-1;
-    bool selectEvent=false;
-    float highestPt=-99;
+    bool selectEvent=true;
     if(debug>1000){
         std::cout<<"Running Wenu selections"<<std::endl;
         std::cout<<"*in[\"nselLeptons\"] "<<*in["nselLeptons"]<<std::endl;
@@ -861,40 +810,14 @@ bool VHbbAnalysis::WenuHbbSelection(){
             }
         }
     }
-    if (*in["elInd"] == -1) return false;
-    if (*d["met_pt"] < *f["metcut"]) return false;
-    *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][*in["elInd"]],*d["met_phi"]));
-    if (*d["lepMetDPhi"] > *f["elMetDPhiCut"]) return false;     
-
-    TLorentzVector W,El, MET, Hbb, HJ1, HJ2;
-    // Reconstruct W
-    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-    El.SetPtEtaPhiM(d["selLeptons_pt"][*in["elInd"]], d["selLeptons_eta"][*in["elInd"]], d["selLeptons_phi"][*in["elInd"]], d["selLeptons_mass"][*in["elInd"]]); 
-    W = MET + El; 
-    *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
- 
-    // Reconstruct Higgs
-    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-    Hbb = HJ1 + HJ2;
-        
-    // Now we can calculate whatever we want (transverse) with W and H four-vectors
-    *d["HVdPhi"] = Hbb.DeltaPhi(W);
-    *f["H_mass_step2"] = *d["H_mass"];
-    *d["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
-    *d["H_pt"] = Hbb.Pt();
-
-    if(fabs(*d["HVdPhi"])> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
-        && *d["H_pt"] > *f["hptcut"]  ){
-        selectEvent=true;
-    }
+    if (*in["elInd"] == -1) selectEvent = false;
 
     return selectEvent;
 }
 
 bool VHbbAnalysis::WmunuHbbSelection(){
     
-    bool selectEvent=false;
+    bool selectEvent=true;
     if(debug>1000){
         std::cout<<"Running Wmunu selections"<<std::endl;
         std::cout<<"*in[\"nselLeptons\"] "<<*in["nselLeptons"]<<std::endl;
@@ -922,33 +845,8 @@ bool VHbbAnalysis::WmunuHbbSelection(){
             }
         }
     }
-    if (*in["muInd"] == -1) return false;
-    if (*d["met_pt"] < *f["metcut"]) return false;
-    *d["lepMetDPhi"]=fabs(EvalDeltaPhi(d["selLeptons_phi"][*in["muInd"]],*d["met_phi"]));
-    if (*d["lepMetDPhi"] > *f["muMetDPhiCut"]) return false;   
+    if (*in["muInd"] == -1) selectEvent = false;
 
-    TLorentzVector W,Mu, MET, Hbb, HJ1, HJ2;
-    // Reconstruct W
-    MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-    Mu.SetPtEtaPhiM(d["selLeptons_pt"][*in["muInd"]], d["selLeptons_eta"][*in["muInd"]], d["selLeptons_phi"][*in["muInd"]], d["selLeptons_mass"][*in["muInd"]]); 
-    W = MET + Mu; 
-    *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
- 
-    // Reconstruct Higgs
-    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-    Hbb = HJ1 + HJ2;
-        
-    // Now we can calculate whatever we want (transverse) with W and H four-vectors
-    *d["HVdPhi"] = Hbb.DeltaPhi(W);
-    *f["H_mass_step2"] = *d["H_mass"];
-    *d["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
-    *d["H_pt"] = Hbb.Pt();
-
-    if(fabs(*d["HVdPhi"])> *f["HVDPhiCut"] && *d["V_pt"] > *f["vptcut"]
-        && *d["H_pt"] > *f["hptcut"]  ){  
-        selectEvent=true;
-    }
     return selectEvent;
 }
 
