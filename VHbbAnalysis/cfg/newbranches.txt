@@ -13,6 +13,7 @@ type=1  name=sampleIndex
 type=2  name=weight
 type=1  name=isWenu
 type=1  name=isWmunu
+type=1  name=cutFlow
 
 type=1  name=nAddJets
 type=1  name=nAddJets20

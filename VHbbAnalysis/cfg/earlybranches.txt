@@ -3,5 +3,9 @@
 
 type=3  name=Vtype
 type=1  name=nselLeptons
-type=1  name=nJet      
+type=1  name=naLeptons
+type=1  name=nJet    
+type=8  name=Jet_pt         max=100
+type=8  name=selLeptons_pt  max=10
+type=8  name=aLeptons_pt    max=50
 
