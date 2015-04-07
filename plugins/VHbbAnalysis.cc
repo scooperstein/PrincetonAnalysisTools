@@ -49,11 +49,9 @@ bool VHbbAnalysis::Preselection(){
 }
 
 bool VHbbAnalysis::Analyze(){
-    bool sel=false;
-    *in["lepInd"] = -1;
-    *in["isWmunu"] = 0;
-    *in["isWenu"] = 0;
+    bool sel=true;
     bool doCutFlow = bool(*f["doCutFlow"]);
+    *in["cutFlow"] = 0;
 
     if(debug>1000 && doCutFlow) {
         std::cout<<"Running cutflow"<<std::endl;
@@ -119,20 +117,22 @@ bool VHbbAnalysis::Analyze(){
     if (sel) *in["cutFlow"] += 1;
     
     //check if event passes any event class
+    *in["lepInd"] = -1;
+    *in["isWmunu"] = 0;
+    *in["isWenu"] = 0;
     if(WmunuHbbSelection()) {
         *in["isWmunu"] = 1;
         *in["eventClass"]=0;
         *in["lepInd"] = *in["muInd"];
-        *in["cutFlow"] += 1;
-    } else if(WenuHbbSelection()) {
+    } 
+    if(WenuHbbSelection()) {
         *in["isWenu"] = 1;
         if (!(*in["isWmunu"])) {
             *in["eventClass"]=1000;
             *in["lepInd"] = *in["elInd"];
-            *in["cutFlow"] += 1;
         }
     }
-    else sel = false;
+    if (*in["isWmunu"] == 0 && *in["isWenu"] == 0) sel = false;
     if (sel) *in["cutFlow"] += 1;
     
     if (*in["lepInd"] == -1) {
@@ -660,7 +660,7 @@ void VHbbAnalysis::FinishEvent(){
     HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
     
-    // We already calculate these in We/munuHbbSelection()
+    // We already calculate these in Analyze()
     //*d["H_mass"] = Hbb.M();
     //*d["H_pt"] = Hbb.Pt();
     //*d["V_pt"] = W.Pt();
