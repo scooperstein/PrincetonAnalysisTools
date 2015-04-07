@@ -454,6 +454,11 @@ void AnalysisManager::Loop(std::string sampleName){
         cursample->ComputeWeight(*f["intL"]);
          
         for(int ifile=0; ifile<(int)(cursample->files.size()); ifile++){
+            if(std::find(readFiles.begin(), readFiles.end(), cursample->files[ifile]) != readFiles.end() ) {
+                // file has already been processed, skip it
+                continue;
+            }
+            readFiles.push_back(cursample->files[ifile]);
             // set fChain to the TChain for the current sample
             InitChain(cursample->files[ifile]);
     

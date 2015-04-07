@@ -56,6 +56,7 @@ public :
     TTree                           *outputTree;    // what will be the condensed output tree
     TTree                           *settingsTree;  // contains analysis settings
     std::string                     outputTreeName;
+    std::vector<std::string>        readFiles;       // keep track of which files we've already read
     //TMVA::Reader                    *thereader;     // for evaluating the BDT
     std::vector<BDTInfo>            bdtInfos;
     BDTInfo                         jet1EnergyRegression;
