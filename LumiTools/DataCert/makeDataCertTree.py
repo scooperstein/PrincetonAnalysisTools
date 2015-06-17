@@ -326,11 +326,11 @@ for key in keys:
         
     pixel_xsec[0]=-1
 
-    try:
-        for layer in range(0,5):
-            pixel_xsec_layers[layer]=-1
-            nPCPerLayer[layer]=-1
+    for layer in range(0,5):
+        pixel_xsec_layers[layer]=-1
+        nPCPerLayer[layer]=-1
 
+    try:
         if key in brilkeys:
             hasBrilData[0]=True
             HFLumi[0]=onlineLumiPerLSMerged[key]['HF']
@@ -369,9 +369,9 @@ for key in keys:
                 count=count+1 
   
         if hasCMSData[0] and hasBrilData[0]: 
-            pixel_xsec[0]=nCluster[0]/BestLumi_integrated[0]*math.pow(2,18)
+            pixel_xsec[0]=nCluster[0]/BestLumi_integrated[0]*math.pow(2,18)*nBX[0]
             for layer in range(0,5):
-                pixel_xsec_layers[layer]=nPCPerLayer[layer]/BestLumi_integrated[0]*math.pow(2,18)
+                pixel_xsec_layers[layer]=nPCPerLayer[layer]/BestLumi_integrated[0]*math.pow(2,18)*nBX[0]
 
 
         newtree.Fill()
