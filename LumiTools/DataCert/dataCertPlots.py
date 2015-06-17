@@ -14,6 +14,12 @@ tree.SetBranchStatus("hasCMSData",1)
 
 runsToCheck=[246908,246919,246920,246923,246926,246930,246936,246951,246960,247068,247070,247073,247078,247079,247081,247252,247253,247262,247267,247377,247381]
 missingRuns=[246908,246919,246920,246923,246926,246930,246936,246951,246960,247068,247070,247073,247078,247079,247081,247252,247253,247262,247267,247377,247381]
+#runsToCheck=[]
+#missingRuns=[]
+
+#for run in range(247910,247936):
+#    runsToCheck.append(run)
+#    missingRuns.append(run)
 
 onlyBril=[]
 onlyCMS=[]
@@ -51,22 +57,21 @@ histlayers={}
 bestHF={}
 bestBCM1f={}
 
-#filling twice ????  FIXME!!!
 for ient in range(nentries):
     tree.GetEntry(ient)
     if tree.run in bothSets:
         if not histpix.has_key(tree.run):
-            histpix[tree.run]=ROOT.TH1F(str(tree.run),";Luminosity Section;PCC/BestLumi",runLSMax[tree.run],0,runLSMax[tree.run])
+            histpix[tree.run]=ROOT.TH1F(str(tree.run),";Luminosity Section;PCC/BestLumi*2^18",runLSMax[tree.run],0,runLSMax[tree.run])
             histpix[tree.run].GetXaxis().SetTitleSize(0.07)
             histpix[tree.run].GetXaxis().SetTitleOffset(0.6)
             histpix[tree.run].GetYaxis().SetTitleSize(0.07)
             histpix[tree.run].GetYaxis().SetTitleOffset(0.3)
             for layer in range(0,5):
                 layerkey=str(tree.run)+"_layer"+str(layer+1)
-                histlayers[layerkey]=ROOT.TH1F(str(tree.run)+"_layer"+str(layer+1),";Luminosity Section;PCC/BestLumi",runLSMax[tree.run],0,runLSMax[tree.run])
+                histlayers[layerkey]=ROOT.TH1F(str(tree.run)+"_layer"+str(layer+1),";Luminosity Section;PCC/BestLumi*2^18",runLSMax[tree.run],0,runLSMax[tree.run])
                 histlayers[layerkey].GetXaxis().SetTitleSize(0.10)
                 histlayers[layerkey].GetXaxis().SetTitleOffset(0.3)
-                histlayers[layerkey].GetYaxis().SetTitleSize(0.12)
+                histlayers[layerkey].GetYaxis().SetTitleSize(0.10)
                 histlayers[layerkey].GetYaxis().SetTitleOffset(0.3)
 
         histpix[tree.run].Fill(tree.LS,tree.pixel_xsec)
@@ -109,25 +114,25 @@ padlayers=ROOT.TPad("padlayers","",0.5,0.0,1.0,1.0)
 padlumis.Draw()        
 padlayers.Draw()        
 
-print bestHF
-print bestBCM1f
-
-
 for run in runsToCheck:
     padlumis.Divide(1,3)
-    print run
     if run in histpix.keys():
         padlumis.cd(1)
-        label=ROOT.TText(0,histpix[run].GetMaximum()*1.05,"   Pixel Cross Section - Run="+str(tree.run))
+        line=ROOT.TF1("pol1_","pol1",70,175)
+        label=ROOT.TText(0,histpix[run].GetMaximum()*1.05,"   Pixel Cluster Cross Section - Run="+str(run))
         label.SetTextSize(.1)
         histpix[run].SetMaximum(histpix[run].GetMaximum()*1.2)
+        histpix[run].Fit(line,"","",70,175)
         histpix[run].Draw("hist")
+        if run==246908:
+            line.Draw("same")
         label.Draw("same")
         padlumis.Update()
 
     if run in histbest.keys():
         padlumis.cd(2)
         histbest[run].Draw("hist")
+        print "intL for best in run",run,"is",histbest[run].Integral()
         hist2ndbest[run].SetLineColor(633)
         hist2ndbest[run].Draw("histsame")
         leg=ROOT.TLegend(0.1,0.1,0.7,0.4)
@@ -161,13 +166,18 @@ for run in runsToCheck:
     if run in bothSets:
         padlayers.Divide(1,5)
         layertexts={}
+        lines={}
         for layer in range(5):
+            lines[layer]=ROOT.TF1("pol1_"+str(layer+1),"pol1",70,175)
             padlayers.cd(layer+1)
             key=str(run)+"_layer"+str(layer+1)
-            layertexts[layer]=ROOT.TText(0,histlayers[key].GetMaximum()*1.05,"    Pixel Cross Section - Layer="+str(layer+1))
+            layertexts[layer]=ROOT.TText(0,histlayers[key].GetMaximum()*1.05,"    Pixel Cluster Cross Section - Layer="+str(layer+1))
             layertexts[layer].SetTextSize(.1)
             histlayers[key].SetMaximum(histlayers[key].GetMaximum()*1.2)
+            histlayers[key].Fit(lines[layer],"","",75,175)
             histlayers[key].Draw("hist")
+            if run==246908:
+                lines[layer].Draw("same")
             layertexts[layer].Draw("same")
         padlayers.Update()    
     
