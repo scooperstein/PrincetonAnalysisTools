@@ -67,6 +67,7 @@ bool VHbbAnalysis::Analyze(){
         std::cout<<"selecting bjets"<<std::endl;
     }
     std::pair<int,int> bjets=HighestPtBJets();
+    //std::pair<int,int> bjets=HighestCSVBJets();
     
     // there aren't two acceptable jets
     if (bjets.first == -1) {
@@ -609,7 +610,8 @@ void VHbbAnalysis::FinishEvent(){
     *d["hJets_btagCSV_0_step2"] = d["hJets_btagCSV"][0];
     *d["hJets_btagCSV_1_step2"] = d["hJets_btagCSV"][1];
 
-    *f["weight"] = cursample->intWeight;
+    //*f["weight"] = cursample->intWeight;
+    *f["weight"] = 1.0; // HACK FIXME
     *f["Vtype_f"] = (float) *d["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
     *f["selLeptons_pt_0"] = d["selLeptons_pt"][*in["lepInd"]];
@@ -854,7 +856,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     std::pair<int,int> pair(-1,-1);
 
     for(int i=0; i<*in["nJet"]; i++){
-        /*if(in["Jet_puId"][i] == 1
+        if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j1ptCut"]
             && d["Jet_btagCSV"][i]>*f["j1ptCSV"]) {
             if( pair.first == -1 ) {
@@ -862,18 +864,18 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
             } else if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
                 pair.first = i;
             }
-        }*/
-        if( pair.first == -1) {
+        }
+        /*if( pair.first == -1) {
             pair.first = i;
         }
         else if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
             pair.first = i;
-        }
+        }*/
     }
    
     for(int i=0; i<*in["nJet"]; i++){
         if(i==pair.first) continue;
-        /*if(in["Jet_puId"][i] == 1
+        if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j2ptCut"]
             && d["Jet_btagCSV"][i]>*f["j2ptCSV"]) {
             if( pair.second == -1 ) {
@@ -881,13 +883,13 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
             } else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
                 pair.second = i;
             }
-        }*/
-        if (pair.second == -1) {
+        }
+        /*if (pair.second == -1) {
             pair.second = i;
         }
         else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
             pair.second = i;
-        }
+        }*/
     }
 
     return pair;
