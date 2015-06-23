@@ -29,6 +29,7 @@ void VHbbAnalysis::InitAnalysis(){
 //if sel, then analyzeevent
 //default to false in the future
 bool VHbbAnalysis::Preselection(){
+    //return true; // for the moment don't impose any preselection
     bool sel=true;
     //if( *d["Vtype"]==3 ) sel=true;
     //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
@@ -66,20 +67,18 @@ bool VHbbAnalysis::Analyze(){
     if(debug>1000) {
         std::cout<<"selecting bjets"<<std::endl;
     }
-    std::pair<int,int> bjets=HighestPtBJets();
-    //std::pair<int,int> bjets=HighestCSVBJets();
-    
+    //std::pair<int,int> bjets=HighestPtBJets();
+    std::pair<int,int> bjets=HighestCSVBJets();
+ 
     // there aren't two acceptable jets
     if (bjets.first == -1) {
         *in["hJetInd1"] = 0;
     }
+    else *in["hJetInd1"] = bjets.first;
     if (bjets.second == -1) {
         *in["hJetInd2"] = 1;
     }
-    if (bjets.first != -1 && bjets.second != -1) {
-        *in["hJetInd1"]=bjets.first;
-        *in["hJetInd2"]=bjets.second;
-    }
+    else *in["hJetInd2"] = bjets.second;
 
    /* *in["nHJetsMatched"] = 0;
     if(d["hJets_pt"][0] == d["Jet_pt"][*in["hJetInd1"]]) *in["nHJetsMatched"] += 1;
@@ -100,12 +99,16 @@ bool VHbbAnalysis::Analyze(){
     if(d["hJets_pt"][0] < *f["j1ptCut"] || d["hJets_pt"][1] < *f["j2ptCut"]) return false;
     */
 
-    // Cut on the bjets that we select
+    /*// Cut on the bjets that we select
     if(d["Jet_btagCSV"][*in["hJetInd1"]] < *f["j1ptCSV"] || d["Jet_btagCSV"][*in["hJetInd2"]] < *f["j2ptCSV"]) sel = false;
     if(d["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || d["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) sel = false; 
+    */
     if (sel) *in["cutFlow"] += 1; 
 
     if(debug>1000) {
+        std::cout<<"nJet = "<<*in["nJet"]<<std::endl;
+        std::cout<<"hJetInd1 = "<<*in["hJetInd1"]<<std::endl;
+        std::cout<<"hJetInd2 = "<<*in["hJetInd2"]<<std::endl;
         std::cout<<"found two bjets with pt and CSV "
             <<d["Jet_pt"][*in["hJetInd1"]]<<" "
             <<d["Jet_btagCSV"][*in["hJetInd1"]]<<" "
@@ -150,7 +153,7 @@ bool VHbbAnalysis::Analyze(){
     if (sel) *in["cutFlow"] += 1;   
 
 
-    TLorentzVector W,Lep, MET, Hbb, HJ1, HJ2;
+    TLorentzVector W,Lep, MET, Hbb, HJ1, HJ2, GenBJ1, GenBJ2, GenBJJ;
     // Reconstruct W
     MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
     Lep.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]); 
@@ -161,7 +164,50 @@ bool VHbbAnalysis::Analyze(){
     HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
     HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
-        
+
+    // Compare gen kinematics for b jets for signal vs. ttbar
+    if (*in["nGenBQuarkFromHafterISR"] > 1) {
+        // signal event
+        GenBJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0], d["GenBQuarkFromHafterISR_eta"][0], d["GenBQuarkFromHafterISR_phi"][0], d["GenBQuarkFromHafterISR_mass"][0]);
+        GenBJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1], d["GenBQuarkFromHafterISR_eta"][1], d["GenBQuarkFromHafterISR_phi"][1], d["GenBQuarkFromHafterISR_mass"][1]);
+    }        
+    else if (*in["nGenBQuarkFromTop"] == 2){
+        // ttbar event 
+        GenBJ1.SetPtEtaPhiM(d["GenBQuarkFromTop_pt"][0], d["GenBQuarkFromTop_eta"][0], d["GenBQuarkFromTop_phi"][0], d["GenBQuarkFromTop_mass"][0]);
+        GenBJ2.SetPtEtaPhiM(d["GenBQuarkFromTop_pt"][1], d["GenBQuarkFromTop_eta"][1], d["GenBQuarkFromTop_phi"][1], d["GenBQuarkFromTop_mass"][1]);
+    }
+    else {
+       // let's not worry about these for now since ttbar is so dominant
+       GenBJ1.SetPtEtaPhiM(0, 0, 0, 0);
+       GenBJ2.SetPtEtaPhiM(0, 0, 0, 0);
+    }
+
+    *f["GenBJ1_pt"] = GenBJ1.Pt();
+    *f["GenBJ1_eta"] = GenBJ1.Eta();
+    *f["GenBJ1_phi"] = GenBJ1.Phi();
+    *f["GenBJ1_mass"] = GenBJ1.M();
+    *f["GenBJ2_pt"] = GenBJ2.Pt();
+    *f["GenBJ2_eta"] = GenBJ2.Eta();
+    *f["GenBJ2_phi"] = GenBJ2.Phi();
+    *f["GenBJ2_mass"] = GenBJ2.M();
+
+    GenBJJ = GenBJ1 + GenBJ2;
+    *f["GenBJJ_pt"] = GenBJJ.Pt();
+    *f["GenBJJ_eta"] = GenBJJ.Eta();
+    *f["GenBJJ_phi"] = GenBJJ.Phi();
+    *f["GenBJJ_mass"] = GenBJJ.M();
+    *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
+    *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
+    double dEta = GenBJ2.Eta() - GenBJ1.Eta();
+    // dEta should be on interval [-Pi,Pi]
+    if (dEta > PI) {
+        dEta -= 2*PI;
+    }
+    else if (dEta < -1*PI) {
+        dEta += 2*PI;
+    }
+    *f["GenBJJ_dEta"] = dEta;
+ 
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *d["HVdPhi"] = Hbb.DeltaPhi(W);
     *f["H_mass_step2"] = *d["H_mass"];
@@ -610,8 +656,8 @@ void VHbbAnalysis::FinishEvent(){
     *d["hJets_btagCSV_0_step2"] = d["hJets_btagCSV"][0];
     *d["hJets_btagCSV_1_step2"] = d["hJets_btagCSV"][1];
 
-    //*f["weight"] = cursample->intWeight;
-    *f["weight"] = 1.0; // HACK FIXME
+    *f["weight"] = cursample->intWeight;
+    //*f["weight"] = 1.0; // HACK FIXME
     *f["Vtype_f"] = (float) *d["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
     *f["selLeptons_pt_0"] = d["selLeptons_pt"][*in["lepInd"]];
