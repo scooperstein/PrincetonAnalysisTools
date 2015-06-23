@@ -58,11 +58,23 @@ type=8  name=Jet_vtxNtracks                   max=100
 type=8  name=Jet_vtxPt                        max=100
 type=8  name=Jet_phi                          max=100
 type=6  name=Jet_mcFlavour                    max=100
+type=8  name=Jet_btagCSVV0                    max=100
+type=8  name=Jet_btagnew                      max=100
+type=8  name=Jet_btagCMVA                     max=100
 
+type=1  name=nGenBQuarkFromHafterISR
 type=8  name=GenBQuarkFromHafterISR_pt        max=2
 type=8  name=GenBQuarkFromHafterISR_eta       max=100
 type=8  name=GenBQuarkFromHafterISR_phi       max=2
 type=8  name=GenBQuarkFromHafterISR_mass      max=2
+
+type=1  name=nGenBQuarkFromTop               
+type=8  name=GenBQuarkFromTop_mass            max=10
+type=8  name=GenBQuarkFromTop_pt              max=10
+type=8  name=GenBQuarkFromTop_eta             max=10
+type=8  name=GenBQuarkFromTop_phi             max=10
+type=8  name=GenBQuarkFromTop_pdgId           max=10
+
 
 # variables needed for the jet energy regression, maybe we can find a way to
 # not save these?

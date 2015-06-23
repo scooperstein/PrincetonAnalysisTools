@@ -70,12 +70,13 @@ bool VHbbAnalysis::Analyze(){
     //std::pair<int,int> bjets=HighestPtBJets();
     std::pair<int,int> bjets=HighestCSVBJets();
  
-    // there aren't two acceptable jets
     if (bjets.first == -1) {
+        sel = false;
         *in["hJetInd1"] = 0;
     }
     else *in["hJetInd1"] = bjets.first;
     if (bjets.second == -1) {
+         sel = false;
         *in["hJetInd2"] = 1;
     }
     else *in["hJetInd2"] = bjets.second;

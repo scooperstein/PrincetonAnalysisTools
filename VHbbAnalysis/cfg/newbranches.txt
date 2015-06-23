@@ -105,3 +105,20 @@ type=2  name=H_dPhi_reg
 type=2  name=H_dEta_reg
 type=2  name=Jet1_regWeight
 type=2  name=Jet2_regWeight
+
+type=2  name=GenBJ1_pt
+type=2  name=GenBJ1_eta
+type=2  name=GenBJ1_phi
+type=2  name=GenBJ1_mass
+type=2  name=GenBJ2_pt
+type=2  name=GenBJ2_eta
+type=2  name=GenBJ2_phi
+type=2  name=GenBJ2_mass
+type=2  name=GenBJJ_pt
+type=2  name=GenBJJ_eta
+type=2  name=GenBJJ_phi
+type=2  name=GenBJJ_mass
+type=2  name=GenBJJ_dPhi
+type=2  name=GenBJJ_dEta
+type=2  name=GenBJJ_dR
+
