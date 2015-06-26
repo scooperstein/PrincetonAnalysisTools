@@ -76,7 +76,7 @@ type=1  name=selLeptons_pdgId_0
 type=1  name=selLeptons_eleCutIdCSA14_25ns_v1_0
 type=1  name=selLeptons_tightId_0
 type=2  name=selLeptons_relIso03_0
-type=2  name=selLeptons_genEleDR_0
+type=2  name=selLeptons_genLepDR_0
 type=2  name=selLeptons_eleSieie_0               
 type=2  name=selLeptons_eleDEta_0                
 type=2  name=selLeptons_eleDPhi_0               
@@ -121,4 +121,21 @@ type=2  name=GenBJJ_mass
 type=2  name=GenBJJ_dPhi
 type=2  name=GenBJJ_dEta
 type=2  name=GenBJJ_dR
+type=2  name=hJet1_matchedMinDR
+type=2  name=hJet2_matchedMinDR
+type=2  name=GenLep_GenBJ1_dR
+type=2  name=GenLep_GenBJ2_dR
+type=2  name=GenLep_GenBJ1_dEta
+type=2  name=GenLep_GenBJ2_dEta
+type=2  name=GenLep_GenBJ1_dPhi
+type=2  name=GenLep_GenBJ2_dPhi
+type=1  name=GenLepIndex1
+type=1  name=GenLepIndex2
+type=2  name=GenTop1_mass
+type=2  name=GenTop2_mass
+
+type=2  name=Lep_HJ1_dPhi
+type=2  name=Lep_HJ2_dPhi
+type=2  name=Top1_mass
+type=2  name=Top2_mass
 
