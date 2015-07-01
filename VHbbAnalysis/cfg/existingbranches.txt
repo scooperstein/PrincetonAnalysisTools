@@ -30,6 +30,12 @@ type=8  name=GenLep_eta                         max=10
 type=8  name=GenLep_phi                         max=10
 type=8  name=GenLep_mass                        max=10
 
+type=1  name=nGenLepFromTop     
+type=8  name=GenLepFromTop_pt                   max=10
+type=8  name=GenLepFromTop_eta                  max=10
+type=8  name=GenLepFromTop_phi                  max=10
+type=8  name=GenLepFromTop_mass                 max=10
+
 type=8  name=aLeptons_eta                       max=50
 type=6  name=aLeptons_pdgId                     max=50
 type=8  name=aLeptons_relIso03                  max=50
@@ -58,11 +64,24 @@ type=8  name=Jet_vtxNtracks                   max=100
 type=8  name=Jet_vtxPt                        max=100
 type=8  name=Jet_phi                          max=100
 type=6  name=Jet_mcFlavour                    max=100
+type=8  name=Jet_btagCSVV0                    max=100
+type=8  name=Jet_btagnew                      max=100
+type=8  name=Jet_btagCMVA                     max=100
+type=6  name=Jet_mcMatchId                    max=100
 
+type=1  name=nGenBQuarkFromHafterISR
 type=8  name=GenBQuarkFromHafterISR_pt        max=2
 type=8  name=GenBQuarkFromHafterISR_eta       max=100
 type=8  name=GenBQuarkFromHafterISR_phi       max=2
 type=8  name=GenBQuarkFromHafterISR_mass      max=2
+
+type=1  name=nGenBQuarkFromTop               
+type=8  name=GenBQuarkFromTop_mass            max=10
+type=8  name=GenBQuarkFromTop_pt              max=10
+type=8  name=GenBQuarkFromTop_eta             max=10
+type=8  name=GenBQuarkFromTop_phi             max=10
+type=8  name=GenBQuarkFromTop_pdgId           max=10
+
 
 # variables needed for the jet energy regression, maybe we can find a way to
 # not save these?

@@ -9,6 +9,17 @@
 
 #include "TLorentzVector.h"
 
+// translate eta difference to interval [-PI,PI]
+double dEta(double Eta1, double Eta2) {
+    double diff = Eta2 - Eta1;
+    if (diff > PI) {
+        diff -= 2*PI;
+    }
+    else if (diff < -1*PI) {
+        diff += 2*PI;
+    }
+    return diff;
+}
 // initialize parameters
 VHbbAnalysis::VHbbAnalysis(){
     if(debug>10) std::cout<<"Constructing VHbbAnalysis"<<std::endl;
@@ -29,6 +40,7 @@ void VHbbAnalysis::InitAnalysis(){
 //if sel, then analyzeevent
 //default to false in the future
 bool VHbbAnalysis::Preselection(){
+    return true; // for the moment don't impose any preselection
     bool sel=true;
     //if( *d["Vtype"]==3 ) sel=true;
     //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
@@ -66,19 +78,19 @@ bool VHbbAnalysis::Analyze(){
     if(debug>1000) {
         std::cout<<"selecting bjets"<<std::endl;
     }
-    std::pair<int,int> bjets=HighestPtBJets();
-    
-    // there aren't two acceptable jets
+    //std::pair<int,int> bjets=HighestPtBJets();
+    std::pair<int,int> bjets=HighestCSVBJets();
+ 
     if (bjets.first == -1) {
+        sel = false;
         *in["hJetInd1"] = 0;
     }
+    else *in["hJetInd1"] = bjets.first;
     if (bjets.second == -1) {
+         sel = false;
         *in["hJetInd2"] = 1;
     }
-    if (bjets.first != -1 && bjets.second != -1) {
-        *in["hJetInd1"]=bjets.first;
-        *in["hJetInd2"]=bjets.second;
-    }
+    else *in["hJetInd2"] = bjets.second;
 
    /* *in["nHJetsMatched"] = 0;
     if(d["hJets_pt"][0] == d["Jet_pt"][*in["hJetInd1"]]) *in["nHJetsMatched"] += 1;
@@ -99,12 +111,16 @@ bool VHbbAnalysis::Analyze(){
     if(d["hJets_pt"][0] < *f["j1ptCut"] || d["hJets_pt"][1] < *f["j2ptCut"]) return false;
     */
 
-    // Cut on the bjets that we select
+    /*// Cut on the bjets that we select
     if(d["Jet_btagCSV"][*in["hJetInd1"]] < *f["j1ptCSV"] || d["Jet_btagCSV"][*in["hJetInd2"]] < *f["j2ptCSV"]) sel = false;
     if(d["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || d["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) sel = false; 
+    */
     if (sel) *in["cutFlow"] += 1; 
 
     if(debug>1000) {
+        std::cout<<"nJet = "<<*in["nJet"]<<std::endl;
+        std::cout<<"hJetInd1 = "<<*in["hJetInd1"]<<std::endl;
+        std::cout<<"hJetInd2 = "<<*in["hJetInd2"]<<std::endl;
         std::cout<<"found two bjets with pt and CSV "
             <<d["Jet_pt"][*in["hJetInd1"]]<<" "
             <<d["Jet_btagCSV"][*in["hJetInd1"]]<<" "
@@ -149,7 +165,7 @@ bool VHbbAnalysis::Analyze(){
     if (sel) *in["cutFlow"] += 1;   
 
 
-    TLorentzVector W,Lep, MET, Hbb, HJ1, HJ2;
+    TLorentzVector W,Lep, MET, Hbb, HJ1, HJ2, GenBJ1, GenBJ2, GenBJJ;
     // Reconstruct W
     MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
     Lep.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]); 
@@ -160,25 +176,240 @@ bool VHbbAnalysis::Analyze(){
     HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
     HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
+
+    *f["Lep_HJ1_dPhi"] = Lep.DeltaPhi(HJ1);
+    *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
+    *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
+
+    // Find the closest lepton to each of the selected jets and try to reconstruct the tops from ttbar
+    double minDRHJ1 = 999;
+    double minDRHJ2 = 999;
+    double minSecondDRHJ2 = 999;
+    int HJ1ClosestLeptonIndex = -1;
+    int HJ2ClosestLeptonIndex = -1;
+    int HJ2SecondClosestLeptonIndex = -1; // keep track of this in case the same lepton is closest to both jets
+
+    // look in aleptons too FIXME
+    for (int i=0; i<*in["nselLeptons"]; i++) {
+        TLorentzVector l;
+        l.SetPtEtaPhiM(d["selLeptons_pt"][i], d["selLeptons_eta"][i], d["selLeptons_phi"][i], d["selLeptons_mass"][i] );
+        double d1 = l.DeltaR(HJ1);
+        double d2 = l.DeltaR(HJ2);
+        if (d1 <= minDRHJ1) {
+            minDRHJ1 = d1;
+            HJ1ClosestLeptonIndex = i;
+        }
+        if (d2 <= minDRHJ2) {
+            minSecondDRHJ2 = minDRHJ2;
+            HJ2SecondClosestLeptonIndex = HJ2ClosestLeptonIndex;
+            minDRHJ2 = d2;
+            HJ2ClosestLeptonIndex = i;
+        }
+        else if (d2 <= minSecondDRHJ2) {
+            minSecondDRHJ2 = d2;
+            HJ2SecondClosestLeptonIndex = i;
+        }
+    }
+    if (HJ1ClosestLeptonIndex == HJ2ClosestLeptonIndex) {
+        // oops, the same lepton is closest to both jets
+        HJ2ClosestLeptonIndex = HJ2SecondClosestLeptonIndex;
+    }
+    if (HJ1ClosestLeptonIndex!=-1) {
+        TLorentzVector Lep1, Top1;
+        Lep1.SetPtEtaPhiM(d["selLeptons_pt"][HJ1ClosestLeptonIndex], d["selLeptons_eta"][HJ1ClosestLeptonIndex], d["selLeptons_phi"][HJ1ClosestLeptonIndex], d["selLeptons_mass"][HJ1ClosestLeptonIndex]);
+        Top1 = Lep1 + HJ1;
+        *f["Top1_mass"] = Top1.M();
+    }
+    else {
+        *f["Top1_mass"] = -999;
+    }
+    if (HJ2ClosestLeptonIndex!=-1) {
+        TLorentzVector Lep2, Top2;
+        Lep2.SetPtEtaPhiM(d["selLeptons_pt"][HJ2ClosestLeptonIndex], d["selLeptons_eta"][HJ2ClosestLeptonIndex], d["selLeptons_phi"][HJ2ClosestLeptonIndex], d["selLeptons_mass"][HJ2ClosestLeptonIndex]); 
+        Top2 = Lep2 + HJ2;
+        *f["Top2_mass"] = Top2.M();
+    }
+    else {
+        *f["Top2_mass"] = -999;
+    }
+    
+    // Let's try to reconstruct the second top from a hadronically decaying W
+    double min1 = 999.;
+    double min2 = 999.;
+    int jetInd1 = -1;
+    int jetInd2 = -1;
+    for (int i=0; i<*in["nJet"]; i++) {
+        if (i==*in["hJetInd1"] || i==*in["hJetInd2"]) continue;
+        // make some basic jet id/kinematic cut
+        if (d["Jet_pt"][i] < 30 || in["Jet_puId"][i]==0) continue;
+        //if (in["Jet_mcMatchId"][i] == 0) continue;
+        TLorentzVector j;
+        j.SetPtEtaPhiM(d["Jet_pt"][i], d["Jet_eta"][i], d["Jet_phi"][i], d["Jet_mass"][i] );
+        double DR = j.DeltaR(HJ2);
+        if (DR <= min1) {
+            min2 = min1;
+            jetInd2 = jetInd1;
+            min1 = DR;
+            jetInd1 = i;
+        }
+        else if (DR <= min2) {
+            min2 = DR;
+            jetInd2 = i;
+        }
+    }
+    *f["HJ2_minJetDR1"] = min1;
+    *f["HJ2_minJetDR2"] = min2;
+    if (jetInd1!=-1 && jetInd2!=-1) {
+         TLorentzVector WJet1, WJet2;
+         WJet1.SetPtEtaPhiM(d["Jet_pt"][jetInd1], d["Jet_eta"][jetInd1], d["Jet_phi"][jetInd1], d["Jet_mass"][jetInd1]);
+         WJet2.SetPtEtaPhiM(d["Jet_pt"][jetInd2], d["Jet_eta"][jetInd2], d["Jet_phi"][jetInd2], d["Jet_mass"][jetInd2]);
+         TLorentzVector Top_hadW = WJet1 + WJet2 + HJ2;
+         *f["Top2_mass_hadW"] = Top_hadW.M();
+         *f["HJ2_WJet1_dPhi"] = HJ2.DeltaPhi(WJet1);
+         *f["HJ2_WJet2_dPhi"] = HJ2.DeltaPhi(WJet2);
+         *f["HJ2_WJet1_dEta"] = dEta(HJ2.Eta(), WJet1.Eta());
+         *f["HJ2_WJet2_dEta"] = dEta(HJ2.Eta(), WJet2.Eta());
+     }
+     else {
+         *f["Top2_mass_hadW"] = -999;
+         *f["HJ2_WJet1_dPhi"] = -999;
+         *f["HJ2_WJet2_dPhi"] = -999;
+         *f["HJ2_WJet1_dEta"] = -999;
+         *f["HJ2_WJet2_dEta"] = -999;
+     }
+
+    // Compare gen kinematics for b jets for signal vs. ttbar
+    if (*in["nGenBQuarkFromHafterISR"] > 1) {
+        // signal event
+        GenBJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0], d["GenBQuarkFromHafterISR_eta"][0], d["GenBQuarkFromHafterISR_phi"][0], d["GenBQuarkFromHafterISR_mass"][0]);
+        GenBJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1], d["GenBQuarkFromHafterISR_eta"][1], d["GenBQuarkFromHafterISR_phi"][1], d["GenBQuarkFromHafterISR_mass"][1]);
+    }        
+    else if (*in["nGenBQuarkFromTop"] == 2){
+        // ttbar event 
+        GenBJ1.SetPtEtaPhiM(d["GenBQuarkFromTop_pt"][0], d["GenBQuarkFromTop_eta"][0], d["GenBQuarkFromTop_phi"][0], d["GenBQuarkFromTop_mass"][0]);
+        GenBJ2.SetPtEtaPhiM(d["GenBQuarkFromTop_pt"][1], d["GenBQuarkFromTop_eta"][1], d["GenBQuarkFromTop_phi"][1], d["GenBQuarkFromTop_mass"][1]);
+    }
+    else {
+       // let's not worry about these for now since ttbar is so dominant
+       GenBJ1.SetPtEtaPhiM(0, 0, 0, 0);
+       GenBJ2.SetPtEtaPhiM(0, 0, 0, 0);
+    }
+
+    *f["GenBJ1_pt"] = GenBJ1.Pt();
+    *f["GenBJ1_eta"] = GenBJ1.Eta();
+    *f["GenBJ1_phi"] = GenBJ1.Phi();
+    *f["GenBJ1_mass"] = GenBJ1.M();
+    *f["GenBJ2_pt"] = GenBJ2.Pt();
+    *f["GenBJ2_eta"] = GenBJ2.Eta();
+    *f["GenBJ2_phi"] = GenBJ2.Phi();
+    *f["GenBJ2_mass"] = GenBJ2.M();
+
+    GenBJJ = GenBJ1 + GenBJ2;
+    *f["GenBJJ_pt"] = GenBJJ.Pt();
+    *f["GenBJJ_eta"] = GenBJJ.Eta();
+    *f["GenBJJ_phi"] = GenBJJ.Phi();
+    *f["GenBJJ_mass"] = GenBJJ.M();
+    *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
+    *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
+    *f["GenBJJ_dEta"] = dEta(GenBJ1.Eta(), GenBJ2.Eta() );
+
+    TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
+    double minDR1 = 999;
+    double minDR2 = 999;
+    double minSecDR2 = 999; //second closest gen lepton to second jet
+    int GenLepIndex1 = -1; // index of the lepton closest to jet 1
+    int GenLepIndex2 = -1; // index of the lepton closest to jet 2
+    int GenLepSecIndex2 = -1; // index of the lepton second closest to jet 2
+    for (int i=0; i<*in["nGenLep"]; i++) {
+       TLorentzVector gl;
+       gl.SetPtEtaPhiM(d["GenLep_pt"][i], d["GenLep_eta"][i], d["GenLep_phi"][i], d["GenLep_mass"][i] );
+       double DR1 = gl.DeltaR(GenBJ1);
+       double DR2 = gl.DeltaR(GenBJ2);
+       if (DR1 <= minDR1) {
+           minDR1 = DR1;
+           GenLepIndex1 = i;
+       }
+       if (DR2 <= minDR2) {
+           minSecDR2 = minDR2;
+           GenLepSecIndex2 = GenLepIndex2;
+           minDR2 = DR2;
+           GenLepIndex2 = i;
+       } 
+       else if (DR2 < minSecDR2) {
+           minSecDR2 = DR2;
+           GenLepSecIndex2 = i;
+       }
+    }  
+    if (GenLepIndex1 == GenLepIndex2) {
+        // don't allow us to use the same lepton for each jet
+        GenLepIndex2 = GenLepSecIndex2;
+    }
         
+    *in["GenLepIndex1"] = GenLepIndex1;
+    *in["GenLepIndex2"] = GenLepIndex2;
+    
+    if (GenLepIndex1!=-1) {
+        GenLep1.SetPtEtaPhiM(d["GenLep_pt"][GenLepIndex1], d["GenLep_eta"][GenLepIndex1], d["GenLep_phi"][GenLepIndex1], d["GenLep_mass"][GenLepIndex1] );
+        *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
+        *f["GenLep_GenBJ1_dEta"] = dEta(GenLep1.Eta(), GenBJ1.Eta() );
+        *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
+        
+        // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+        TLorentzVector GenTop1 = GenLep1 + GenBJ1;
+        *f["GenTop1_mass"] = GenTop1.M();
+    }
+    else { 
+        *f["GenLep_GenBJ1_dR"] = -999;
+        *f["GenLep_GenBJ1_dEta"] = -999;
+        *f["GenLep_GenBJ1_dPhi"] = -999;
+        *f["GenTop1_mass"] = -999;
+    }
+    if (GenLepIndex2!=-1) {
+        GenLep2.SetPtEtaPhiM(d["GenLep_pt"][GenLepIndex2], d["GenLep_eta"][GenLepIndex2], d["GenLep_phi"][GenLepIndex2], d["GenLep_mass"][GenLepIndex2] );
+        *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
+        *f["GenLep_GenBJ2_dEta"] = dEta(GenLep2.Eta(), GenBJ2.Eta() );
+        *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
+
+        // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+        TLorentzVector GenTop2 = GenLep2 + GenBJ2; 
+        *f["GenTop2_mass"] = GenTop2.M();
+    } 
+    else {
+        *f["GenLep_GenBJ2_dR"] = -999;
+        *f["GenLep_GenBJ2_dEta"] = -999;
+        *f["GenLep_GenBJ2_dPhi"] = -999;
+        *f["GenTop2_mass"] = -999;
+    }
+    
+ 
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *d["HVdPhi"] = Hbb.DeltaPhi(W);
     *f["H_mass_step2"] = *d["H_mass"];
     *d["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
     *d["H_pt"] = Hbb.Pt();
  
-    // Match Jets with Gen Higgs Jets
+    int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
+    // Match Jets with Gen B Jets from Higgs/Tops
     for (int i=0; i<*in["nJet"]; i++) {
         TLorentzVector GenHJ1, GenHJ2, Jet;
-        GenHJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0],d["GenBQuarkFromHafterISR_eta"][0],d["GenBQuarkFromHafterISR_phi"][0],d["GenBQuarkFromHafterISR_mass"][0]);
-        GenHJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1],d["GenBQuarkFromHafterISR_eta"][1],d["GenBQuarkFromHafterISR_phi"][1],d["GenBQuarkFromHafterISR_mass"][1]);
+        //GenHJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0],d["GenBQuarkFromHafterISR_eta"][0],d["GenBQuarkFromHafterISR_phi"][0],d["GenBQuarkFromHafterISR_mass"][0]);
+        //GenHJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1],d["GenBQuarkFromHafterISR_eta"][1],d["GenBQuarkFromHafterISR_phi"][1],d["GenBQuarkFromHafterISR_mass"][1]);
         Jet.SetPtEtaPhiM(d["Jet_pt"][i], d["Jet_eta"][i], d["Jet_phi"][i], d["Jet_mass"][i]);
       
-        double dR1 = Jet.DeltaR(GenHJ1);
-        double dR2 = Jet.DeltaR(GenHJ2);
+        //double dR1 = Jet.DeltaR(GenHJ1);
+        //double dR2 = Jet.DeltaR(GenHJ2);
+        double dR1 = Jet.DeltaR(GenBJ1);
+        double dR2 = Jet.DeltaR(GenBJ2);
         d["Jet_genHJetMinDR"][i] = min(dR1, dR2);
         if(dR1 <= dR2) d["Jet_genHJetIndex"][i] = 1;
         else d["Jet_genHJetIndex"][i] = 2;
+
+        if (i == *in["hJetInd1"]) {
+            *f["hJet1_matchedMinDR"] = d["Jet_genHJetMinDR"][i];
+        }
+        else if (i == *in["hJetInd2"]) {
+            *f["hJet2_matchedMinDR"] = d["Jet_genHJetMinDR"][i];
+        }
     }
     
     // count the number of additional leptons and jets, then cut on this number
@@ -562,7 +793,16 @@ bool VHbbAnalysis::Analyze(){
     
     if(fabs(*d["HVdPhi"]) < *f["HVDPhiCut"]) sel = false;
      if (sel) *in["cutFlow"] += 1;
- 
+
+    // mass window, use parameterized mean/sigma from jet mass res. study
+    double mean = 104.7 + 0.055 * (*d["H_pt"]);
+    double sigma = 20.9* exp(-0.0024*(*d["H_pt"]));
+
+    // mass window cut
+    if (*d["H_mass"] < (mean - 1*sigma) || *d["H_mass"] > (mean + 1*sigma)) sel=false;
+    //if (*d["H_mass"] < 100 || *d["H_mass"] > 150) sel=false;
+    if (sel) *in["cutFlow"] += 1; 
+
     if(debug>1000) {
         std::cout<<"selecting event"<<std::endl;
     }
@@ -610,6 +850,7 @@ void VHbbAnalysis::FinishEvent(){
     *d["hJets_btagCSV_1_step2"] = d["hJets_btagCSV"][1];
 
     *f["weight"] = cursample->intWeight;
+    //*f["weight"] = 1.0; // HACK FIXME
     *f["Vtype_f"] = (float) *d["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
     *f["selLeptons_pt_0"] = d["selLeptons_pt"][*in["lepInd"]];
@@ -631,13 +872,15 @@ void VHbbAnalysis::FinishEvent(){
  
     if (*in["nGenLep"] == 0) {
         // gen lep is originally a tau?
-        *f["selLeptons_genEleDR_0"] = -1;
+        *f["selLeptons_genLepDR_0"] = -1;
     }
     else {
         TLorentzVector GenLep, El;
         GenLep.SetPtEtaPhiM(d["GenLep_pt"][0],d["GenLep_eta"][0],d["GenLep_phi"][0],d["GenLep_mass"][0]);
         El.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]);
-        *f["selLeptons_genEleDR_0"] = El.DeltaR(GenLep);
+        *f["selLeptons_genLepDR_0"] = El.DeltaR(GenLep);
+
+        
     }
  
 
@@ -854,7 +1097,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     std::pair<int,int> pair(-1,-1);
 
     for(int i=0; i<*in["nJet"]; i++){
-        /*if(in["Jet_puId"][i] == 1
+        if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j1ptCut"]
             && d["Jet_btagCSV"][i]>*f["j1ptCSV"]) {
             if( pair.first == -1 ) {
@@ -862,18 +1105,18 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
             } else if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
                 pair.first = i;
             }
-        }*/
-        if( pair.first == -1) {
+        }
+        /*if( pair.first == -1) {
             pair.first = i;
         }
         else if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
             pair.first = i;
-        }
+        }*/
     }
    
     for(int i=0; i<*in["nJet"]; i++){
         if(i==pair.first) continue;
-        /*if(in["Jet_puId"][i] == 1
+        if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j2ptCut"]
             && d["Jet_btagCSV"][i]>*f["j2ptCSV"]) {
             if( pair.second == -1 ) {
@@ -881,13 +1124,13 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
             } else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
                 pair.second = i;
             }
-        }*/
-        if (pair.second == -1) {
+        }
+        /*if (pair.second == -1) {
             pair.second = i;
         }
         else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
             pair.second = i;
-        }
+        }*/
     }
 
     return pair;
