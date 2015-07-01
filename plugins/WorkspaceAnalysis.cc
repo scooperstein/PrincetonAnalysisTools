@@ -26,7 +26,24 @@ void WorkspaceAnalysis::InitAnalysis() {
     catTypes.push_back("WenHighPt");    
     catTypes.push_back("WmnLowPt");    
     catTypes.push_back("WmnMidPt");    
-    catTypes.push_back("WmnHighPt");    
+    catTypes.push_back("WmnHighPt"); 
+    reIndex[-12501] = -12501;
+    reIndex[-12502] = -12502;
+    reIndex[2200] = 2200;
+    reIndex[2201] = 2201;
+    reIndex[2202] = 2202;
+    reIndex[2300] = 2300;
+    reIndex[2301] = 2301;
+    reIndex[2302] = 2302;
+    reIndex[10] = 101;
+    reIndex[11] = 101;
+    reIndex[16] = 101;
+    reIndex[17] = 101;
+    reIndex[20] = 101;
+    reIndex[21] = 101;
+    reIndex[13] = 100;
+    reIndex[14] = 100;
+    reIndex[15] = 100;   
 
     // initialize histograms
     for (int j=0; j < (int)catTypes.size(); j++) {
@@ -48,13 +65,14 @@ void WorkspaceAnalysis::InitAnalysis() {
 }
 
 bool WorkspaceAnalysis::Preselection() {
-    // for now we won't impose any selections on top of the input tree from VHbbAnalyzer
+    if (*in["cutFlow"] < *f["cutFlowLevel"]) return false;
     return true; 
 }
 
 bool WorkspaceAnalysis::Analyze() {
     // no selection imposed on top of VHbbAnalyzer
     if(debug>10000) std::cout<<"Called Analyze()"<<std::endl;
+    //if (*f["H_mass_f"] < 80 || *f["H_mass_f"] > 140) return false;
     return true;
 }
 
@@ -65,7 +83,8 @@ void WorkspaceAnalysis::FinishEvent() {
             float BDT = *f["BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4"];
             float H_mass = *f["H_mass_f"];
             float H_mass_reg = *f["H_mass_reg"];
-            int sNum = *in["sampleIndex"];        
+            float H_pt = *f["H_pt_f"];
+            int sNum = reIndex[*in["sampleIndex"]];        
             //float weight = samples[i].intWeight;
             float weight = *f["weight"];
             //std::cout<<"sNum = "<<sNum<<std::endl;
@@ -81,13 +100,22 @@ void WorkspaceAnalysis::FinishEvent() {
             if (catTypes[j] == "WmnLowPt" && *in["eventClass"]==3) pass=true;
             if (catTypes[j] == "WmnMidPt" && *in["eventClass"]==2) pass=true;
             if (catTypes[j] == "WmnHighPt" && *in["eventClass"]==1) pass=true;
+            /*if (catTypes[j] == "WenLowPt" && *in["isWenu"]&&*d["V_pt"]>100&&*d["V_pt"]<150) pass=true;
+            if (catTypes[j] == "WenHighPt" && *in["isWenu"]&&*d["V_pt"]>150) pass=true;
+            if (catTypes[j] == "WmnLowPt" && *in["isWmunu"]&&*d["V_pt"]>100&&*d["V_pt"]<130) pass=true;
+            if (catTypes[j] == "WmnMidPt" && *in["isWmunu"]&&*d["V_pt"]>130&&*d["V_pt"]<180) pass=true;
+            if (catTypes[j] == "WmnHighPt" && *in["isWmunu"]&&*d["V_pt"]>180) pass=true;
+            */            
+            //if (*in["isWenu"] || *in["isWmunu"]) pass=true;
             if (!pass) continue;
             //std::cout<<"passed!"<<std::endl;
             ofile->cd();
             hists1D[catTypes[j]][i]->Fill(H_mass, weight);
-            std::cout<<"1D hist filled with Mjj value: "<<H_mass<<" and weight: "<<weight<<std::endl;
-            hists2D[catTypes[j]][i]->Fill(BDT, H_mass_reg, weight);
-            if(debug>20000) std::cout<<"2D hist filled with BDT value: "<<BDT<<", Mjj value: "<<H_mass_reg<<" and weight: "<<weight<<std::endl;
+            if(debug>20000) std::cout<<"1D hist filled with Mjj value: "<<H_mass<<" and weight: "<<weight<<std::endl;
+            //hists2D[catTypes[j]][i]->Fill(H_mass, BDT, weight);
+            //if(debug>20000) std::cout<<"2D hist filled with BDT value: "<<BDT<<", Mjj value: "<<H_mass<<" and weight: "<<weight<<std::endl;
+            hists2D[catTypes[j]][i]->Fill(H_mass, H_pt, weight);
+            if(debug>20000) std::cout<<"2D hist filled with H_pt value: "<<H_pt<<", Mjj value: "<<H_mass<<" and weight: "<<weight<<std::endl;
         }
     }
 }
@@ -102,8 +130,9 @@ void WorkspaceAnalysis::TermAnalysis() {
     for(int j=0; j < (int)catTypes.size(); j++) {
         RooWorkspace *WS = new RooWorkspace(catTypes[j].c_str(), catTypes[j].c_str());
         RooArgList *obs;
-        WS->factory(Form("CMS_vhbb_BDT_Wln_8TeV[%f,%f]",varMinX,varMaxX));
-        WS->factory(Form("CMS_vhbb_Mjj_Wln_8TeV[%f,%f]",varMinY,varMaxY));
+        //WS->factory(Form("CMS_vhbb_BDT_Wln_8TeV[%f,%f]",varMinY,varMaxY));
+        WS->factory(Form("CMS_vhbb_Hpt_Wln_8TeV[%f,%f]",varMinY,varMaxY));
+        WS->factory(Form("CMS_vhbb_Mjj_Wln_8TeV[%f,%f]",varMinX,varMaxX));
   
         //TDirectory *wsdir = histout[catTypes[j]]->mkdir(catTypes[j].c_str());
         std::cout<<catTypes[j].c_str()<<std::endl; 
@@ -119,7 +148,8 @@ void WorkspaceAnalysis::TermAnalysis() {
                 tmpRDH = new RooDataHist(csample->sampleName.c_str(), csample->sampleName.c_str(), *obs, hists1D[catTypes[j]][i]);
                 break;
             case 2: 
-                obs = new RooArgList(*WS->var("CMS_vhbb_BDT_Wln_8TeV"), *WS->var("CMS_vhbb_Mjj_Wln_8TeV"));
+                //obs = new RooArgList(*WS->var("CMS_vhbb_Mjj_Wln_8TeV"), *WS->var("CMS_vhbb_BDT_Wln_8TeV"));
+                obs = new RooArgList(*WS->var("CMS_vhbb_Mjj_Wln_8TeV"), *WS->var("CMS_vhbb_Hpt_Wln_8TeV"));
                 tmpRDH = new RooDataHist(csample->sampleName.c_str(), csample->sampleName.c_str(), *obs, hists2D[catTypes[j]][i]);
                 break;
             default:
