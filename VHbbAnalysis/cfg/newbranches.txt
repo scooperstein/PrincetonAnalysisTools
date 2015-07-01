@@ -138,4 +138,11 @@ type=2  name=Lep_HJ1_dPhi
 type=2  name=Lep_HJ2_dPhi
 type=2  name=Top1_mass
 type=2  name=Top2_mass
-
+type=2  name=Top2_mass_hadW
+type=2  name=HJ1_HJ2_dPhi
+type=2  name=HJ2_minJetDR1
+type=2  name=HJ2_minJetDR2
+type=2  name=HJ2_WJet1_dPhi
+type=2  name=HJ2_WJet2_dPhi
+type=2  name=HJ2_WJet1_dEta
+type=2  name=HJ2_WJet2_dEta

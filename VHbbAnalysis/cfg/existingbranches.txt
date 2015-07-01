@@ -67,6 +67,7 @@ type=6  name=Jet_mcFlavour                    max=100
 type=8  name=Jet_btagCSVV0                    max=100
 type=8  name=Jet_btagnew                      max=100
 type=8  name=Jet_btagCMVA                     max=100
+type=6  name=Jet_mcMatchId                    max=100
 
 type=1  name=nGenBQuarkFromHafterISR
 type=8  name=GenBQuarkFromHafterISR_pt        max=2
