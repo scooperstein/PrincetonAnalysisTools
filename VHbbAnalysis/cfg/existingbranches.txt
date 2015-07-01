@@ -2,7 +2,6 @@
 #     array +5;   vector +10;
 
 type=1  name=nselLeptons 
-type=8  name=selLeptons_pt                      max=10
 type=8  name=selLeptons_eta                     max=10
 type=8  name=selLeptons_phi                     max=10
 type=8  name=selLeptons_mass                    max=10
@@ -31,8 +30,6 @@ type=8  name=GenLep_eta                         max=10
 type=8  name=GenLep_phi                         max=10
 type=8  name=GenLep_mass                        max=10
 
-type=1  name=naLeptons
-type=8  name=aLeptons_pt                        max=50
 type=8  name=aLeptons_eta                       max=50
 type=6  name=aLeptons_pdgId                     max=50
 type=8  name=aLeptons_relIso03                  max=50
@@ -43,7 +40,6 @@ type=1  name=naJets
 type=6  name=Jet_id                           max=100
 type=6  name=Jet_puId                         max=100
 type=8  name=Jet_btagCSV                      max=100
-type=8  name=Jet_pt                           max=100
 type=8  name=Jet_rawPt                        max=100
 type=8  name=Jet_eta                          max=100
 type=8  name=Jet_mass                         max=100
@@ -64,7 +60,7 @@ type=8  name=Jet_phi                          max=100
 type=6  name=Jet_mcFlavour                    max=100
 
 type=8  name=GenBQuarkFromHafterISR_pt        max=2
-type=8  name=GenBQuarkFromHafterISR_eta       max=2
+type=8  name=GenBQuarkFromHafterISR_eta       max=100
 type=8  name=GenBQuarkFromHafterISR_phi       max=2
 type=8  name=GenBQuarkFromHafterISR_mass      max=2
 
