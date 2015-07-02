@@ -9,17 +9,6 @@
 
 #include "TLorentzVector.h"
 
-// translate eta difference to interval [-PI,PI]
-double dEta(double Eta1, double Eta2) {
-    double diff = Eta2 - Eta1;
-    if (diff > PI) {
-        diff -= 2*PI;
-    }
-    else if (diff < -1*PI) {
-        diff += 2*PI;
-    }
-    return diff;
-}
 // initialize parameters
 VHbbAnalysis::VHbbAnalysis(){
     if(debug>10) std::cout<<"Constructing VHbbAnalysis"<<std::endl;
@@ -40,7 +29,7 @@ void VHbbAnalysis::InitAnalysis(){
 //if sel, then analyzeevent
 //default to false in the future
 bool VHbbAnalysis::Preselection(){
-    return true; // for the moment don't impose any preselection
+    //return true; // for the moment don't impose any preselection
     bool sel=true;
     //if( *d["Vtype"]==3 ) sel=true;
     //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
@@ -72,8 +61,10 @@ bool VHbbAnalysis::Analyze(){
     if(debug>1000) {
         std::cout<<"cutting on V and H pt"<<std::endl;
     }
-    if(*d["V_pt"] < *f["vptcut"] || *d["H_pt"] < *f["hptcut"]) sel = false;
-    if (sel) *in["cutFlow"] += 1;
+
+    // We should really make this cut only after calculating H_pt ourselves
+    //if(*d["V_pt"] < *f["vptcut"] || *d["H_pt"] < *f["hptcut"]) sel = false;
+    //if (sel) *in["cutFlow"] += 1;
 
     if(debug>1000) {
         std::cout<<"selecting bjets"<<std::endl;
@@ -115,7 +106,7 @@ bool VHbbAnalysis::Analyze(){
     if(d["Jet_btagCSV"][*in["hJetInd1"]] < *f["j1ptCSV"] || d["Jet_btagCSV"][*in["hJetInd2"]] < *f["j2ptCSV"]) sel = false;
     if(d["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || d["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) sel = false; 
     */
-    if (sel) *in["cutFlow"] += 1; 
+    if (sel) *in["cutFlow"] += 1; // selected jets
 
     if(debug>1000) {
         std::cout<<"nJet = "<<*in["nJet"]<<std::endl;
@@ -129,8 +120,17 @@ bool VHbbAnalysis::Analyze(){
             <<std::endl;
     }
     
+    // Reconstruct Higgs
+    TLorentzVector HJ1,HJ2,Hbb;
+    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
+    Hbb = HJ1 + HJ2;
+    *d["H_pt"] = Hbb.Pt();
+    if (*d["H_pt"] < *f["hptcut"]) sel=false;
+    if (sel) *in["cutFlow"] += 1; // pT(jj) cut
+    
     if (*d["met_pt"] < *f["metcut"]) sel = false;
-    if (sel) *in["cutFlow"] += 1;
+    if (sel) *in["cutFlow"] += 1; // met cut
     
     //check if event passes any event class
     *in["lepInd"] = -1;
@@ -149,7 +149,7 @@ bool VHbbAnalysis::Analyze(){
         }
     }
     if (*in["isWmunu"] == 0 && *in["isWenu"] == 0) sel = false;
-    if (sel) *in["cutFlow"] += 1;
+    if (sel) *in["cutFlow"] += 1; // lepton selection
     
     if (*in["lepInd"] == -1) {
         // not Wenu or Wmunu, use preselected lepton
@@ -165,17 +165,13 @@ bool VHbbAnalysis::Analyze(){
     if (sel) *in["cutFlow"] += 1;   
 
 
-    TLorentzVector W,Lep, MET, Hbb, HJ1, HJ2, GenBJ1, GenBJ2, GenBJJ;
+    TLorentzVector W,Lep, MET, GenBJ1, GenBJ2, GenBJJ;
     // Reconstruct W
     MET.SetPtEtaPhiM(*d["met_pt"], 0., *d["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
     Lep.SetPtEtaPhiM(d["selLeptons_pt"][*in["lepInd"]], d["selLeptons_eta"][*in["lepInd"]], d["selLeptons_phi"][*in["lepInd"]], d["selLeptons_mass"][*in["lepInd"]]); 
     W = MET + Lep; 
     *d["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
- 
-    // Reconstruct Higgs
-    HJ1.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd1"]], d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
-    HJ2.SetPtEtaPhiM(d["Jet_pt"][*in["hJetInd2"]], d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
-    Hbb = HJ1 + HJ2;
+
 
     *f["Lep_HJ1_dPhi"] = Lep.DeltaPhi(HJ1);
     *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
@@ -267,8 +263,8 @@ bool VHbbAnalysis::Analyze(){
          *f["Top2_mass_hadW"] = Top_hadW.M();
          *f["HJ2_WJet1_dPhi"] = HJ2.DeltaPhi(WJet1);
          *f["HJ2_WJet2_dPhi"] = HJ2.DeltaPhi(WJet2);
-         *f["HJ2_WJet1_dEta"] = dEta(HJ2.Eta(), WJet1.Eta());
-         *f["HJ2_WJet2_dEta"] = dEta(HJ2.Eta(), WJet2.Eta());
+         *f["HJ2_WJet1_dEta"] = fabs(HJ2.Eta() - WJet1.Eta());
+         *f["HJ2_WJet2_dEta"] = fabs(HJ2.Eta() - WJet2.Eta());
      }
      else {
          *f["Top2_mass_hadW"] = -999;
@@ -311,7 +307,7 @@ bool VHbbAnalysis::Analyze(){
     *f["GenBJJ_mass"] = GenBJJ.M();
     *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
     *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
-    *f["GenBJJ_dEta"] = dEta(GenBJ1.Eta(), GenBJ2.Eta() );
+    *f["GenBJJ_dEta"] = fabs(GenBJ1.Eta() - GenBJ2.Eta());
 
     TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
     double minDR1 = 999;
@@ -351,7 +347,7 @@ bool VHbbAnalysis::Analyze(){
     if (GenLepIndex1!=-1) {
         GenLep1.SetPtEtaPhiM(d["GenLep_pt"][GenLepIndex1], d["GenLep_eta"][GenLepIndex1], d["GenLep_phi"][GenLepIndex1], d["GenLep_mass"][GenLepIndex1] );
         *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
-        *f["GenLep_GenBJ1_dEta"] = dEta(GenLep1.Eta(), GenBJ1.Eta() );
+        *f["GenLep_GenBJ1_dEta"] = fabs(GenLep1.Eta() - GenBJ1.Eta());
         *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
         
         // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
@@ -367,7 +363,7 @@ bool VHbbAnalysis::Analyze(){
     if (GenLepIndex2!=-1) {
         GenLep2.SetPtEtaPhiM(d["GenLep_pt"][GenLepIndex2], d["GenLep_eta"][GenLepIndex2], d["GenLep_phi"][GenLepIndex2], d["GenLep_mass"][GenLepIndex2] );
         *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
-        *f["GenLep_GenBJ2_dEta"] = dEta(GenLep2.Eta(), GenBJ2.Eta() );
+        *f["GenLep_GenBJ2_dEta"] = (GenLep2.Eta(), GenBJ2.Eta());
         *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
 
         // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
@@ -410,6 +406,19 @@ bool VHbbAnalysis::Analyze(){
         else if (i == *in["hJetInd2"]) {
             *f["hJet2_matchedMinDR"] = d["Jet_genHJetMinDR"][i];
         }
+    }
+    
+    // Some Gen W variables
+    TLorentzVector GenW;
+    if (*in["nGenVbosons"]>0 && fabs(in["GenVbosons_pdgId"][0])==24) {
+        GenW.SetPtEtaPhiM(d["GenVbosons_pt"][0], d["GenVbosons_eta"][0], d["GenVbosons_phi"][0], d["GenVbosons_mass"][0]);
+        *f["GenW_GenBJJ_dPhi"] = GenW.DeltaPhi(GenBJJ);
+        *f["GenW_GenBJJ_dEta"] = fabs(GenW.Eta() - GenBJJ.Eta());
+    }
+    else {
+    
+        *f["GenW_GenBJJ_dPhi"] = -999;
+        *f["GenW_GenBJJ_dEta"] = -999;
     }
     
     // count the number of additional leptons and jets, then cut on this number
@@ -786,22 +795,23 @@ bool VHbbAnalysis::Analyze(){
 
     *in["nAddLeptons"] = nAddLep;
     if (nAddLep>= *f["nAddLeptonsCut"]) sel = false;
-    if (sel) *in["cutFlow"] += 1;
+    if (sel) *in["cutFlow"] += 1; // additional lepton veto
 
     if(nAddJet252p5_puid >= *f["nAddJetsCut"]) sel = false;
-    if (sel) *in["cutFlow"] += 1; 
+    if (sel) *in["cutFlow"] += 1; // additional jet veto
     
     if(fabs(*d["HVdPhi"]) < *f["HVDPhiCut"]) sel = false;
-     if (sel) *in["cutFlow"] += 1;
+     if (sel) *in["cutFlow"] += 1; // dPhi(jj,W) cut
 
-    // mass window, use parameterized mean/sigma from jet mass res. study
+    // let's do this for now in WorkspaceAnalysis since it's fast to rerun there
+    /*// mass window, use parameterized mean/sigma from jet mass res. study
     double mean = 104.7 + 0.055 * (*d["H_pt"]);
     double sigma = 20.9* exp(-0.0024*(*d["H_pt"]));
 
     // mass window cut
     if (*d["H_mass"] < (mean - 1*sigma) || *d["H_mass"] > (mean + 1*sigma)) sel=false;
     //if (*d["H_mass"] < 100 || *d["H_mass"] > 150) sel=false;
-    if (sel) *in["cutFlow"] += 1; 
+    if (sel) *in["cutFlow"] += 1; */
 
     if(debug>1000) {
         std::cout<<"selecting event"<<std::endl;
