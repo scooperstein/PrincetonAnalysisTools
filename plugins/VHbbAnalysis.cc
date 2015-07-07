@@ -7,7 +7,6 @@
 
 #include "VHbbAnalysis.h"
 
-#include "TLorentzVector.h"
 
 // initialize parameters
 VHbbAnalysis::VHbbAnalysis(){
@@ -177,7 +176,7 @@ bool VHbbAnalysis::Analyze(){
     *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
 
-    // Find the closest lepton to each of the selected jets and try to reconstruct the tops from ttbar
+    /*// Find the closest lepton to each of the selected jets and try to reconstruct the tops from ttbar
     double minDRHJ1 = 999;
     double minDRHJ2 = 999;
     double minSecondDRHJ2 = 999;
@@ -227,8 +226,27 @@ bool VHbbAnalysis::Analyze(){
     }
     else {
         *f["Top2_mass"] = -999;
+    }*/
+    TLorentzVector Jet_bestCSV;
+    int Jet_bestCSV_index = -1;
+    Jet_bestCSV_index = HighestCSVBJets().first;
+    if (Jet_bestCSV_index != -1) {
+        Jet_bestCSV.SetPtEtaPhiM(d["Jet_pt"][Jet_bestCSV_index],d["Jet_eta"][Jet_bestCSV_index],d["Jet_phi"][Jet_bestCSV_index],d["Jet_mass"][Jet_bestCSV_index]);
+        *f["Top1_mass_bestCSV"] = GetRecoTopMass(Jet_bestCSV);
     }
+    else *f["Top1_mass_bestCSV"] = -999;
     
+    TLorentzVector Jet_highestPt;
+    int Jet_highestPt_index = -1;
+    Jet_highestPt_index = HighestPtBJets().first;
+    if (Jet_highestPt_index != -1) {
+        Jet_highestPt.SetPtEtaPhiM(d["Jet_pt"][Jet_highestPt_index],d["Jet_eta"][Jet_highestPt_index],d["Jet_phi"][Jet_highestPt_index],d["Jet_mass"][Jet_highestPt_index]);
+        *f["Top1_mass_highestPt"] = GetRecoTopMass(Jet_highestPt);
+    }
+    else *f["Top1_mass_highestPt"] = -999;
+
+    *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false); // construct top mass from closest jet to lepton
+
     // Let's try to reconstruct the second top from a hadronically decaying W
     double min1 = 999.;
     double min2 = 999.;
@@ -804,14 +822,14 @@ bool VHbbAnalysis::Analyze(){
      if (sel) *in["cutFlow"] += 1; // dPhi(jj,W) cut
 
     // let's do this for now in WorkspaceAnalysis since it's fast to rerun there
-    /*// mass window, use parameterized mean/sigma from jet mass res. study
+    // mass window, use parameterized mean/sigma from jet mass res. study
     double mean = 104.7 + 0.055 * (*d["H_pt"]);
     double sigma = 20.9* exp(-0.0024*(*d["H_pt"]));
 
     // mass window cut
-    if (*d["H_mass"] < (mean - 1*sigma) || *d["H_mass"] > (mean + 1*sigma)) sel=false;
+    if (*d["H_mass"] < (mean - 2*sigma) || *d["H_mass"] > (mean + 2*sigma)) sel=false;
     //if (*d["H_mass"] < 100 || *d["H_mass"] > 150) sel=false;
-    if (sel) *in["cutFlow"] += 1; */
+    if (sel) *in["cutFlow"] += 1; 
 
     if(debug>1000) {
         std::cout<<"selecting event"<<std::endl;
@@ -1176,5 +1194,56 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
     }
 
     return pair;
+}
+
+double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet) {
+
+    // Try to reconstruct the top in ttbar with leptonic W decay
+    // if isJet is true, construct top as given jet + closest lepton
+    // if isJet is false, construct top as given lepton + closest lepton
+    double Top_mass = -999; // return value
+
+    double minDR = 999;
+    int ObjClosestIndex = -1; // index of closest lepton if isJet, closet jet otherwise
+
+    TLorentzVector Obj2; // closest lepton if isJet, closest jet otherwise
+    if (isJet) {
+        // look in aleptons too FIXME
+        // find the closest lepton to the given jet
+        for (int i=0; i<*in["nselLeptons"]; i++) {
+            TLorentzVector l;
+            l.SetPtEtaPhiM(d["selLeptons_pt"][i], d["selLeptons_eta"][i], d["selLeptons_phi"][i], d["selLeptons_mass"][i] );
+            double d1 = l.DeltaR(Obj);
+            if (d1 <= minDR) {
+                minDR = d1;
+                ObjClosestIndex = i;
+             }
+        }
+        if (ObjClosestIndex!=-1) {
+            Obj2.SetPtEtaPhiM(d["selLeptons_pt"][ObjClosestIndex], d["selLeptons_eta"][ObjClosestIndex], d["selLeptons_phi"][ObjClosestIndex], d["selLeptons_mass"][ObjClosestIndex]);
+        }
+        else return -999;
+    }
+    else {
+        // find closest jet to the given lepton
+        for (int i=0; i<*in["nJet"]; i++) {
+            if (d["Jet_pt"][i] < 30 || d["Jet_btagCSV"][i] < 0.5) continue; // only consider jets with some minimal preselection
+            TLorentzVector j;
+            j.SetPtEtaPhiM(d["Jet_pt"][i], d["Jet_eta"][i], d["Jet_phi"][i], d["Jet_mass"][i] );
+            double d1 = j.DeltaR(Obj);
+            if (d1 <= minDR) {
+                minDR = d1;
+                ObjClosestIndex = i;
+             }
+        }
+        if (ObjClosestIndex!=-1) {
+            Obj2.SetPtEtaPhiM(d["Jet_pt"][ObjClosestIndex], d["Jet_eta"][ObjClosestIndex], d["Jet_phi"][ObjClosestIndex], d["Jet_mass"][ObjClosestIndex]);
+        }
+        else return -999;
+    }
+
+    
+    TLorentzVector Top = Obj + Obj2;
+    return Top.M();
 }
 
