@@ -1,5 +1,5 @@
-PrincetonAnalysisTools
-======================
+AnalysisTools
+=============
 
 source env.sh
 
