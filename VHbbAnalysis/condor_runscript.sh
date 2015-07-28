@@ -9,7 +9,8 @@
 
 # Set up environment
 echo "setting up the environment"
-pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_2_0_pre6/src
+#pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_2_0_pre6/src
+pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_4_7/src
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/
@@ -17,7 +18,7 @@ source env.sh
 popd
 popd 
 #source /cvmfs/cms.cern.ch/slc6_amd64_gcc481/lcg/root/5.34.22-cms/bin/thisroot.sh
-source /cvmfs/cms.cern.ch/slc6_amd64_gcc481/lcg/root/5.34.18-cms/bin/thisroot.sh
+#source /cvmfs/cms.cern.ch/slc6_amd64_gcc481/lcg/root/5.34.18-cms/bin/thisroot.sh
 echo "successfully set up the enviroment"
 
 echo "moving text files to their respective directories"
