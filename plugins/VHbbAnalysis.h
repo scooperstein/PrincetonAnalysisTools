@@ -28,6 +28,7 @@ class VHbbAnalysis : public AnalysisManager {
     bool WmunuHbbSelection();
     std::pair<int,int> HighestPtBJets();
     std::pair<int,int> HighestCSVBJets();
-    double GetRecoTopMass(TLorentzVector Jet, bool isJet=true);
+    std::pair<int,int> HighestPtJJBJets();
+    double GetRecoTopMass(TLorentzVector Jet, bool isJet=true, bool useMET=false);
 };
 

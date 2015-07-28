@@ -68,9 +68,12 @@ bool VHbbAnalysis::Analyze(){
     if(debug>1000) {
         std::cout<<"selecting bjets"<<std::endl;
     }
+
+    // the jet selection algorithm we actually use for the rest of the analysis chain
     //std::pair<int,int> bjets=HighestPtBJets();
-    std::pair<int,int> bjets=HighestCSVBJets();
- 
+    //std::pair<int,int> bjets=HighestCSVBJets();
+    std::pair<int,int> bjets=HighestPtJJBJets(); 
+
     if (bjets.first == -1) {
         sel = false;
         *in["hJetInd1"] = 0;
@@ -81,6 +84,17 @@ bool VHbbAnalysis::Analyze(){
         *in["hJetInd2"] = 1;
     }
     else *in["hJetInd2"] = bjets.second;
+
+    // let's also keep track of each jet selection method separately, for science!
+    std::pair<int,int> bjets_bestCSV = HighestCSVBJets();
+    *in["hJetInd1_bestCSV"] = bjets_bestCSV.first;
+    *in["hJetInd2_bestCSV"] = bjets_bestCSV.second; 
+    std::pair<int,int> bjets_highestPt = HighestPtBJets();
+    *in["hJetInd1_highestPt"] = bjets_highestPt.first;
+    *in["hJetInd2_highestPt"] = bjets_highestPt.second;
+    std::pair<int,int> bjets_highestPtJJ = HighestPtJJBJets();
+    *in["hJetInd1_highestPtJJ"] = bjets_highestPtJJ.first;
+    *in["hJetInd2_highestPtJJ"] = bjets_highestPtJJ.second; 
 
    /* *in["nHJetsMatched"] = 0;
     if(d["hJets_pt"][0] == d["Jet_pt"][*in["hJetInd1"]]) *in["nHJetsMatched"] += 1;
@@ -101,10 +115,10 @@ bool VHbbAnalysis::Analyze(){
     if(d["hJets_pt"][0] < *f["j1ptCut"] || d["hJets_pt"][1] < *f["j2ptCut"]) return false;
     */
 
-    /*// Cut on the bjets that we select
-    if(d["Jet_btagCSV"][*in["hJetInd1"]] < *f["j1ptCSV"] || d["Jet_btagCSV"][*in["hJetInd2"]] < *f["j2ptCSV"]) sel = false;
+    // Cut on the bjets that we select
+    if(max(d["Jet_btagCSV"][*in["hJetInd1"]],d["Jet_btagCSV"][*in["hJetInd2"]]) < *f["j1ptCSV"] || min(d["Jet_btagCSV"][*in["hJetInd1"]],d["Jet_btagCSV"][*in["hJetInd2"]]) < *f["j2ptCSV"]) sel = false;
     if(d["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || d["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) sel = false; 
-    */
+    
     if (sel) *in["cutFlow"] += 1; // selected jets
 
     if(debug>1000) {
@@ -233,19 +247,28 @@ bool VHbbAnalysis::Analyze(){
     if (Jet_bestCSV_index != -1) {
         Jet_bestCSV.SetPtEtaPhiM(d["Jet_pt"][Jet_bestCSV_index],d["Jet_eta"][Jet_bestCSV_index],d["Jet_phi"][Jet_bestCSV_index],d["Jet_mass"][Jet_bestCSV_index]);
         *f["Top1_mass_bestCSV"] = GetRecoTopMass(Jet_bestCSV);
+        *f["Top1_mass_bestCSV_wMET"] = GetRecoTopMass(Jet_bestCSV,true,true);
     }
-    else *f["Top1_mass_bestCSV"] = -999;
-    
+    else {
+        *f["Top1_mass_bestCSV"] = -999;
+        *f["Top1_mass_bestCSV_wMET"] = -999;
+    }   
+ 
     TLorentzVector Jet_highestPt;
     int Jet_highestPt_index = -1;
     Jet_highestPt_index = HighestPtBJets().first;
     if (Jet_highestPt_index != -1) {
         Jet_highestPt.SetPtEtaPhiM(d["Jet_pt"][Jet_highestPt_index],d["Jet_eta"][Jet_highestPt_index],d["Jet_phi"][Jet_highestPt_index],d["Jet_mass"][Jet_highestPt_index]);
         *f["Top1_mass_highestPt"] = GetRecoTopMass(Jet_highestPt);
+        *f["Top1_mass_highestPt_wMET"] = GetRecoTopMass(Jet_highestPt,true,true);
     }
-    else *f["Top1_mass_highestPt"] = -999;
+    else {
+         *f["Top1_mass_highestPt"] = -999;
+         *f["Top1_mass_highestPt_wMET"] = -999;
+    }
 
     *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false); // construct top mass from closest jet to lepton
+    *f["Top1_mass_fromLepton_wMET"] = GetRecoTopMass(Lep, false, true); // construct top mass from closest jet to lepton
 
     // Let's try to reconstruct the second top from a hadronically decaying W
     double min1 = 999.;
@@ -281,8 +304,8 @@ bool VHbbAnalysis::Analyze(){
          *f["Top2_mass_hadW"] = Top_hadW.M();
          *f["HJ2_WJet1_dPhi"] = HJ2.DeltaPhi(WJet1);
          *f["HJ2_WJet2_dPhi"] = HJ2.DeltaPhi(WJet2);
-         *f["HJ2_WJet1_dEta"] = fabs(HJ2.Eta() - WJet1.Eta());
-         *f["HJ2_WJet2_dEta"] = fabs(HJ2.Eta() - WJet2.Eta());
+         *f["HJ2_WJet1_dEta"] = fabs(HJ2.Eta() - WJet1.Eta()); 
+         *f["HJ2_WJet2_dEta"] = fabs(HJ2.Eta() - WJet2.Eta()); 
      }
      else {
          *f["Top2_mass_hadW"] = -999;
@@ -292,11 +315,12 @@ bool VHbbAnalysis::Analyze(){
          *f["HJ2_WJet2_dEta"] = -999;
      }
 
+    // it looks like the GenBQuarkFromHafterISR and GenBQuarkFromTop collections are no good in V12, we'll have to take this out for now
     // Compare gen kinematics for b jets for signal vs. ttbar
-    if (*in["nGenBQuarkFromHafterISR"] > 1) {
+    if (*in["nGenBQuarkFromH"] > 1) {
         // signal event
-        GenBJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0], d["GenBQuarkFromHafterISR_eta"][0], d["GenBQuarkFromHafterISR_phi"][0], d["GenBQuarkFromHafterISR_mass"][0]);
-        GenBJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1], d["GenBQuarkFromHafterISR_eta"][1], d["GenBQuarkFromHafterISR_phi"][1], d["GenBQuarkFromHafterISR_mass"][1]);
+        GenBJ1.SetPtEtaPhiM(d["GenBQuarkFromH_pt"][0], d["GenBQuarkFromH_eta"][0], d["GenBQuarkFromH_phi"][0], d["GenBQuarkFromH_mass"][0]);
+        GenBJ2.SetPtEtaPhiM(d["GenBQuarkFromH_pt"][1], d["GenBQuarkFromH_eta"][1], d["GenBQuarkFromH_phi"][1], d["GenBQuarkFromH_mass"][1]);
     }        
     else if (*in["nGenBQuarkFromTop"] == 2){
         // ttbar event 
@@ -394,7 +418,7 @@ bool VHbbAnalysis::Analyze(){
         *f["GenLep_GenBJ2_dPhi"] = -999;
         *f["GenTop2_mass"] = -999;
     }
-    
+   
  
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *d["HVdPhi"] = Hbb.DeltaPhi(W);
@@ -412,6 +436,9 @@ bool VHbbAnalysis::Analyze(){
       
         //double dR1 = Jet.DeltaR(GenHJ1);
         //double dR2 = Jet.DeltaR(GenHJ2);
+        //std::cout<<"Jet: "<<Jet.Pt()<<", "<<Jet.Eta()<<", "<<Jet.Phi()<<", "<<Jet.M()<<std::endl;
+        //std::cout<<"GenBJ1: "<<GenBJ1.Pt()<<", "<<GenBJ1.Eta()<<", "<<GenBJ1.Phi()<<", "<<GenBJ1.M()<<std::endl;
+        //std::cout<<"GenBJ2: "<<GenBJ2.Pt()<<", "<<GenBJ2.Eta()<<", "<<GenBJ2.Phi()<<", "<<GenBJ2.M()<<std::endl;
         double dR1 = Jet.DeltaR(GenBJ1);
         double dR2 = Jet.DeltaR(GenBJ2);
         d["Jet_genHJetMinDR"][i] = min(dR1, dR2);
@@ -871,11 +898,12 @@ void VHbbAnalysis::FinishEvent(){
         else *in["eventClass"] += 4;
     }
 
-    // compare our Higgs jet selection with step 2 
+    // these variables don't exist anymore
+    /*// compare our Higgs jet selection with step 2 
     *d["hJets_pt_0_step2"] = d["hJets_pt"][0];
     *d["hJets_pt_1_step2"] = d["hJets_pt"][1];
     *d["hJets_btagCSV_0_step2"] = d["hJets_btagCSV"][0];
-    *d["hJets_btagCSV_1_step2"] = d["hJets_btagCSV"][1];
+    *d["hJets_btagCSV_1_step2"] = d["hJets_btagCSV"][1];*/
 
     *f["weight"] = cursample->intWeight;
     //*f["weight"] = 1.0; // HACK FIXME
@@ -1023,8 +1051,8 @@ void VHbbAnalysis::FinishEvent(){
  
         *f["Jet1_pt_reg"] = r1Pt;
         *f["Jet2_pt_reg"] = r2Pt;
-        hJ1_reg.SetPtEtaPhiM(r1Pt, *f["hJets_eta_0"], d["hJets_phi"][0], d["hJets_mass"][0]);
-        hJ2_reg.SetPtEtaPhiM(r2Pt, *f["hJets_eta_1"], d["hJets_phi"][1], d["hJets_mass"][1]);
+        hJ1_reg.SetPtEtaPhiM(r1Pt, d["Jet_eta"][*in["hJetInd1"]], d["Jet_phi"][*in["hJetInd1"]], d["Jet_mass"][*in["hJetInd1"]]);
+        hJ2_reg.SetPtEtaPhiM(r2Pt, d["Jet_eta"][*in["hJetInd2"]], d["Jet_phi"][*in["hJetInd2"]], d["Jet_mass"][*in["hJetInd2"]]);
        
         //*f["hJets_mt_0"] = hJ1_reg.Mt();
         //*f["hJets_mt_1"] = hJ2_reg.Mt();
@@ -1127,7 +1155,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j1ptCut"]
-            && d["Jet_btagCSV"][i]>*f["j1ptCSV"]) {
+            && d["Jet_btagCSV"][i]>*f["j1ptCSV"]&&fabs(d["Jet_eta"][i])<=*f["j1etaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
             } else if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
@@ -1146,7 +1174,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j2ptCut"]
-            && d["Jet_btagCSV"][i]>*f["j2ptCSV"]) {
+            && d["Jet_btagCSV"][i]>*f["j2ptCSV"]&&fabs(d["Jet_eta"][i])<*f["j2etaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
             } else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
@@ -1171,7 +1199,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j1ptCut"]
-            && d["Jet_btagCSV"][i]>*f["j1ptCSV"]) {
+            && d["Jet_btagCSV"][i]>*f["j1ptCSV"]&&fabs(d["Jet_eta"][i])<=*f["j1etaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
             } else if(d["Jet_btagCSV"][pair.first]<d["Jet_btagCSV"][i]){
@@ -1184,7 +1212,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] == 1
             && d["Jet_pt"][i]>*f["j2ptCut"]
-            && d["Jet_btagCSV"][i]>*f["j2ptCSV"]) {
+            && d["Jet_btagCSV"][i]>*f["j2ptCSV"]&&fabs(d["Jet_eta"][i])<*f["j2etaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
             } else if(d["Jet_btagCSV"][pair.second]<d["Jet_btagCSV"][i]){
@@ -1196,11 +1224,65 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
     return pair;
 }
 
-double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet) {
+std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
+    std::pair<int,int> pair(-1,-1);
+
+    // dont implement the btag CSV cuts until we've already selected the highest pT(jj) jets
+    double maxPtJJ = 0.;
+    for (int i=0; i<*in["nJet"]; i++) {
+        if(in["Jet_puId"][i] == 1
+            && d["Jet_pt"][i]>*f["j1ptCut"]
+            && fabs(d["Jet_eta"][i])<*f["j1etaCut"]) {
+            TLorentzVector jet1;
+            jet1.SetPtEtaPhiM(d["Jet_pt"][i],d["Jet_eta"][i],d["Jet_phi"][i],d["Jet_mass"][i]);
+            for (int j=0; j<*in["nJet"]; j++) {
+                if (i == j) continue;
+                if(in["Jet_puId"][j] == 1
+                    && d["Jet_pt"][j]>*f["j2ptCut"]
+                    && fabs(d["Jet_eta"][j])<*f["j2etaCut"]) {
+                    TLorentzVector jet2;
+                    jet2.SetPtEtaPhiM(d["Jet_pt"][j],d["Jet_eta"][j],d["Jet_phi"][j],d["Jet_mass"][j]);
+                    TLorentzVector jj = jet1 + jet2;
+                    double ptJJ = jj.Pt();
+                    if (ptJJ >= maxPtJJ) {
+                        if (j == pair.first && pair.second == i) {
+                            // we've already picked this pair in the other order, order by pT
+                            // quick sanity quick, make sure it's the same maxPtJJ
+                            if (ptJJ != maxPtJJ) {
+                                std::cout<<"Picked both orderings of highest pT(jj) jets, but the orderings don't have the same pT(jj)!!"<<std::endl;
+                                std::cout<<"ptJJ = "<<ptJJ<<std::endl;
+                                std::cout<<"maxPtJJ = "<<maxPtJJ<<std::endl;
+                            }
+                            //if (d["Jet_btagCSV"][j] > d["Jet_btagCSV"][i]) {
+                            if (d["Jet_pt"][j] > d["Jet_pt"][i]) {
+                                pair.first = j;
+                                pair.second = i; 
+                            }
+                            else {
+                                pair.first = i;
+                                pair.second = j;
+                            }
+                        }
+                        else {
+                            pair.first = i;
+                            pair.second = j;
+                            maxPtJJ = ptJJ;
+                        }
+                    }
+                }
+            } 
+        }      
+    }
+    return pair;    
+}
+
+double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, bool useMET) {
 
     // Try to reconstruct the top in ttbar with leptonic W decay
     // if isJet is true, construct top as given jet + closest lepton
     // if isJet is false, construct top as given lepton + closest lepton
+    //
+    // if useMET is true, construct the top using the jet + lepton + met and take the transverse mass
     double Top_mass = -999; // return value
 
     double minDR = 999;
@@ -1242,7 +1324,24 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet) {
         else return -999;
     }
 
-    
+    if (useMET) {
+        TLorentzVector MET;
+        MET.SetPtEtaPhiM(*d["met_pt"],0.,*d["met_phi"],0.);
+        TLorentzVector Obj_transverse, Obj2_transverse; // can only consider transverse (x-y plane) 4-vector components if using MET
+        Obj_transverse.SetPxPyPzE(Obj.Px(),Obj.Py(),0,TMath::Sqrt(TMath::Power(Obj.M(),2) + TMath::Power(Obj.Pt(),2)));
+        Obj2_transverse.SetPxPyPzE(Obj2.Px(),Obj2.Py(),0,TMath::Sqrt(TMath::Power(Obj2.M(),2) + TMath::Power(Obj2.Pt(),2)));
+        TLorentzVector Top_transverse = Obj_transverse + Obj2_transverse + MET;
+        /*if (Top_transverse.M() != Top_transverse.Mt()) {
+            std::cout<<"Top_transverse.M() = "<<Top_transverse.M()<<std::endl; 
+            std::cout<<"Top_transverse.Mt() = "<<Top_transverse.Mt()<<std::endl;
+            std::cout<<"Top_transverse.Px() = "<<Top_transverse.Px()<<std::endl;
+            std::cout<<"Top_transverse.Py() = "<<Top_transverse.Py()<<std::endl;
+            std::cout<<"Top_transverse.Pz() = "<<Top_transverse.Pz()<<std::endl;
+            std::cout<<"Top_transverse.E() = "<<Top_transverse.E()<<std::endl;
+        }*/
+        return Top_transverse.M(); // particle physics two-particle Mt = sqrt(Et**2 - pt**2)
+    }
+
     TLorentzVector Top = Obj + Obj2;
     return Top.M();
 }
