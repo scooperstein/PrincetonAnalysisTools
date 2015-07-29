@@ -39,7 +39,7 @@ inline SampleContainer::SampleContainer()
     doJetFlavorSplit = false;
 }
 
-inline void SampleContainer::AddFile(char* fname) {
+inline void SampleContainer::AddFile(const char* fname) {
     sampleChain->Add(fname);
     files.push_back(fname);
     std::cout<<nProFromFile<<std::endl; 

@@ -399,14 +399,38 @@ std::vector<std::string> AnalysisManager::ListSampleNames() {
 
 
 // Process all input samples and all events
-void AnalysisManager::Loop(std::string sampleName){
-
+void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNum){
+    // Specify sample name if we want to run on only a particular sample, specify
+    // filename if we want to run only on a specific file from that sample.
     if(!sampleName.empty()){
         bool sampleFound=false;
         for(int i=0; i<(int)samples.size(); i++) {
             if(sampleName == samples[i].sampleName) {
                 sampleFound=true;
                 SampleContainer* onlySample = new SampleContainer(samples[i]);
+                if (!filename.empty()) {
+                    // keep track of total number of processed events for the sample
+                    // so we still get the weight right
+                    int processedEvents = onlySample->processedEvents;
+                    std::vector<std::string> sampleFiles = onlySample->files;
+                    onlySample->files.clear();
+                    onlySample->sampleChain = new TChain("tree");
+                    if (std::find(sampleFiles.begin(), sampleFiles.end(), filename) != sampleFiles.end() ) {
+                        onlySample->AddFile(filename.c_str());
+                    }
+                    else {
+                        std::cout<<"Analysis Manager tried to run on file "<<filename<<" in sample "<<sampleName<<", but this file is not in the sample's list of files. Skipping..."<<std::endl;
+                        std::cout<<"Let's print the full list of files for this sample..."<<std::endl;
+                        for (int k=0; k<(int)sampleFiles.size(); k++) {
+                            std::cout<<sampleFiles[k]<<std::endl;
+                        }
+                    }
+                    onlySample->processedEvents = processedEvents;
+                    ofile = new TFile(Form("%s_%s_%i.root",outputTreeName.c_str(),samples[0].sampleName.c_str(),fNum),"recreate");
+                }
+                else {
+                    ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
+                }
                 samples.clear();
                 samples.push_back(*onlySample);
                 break;
@@ -417,13 +441,14 @@ void AnalysisManager::Loop(std::string sampleName){
         }
         if(debug>10) std::cout<<"Starting Loop over individual sample %s"<<sampleName<<std::endl;
     }
+    else {
+        ofile = new TFile(Form("%s.root",outputTreeName.c_str()),"recreate");
+    }
 
     if(debug>10) std::cout<<"Starting Loop"<<std::endl;
     SetBranches();
     
     // add new branches
-    //ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
-    ofile = new TFile(Form("%s.root",outputTreeName.c_str()),"recreate");
     ofile->cd();
     //TTree *newtree = fChain->CloneTree(0);
     // for now we will use a default file to set the structure for the output tree
@@ -471,6 +496,7 @@ void AnalysisManager::Loop(std::string sampleName){
             int saved=0;
             // FIXME need a loop over systematics
             for (Long64_t jentry=0; jentry<nentries;jentry++) {
+            //for (Long64_t jentry=0; jentry<50001;jentry++) {
                 if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
                 GetEarlyEntries(jentry);

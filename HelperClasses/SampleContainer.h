@@ -32,7 +32,7 @@ class SampleContainer {
     bool nProFromFile;
     bool doJetFlavorSplit; // split events by jet parton flavor
     
-    void AddFile(char* fname);
+    void AddFile(const char* fname);
     void ComputeWeight(float);
 
   /** adds a lumi section range to 'goodLumis' (typically
