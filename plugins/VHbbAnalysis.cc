@@ -115,10 +115,12 @@ bool VHbbAnalysis::Analyze(){
     if(d["hJets_pt"][0] < *f["j1ptCut"] || d["hJets_pt"][1] < *f["j2ptCut"]) return false;
     */
 
-    // Cut on the bjets that we select
+    // We do this now in the jet selection methods
+    /*// Cut on the bjets that we select
     if(max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]) < *f["j1ptCSV"] || min(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]) < *f["j2ptCSV"]) sel = false;
     if(f["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || f["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) sel = false; 
-    
+    */    
+
     if (sel) *in["cutFlow"] += 1; // selected jets
 
     if(debug>1000) {
@@ -1273,6 +1275,8 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
             } 
         }      
     }
+    if (f["Jet_btagCSV"][pair.first] < *f["j1ptCSV"]) pair.first = -1;
+    if (f["Jet_btagCSV"][pair.second] < *f["j2ptCSV"]) pair.second = -1;
     return pair;    
 }
 

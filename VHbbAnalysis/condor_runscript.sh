@@ -29,6 +29,6 @@ mv new-weights-23Jan.xml TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.w
 
 
 echo "running RunSample.py"
-python RunSample.py $1 $2
+python RunSample.py $1 $2 $3 $4
 ls
 echo "all done!"
