@@ -19,7 +19,8 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
 ROOT.gSystem.Load("AnalysisDict.so")
 
 # reads samples, existing branches and new branches
-am=ReadInput.ReadTextFile(options.configFile, "cfg")
+samplesToRun = [] # if empty run on all samples
+am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun)
 
 if (options.runBatch == False):
     print "Running locally over all samples"

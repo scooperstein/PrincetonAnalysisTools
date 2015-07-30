@@ -11,7 +11,9 @@ if (len(sys.argv) != 3 and len(sys.argv) != 5):
 ROOT.gSystem.Load("AnalysisDict.so")
 
 # reads samples, existing branches and new branches
-am=ReadInput.ReadTextFile(sys.argv[1], "cfg")
+samplesToRun = []
+samplesToRun.append(sys.argv[2])
+am=ReadInput.ReadTextFile(sys.argv[1], "cfg", samplesToRun)
 am.debug=2
 
 print "Read in the input files, now let's run it!"
