@@ -52,6 +52,8 @@ def ReadTextFile(filename, filetype):
                     samplecon.nProFromFile      = True
                 if sample.has_key("doJetFlavorSplit"):
                     samplecon.doJetFlavorSplit  = bool(sample["doJetFlavorSplit"])
+                if sample.has_key("procEff"):
+                    samplecon.procEff = sample["procEff"]
                 for filename in sample["files"]:
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
@@ -213,7 +215,9 @@ def MakeSampleMap(lines):
                 sample["npro"]=int(value)
             if name.find("doJetFlavorSplit") is 0:
                 sample["doJetFlavorSplit"]=bool(value)
-       
+            if name.find("procEff") is 0:
+                sample["procEff"]=float(value)      
+ 
         sample["files"]=samplepaths 
         if sample.has_key("name"):
             samples[sample["name"]]=sample

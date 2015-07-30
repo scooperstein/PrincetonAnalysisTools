@@ -31,7 +31,8 @@ class SampleContainer {
     float intWeight;
     bool nProFromFile;
     bool doJetFlavorSplit; // split events by jet parton flavor
-    
+    float procEff; // process a fraction of the total sample events   
+ 
     void AddFile(const char* fname);
     void ComputeWeight(float);
 
