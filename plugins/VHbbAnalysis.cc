@@ -269,6 +269,19 @@ bool VHbbAnalysis::Analyze(){
          *f["Top1_mass_highestPt_wMET"] = -999;
     }
 
+    TLorentzVector Jet_highestPtJJ;
+    int Jet_highestPtJJ_index = -1;
+    Jet_highestPtJJ_index = HighestPtJJBJets().first;
+    if (Jet_highestPtJJ_index != -1) {
+        Jet_highestPtJJ.SetPtEtaPhiM(f["Jet_pt"][Jet_highestPtJJ_index],f["Jet_eta"][Jet_highestPtJJ_index],f["Jet_phi"][Jet_highestPtJJ_index],f["Jet_mass"][Jet_highestPtJJ_index]);
+        *f["Top1_mass_highestPtJJ"] = GetRecoTopMass(Jet_highestPtJJ);
+        *f["Top1_mass_highestPtJJ_wMET"] = GetRecoTopMass(Jet_highestPtJJ,true,true);
+    }
+    else {
+         *f["Top1_mass_highestPtJJ"] = -999;
+         *f["Top1_mass_highestPtJJ_wMET"] = -999;
+    }
+    
     *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false); // construct top mass from closest jet to lepton
     *f["Top1_mass_fromLepton_wMET"] = GetRecoTopMass(Lep, false, true); // construct top mass from closest jet to lepton
 
@@ -1275,6 +1288,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
             } 
         }      
     }
+    // important to cut on CSV here to kill TTbar
     if (f["Jet_btagCSV"][pair.first] < *f["j1ptCSV"]) pair.first = -1;
     if (f["Jet_btagCSV"][pair.second] < *f["j2ptCSV"]) pair.second = -1;
     return pair;    
