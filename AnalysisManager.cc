@@ -490,7 +490,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
             // FIXME should have a sample name, but doesn't right now
             if(debug>0) std::cout<<"About to loop over events in "<<cursample->files[ifile]<<std::endl;
             // loop through the events
-            Long64_t nentries = fChain->GetEntries();
+            Long64_t nentries = round(fChain->GetEntries()*cursample->procEff);
             if(debug>1) std::cout<<"looping over "<<nentries<<std::endl;
             Long64_t nbytes = 0, nb = 0;
             int saved=0;
