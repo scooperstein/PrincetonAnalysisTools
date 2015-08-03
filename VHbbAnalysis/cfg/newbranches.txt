@@ -103,12 +103,6 @@ type=7  name=Jet_genHJetMinDR            max=100
 type=7  name=Jet_genWQuarkDR             max=100
 type=6  name=Jet_genJetMatchId           max=100
 
-type=1  name=nGenWZQuark
-type=7  name=GenWZQuark_pt               max=10
-type=7  name=GenWZQuark_eta              max=10
-type=7  name=GenWZQuark_phi              max=10
-type=7  name=GenWZQuark_mass             max=10
-
 # jet energy regression variables
 type=2  name=Jet1_pt_reg
 type=2  name=Jet2_pt_reg

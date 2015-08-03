@@ -423,7 +423,7 @@ bool VHbbAnalysis::Analyze(){
         *f["GenW_GenBJJ_dPhi"] = -999;
         *f["GenW_GenBJJ_dEta"] = -999;
     }
-   
+  
     std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
     for (int i=0; i<*in["nGenWZQuark"]; i++) {
         TLorentzVector v;
@@ -453,7 +453,7 @@ bool VHbbAnalysis::Analyze(){
         // try to match the jet to one of the jets from hadronic W decay
         double dR3 = 999;
         for (int j=0; j<(int)genWQuarks.size(); j++) {
-            double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[i]);
+            double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[j]);
             if (Jet_genWQuarkDR < dR3) {
                 dR3 = Jet_genWQuarkDR;
             }
@@ -473,8 +473,6 @@ bool VHbbAnalysis::Analyze(){
         else if (i == *in["hJetInd2"]) {
             *f["hJet2_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
         }
-
-        
         
     }
     
