@@ -16,9 +16,9 @@ def ReadTextFile(filename, filetype, samplesToRun):
          print "filename is ", filename
          print "samplesToRun is ", samplesToRun
 
-    doOneSample = False
+    runSelectedSamples = False
     if (len(samplesToRun) > 0):
-        doOneSample = True
+        runSelectedSamples = True
 
     textfile=open(filename, 'r')
 
@@ -38,7 +38,7 @@ def ReadTextFile(filename, filetype, samplesToRun):
             aminitialized=0
             samples=ReadTextFile(settings["samples"], "samplefile",samplesToRun)
             for name in samples:
-                if (doOneSample and name not in samplesToRun): continue 
+                if (runSelectedSamples and name not in samplesToRun): continue 
                 sample=samples[name]
                 #print sample, sampledic[sample]
                 samplecon = ROOT.SampleContainer()
