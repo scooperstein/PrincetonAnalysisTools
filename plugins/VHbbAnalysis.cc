@@ -423,11 +423,18 @@ bool VHbbAnalysis::Analyze(){
         *f["GenW_GenBJJ_dPhi"] = -999;
         *f["GenW_GenBJJ_dEta"] = -999;
     }
-    
+   
+    std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
+    for (int i=0; i<*in["nGenWZQuark"]; i++) {
+        TLorentzVector v;
+        v.SetPtEtaPhiM(f["GenWZQuark_pt"][i], f["GenWZQuark_eta"][i], f["GenWZQuark_phi"][i], f["GenWZQuark_mass"][i]);
+        genWQuarks.push_back(v);
+    }
+ 
     //int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
-    int genMatchId = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 for pt-leading W, 4 for pt sub-leading W
     // Match Jets with Gen B Jets from Higgs/Tops
     for (int i=0; i<*in["nJet"]; i++) {
+        in["Jet_genJetMatchId"][i] = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 if matched to jet from hadronic W decay
         TLorentzVector Jet;
         //GenHJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0],d["GenBQuarkFromHafterISR_eta"][0],d["GenBQuarkFromHafterISR_phi"][0],d["GenBQuarkFromHafterISR_mass"][0]);
         //GenHJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1],d["GenBQuarkFromHafterISR_eta"][1],d["GenBQuarkFromHafterISR_phi"][1],d["GenBQuarkFromHafterISR_mass"][1]);
@@ -442,15 +449,23 @@ bool VHbbAnalysis::Analyze(){
         if (GenBJ1.Pt() > 0) dR1 = Jet.DeltaR(GenBJ1);
         double dR2 = 999;
         if (GenBJ2.Pt() > 0) dR2 = Jet.DeltaR(GenBJ2);
-        // only calculate GenW dR if we could find the gen W
+        
+        // try to match the jet to one of the jets from hadronic W decay
         double dR3 = 999;
-        if (GenW1.Pt() > 0)  dR3 = Jet.DeltaR(GenW1);
-        double dR4 = 999;
-        if (GenW2.Pt() > 0)  dR4 = Jet.DeltaR(GenW2);
-
+        for (int j=0; j<(int)genWQuarks.size(); j++) {
+            double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[i]);
+            if (Jet_genWQuarkDR < dR3) {
+                dR3 = Jet_genWQuarkDR;
+            }
+        }
+        f["Jet_genWQuarkDR"][i] = dR3;
+        if (dR3 < min(dR1, dR2) && dR3 < 0.5) {
+            in["Jet_genJetMatchId"][i] = 3; 
+        }
+        else if(dR1 <= dR2 && dR1<0.5) in["Jet_genJetMatchId"][i] = 1;
+        else if (dR2 < 0.5) in["Jet_genJetMatchId"][i] = 2;
+        
         f["Jet_genHJetMinDR"][i] = min(dR1, dR2);
-        if(dR1 <= dR2) in["Jet_genHJetIndex"][i] = 1;
-        else in["Jet_genHJetIndex"][i] = 2;
 
         if (i == *in["hJetInd1"]) {
             *f["hJet1_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
@@ -459,13 +474,7 @@ bool VHbbAnalysis::Analyze(){
             *f["hJet2_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
         }
 
-        f["Jet_genWMinDR"][i] = min(dR3, dR4);
-        if (min(dR3, dR4) < 999) {
-            if(dR3 <= dR4) in["Jet_genWIndex"][i] = 1;
-            else in["Jet_genWIndex"][i] = 2;
-        }
-        else in["Jet_genWIndex"][i] = -1;
-
+        
         
     }
     
