@@ -62,28 +62,6 @@ cutsets["preselglobal"]["h_e"]        =   [9999,9999]
 cutsets["preselglobal"]["d0"]         =   [9999,9999]
 cutsets["preselglobal"]["dz"]         =   [9999,9999]
 
-# 88,85
-#cutsets["Neq2"]={}
-#cutsets["Neq2"]["sieie"]        =   [0.0105,0.0295]
-#cutsets["Neq2"]["1_e_1_p"]      =   [9999 ,9999 ]
-#cutsets["Neq2"]["dEta"]         =   [0.010,0.0095]
-#cutsets["Neq2"]["dPhi"]         =   [0.050,0.060]
-#cutsets["Neq2"]["combiso_pt"]   =   [0.12 ,0.12 ]
-#cutsets["Neq2"]["missingHits"]  =   [2    ,2    ]
-#cutsets["Neq2"]["h_e"]          =   [0.095,0.060]
-#cutsets["Neq2"]["d0"]           =   [0.02 ,0.10 ]
-#cutsets["Neq2"]["dz"]           =   [0.05 ,9999 ]
-
-cutsets["Neq2"]={}
-cutsets["Neq2"]["sieie"]        =[ 0.0101,  0.0279]
-cutsets["Neq2"]["1_e_1_p"]      =[ 0.0142,  0.0158]
-cutsets["Neq2"]["dEta"]         =[ 0.0083,  0.0071]
-cutsets["Neq2"]["dPhi"]         =[ 0.0167,  0.0233]
-cutsets["Neq2"]["combiso_pt"]   =[ 0.0667,  0.0667]
-cutsets["Neq2"]["missingHits"]  =[ 2.0000,  2.0000]
-cutsets["Neq2"]["h_e"]          =[ 0.005,   0.0390]
-cutsets["Neq2"]["d0"]           =[ 0.0100,  0.0133]
-cutsets["Neq2"]["dz"]           =[ 0.0133,  0.1000]
 
 cutsets["Veto"]={}
 cutsets["Veto"]["sieie"]        =   [0.0118,0.033] 
@@ -96,41 +74,6 @@ cutsets["Veto"]["h_e"]          =   [9999 ,0.100]
 cutsets["Veto"]["d0"]           =   [0.12 ,0.30 ]  
 cutsets["Veto"]["dz"]           =   [9999 ,9999 ]  
 
-#2
-
-cutsets["VetoGJet"]={}
-cutsets["VetoGJet"]["sieie"]=[ 0.0127,  0.0372]
-cutsets["VetoGJet"]["1_e_1_p"]=[ 9999.0000,  9999.0000]
-cutsets["VetoGJet"]["dEta"]=[ 0.0134,  0.0140]
-cutsets["VetoGJet"]["missingHits"]=[ 2.0000,  2.0000]
-cutsets["VetoGJet"]["combiso_pt"]=[ 0.2500,  0.2500]
-cutsets["VetoGJet"]["h_e"]=[ 9999.0000,  0.1340]
-cutsets["VetoGJet"]["dz"]=[ 0.1000,  0.2800]
-cutsets["VetoGJet"]["dPhi"]=[ 9999.0000,  9999.0000]
-cutsets["VetoGJet"]["d0"]=[ 0.0450,  0.1300]
-
-cutsets["LooseGJet"]={}
-cutsets["LooseGJet"]["sieie"]=[ 0.0117,  0.034]
-cutsets["LooseGJet"]["1_e_1_p"]=[ 0.03,  0.03]
-cutsets["LooseGJet"]["dEta"]=[ 0.0134,  0.0140]
-cutsets["LooseGJet"]["missingHits"]=[ 2.0000,  2.0000]
-cutsets["LooseGJet"]["combiso_pt"]=[ 0.2000,  0.2000]
-cutsets["LooseGJet"]["h_e"]=[ 0.14,  0.1340]
-cutsets["LooseGJet"]["dz"]=[ 0.1000,  0.2800]
-cutsets["LooseGJet"]["dPhi"]=[ 0.07,  0.07]
-cutsets["LooseGJet"]["d0"]=[ 0.0450,  0.1300]
-
-# 7.5
-#cutsets["VetoGJet"]={}
-#cutsets["VetoGJet"]["sieie"]=[ 0.0127,  0.0340]
-#cutsets["VetoGJet"]["1_e_1_p"]=[ 9999.0000,  0.0400]
-#cutsets["VetoGJet"]["dEta"]=[ 0.0134,  0.0115]
-#cutsets["VetoGJet"]["missingHits"]=[ 2.0000,  2.0000]
-#cutsets["VetoGJet"]["combiso_pt"]=[ 0.2500,  0.1900]
-#cutsets["VetoGJet"]["h_e"]=[ 9999.0000,  0.1000]
-#cutsets["VetoGJet"]["dz"]=[ 0.1000,  0.0850]
-#cutsets["VetoGJet"]["dPhi"]=[ 9999.0000,  0.0600]
-#cutsets["VetoGJet"]["d0"]=[ 0.0450,  0.0240]
 
 cutsets["Loose"]={}
 cutsets["Loose"]["sieie"]=[ 0.0106,  0.0305]
@@ -143,6 +86,7 @@ cutsets["Loose"]["dz"]=[ 0.0600,  9999]
 cutsets["Loose"]["dPhi"]=[ 0.0880,  9999]
 cutsets["Loose"]["d0"]=[ 0.0300,  0.1240]
 
+
 cutsets["Medium"]={}
 cutsets["Medium"]["sieie"]=[ 0.0102,  0.0290]
 cutsets["Medium"]["1_e_1_p"]=[ 0.0295,  0.0355]
@@ -153,6 +97,18 @@ cutsets["Medium"]["h_e"]=[ 0.0530,  0.0593]
 cutsets["Medium"]["dz"]=[ 0.0320,  0.1750]
 cutsets["Medium"]["dPhi"]=[ 0.0310,  0.0510]
 cutsets["Medium"]["d0"]=[ 0.0150,  0.0720]
+
+
+cutsets["Tight"]={}
+cutsets["Tight"]["sieie"]       =   [0.0101,0.0285]
+cutsets["Tight"]["1_e_1_p"]     =   [0.013,0.017]  
+cutsets["Tight"]["dEta"]        =   [0.0065,0.0090]
+cutsets["Tight"]["dPhi"]        =   [0.018,0.026]  
+cutsets["Tight"]["combiso_pt"]  =   [0.08 ,0.080]  
+cutsets["Tight"]["missingHits"] =   [2    ,2    ]  
+cutsets["Tight"]["h_e"]         =   [0.040,0.050]  
+cutsets["Tight"]["d0"]          =   [0.010,0.020]  
+cutsets["Tight"]["dz"]          =   [0.015,0.13 ]  
 
 
 cutsets["MediumHLT"]={}
@@ -177,28 +133,7 @@ cutsets["TightHLT"]["dz"]=         [ 0.0200,  0.10]
 cutsets["TightHLT"]["dPhi"]=       [ 0.0200,  0.025]
 cutsets["TightHLT"]["d0"]=         [ 0.0100,  0.0400]
 
-#mine
-#cutsets["Medium"]={}
-#cutsets["Medium"]["sieie"]      =    [0.0103,0.029]
-#cutsets["Medium"]["1_e_1_p"]    =    [0.028,0.033] 
-#cutsets["Medium"]["dEta"]       =    [0.009,0.0085]
-#cutsets["Medium"]["dPhi"]       =    [0.032,0.048] 
-#cutsets["Medium"]["combiso_pt"] =    [0.10 ,0.095] 
-#cutsets["Medium"]["missingHits"]=    [2    ,2    ] 
-#cutsets["Medium"]["h_e"]        =    [0.055,0.057] 
-#cutsets["Medium"]["d0"]         =    [0.010,0.060] 
-#cutsets["Medium"]["dz"]         =    [0.05 ,9999 ] 
 
-cutsets["Tight"]={}
-cutsets["Tight"]["sieie"]       =   [0.0101,0.0285]
-cutsets["Tight"]["1_e_1_p"]     =   [0.013,0.017]  
-cutsets["Tight"]["dEta"]        =   [0.0065,0.0090]
-cutsets["Tight"]["dPhi"]        =   [0.018,0.026]  
-cutsets["Tight"]["combiso_pt"]  =   [0.08 ,0.080]  
-cutsets["Tight"]["missingHits"] =   [2    ,2    ]  
-cutsets["Tight"]["h_e"]         =   [0.040,0.050]  
-cutsets["Tight"]["d0"]          =   [0.010,0.020]  
-cutsets["Tight"]["dz"]          =   [0.015,0.13 ]  
 
 
 
@@ -296,10 +231,6 @@ def category(nCats,index):
     return -1
 
 catMap={}
-#catMap[0]="ebhighpt"
-#catMap[1]="eblowpt"
-#catMap[2]="eehighpt"
-#catMap[3]="eelowpt"
 catMap[0]="Barrel"
 catMap[1]="Endcaps"
 

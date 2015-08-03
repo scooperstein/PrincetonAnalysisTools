@@ -14,52 +14,6 @@ kinPlots=["eta","pt","rho"]
 
 cutSets={}
 
-#cutSets["VetoRami"]={}
-#cutSets["VetoRami"]["sieie"]        =   [0.012 , 0.0339] 
-#cutSets["VetoRami"]["dEta"]         =   [0.0126, 0.0109] 
-#cutSets["VetoRami"]["dPhi"]         =   [0.107 , 0.219 ] 
-#cutSets["VetoRami"]["h_e"]          =   [0.186 , 0.0962] 
-#cutSets["VetoRami"]["combiso_pt"]   =   [0.161 , 0.193 ] 
-#cutSets["VetoRami"]["1_e_1_p"]      =   [0.239 , 0.141 ] 
-#cutSets["VetoRami"]["d0"]           =   [0.0631, 0.279 ] 
-#cutSets["VetoRami"]["dz"]           =   [0.613 , 0.947 ] 
-#cutSets["VetoRami"]["missingHits"]  =   [2.1   , 3.1   ] 
-#    
-#cutSets["LooseRami"]={}
-#cutSets["LooseRami"]["sieie"]        =   [0.0105 ,0.0318] 
-#cutSets["LooseRami"]["dEta"]         =   [0.0098 ,0.0095] 
-#cutSets["LooseRami"]["dPhi"]         =   [0.0929 ,0.181 ] 
-#cutSets["LooseRami"]["h_e"]          =   [0.0765 ,0.0824] 
-#cutSets["LooseRami"]["combiso_pt"]   =   [0.118  ,0.118 ] 
-#cutSets["LooseRami"]["1_e_1_p"]      =   [0.184  ,0.125 ] 
-#cutSets["LooseRami"]["d0"]           =   [0.0227 ,0.242 ] 
-#cutSets["LooseRami"]["dz"]           =   [0.379  ,0.921 ] 
-#cutSets["LooseRami"]["missingHits"]  =   [2.1    ,1.1   ] 
-#    
-#cutSets["MediumRami"]={}
-#cutSets["MediumRami"]["sieie"]        =   [0.0101 ,0.0287 ] 
-#cutSets["MediumRami"]["dEta"]         =   [0.00945,0.00773] 
-#cutSets["MediumRami"]["dPhi"]         =   [0.0296 ,0.148  ] 
-#cutSets["MediumRami"]["h_e"]          =   [0.0372 ,0.0546 ] 
-#cutSets["MediumRami"]["combiso_pt"]   =   [0.0987 ,0.0902 ] 
-#cutSets["MediumRami"]["1_e_1_p"]      =   [0.118  ,0.104  ] 
-#cutSets["MediumRami"]["d0"]           =   [0.0151 ,0.0535 ] 
-#cutSets["MediumRami"]["dz"]           =   [0.238  ,0.572  ] 
-#cutSets["MediumRami"]["missingHits"]  =   [2.1    ,1.1    ] 
-#    
-#cutSets["TightRami"]={}
-#cutSets["TightRami"]["sieie"]        =   [0.0101,0.0287 ] 
-#cutSets["TightRami"]["dEta"]         =   [0.0095,0.00762] 
-#cutSets["TightRami"]["dPhi"]         =   [0.0291,0.0439 ] 
-#cutSets["TightRami"]["h_e"]          =   [0.0372,0.0544 ] 
-#cutSets["TightRami"]["combiso_pt"]   =   [0.0468,0.0759 ] 
-#cutSets["TightRami"]["1_e_1_p"]      =   [0.0174,0.01   ] 
-#cutSets["TightRami"]["d0"]           =   [0.0144,0.0377 ] 
-#cutSets["TightRami"]["dz"]           =   [0.323 ,0.571  ] 
-#cutSets["TightRami"]["missingHits"]  =   [2.1   ,1.1    ] 
-    
-
-
 
 cutSets["Veto"]={}
 cutSets["Veto"]["sieie"]        =   [0.0118,0.033]
