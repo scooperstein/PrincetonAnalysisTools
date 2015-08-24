@@ -19,7 +19,8 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
 ROOT.gSystem.Load("AnalysisDict.so")
 
 # reads samples, existing branches and new branches
-am=ReadInput.ReadTextFile(options.configFile, "cfg")
+samplesToRun = [] # if empty run on all samples
+am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun)
 
 if (options.runBatch == False):
     print "Running locally over all samples"
@@ -43,27 +44,33 @@ else:
 
     submitFiles = []
 
-    for sampleName in am.ListSampleNames():
+    #for sampleName in am.ListSampleNames(): 
+    for sample in am.samples:
+        sampleName = sample.sampleName
         print sampleName
-        fname = "%s/%s.submit" % (jobName, sampleName)
-        submitFile = open(fname, "w")
-        content =  "universe = vanilla\n"
-        content += "Executable = condor_runscript.sh\n"
-        content += "Arguments = %s %s\n" % (options.configFile, sampleName)
-        #content += "Requirements   =  OpSys == 'LINUX' && (Arch =='INTEL' || Arch =='x86_64')\n"
-        content += "initialdir = %s\n" % jobName
-        content += "Should_Transfer_Files = YES\n"
-        content += "Output = %s.stdout\n" % sampleName
-        content += "Error  = %s.stderr\n" % sampleName
-        content += "Log    = %s.log\n"    % sampleName
-        content += "Notification = never\n"
-        content += "WhenToTransferOutput=On_Exit\n"
-        content += "transfer_input_files = ../%s,../cfg/samples.txt,../cfg/earlybranches.txt,../cfg/existingbranches.txt,../cfg/newbranches.txt,../cfg/bdtsettings.txt,../cfg/reg1_settings.txt,../cfg/reg2_settings.txt,../cfg/settings.txt,../aux/new-weights-23Jan.xml,../aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml,../RunSample.py,../../AnalysisDict.so\n" % options.configFile
-        content += "Queue = 1\n"
-        print content
-        submitFile.write(content)
-        submitFile.close()
-        submitFiles.append(fname)
+        os.system("mkdir -p %s/%s" % (jobName,sampleName))
+        nFiles = 0
+        for filename in sample.files:
+            nFiles += 1
+            fname = "%s/%s/%i.submit" % (jobName, sampleName,nFiles)
+            submitFile = open(fname, "w")
+            content =  "universe = vanilla\n"
+            content += "Executable = condor_runscript.sh\n"
+            content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nFiles)
+            #content += "Requirements   =  OpSys == 'LINUX' && (Arch =='INTEL' || Arch =='x86_64')\n"
+            content += "initialdir = %s/%s\n" % (jobName,sampleName)
+            content += "Should_Transfer_Files = YES\n"
+            content += "Output = %i.stdout\n" % nFiles
+            content += "Error  = %i.stderr\n" % nFiles
+            content += "Log    = %i.log\n"    % nFiles
+            content += "Notification = never\n"
+            content += "WhenToTransferOutput=On_Exit\n"
+            content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/new-weights-23Jan.xml,../../aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml,../../RunSample.py,../../../AnalysisDict.so\n" % options.configFile
+            content += "Queue = 1\n"
+            print content
+            submitFile.write(content)
+            submitFile.close()
+            submitFiles.append(fname)
 
     # Send job to condor
     print "Submit files created, sending jobs to Condor..."

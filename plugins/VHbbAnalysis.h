@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include "../AnalysisManager.h"
+#include "TLorentzVector.h"
 
 using namespace std;
 
@@ -27,5 +28,7 @@ class VHbbAnalysis : public AnalysisManager {
     bool WmunuHbbSelection();
     std::pair<int,int> HighestPtBJets();
     std::pair<int,int> HighestCSVBJets();
+    std::pair<int,int> HighestPtJJBJets();
+    double GetRecoTopMass(TLorentzVector Jet, bool isJet=true, bool useMET=false);
 };
 

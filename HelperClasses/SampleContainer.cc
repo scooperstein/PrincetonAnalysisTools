@@ -37,9 +37,10 @@ inline SampleContainer::SampleContainer()
     intWeight=1;
     nProFromFile=false;
     doJetFlavorSplit = false;
+    procEff = 1.;
 }
 
-inline void SampleContainer::AddFile(char* fname) {
+inline void SampleContainer::AddFile(const char* fname) {
     sampleChain->Add(fname);
     files.push_back(fname);
     std::cout<<nProFromFile<<std::endl; 
@@ -57,7 +58,7 @@ inline void SampleContainer::ComputeWeight(float intL) {
         intWeight = 1; 
     } else {
         //std::cout << "Computing Weight for type - " << sampleNum << ", Using " << processedEvents << " Processed Events" << std::endl;
-        intWeight = kFactor*scale*xsec*intL/processedEvents;
+        intWeight = (kFactor*scale*xsec*intL)/(processedEvents*procEff);
     }
 }
 

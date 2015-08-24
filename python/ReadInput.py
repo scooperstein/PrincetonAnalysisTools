@@ -10,10 +10,15 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=0
 
-def ReadTextFile(filename, filetype):
+def ReadTextFile(filename, filetype, samplesToRun):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
+         print "samplesToRun is ", samplesToRun
+
+    runSelectedSamples = False
+    if (len(samplesToRun) > 0):
+        runSelectedSamples = True
 
     textfile=open(filename, 'r')
 
@@ -31,8 +36,9 @@ def ReadTextFile(filename, filetype):
         
         if settings.has_key("samples"):
             aminitialized=0
-            samples=ReadTextFile(settings["samples"], "samplefile")
+            samples=ReadTextFile(settings["samples"], "samplefile",samplesToRun)
             for name in samples:
+                if (runSelectedSamples and name not in samplesToRun): continue 
                 sample=samples[name]
                 #print sample, sampledic[sample]
                 samplecon = ROOT.SampleContainer()
@@ -52,6 +58,8 @@ def ReadTextFile(filename, filetype):
                     samplecon.nProFromFile      = True
                 if sample.has_key("doJetFlavorSplit"):
                     samplecon.doJetFlavorSplit  = bool(sample["doJetFlavorSplit"])
+                if sample.has_key("procEff"):
+                    samplecon.procEff = sample["procEff"]
                 for filename in sample["files"]:
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
@@ -67,16 +75,15 @@ def ReadTextFile(filename, filetype):
         else:
             print "There are no samples in the config file."
             sys.exit(0)
- 
         if settings.has_key("earlybranches"):
-            branches=ReadTextFile(settings["earlybranches"], "branchlist")
+            branches=ReadTextFile(settings["earlybranches"], "branchlist",list())
             for branch in branches:
                 am.SetupBranch(branch,branches[branch][0], branches[branch][1], "early")
         else:
             print "There are no existing branches in the config file."
 
         if settings.has_key("existingbranches"):
-            branches=ReadTextFile(settings["existingbranches"], "branchlist")
+            branches=ReadTextFile(settings["existingbranches"], "branchlist",list())
             for branch in branches:
                 am.SetupBranch(branch,branches[branch][0], branches[branch][1])
         else:
@@ -85,14 +92,14 @@ def ReadTextFile(filename, filetype):
         am.ConfigureOutputTree()
             
         if settings.has_key("newbranches"):
-            branches=ReadTextFile(settings["newbranches"], "branchlist")
+            branches=ReadTextFile(settings["newbranches"], "branchlist",list())
             for branch in branches:
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1])
         else:
             print "There are no new branches in the config file."
         
         if settings.has_key("settings"):
-            branches=ReadTextFile(settings["settings"], "branchlist")
+            branches=ReadTextFile(settings["settings"], "branchlist",list())
             for branch in branches:
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2])
         else:
@@ -100,7 +107,7 @@ def ReadTextFile(filename, filetype):
              
         if settings.has_key("bdtsettings"):
             print "Adding a BDT configuration..."
-            bdtInfo=ReadTextFile(settings["bdtsettings"], "bdt")
+            bdtInfo=ReadTextFile(settings["bdtsettings"], "bdt",list())
             print "read the BDT settings text file for BDT %s" % bdtInfo.bdtname
             # now set up any of the branches if they don't exist yet (must be floats for BDT)
             for varname in bdtInfo.localVarNames:
@@ -111,7 +118,7 @@ def ReadTextFile(filename, filetype):
             print "added BDT to analysis manager"
         if settings.has_key("reg1settings"):
             print "Adding a Jet 1 Energy Regresion..."
-            reg1 = ReadTextFile(settings["reg1settings"], "bdt") 
+            reg1 = ReadTextFile(settings["reg1settings"], "bdt",list()) 
             for varname in reg1.localVarNames:
                 am.SetupNewBranch(varname, 2)
             for varname in reg1.localSpectatorVarNames:
@@ -119,7 +126,7 @@ def ReadTextFile(filename, filetype):
             am.SetJet1EnergyRegression(reg1) 
         if settings.has_key("reg2settings"):
             print "Adding a Jet 2 Energy Regresion..."
-            reg2 = ReadTextFile(settings["reg2settings"], "bdt") 
+            reg2 = ReadTextFile(settings["reg2settings"], "bdt",list()) 
             for varname in reg2.localVarNames:
                 am.SetupNewBranch(varname, 2)
             for varname in reg2.localSpectatorVarNames:
@@ -213,7 +220,9 @@ def MakeSampleMap(lines):
                 sample["npro"]=int(value)
             if name.find("doJetFlavorSplit") is 0:
                 sample["doJetFlavorSplit"]=bool(value)
-       
+            if name.find("procEff") is 0:
+                sample["procEff"]=float(value)      
+ 
         sample["files"]=samplepaths 
         if sample.has_key("name"):
             samples[sample["name"]]=sample
