@@ -31,8 +31,9 @@ wildcard=''
 
 checkmode=False
 nolsmode=False
+recursive=True
 
-(opts, args) = getopt.getopt(sys.argv[1:], 'd:i:o:w:s:hcn', ['source=','destination=','input-dir=', 'output-dir=', 'help', 'wildcard=','checkmode'])
+(opts, args) = getopt.getopt(sys.argv[1:], 'd:i:o:w:s:hcnr:', ['source=','destination=','input-dir=', 'output-dir=', 'help', 'wildcard=','nolsmode','checkmode','recursive'])
 
 for opt,argm in opts:
     #print opt,argm
@@ -53,6 +54,8 @@ for opt,argm in opts:
         checkmode=True
     elif (opt == "-n" or opt == "--nolsmode"):
         nolsmode=True
+    elif (opt == "-r" or opt == "--recursive"):
+        recursive=argm
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
@@ -103,10 +106,22 @@ def DoesFileExist(inpath,outpath):
             #same size
             return True
         else:
+            print inpath
+            print "size different",inls.split()[4],outls.split()[4]
             return False
     except Exception as e:
         #print "ERROR",e
         return False
+
+
+ignoreList=["/log","/failed"]
+def CheckIgnoreList(filePath):
+    ignore=False
+    for toIgnore in ignoreList:
+        if filePath.find(toIgnore) !=-1:
+            ignore=True
+            break
+    return ignore
 
 
 def MakeFileList(rootpath):
@@ -125,11 +140,13 @@ def MakeFileList(rootpath):
                     continue
             if item.find(".root") != -1:
                 files.append(item)
-            else:
-                try:
-                    files.extend(MakeFileList(sourcepre+item))
-                except:
-                    print "The following item fails "+item
+            elif recursive == True:
+                ignore=CheckIgnoreList(item)
+                if not ignore:
+                    try:
+                        files.extend(MakeFileList(sourcepre+item))
+                    except:
+                        print "The following item fails "+item
     return files
 
 
@@ -186,7 +203,7 @@ while ifile!=len(files):
         if transfer is True:
             #print "File does not exist", outpath
             if checkmode is True:
-               untransfiles.append(outpath) 
+                untransfiles.append(outpath) 
             else:
                 LCG_CP_WRAP(inpath, outpath)
                 newsleep=1
