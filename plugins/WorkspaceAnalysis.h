@@ -34,6 +34,6 @@ class WorkspaceAnalysis : public AnalysisManager {
     std::map<std::string, std::vector<TH1F*> > hists1D;
     std::map<std::string, std::vector<TH2F*> > hists2D;
     std::map<std::string, TFile*> histout; // output root file for histograms
-
+    std::map<int,int> reIndex; // hack FIXME
 };
 

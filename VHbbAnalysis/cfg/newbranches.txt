@@ -48,27 +48,6 @@ type=1  name=nAddJets452p5
 type=1  name=nAddJets503p5
 type=1  name=nAddJets502p5
 type=1  name=nAddJets_puid
-type=1  name=nAddJets20_puid
-type=1  name=nAddJets25_puid
-type=1  name=nAddJets30_puid
-type=1  name=nAddJets35_puid
-type=1  name=nAddJets40_puid
-type=1  name=nAddJets45_puid
-type=1  name=nAddJets50_puid
-type=1  name=nAddJets203p5_puid
-type=1  name=nAddJets202p5_puid
-type=1  name=nAddJets253p5_puid
-type=1  name=nAddJets252p5_puid
-type=1  name=nAddJets303p5_puid
-type=1  name=nAddJets302p5_puid
-type=1  name=nAddJets353p5_puid
-type=1  name=nAddJets352p5_puid
-type=1  name=nAddJets403p5_puid
-type=1  name=nAddJets402p5_puid
-type=1  name=nAddJets453p5_puid
-type=1  name=nAddJets452p5_puid
-type=1  name=nAddJets503p5_puid
-type=1  name=nAddJets502p5_puid
 type=1  name=nAddLeptons
 
 type=2  name=naJetsPassingCuts
@@ -167,3 +146,5 @@ type=2  name=HJ2_WJet1_dPhi
 type=2  name=HJ2_WJet2_dPhi
 type=2  name=HJ2_WJet1_dEta
 type=2  name=HJ2_WJet2_dEta
+
+type=1  name=nAddJets252p9_puid
