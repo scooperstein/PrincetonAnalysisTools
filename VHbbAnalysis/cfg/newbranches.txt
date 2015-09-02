@@ -20,6 +20,7 @@ type=2  name=weight
 type=1  name=isWenu
 type=1  name=isWmunu
 type=1  name=cutFlow
+type=1  name=controlSample
 
 type=2  name=H_pt_highestPt
 type=2  name=H_pt_highestPtJJ

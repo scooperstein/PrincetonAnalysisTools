@@ -726,6 +726,21 @@ bool VHbbAnalysis::Analyze(){
         std::cout<<"selecting event"<<std::endl;
     }
 
+    // Control samples
+    *in["controlSample"]=-1; // maybe this should go much early (before any returns)
+    float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
+    if (maxCSV > 0.9){ //ttbar or W+HF
+        if(*in["nAddJets252p9_puid"]>2) { //ttbar
+            *in["controlSample"]=1;
+        } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ *f["met_sumEt"]> 2.) { //W+HF
+            *in["controlSample"]=2;
+        }
+    } else if (maxCSV > 0.3 && *f["met_pt"]/ *f["met_sumEt"] > 2.){ //W+LF
+        *in["controlSample"]=3;
+    }
+    
+
+
     if (doCutFlow) return true; // keep all preselected events for cutflow
     else return sel;
 }
