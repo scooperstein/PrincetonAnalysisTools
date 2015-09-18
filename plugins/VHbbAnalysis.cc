@@ -732,7 +732,7 @@ bool VHbbAnalysis::Analyze(){
     if (maxCSV > 0.9){ //ttbar or W+HF
         if(*in["nAddJets252p9_puid"]>2) { //ttbar
             *in["controlSample"]=1;
-        } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ *f["met_sumEt"]> 2.) { //W+HF
+        } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ *f["met_sumEt"]> 2. && *f["H_mass"]>150 && *f["H_mass"]<90) { //W+HF
             *in["controlSample"]=2;
         }
     } else if (maxCSV > 0.3 && *f["met_pt"]/ *f["met_sumEt"] > 2.){ //W+LF
