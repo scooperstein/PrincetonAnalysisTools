@@ -26,29 +26,7 @@ type=2  name=H_pt_highestPt
 type=2  name=H_pt_highestPtJJ
 type=2  name=H_pt_bestCSV
 
-type=1  name=nAddJets
-type=1  name=nAddJets20
-type=1  name=nAddJets25
-type=1  name=nAddJets30
-type=1  name=nAddJets35
-type=1  name=nAddJets40
-type=1  name=nAddJets45
-type=1  name=nAddJets50
-type=1  name=nAddJets203p5
-type=1  name=nAddJets202p5
-type=1  name=nAddJets253p5
-type=1  name=nAddJets252p5
-type=1  name=nAddJets303p5
-type=1  name=nAddJets302p5
-type=1  name=nAddJets353p5
-type=1  name=nAddJets352p5
-type=1  name=nAddJets403p5
-type=1  name=nAddJets402p5
-type=1  name=nAddJets453p5
-type=1  name=nAddJets452p5
-type=1  name=nAddJets503p5
-type=1  name=nAddJets502p5
-type=1  name=nAddJets_puid
+type=1  name=nAddJets252p9_puid
 type=1  name=nAddLeptons
 
 type=2  name=naJetsPassingCuts
@@ -148,4 +126,3 @@ type=2  name=HJ2_WJet2_dPhi
 type=2  name=HJ2_WJet1_dEta
 type=2  name=HJ2_WJet2_dEta
 
-type=1  name=nAddJets252p9_puid

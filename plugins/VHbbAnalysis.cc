@@ -478,29 +478,6 @@ bool VHbbAnalysis::Analyze(){
     }
     
     // count the number of additional leptons and jets, then cut on this number
-    int nAddJet = 0;
-    int nAddJet20 = 0;
-    int nAddJet25 = 0;
-    int nAddJet30 = 0;
-    int nAddJet35 = 0;
-    int nAddJet40 = 0;
-    int nAddJet45 = 0;
-    int nAddJet50 = 0;
-    int nAddJet203p5 = 0;
-    int nAddJet202p5 = 0;
-    int nAddJet253p5 = 0;
-    int nAddJet252p5 = 0;
-    int nAddJet303p5 = 0;
-    int nAddJet302p5 = 0;
-    int nAddJet353p5 = 0;
-    int nAddJet352p5 = 0;
-    int nAddJet403p5 = 0;
-    int nAddJet402p5 =0;
-    int nAddJet453p5 = 0;
-    int nAddJet452p5 =0;
-    int nAddJet503p5 = 0;
-    int nAddJet502p5 =0;
-    int nAddJet_puid = 0;
     int nAddLep = 0;       
     // 15 to 30 by 1 GeV, 1.5 to 3 w/ 0.1 in eta 
     //std::vector<int> ptCuts = {15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35};
@@ -523,172 +500,7 @@ bool VHbbAnalysis::Analyze(){
             *in[Form("nAddJets%i%s_puid",ptCuts[i],eta_cut.c_str())] = nAddJet_tmp;
         }
     }
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet20++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet25++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet30++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet35++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet40++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet45++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet50++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet203p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet202p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet253p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet252p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet303p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet302p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet353p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet352p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet403p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet402p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet453p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet452p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet503p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet502p5++;
-        }  
-    }          
-
     
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet_puid++;
-        }  
-    }
- 
-    *in["nAddJets"] = nAddJet;
-    *in["nAddJets20"] = nAddJet20;
-    *in["nAddJets25"] = nAddJet25;
-    *in["nAddJets30"] = nAddJet30;
-    *in["nAddJets35"] = nAddJet35;
-    *in["nAddJets40"] = nAddJet40;
-    *in["nAddJets45"] = nAddJet45;
-    *in["nAddJets50"] = nAddJet50;
-    *in["nAddJets203p5"] = nAddJet203p5;
-    *in["nAddJets202p5"] = nAddJet202p5; 
-    *in["nAddJets253p5"] = nAddJet253p5;
-    *in["nAddJets252p5"] = nAddJet252p5; 
-    *in["nAddJets303p5"] = nAddJet303p5;
-    *in["nAddJets302p5"] = nAddJet302p5; 
-    *in["nAddJets353p5"] = nAddJet353p5;
-    *in["nAddJets352p5"] = nAddJet352p5;
-    *in["nAddJets403p5"] = nAddJet403p5;
-    *in["nAddJets402p5"] = nAddJet402p5;
-    *in["nAddJets453p5"] = nAddJet453p5;
-    *in["nAddJets452p5"] = nAddJet452p5;
-    *in["nAddJets503p5"] = nAddJet503p5;
-    *in["nAddJets502p5"] = nAddJet502p5;
-    
-    *in["nAddJets_puid"] = nAddJet_puid;
-
     // count additional leptons (check both collections, which are exclusive)
     for (int i=0; i<*in["nselLeptons"]; i++) {
         if (i == *in["lepInd"]) continue; // don't look at the lepton we've selected from the W
@@ -825,7 +637,7 @@ void VHbbAnalysis::FinishEvent(){
  
 
     *f["naLeptonsPassingCuts"] = *in["nAddLeptons"]; // no need to calculate this twice
-    *f["naJetsPassingCuts"] = *in["nAddJets"];
+    *f["naJetsPassingCuts"] = *in["nAddJets252p9_puid"];
     *f["highestCSVaJet"] = 0.0;
     *f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
     for(int j=0;j<*in["nJet"];j++){
