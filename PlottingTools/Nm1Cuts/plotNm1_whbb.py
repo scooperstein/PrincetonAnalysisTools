@@ -11,7 +11,7 @@ tfile=ROOT.TFile(filename)
 treename="tree"
 tree=tfile.Get(treename)
 
-outDir="variablePlots_WHbb_5E3"
+outDir="variablePlots_WHbb_7Em4"
 suffix="analysis"
 
 if not os.path.exists(outDir):
@@ -31,7 +31,7 @@ def AssignVarsToMap():
     varsmap["ptW"]            = tree.V_pt
     varsmap["met"]            = tree.met_pt
     varsmap["HVdPhi"]         = tree.HVdPhi
-    varsmap["lepID"]          = tree.selLeptons_tightId_0
+    #varsmap["lepID"]          = tree.selLeptons_tightId_0
     varsmap["leppt"]          = tree.selLeptons_pt_0
     varsmap["lepeta"]         = tree.selLeptons_eta_0
     varsmap["lepmetdphi"]     = tree.lepMetDPhi
@@ -47,43 +47,78 @@ yieldsTextFile=open(outDir+"/yields.txt","w+")
 
 cutsets={}
 
-cutsets["Analysis"] = {}
-cutsets["Analysis"]["jet1pt"]        =   [30, 30]
-cutsets["Analysis"]["jet2pt"]        =   [30, 30]
-cutsets["Analysis"]["jet1eta"]       =   [2.5, 2.5]
-cutsets["Analysis"]["jet2eta"]       =   [2.5, 2.5]
-cutsets["Analysis"]["jet1csv"]       =   [0.9, 0.9]
-cutsets["Analysis"]["jet2csv"]       =   [0.5, 0.5]
-cutsets["Analysis"]["ptjj"]          =   [100, 100]
-cutsets["Analysis"]["ptW"]           =   [100, 100]
-cutsets["Analysis"]["met"]           =   [45, 45]
-cutsets["Analysis"]["HVdPhi"]        =   [2.5, 2.5]
-cutsets["Analysis"]["lepID"]         =   [1, 1]
-cutsets["Analysis"]["leppt"]         =   [30, 30]
-cutsets["Analysis"]["lepeta"]        =   [2.4, 2.5]
-cutsets["Analysis"]["lepmetdphi"]    =   [1.571, 1.571]
-cutsets["Analysis"]["naddlep"]       =   [1, 1]
-cutsets["Analysis"]["naddjet"]       =   [1, 1]
-cutsets["Analysis"]["topmass_nomet"] =   [0, 0]
+#cutsets["Analysis"] = {}
+#cutsets["Analysis"]["jet1pt"]        =   [30, 30]
+#cutsets["Analysis"]["jet2pt"]        =   [30, 30]
+#cutsets["Analysis"]["jet1eta"]       =   [2.5, 2.5]
+#cutsets["Analysis"]["jet2eta"]       =   [2.5, 2.5]
+#cutsets["Analysis"]["jet1csv"]       =   [0.9, 0.9]
+#cutsets["Analysis"]["jet2csv"]       =   [0.5, 0.5]
+#cutsets["Analysis"]["ptjj"]          =   [100, 100]
+#cutsets["Analysis"]["ptW"]           =   [100, 100]
+#cutsets["Analysis"]["met"]           =   [45, 45]
+#cutsets["Analysis"]["HVdPhi"]        =   [2.5, 2.5]
+##cutsets["Analysis"]["lepID"]         =   [1, 1]
+#cutsets["Analysis"]["leppt"]         =   [30, 30]
+#cutsets["Analysis"]["lepeta"]        =   [2.4, 2.5]
+#cutsets["Analysis"]["lepmetdphi"]    =   [1.571, 1.571]
+#cutsets["Analysis"]["naddlep"]       =   [1, 1]
+#cutsets["Analysis"]["naddjet"]       =   [1, 1]
+#cutsets["Analysis"]["topmass_nomet"] =   [0, 0]
 
+#cutsets["Analysis"]={}
+#cutsets["Analysis"]["jet2eta"]=[ 2.4375,  2.4375]
+#cutsets["Analysis"]["met"]=[ 30.0000,  30.0000]
+#cutsets["Analysis"]["jet2pt"]=[ 15.0000,  15.0000]
+#cutsets["Analysis"]["topmass_nomet"]=[ 75.0000,  62.5000]
+#cutsets["Analysis"]["jet2csv"]=[ 0.2125,  0.3025]
+#cutsets["Analysis"]["leppt"]=[ 22.0000,  30.0000]
+#cutsets["Analysis"]["lepeta"]=[ 2.3400,  2.4375]
+#cutsets["Analysis"]["jet1pt"]=[ 19.2500,  15.0000]
+#cutsets["Analysis"]["jet1eta"]=[ 2.4375,  2.4375]
+#cutsets["Analysis"]["lepmetdphi"]=[ 1.7270,  3.0615]
+#cutsets["Analysis"]["jet1csv"]=[ 0.9038,  0.9125]
+#cutsets["Analysis"]["ptW"]=[ 68.7500,  57.5000]
+#cutsets["Analysis"]["naddlep"]=[ 1.0000,  1.0000]
+#cutsets["Analysis"]["ptjj"]=[ 50.0000,  50.0000]
+#cutsets["Analysis"]["HVdPhi"]=[ 2.4445,  2.4980]
+#cutsets["Analysis"]["naddjet"]=[ 2.0000,  2.0000]
+
+cutsets["Analysis"]={}
+cutsets["Analysis"]["jet2eta"]=[ 2.0625,  2.3750]
+cutsets["Analysis"]["met"]=[ 30.0000,  30.0000]
+cutsets["Analysis"]["jet2pt"]=[ 51.1250,  21.3750]
+cutsets["Analysis"]["topmass_nomet"]=[ 137.5000,  137.5000]
+cutsets["Analysis"]["jet2csv"]=[ 0.7750,  0.8425]
+cutsets["Analysis"]["leppt"]=[ 68.8000,  73.7500]
+cutsets["Analysis"]["lepeta"]=[ 2.2800,  2.3750]
+cutsets["Analysis"]["jet1pt"]=[ 21.3750,  25.6250]
+cutsets["Analysis"]["jet1eta"]=[ 2.3750,  2.3750]
+cutsets["Analysis"]["lepmetdphi"]=[ 0.7065,  2.9830]
+cutsets["Analysis"]["jet1csv"]=[ 0.9563,  0.9563]
+cutsets["Analysis"]["ptW"]=[ 170.0000,  132.5000]
+cutsets["Analysis"]["naddlep"]=[ 1.0000,  9999.0000]
+cutsets["Analysis"]["ptjj"]=[ 128.7500,  136.2500]
+cutsets["Analysis"]["HVdPhi"]=[ 2.8725,  2.8725]
+cutsets["Analysis"]["naddjet"]=[ 2.0000,  2.0000]
 
 cutsets["presel"] = {}
 cutsets["presel"]["jet1pt"]        =   [15, 15]
 cutsets["presel"]["jet2pt"]        =   [15, 15]
 cutsets["presel"]["jet1eta"]       =   [2.5, 2.5]
 cutsets["presel"]["jet2eta"]       =   [2.5, 2.5]
-cutsets["presel"]["jet1csv"]       =   [0.5, 0.5]
-cutsets["presel"]["jet2csv"]       =   [0.0, 0.0]
+cutsets["presel"]["jet1csv"]       =   [0.65, 0.65]
+cutsets["presel"]["jet2csv"]       =   [0.1, 0.1]
 cutsets["presel"]["ptjj"]          =   [50, 50]
 cutsets["presel"]["ptW"]           =   [50, 50]
 cutsets["presel"]["met"]           =   [30, 30]
-cutsets["presel"]["HVdPhi"]        =   [0.0, 0.0]
-cutsets["presel"]["lepID"]         =   [0, 0]
+cutsets["presel"]["HVdPhi"]        =   [1.0, 1.0]
+#cutsets["presel"]["lepID"]         =   [1, 4]
 cutsets["presel"]["leppt"]         =   [22, 30]
 cutsets["presel"]["lepeta"]        =   [2.4, 2.5]
 cutsets["presel"]["lepmetdphi"]    =   [3.14, 3.14]
-cutsets["presel"]["naddlep"]       =   [4, 4]
-cutsets["presel"]["naddjet"]       =   [10, 10]
+cutsets["presel"]["naddlep"]       =   [2, 2]
+cutsets["presel"]["naddjet"]       =   [5, 5]
 cutsets["presel"]["topmass_nomet"] =   [0, 0]
 
 nBins=40
@@ -98,12 +133,12 @@ varstocut["ptjj"]        = [1,nBins,cutsets["presel"]["ptjj"][0],200,nBins,cutse
 varstocut["ptW"]         = [1,nBins,cutsets["presel"]["ptW"][0],200,nBins,cutsets["presel"]["ptW"][1], 200]
 varstocut["met"]         = [1,nBins,cutsets["presel"]["met"][0],100,nBins,cutsets["presel"]["met"][1], 100]
 varstocut["HVdPhi"]      = [1,nBins,cutsets["presel"]["HVdPhi"][0], 3.14, nBins,cutsets["presel"]["HVdPhi"][1],3.14]
-varstocut["lepID"]       = [1,4,0,4,4,0,4]
+#varstocut["lepID"]       = [1,4,0,4,4,0,4]
 varstocut["leppt"]       = [1,nBins,cutsets["presel"]["leppt"][0], 100,nBins,cutsets["presel"]["leppt"][1],100]
 varstocut["lepeta"]      = [0,nBins,0.,cutsets["presel"]["lepeta"][0],nBins,0.,cutsets["presel"]["lepeta"][1]]
 varstocut["lepmetdphi"]  = [0,nBins,0.,cutsets["presel"]["lepmetdphi"][0],nBins,0.,cutsets["presel"]["lepmetdphi"][1]]
-varstocut["naddlep"]     = [0,10,0,10,10,0,10]
-varstocut["naddjet"]     = [0,10,0,10,10,0,10]
+varstocut["naddlep"]     = [0,2,0,2,2,0,2]
+varstocut["naddjet"]     = [0,5,0,5,5,0,5]
 varstocut["topmass_nomet"] = [1,nBins,cutsets["presel"]["topmass_nomet"][0],500,nBins,cutsets["presel"]["topmass_nomet"][1],500]
 
 
@@ -222,7 +257,7 @@ wps=["Analysis"]
 
 potentialCuts={}  #wp,cat,var
 
-numIterations=5
+numIterations=1
 
 
 for wp in wps:
@@ -414,7 +449,7 @@ for wp in wps:
                     line.SetLineWidth(2)
                     line.Draw("same")
         
-                    hLineVal=[0.005,0.005]
+                    hLineVal=[0.0007,0.0007]
                     #[300,15]
                     #[7.5,1.7]
                     #[900,400] 
