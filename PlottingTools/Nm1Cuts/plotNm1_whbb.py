@@ -11,7 +11,7 @@ tfile=ROOT.TFile(filename)
 treename="tree"
 tree=tfile.Get(treename)
 
-outDir="variablePlots_WHbb_5E3"
+outDir="variablePlots_WHbb_cutScan"
 suffix="analysis"
 
 if not os.path.exists(outDir):
@@ -21,19 +21,12 @@ flatTree=True
 
 varsmap={}
 def AssignVarsToMap():
-    varsmap["jet1pt"]         = tree.hJets_pt_0
-    varsmap["jet2pt"]         = tree.hJets_pt_1
-    varsmap["jet1eta"]        = tree.hJets_eta_0
-    varsmap["jet2eta"]        = tree.hJets_eta_1
     varsmap["jet1csv"]        = tree.hJets_btagCSV_0
     varsmap["jet2csv"]        = tree.hJets_btagCSV_1
     varsmap["ptjj"]           = tree.H_pt
     varsmap["ptW"]            = tree.V_pt
     varsmap["met"]            = tree.met_pt
     varsmap["HVdPhi"]         = tree.HVdPhi
-    varsmap["lepID"]          = tree.selLeptons_tightId_0
-    varsmap["leppt"]          = tree.selLeptons_pt_0
-    varsmap["lepeta"]         = tree.selLeptons_eta_0
     varsmap["lepmetdphi"]     = tree.lepMetDPhi
     varsmap["naddlep"]        = tree.nAddLeptons
     varsmap["naddjet"]        = tree.nAddJets252p9_puid
@@ -48,62 +41,40 @@ yieldsTextFile=open(outDir+"/yields.txt","w+")
 cutsets={}
 
 cutsets["Analysis"] = {}
-cutsets["Analysis"]["jet1pt"]        =   [30, 30]
-cutsets["Analysis"]["jet2pt"]        =   [30, 30]
-cutsets["Analysis"]["jet1eta"]       =   [2.5, 2.5]
-cutsets["Analysis"]["jet2eta"]       =   [2.5, 2.5]
 cutsets["Analysis"]["jet1csv"]       =   [0.9, 0.9]
 cutsets["Analysis"]["jet2csv"]       =   [0.5, 0.5]
 cutsets["Analysis"]["ptjj"]          =   [100, 100]
 cutsets["Analysis"]["ptW"]           =   [100, 100]
 cutsets["Analysis"]["met"]           =   [45, 45]
 cutsets["Analysis"]["HVdPhi"]        =   [2.5, 2.5]
-cutsets["Analysis"]["lepID"]         =   [1, 1]
-cutsets["Analysis"]["leppt"]         =   [30, 30]
-cutsets["Analysis"]["lepeta"]        =   [2.4, 2.5]
 cutsets["Analysis"]["lepmetdphi"]    =   [1.571, 1.571]
 cutsets["Analysis"]["naddlep"]       =   [1, 1]
 cutsets["Analysis"]["naddjet"]       =   [1, 1]
 cutsets["Analysis"]["topmass_nomet"] =   [0, 0]
 
-
 cutsets["presel"] = {}
-cutsets["presel"]["jet1pt"]        =   [15, 15]
-cutsets["presel"]["jet2pt"]        =   [15, 15]
-cutsets["presel"]["jet1eta"]       =   [2.5, 2.5]
-cutsets["presel"]["jet2eta"]       =   [2.5, 2.5]
-cutsets["presel"]["jet1csv"]       =   [0.5, 0.5]
-cutsets["presel"]["jet2csv"]       =   [0.0, 0.0]
+cutsets["presel"]["jet1csv"]       =   [0.65, 0.65]
+cutsets["presel"]["jet2csv"]       =   [0.1, 0.1]
 cutsets["presel"]["ptjj"]          =   [50, 50]
 cutsets["presel"]["ptW"]           =   [50, 50]
-cutsets["presel"]["met"]           =   [30, 30]
-cutsets["presel"]["HVdPhi"]        =   [0.0, 0.0]
-cutsets["presel"]["lepID"]         =   [0, 0]
-cutsets["presel"]["leppt"]         =   [22, 30]
-cutsets["presel"]["lepeta"]        =   [2.4, 2.5]
+cutsets["presel"]["met"]           =   [0, 0]
+cutsets["presel"]["HVdPhi"]        =   [1.0, 1.0]
 cutsets["presel"]["lepmetdphi"]    =   [3.14, 3.14]
-cutsets["presel"]["naddlep"]       =   [4, 4]
-cutsets["presel"]["naddjet"]       =   [10, 10]
+cutsets["presel"]["naddlep"]       =   [5, 5]
+cutsets["presel"]["naddjet"]       =   [5, 5]
 cutsets["presel"]["topmass_nomet"] =   [0, 0]
 
 nBins=40
 varstocut={}  # 0 keep less than, 1 keept greater than
-varstocut["jet1pt"]     = [1,nBins,cutsets["presel"]["jet1pt"][0], 100, nBins, cutsets["presel"]["jet1pt"][1], 100 ]
-varstocut["jet2pt"]     = [1,nBins,cutsets["presel"]["jet2pt"][0], 100, nBins, cutsets["presel"]["jet2pt"][1], 100 ]
-varstocut["jet1eta"]     = [0,nBins,0., cutsets["presel"]["jet1eta"][0], nBins, 0., cutsets["presel"]["jet1eta"][1] ]
-varstocut["jet2eta"]     = [0,nBins,0., cutsets["presel"]["jet2eta"][0], nBins, 0., cutsets["presel"]["jet2eta"][1] ]
 varstocut["jet1csv"]     = [1,nBins,cutsets["presel"]["jet1csv"][0], 1.0, nBins, cutsets["presel"]["jet1csv"][1], 1.0 ]
 varstocut["jet2csv"]     = [1,nBins,cutsets["presel"]["jet2csv"][0], 1.0, nBins, cutsets["presel"]["jet2csv"][1], 1.0 ]
 varstocut["ptjj"]        = [1,nBins,cutsets["presel"]["ptjj"][0],200,nBins,cutsets["presel"]["ptjj"][1], 200]
 varstocut["ptW"]         = [1,nBins,cutsets["presel"]["ptW"][0],200,nBins,cutsets["presel"]["ptW"][1], 200]
 varstocut["met"]         = [1,nBins,cutsets["presel"]["met"][0],100,nBins,cutsets["presel"]["met"][1], 100]
 varstocut["HVdPhi"]      = [1,nBins,cutsets["presel"]["HVdPhi"][0], 3.14, nBins,cutsets["presel"]["HVdPhi"][1],3.14]
-varstocut["lepID"]       = [1,4,0,4,4,0,4]
-varstocut["leppt"]       = [1,nBins,cutsets["presel"]["leppt"][0], 100,nBins,cutsets["presel"]["leppt"][1],100]
-varstocut["lepeta"]      = [0,nBins,0.,cutsets["presel"]["lepeta"][0],nBins,0.,cutsets["presel"]["lepeta"][1]]
 varstocut["lepmetdphi"]  = [0,nBins,0.,cutsets["presel"]["lepmetdphi"][0],nBins,0.,cutsets["presel"]["lepmetdphi"][1]]
-varstocut["naddlep"]     = [0,10,0,10,10,0,10]
-varstocut["naddjet"]     = [0,10,0,10,10,0,10]
+varstocut["naddlep"]     = [0,5,0,5,5,0,5]
+varstocut["naddjet"]     = [0,5,0,5,5,0,5]
 varstocut["topmass_nomet"] = [1,nBins,cutsets["presel"]["topmass_nomet"][0],500,nBins,cutsets["presel"]["topmass_nomet"][1],500]
 
 
@@ -127,7 +98,7 @@ def deltaR(eta1,phi1,eta2,phi2):
 
 
 
-absCutVars=["jet1eta","jet2eta"]
+absCutVars=[]
 def passVarCut(var,index,wp):
     if flatTree:
         varValue=varsmap[var]
@@ -139,11 +110,11 @@ def passVarCut(var,index,wp):
  
     catInd=category(nCats,index)
     if varstocut[var][0]==0:
-        if varValue > cutsets[wp][var][catInd]:
+        if varValue >= cutsets[wp][var][catInd]:
             return False
     
     if varstocut[var][0]==1:
-        if varValue < cutsets[wp][var][catInd]:
+        if varValue <= cutsets[wp][var][catInd]:
             return False
     
     return True
@@ -212,6 +183,7 @@ requireHLT=False
 etaRestriction=False
 matchL1=False
 doSoB=True
+doCutScan=True # only works if doSoB is True
 makeTree=False
 
 #eleHoE_PassNm1        = numpy.zeros(1, dtype=int)
@@ -222,7 +194,7 @@ wps=["Analysis"]
 
 potentialCuts={}  #wp,cat,var
 
-numIterations=5
+numIterations=1
 
 
 for wp in wps:
@@ -246,12 +218,7 @@ for wp in wps:
         
         for cat in catMap:
             for mctype in mctypes:
-                kinplots[mctype+"_jet1eta_"+catMap[cat]+"_"+wp]=ROOT.TH1F(mctype+"_jet1eta_"+catMap[cat]+"_"+wp,";"+mctype+" #eta "+catMap[cat]+"_"+wp,60,-2.8,2.8)
-                kinplots[mctype+"_jet2eta_"+catMap[cat]+"_"+wp]=ROOT.TH1F(mctype+"_jet2eta_"+catMap[cat]+"_"+wp,";"+mctype+" #eta "+catMap[cat]+"_"+wp,60,-2.8,2.8)
-                kinplots[mctype+"_jet1pt_"+catMap[cat]+"_"+wp]=ROOT.TH1F(mctype+"_jet1pt_"+catMap[cat]+"_"+wp,";"+mctype+" P_{T} "+catMap[cat]+"_"+wp,50,10,160)
-                kinplots[mctype+"_jet2pt_"+catMap[cat]+"_"+wp]=ROOT.TH1F(mctype+"_jet2pt_"+catMap[cat]+"_"+wp,";"+mctype+" P_{T} "+catMap[cat]+"_"+wp,50,10,160)
-                kinplots[mctype+"_jet1csv_"+catMap[cat]+"_"+wp]=ROOT.TH1F(mctype+"_jet1csv_"+catMap[cat]+"_"+wp,";"+mctype+" P_{T} "+catMap[cat]+"_"+wp,50,0,1.0)
-                kinplots[mctype+"_jet2csv_"+catMap[cat]+"_"+wp]=ROOT.TH1F(mctype+"_jet2csv_"+catMap[cat]+"_"+wp,";"+mctype+" P_{T} "+catMap[cat]+"_"+wp,50,0,1.0)
+                kinplots[mctype+"_type_"+catMap[cat]+"_"+wp]=ROOT.TH1F(mctype+"_type_"+catMap[cat]+"_"+wp,";"+mctype+" MC type "+catMap[cat]+"_"+wp,50,0,50)
         
         for var in varstocut:
             print var
@@ -326,12 +293,7 @@ for wp in wps:
                 if flatTree:
                     for var in varstocut:
                         hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+var+"_nm1_"+wp].Fill(varsmap[var],tree.weight)
-                    kinplots[mctype+"_jet1eta_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['jet1eta'],tree.weight)
-                    kinplots[mctype+"_jet2eta_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['jet2eta'],tree.weight)
-                    kinplots[mctype+"_jet1pt_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['jet1pt'],tree.weight)
-                    kinplots[mctype+"_jet2pt_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['jet2pt'],tree.weight)
-                    kinplots[mctype+"_jet1csv_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['jet1csv'],tree.weight)
-                    kinplots[mctype+"_jet2csv_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['jet2csv'],tree.weight)
+                    kinplots[mctype+"_type_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['type'],tree.weight)
                 #else:
                 #    for var in varstocut:
                 #        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+var+"_nm1_"+wp].Fill(varsmap[var][hltindex],tree.weight)
@@ -364,7 +326,33 @@ for wp in wps:
                     hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp]=hists[sigType+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].Clone()
                     bkgtemp=hists[bkgType+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].Clone()
                     bkgtemp.Smooth(10)
-                    hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Divide(bkgtemp)
+                    if doCutScan:
+                        hist_SoSqBScan = hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Clone()
+                        hist_SoSqBScan.Reset() # keep binning but clear contents
+                        numberBins = hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetNbinsX()
+                        if (bkgtemp.GetNbinsX() != numberBins):
+                            print "Number of bins in the signal histogram (%i) is different than the number of bins in the background histogram (%i) for variable %s" % (numberBins,bkgtemp.GetNbinsX(),var)
+                            sys.exit(1)
+                        for ibin in range(numberBins):
+                            S_tot = 0.
+                            B_tot = 0.
+                            if (varstocut[var][0] == 0):
+                                # cut is less than 
+                                S_tot = hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Integral(1,ibin+1) 
+                                B_tot = bkgtemp.Integral(1,ibin+1)
+                            elif (varstocut[var][0] == 1):
+                                # cut is greater than
+                                S_tot = hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Integral(ibin+1,numberBins) 
+                                B_tot = bkgtemp.Integral(ibin+1,numberBins)
+                            if (B_tot != 0):
+                                hist_SoSqBScan.SetBinContent(ibin+1, (S_tot / math.sqrt(B_tot)))
+                                #print S_tot, B_tot, (S_tot / math.sqrt(B_tot))
+                            else:
+                                hist_SoSqBScan.SetBinContent(ibin+1, 0.)
+                        hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp] = hist_SoSqBScan.Clone()
+                        print "Integral = ", hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Integral()
+                    else:
+                        hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Divide(bkgtemp)
                
                 itype=0 
                 maxval=0
@@ -383,7 +371,7 @@ for wp in wps:
                 leg.SetHeader(catMap[icat])
                 for mctype in mctypes:
                     if first is True:    
-                        hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetMaximum(maxval)
+                        hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetMaximum(maxval)
                         hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetTitle(";"+var+" "+catMap[icat]+" "+wp)
                         hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].Draw()
                         first=False
@@ -407,14 +395,14 @@ for wp in wps:
                 if doSoB:
                     hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetLineWidth(2)
                     hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Draw()
-                    hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetMinimum(0.1)
+                    #hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetMinimum(0.1)
                     temp=hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Clone()
                     line=ROOT.TLine(cutsets[wp][var][icat],0,cutsets[wp][var][icat], hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetMaximum()/1.3)
                     line.SetLineColor(1)    
                     line.SetLineWidth(2)
                     line.Draw("same")
         
-                    hLineVal=[0.005,0.005]
+                    hLineVal=[0.15,0.15]
                     #[300,15]
                     #[7.5,1.7]
                     #[900,400] 
@@ -466,10 +454,10 @@ for wp in wps:
         for cat in catMap:
             yieldsTextFile.write(wp+"\t"+catMap[cat]+"\n")
             for mctype in mctypes:
-                print kinplots[mctype+"_jet1eta_"+catMap[cat]+"_"+wp].Integral(),
+                print kinplots[mctype+"_type_"+catMap[cat]+"_"+wp].Integral(),
 
             
-            for ikin in ["jet1pt","jet2pt","jet1eta","jet2eta","jet1csv","jet2csv"]:
+            for ikin in ["type"]:
                 if doSoB:
                     kinplots["soverb_"+ikin+"_"+catMap[cat]+"_"+wp]=kinplots[sigType+"_"+ikin+"_"+catMap[cat]+"_"+wp].Clone()
                     kinplots["soverb_"+ikin+"_"+catMap[cat]+"_"+wp].Divide(kinplots[bkgType+"_"+ikin+"_"+catMap[cat]+"_"+wp])
@@ -481,7 +469,7 @@ for wp in wps:
                 leg.SetHeader(catMap[cat]+" "+wp)
                 for mctype in mctypes:
                     if kinplots[mctype+"_"+ikin+"_"+catMap[cat]+"_"+wp].Integral()>0:
-                        if ikin=="jet1eta":
+                        if ikin=="type":
                             yieldsTextFile.write(mctype+"\t"+str(kinplots[mctype+"_"+ikin+"_"+catMap[cat]+"_"+wp].Integral())+"\n")
 
                         kinplots[mctype+"_"+ikin+"_"+catMap[cat]+"_"+wp].Scale(1/kinplots[mctype+"_"+ikin+"_"+catMap[cat]+"_"+wp].Integral())
