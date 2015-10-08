@@ -580,8 +580,11 @@ void VHbbAnalysis::FinishEvent(){
             *f["weight"] = cursample->intWeight * -1;
         }
     }
-    //*f["weight"] = 1.0; // HACK FIXME
-    *f["Vtype_f"] = (float) *f["Vtype"];
+    else {
+        *f["weight"] = 1.0;
+    } 
+
+   *f["Vtype_f"] = (float) *f["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
     *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
     *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
