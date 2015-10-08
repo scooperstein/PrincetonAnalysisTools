@@ -60,6 +60,7 @@ def ReadTextFile(filename, filetype, samplesToRun):
                     samplecon.doJetFlavorSplit  = bool(sample["doJetFlavorSplit"])
                 if sample.has_key("procEff"):
                     samplecon.procEff = sample["procEff"]
+                print "Reading",sample["name"],"with",len(sample["files"]),"files"
                 for filename in sample["files"]:
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning

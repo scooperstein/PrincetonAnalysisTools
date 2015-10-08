@@ -43,7 +43,7 @@ inline SampleContainer::SampleContainer()
 inline void SampleContainer::AddFile(const char* fname) {
     sampleChain->Add(fname);
     files.push_back(fname);
-    std::cout<<nProFromFile<<std::endl; 
+    //std::cout<<nProFromFile<<std::endl; 
     if(nProFromFile) {
         TFile file(fname);
         //TH1F* counter = (TH1F*)file.Get("Count");
