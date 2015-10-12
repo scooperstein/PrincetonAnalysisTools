@@ -14,9 +14,9 @@ tier2transfer.py [options]
 --checkmode, -c                    check if all files are transferred, default off
 """
 
-pisapre='srm://stormfe1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/user/'
-cernpre='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/user/'
-fnalpre='srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/user/'
+pisapre='srm://stormfe1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/'
+cernpre='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/'
+fnalpre='srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/'
 
 sourcepre=''
 destpre=''
@@ -91,7 +91,7 @@ def LCG_LS_WRAP(args):
 
 def LCG_CP_WRAP(input, output):
     cmd=['lcg-cp','-b','-D','srmv2',input,output]
-    #print cmd
+    print cmd
     subprocess.Popen(cmd)
 
 
@@ -114,7 +114,7 @@ def DoesFileExist(inpath,outpath):
         return False
 
 
-ignoreList=["/log","/failed"]
+ignoreList=["/log","/failed",".tmp"]
 def CheckIgnoreList(filePath):
     ignore=False
     for toIgnore in ignoreList:
@@ -125,13 +125,18 @@ def CheckIgnoreList(filePath):
 
 
 def MakeFileList(rootpath):
-    #print rootpath
+    print "rootpath",rootpath
     output=LCG_LS_WRAP([rootpath])  
     files=[]
     list=output.split("\n")
+    #print list
     for item in list:
         if item is not "":
-            item=item.split("user/")[-1]
+            splitPhrase=sourcepre.split("SFN=")[1]
+            #print "splitPhrase"
+            #print "new item",item.split(splitPhrase)
+            item=item.split(splitPhrase)[-1]
+
             # removing things here could be problematic
             # if there are many subdirs without datasetnames
             if wildcard is not "":
@@ -186,8 +191,10 @@ while ifile!=len(files):
     #    break
 
     if len(out)< MaxThreads:
-        if files[ifile].find("user/") is not -1:
-            files[ifile]=files[ifile].split("user/")[-1]
+        if files[ifile].find("store/") is not -1:
+            print files[ifile]
+            files[ifile]=files[ifile].split("store/")[-1]
+        #files[ifile]=files[ifile].split("user/")[-1]
         outpath=files[ifile].replace(inputDir,"")
         if dest is "local":
             outputDir=outpath.replace(outpath.split("/")[-1], "")
