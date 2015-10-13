@@ -53,11 +53,22 @@ bool VHbbAnalysis::Analyze(){
     bool sel=true;
     bool doCutFlow = bool(*f["doCutFlow"]);
     *in["cutFlow"] = 0;
+    
 
     if(debug>1000 && doCutFlow) {
         std::cout<<"Running cutflow"<<std::endl;
     }
 
+    if(debug>1000) {
+         std::cout<<"Imposing trigger and json requirements"<<std::endl;
+    }
+    // Impose trigger requirements
+    if (*f["HLT_WenHbbLowLumi"]!=1 && *f["HLT_WmnHbbLowLumi"]!=1) sel=false;
+    if (*in["sampleIndex"]==0) {
+        if (*f["json"]!=1) sel=false;
+    }
+    if (sel) *in["cutFlow"]+=1;   
+ 
     if(debug>1000) {
         std::cout<<"cutting on V and H pt"<<std::endl;
     }

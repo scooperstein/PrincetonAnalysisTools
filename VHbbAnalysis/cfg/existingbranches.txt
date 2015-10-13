@@ -1,6 +1,10 @@
 # types:  unsigned int=0, int=1, float=2, double=3, bool=4
 #     array +5;   vector +10;
 
+type=2  name=json
+type=2  name=HLT_WenHbbLowLumi
+type=2  name=HLT_WmnHbbLowLumi
+
 type=2  name=genWeight 
 
 type=1  name=nselLeptons 
