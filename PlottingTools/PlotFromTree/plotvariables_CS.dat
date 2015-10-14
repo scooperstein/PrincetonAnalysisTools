@@ -1,0 +1,114 @@
+#htyp=0  ncat=60 xbins=70  ybins=0   xmin=0      xmax=70     ymin=0 ymax=0    name=testcuts    xaxis=EG@Seed@P_{T}  yaxis= var=elIsoPt            catType=test
+#htyp=0  ncat=1  xbins=70  ybins=0   xmin=0      xmax=70     ymin=0 ymax=0    name=eisopt0     xaxis=EG@Seed@P_{T}  yaxis= var=elPt            catType=ltype
+#htyp=0  ncat=1  xbins=60  ybins=0   xmin=-3.0   xmax=3.0    ymin=0 ymax=0    name=eisoeta     xaxis=EG@Seed@#eta    yaxis= var=elEta          catType=ltype
+#htyp=0  ncat=1  xbins=30  ybins=0   xmin=-3.0   xmax=0      ymin=0 ymax=0    name=abseisoeta  xaxis=EG@Seed-|#eta|    yaxis= var=-abs(elEta)          catType=ltype
+#htyp=0  ncat=1  xbins=31  ybins=0   xmin=-0.01  xmax=3.142  ymin=0 ymax=0    name=dphiejet    xaxis=#DeltaphiJet1e  yaxis= var=dphijet1e       catType=ltype
+
+# BJet variables
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetpt   xaxis=Jet1@P_{T}@GeV   yaxis= var=hJets_pt_0             catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=leadjeteta  xaxis=Jet1#eta         yaxis= var=hJets_eta_0            catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCSV  xaxis=Jet1@CSV         yaxis= var=hJets_btagCSV_0        catType=CSlep
+#htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCSVold  xaxis=Jet1@oldCSV         yaxis= var=Jet_btagCSVV0[0]        catType=afterVpt
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=subjetpt    xaxis=Jet2@P_{T}@GeV   yaxis= var=hJets_pt_1             catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=subjeteta   xaxis=Jet2#eta         yaxis= var=hJets_eta_1            catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=subjetCSV   xaxis=Jet2@CSV         yaxis= var=hJets_btagCSV_1        catType=CSlep
+#htyp=0  ncat=6  xbins=4  ybins=0   xmin=0      xmax=4      ymin=0 ymax=0    name=genJet1MatchId xaxis=genJet1MatchId  yaxis= var=Jet_genJetMatchId[hJetInd1] catType=CSlep
+#htyp=0  ncat=6  xbins=4  ybins=0   xmin=0      xmax=4      ymin=0 ymax=0    name=genJet2MatchId xaxis=genJet2MatchId  yaxis= var=Jet_genJetMatchId[hJetInd2] catType=CSlep
+
+# Electron
+#htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=0.2      ymin=0 ymax=0    name=lepRelIso    xaxis=Lep@Rel@Iso03 yaxis= var=selLeptons_relIso03_0 catType=afterMET
+htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=300    ymin=0 ymax=0    name=lepPt        xaxis=Lepton@p_{T}  yaxis=  var=selLeptons_pt_0        catType=CSlep
+htyp=0  ncat=6  xbins=30   ybins=0   xmin=-3.2   xmax=3.2    ymin=0 ymax=0    name=lepPhi       xaxis=Lepton@#phi   yaxis=  var=selLeptons_phi_0       catType=CSlep
+htyp=0  ncat=6  xbins=30   ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=lepEta       xaxis=Lepton@#eta   yaxis=  var=selLeptons_eta_0       catType=CSlep
+#htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=30     ymin=0 ymax=0    name=lepPdgId     xaxis=Lepton@PdgId  yaxis=  var=selLeptons_pdgId_0     catType=afterMET
+#htyp=0  ncat=6  xbins=10   ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=elID        xaxis=Electron@ID     yaxis=  var=selLeptons_eleCutIdCSA14_25ns_v1_0 catType=afterMET
+#htyp=0  ncat=6  xbins=5    ybins=0   xmin=0      xmax=5      ymin=0 ymax=0    name=lepTightId  xaxis=Lep@Tight@Id  yaxis=  var=selLeptons_tightId_0   catType=afterMET
+#htyp=0  ncat=1  xbins=30   ybins=0   xmin=-0.05   xmax=0.05    ymin=0 ymax=0    name=elDEta      xaxis=Electron@DEta yaxis=  var=selLeptons_eleDEta_0   catType=eleta
+#htyp=0  ncat=1  xbins=30   ybins=0   xmin=-0.1   xmax=0.1    ymin=0 ymax=0    name=elDPhi      xaxis=Electron@D#phi yaxis= var=selLeptons_eleDPhi_0   catType=eleta
+#htyp=0  ncat=1  xbins=30   ybins=0   xmin=0      xmax=0.1      ymin=0 ymax=0    name=elHoE       xaxis=Electron@H/E   yaxis= var=selLeptons_eleHoE_0    catType=eleta
+#htyp=0  ncat=1  xbins=4    ybins=0   xmin=-1     xmax=3      ymin=0 ymax=0    name=elMisHit    xaxis=El@Miss@Hits yaxis= var=selLeptons_eleMissingHits_0 catType=eleta
+#htyp=0  ncat=1  xbins=30   ybins=0   xmin=0      xmax=0.05    ymin=0 ymax=0    name=elSieie     xaxis=El@Sieie       yaxis=  var=selLeptons_eleSieie_0  catType=eleta
+#htyp=0  ncat=1  xbins=30   ybins=0   xmin=0      xmax=30     ymin=0  ymax=0    name=eleChi2     xaxis=Ele@#Chi^2    yaxis=    var=selLeptons_eleChi2_0   catType=eleta
+
+# DiJet Variables
+htyp=0  ncat=6  xbins=20  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=mjj         xaxis=M_{jj}@GeV       yaxis= var=H_mass               catType=CSlep
+#htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=300    ymin=0 ymax=0    name=mjj_step2         xaxis=Step2M_{jj}       yaxis= var=H_mass_step2               catType=sel
+#htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=300    ymin=0 ymax=0    name=mjj_reg     xaxis=M_{jj}@Reg@GeV       yaxis= var=H_mass_reg     catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=Hpt         xaxis=p_{T}(jj)@GeV yaxis=  var=H_pt                  catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=Hpt_reg     xaxis=p_{T}(jj)@Reg yaxis=  var=H_pt_reg              catType=CSlep
+
+# MET
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=met_pt      xaxis=MET@p_{T}@GeV    yaxis=  var=met_pt                catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=3.14   ymin=0 ymax=0    name=lepMetDPhi   xaxis=Lep+Met@d#phi yaxis= var=lepMetDPhi             catType=CSlep
+
+#BDT
+#htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=BDT         xaxis=BDT@Output       yaxis=  var=BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4 catType=CSlep
+
+htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass_lep     xaxis=Top@Mass@Lep    yaxis=  var=Top1_mass_fromLepton   catType=CSlep
+htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMasswMET_lep     xaxis=TopMass@LepMET    yaxis=  var=Top1_mass_fromLepton_wMET catType=CSlep
+#htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass_bCSV     xaxis=Top@Mass@bCSV    yaxis=  var=Top1_mass_bestCSV   catType=CSlep
+#htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMasswMET_bCSV     xaxis=TopMass@bCSVMET    yaxis=  var=Top1_mass_bestCSV_wMET catType=CSlep
+#htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass_hPt     xaxis=Top@Mass@hPt    yaxis=  var=Top1_mass_highestPt   catType=CSlep
+#htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMasswMET_hPt     xaxis=TopMass@hPtMET    yaxis=  var=Top1_mass_highestPt_wMET catType=CSlep
+
+htyp=0  ncat=6  xbins=11 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets10_sel     xaxis=num.@SA10@Jets   yaxis=  var=softActivityVH_njets10  catType=CSlep
+htyp=0  ncat=6  xbins=11 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets5_sel   xaxis=num.@SA5@Jets   yaxis=  var=softActivityVH_njets5  catType=CSlep
+htyp=0  ncat=6  xbins=21 ybins=0   xmin=0      xmax=20     ymin=0  ymax=0    name=nSAJets2_sel   xaxis=num.@SA2@Jets   yaxis=  var=softActivityVH_njets10  catType=CSlep
+htyp=0 ncat=6  xbins=40 ybins=0   xmin=0      xmax=400    ymin=0  ymax=0    name=SA_HT_sel           xaxis=SA@HT         yaxis=   var=softActivityVH_HT        catType=CSlep
+
+#htyp=0  ncat=6  xbins=11 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets10   xaxis=num.@SA10@Jets   yaxis=  var=softActivityVH_njets10  catType=afterAddLep
+#htyp=0  ncat=6  xbins=11 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets5   xaxis=num.@SA5@Jets   yaxis=  var=softActivityVH_njets5  catType=afterAddLep
+#htyp=0  ncat=6  xbins=21 ybins=0   xmin=0      xmax=20     ymin=0  ymax=0    name=nSAJets2   xaxis=num.@SA2@Jets   yaxis=  var=softActivityVH_njets10  catType=afterAddLep
+#htyp=0  ncat=6  xbins=11 ybins=0  xmin=0       xmax=10     ymin=0  ymax=0    name=nAddJets252p9  xaxis=nAddJets252p9  yaxis= var=nAddJets252p9_puid  catType=afterAddLep
+#htyp=0 ncat=6  xbins=40 ybins=0   xmin=0      xmax=400    ymin=0  ymax=0    name=SA_HT           xaxis=SA@HT         yaxis=   var=softActivityVH_HT        catType=afterAddLep
+
+htyp=0  ncat=6  xbins=8   ybins=0   xmin=0      xmax=8      ymin=0 ymax=0    name=Vtype       xaxis=V@Type           yaxis=  var=Vtype_f          catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=Vpt         xaxis=V@p_{T}          yaxis=  var=V_pt             catType=CSlep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=naJets      xaxis=naJets  yaxis=  var=naJets                  catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets    xaxis=nAddJets  yaxis=  var=nAddJets         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets20    xaxis=nAddJets20  yaxis=  var=nAddJets20         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets25    xaxis=nAddJets25  yaxis=  var=nAddJets25         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets30    xaxis=nAddJets30  yaxis=  var=nAddJets30         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets35    xaxis=nAddJets35  yaxis=  var=nAddJets35         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets40    xaxis=nAddJets40  yaxis=  var=nAddJets40         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets45    xaxis=nAddJets45  yaxis=  var=nAddJets45         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets50    xaxis=nAddJets50  yaxis=  var=nAddJets50         catType=ltype
+htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets252p9_puid    xaxis=nAddJets203p5  yaxis=  var=nAddJets252p9_puid         catType=CSlep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets203p5    xaxis=nAddJets203p5  yaxis=  var=nAddJets203p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets202p5    xaxis=nAddJets202p5  yaxis=  var=nAddJets202p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets253p5    xaxis=nAddJets253p5  yaxis=  var=nAddJets253p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets252p5    xaxis=nAddJets252p5  yaxis=  var=nAddJets252p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets303p5    xaxis=nAddJets303p5  yaxis=  var=nAddJets303p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets302p5    xaxis=nAddJets302p5  yaxis=  var=nAddJets302p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets353p5    xaxis=nAddJets353p5  yaxis=  var=nAddJets353p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets352p5    xaxis=nAddJets352p5  yaxis=  var=nAddJets352p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets403p5    xaxis=nAddJets403p5  yaxis=  var=nAddJets403p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets402p5    xaxis=nAddJets402p5  yaxis=  var=nAddJets402p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets453p5    xaxis=nAddJets453p5  yaxis=  var=nAddJets453p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets452p5    xaxis=nAddJets452p5  yaxis=  var=nAddJets452p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets503p5    xaxis=nAddJets503p5  yaxis=  var=nAddJets503p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets502p5    xaxis=nAddJets502p5  yaxis=  var=nAddJets502p5         catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets20_puid    xaxis=nAddJets20  yaxis=  var=nAddJets20_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets25_puid    xaxis=nAddJets25  yaxis=  var=nAddJets25_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets30_puid    xaxis=nAddJets30  yaxis=  var=nAddJets30_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets35_puid    xaxis=nAddJets35  yaxis=  var=nAddJets35_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets40_puid    xaxis=nAddJets40  yaxis=  var=nAddJets40_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets45_puid    xaxis=nAddJets45  yaxis=  var=nAddJets45_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets50_puid    xaxis=nAddJets50  yaxis=  var=nAddJets50_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets203p5_puid    xaxis=nAddJets203p5  yaxis=  var=nAddJets203p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets202p5_puid    xaxis=nAddJets202p5  yaxis=  var=nAddJets202p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets253p5_puid    xaxis=nAddJets253p5  yaxis=  var=nAddJets253p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets252p5_puid    xaxis=nAddJets252p5  yaxis=  var=nAddJets252p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets303p5_puid    xaxis=nAddJets303p5  yaxis=  var=nAddJets303p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets302p5_puid    xaxis=nAddJets302p5  yaxis=  var=nAddJets302p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets353p5_puid    xaxis=nAddJets353p5  yaxis=  var=nAddJets353p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets352p5_puid    xaxis=nAddJets352p5  yaxis=  var=nAddJets352p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets403p5_puid    xaxis=nAddJets403p5  yaxis=  var=nAddJets403p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets402p5_puid    xaxis=nAddJets402p5  yaxis=  var=nAddJets402p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets453p5_puid    xaxis=nAddJets453p5  yaxis=  var=nAddJets453p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets452p5_puid    xaxis=nAddJets452p5  yaxis=  var=nAddJets452p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets503p5_puid    xaxis=nAddJets503p5  yaxis=  var=nAddJets503p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets502p5_puid    xaxis=nAddJets502p5  yaxis=  var=nAddJets502p5_puid         catType=afterAddLep
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=naLeptons   xaxis=naLeptons yaxis= var=naLeptons              catType=ltype
+#htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddLeptons xaxis=nAddLeptons yaxis= var=nAddLeptons     catType=afterlmdPhi
+#htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=3.2    ymin=0 ymax=0    name=HVdPhi      xaxis=M_{jj}@V@d#phi yaxis= var=HVdPhi              catType=afterAddJet

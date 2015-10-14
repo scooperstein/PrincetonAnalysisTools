@@ -24,8 +24,8 @@ class VHbbAnalysis : public AnalysisManager {
     virtual void FinishEvent();
     virtual void TermAnalysis();
 
-    bool WenuHbbSelection();
-    bool WmunuHbbSelection();
+    bool ElectronSelection();
+    bool MuonSelection();
     std::pair<int,int> HighestPtBJets();
     std::pair<int,int> HighestCSVBJets();
     std::pair<int,int> HighestPtJJBJets();

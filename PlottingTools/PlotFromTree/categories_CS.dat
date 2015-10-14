@@ -1,0 +1,5 @@
+catName=CScomb  catDef:controlSample==1,controlSample==2,controlSample==3
+catName=CSlep   catDef:(controlSample==1&&isWmunu==1),(controlSample==2&&isWmunu==1),(controlSample==3&&isWmunu==1),(controlSample==1&&isWenu==1),(controlSample==2&&isWenu==1),(controlSample==3&&isWenu==1)
+catName=mueta   catDef:muEta<1.4,muEta>=1.4
+catName=eleta   catDef:elEta>1.566,elEta<1.442
+catName=none    catDef:eventClass>-10

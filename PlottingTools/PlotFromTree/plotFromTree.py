@@ -186,7 +186,7 @@ def parsePlotvariables(filename, samples):
 
     for l in lines:
       if ("#"!=l[0] and "htyp" in l):
-        print "# at the front",int("#"==l[0])
+        if(deepDebug): print "# at the front",int("#"==l[0])
         items = l.split()
         for item in items:
             if ("default" in item or item == ""):
@@ -240,6 +240,8 @@ plotFromOptree [options]
 -I, --inputfile          inputfiles .dat (default "inputfiles.dat")
 -P, --plotvariables      plotvariables .dat (default "plotvariables.dat")
 -C, --categories         categories .dat (default "categories.dat")
+-d, --debug              display debugging messages
+-D, --deepDebug          display more debugging messages
 """
     print use
 
@@ -254,9 +256,11 @@ if __name__ == "__main__":
     inputfilesFile = "inputfiles.dat"
     plotvariablesFile = "plotvariables.dat"
     categoriesFile = "categories.dat"
+    debug=False
+    deepDebug=False
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories"])
+        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:dD", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories","debug","deepDebug"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -281,6 +285,11 @@ if __name__ == "__main__":
             plotvariablesFile = arg
         elif opt in ("-C", "--categories"):
             categoriesFile = arg
+        elif opt in ("-d", "--debug"):
+            debug=True
+        elif opt in ("-D", "--deepDebug"):
+            debug=True
+            deepDebug=True
         else:
             print "Unrecongnized option " + opt
 
@@ -291,34 +300,36 @@ if __name__ == "__main__":
 
     if (weightName == ""):
         weightName = "1"
-        
+    
+    print "Parsing all files"
     finalHistos = []
-    print "Parsing selection file..."
+    if(debug): print "Parsing selection file..."
     selection_cut = parseSelection(selectionFile)
-    print "Parsing inputfiles..."
+    if(debug): print "Parsing inputfiles..."
     samples = parseInputfiles(inputfilesFile)
-    print "Parsing plotvariables..."
+    if(debug): print "Parsing plotvariables..."
     allHistos = parsePlotvariables(plotvariablesFile, samples)
-    print "Writing inputfiles Tree..."
+    if(debug): print "Writing inputfiles Tree..."
     inputfiletree = inputfileTree(samples)
-    print "Writing plotvariables Tree..."
+    if(debug): print "Writing plotvariables Tree..."
     plotvariabletree = plotvariableTree(allHistos)
-    print "Parsing categories file..."
+    if(debug): print "Parsing categories file..."
     categories = parseCategories(categoriesFile)
 
     file = ROOT.TFile(rootInputFile)
     tree = file.Get(treeName)
 
+    print "Looping over samples and histograms"
     for ns, s in enumerate(samples):
-        print "Processing sample: ", s[1]
+        if(debug): print "Processing sample: ", s[1]
         for nv, v in enumerate(allHistos.vars):
-            print v
+            if(deepDebug): print v
             temp_hist = ""
             if (allHistos.histo_type[nv] == 0):
                 temp_hist = "temp_hist("+ str(allHistos.xbins[nv])+","+str(allHistos.xmin[nv])+","+str(allHistos.xmax[nv])+")"
 
             for nc in xrange(allHistos.ncat[nv]):
-                #print "cat ",nc
+                if(deepDebug): print "cat ",nc
                 cut = "sampleIndex==" + str(s[0])
 
                 if (allHistos.ncat[nv] > 1 and allHistos.ncat[nv] > len(categories[allHistos.catTypes[nv]])):
@@ -339,7 +350,7 @@ if __name__ == "__main__":
                 cut = "(" + cut + ")* " + weightName
                     
                 try:
-                    tree.Print("*"+v+"*")
+                    if(deepDebug): tree.Print("*"+v+"*")
                     tree.Draw(v+" >> "+temp_hist, cut, "goff")
             
                     final_h = ROOT.gDirectory.Get("temp_hist")
