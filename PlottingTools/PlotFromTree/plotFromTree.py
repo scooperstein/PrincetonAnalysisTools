@@ -260,7 +260,7 @@ if __name__ == "__main__":
     deepDebug=False
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:d:D:", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories","debug","deepDebug"])
+        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:dD", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories","debug","deepDebug"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)

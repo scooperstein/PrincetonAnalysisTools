@@ -477,7 +477,7 @@ bool VHbbAnalysis::Analyze(){
             && *f["met_pt"] > *f["metcut"]
             && ((*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"])
               || (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]))
-            && *f["V_pt"]>100 && Hbb.M()<250 && *f["H_pt"] > *f["hptcut"]);
+            && *f["V_pt"]>100 && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
 
     *in["controlSample"]=-1; // maybe this should go much early (before any returns)
     float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
