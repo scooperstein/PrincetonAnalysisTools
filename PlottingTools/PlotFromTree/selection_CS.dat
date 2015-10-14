@@ -1,0 +1,4 @@
+(controlSample>-1)
+#(elPt>0 && notPassBaseline==1 && jetPt1>0 && (sampleIndex<0||passCurrentL1==0))
+#(elIsoPt>0  && (genHPt>-1  || sampleIndex>0) && jetPt1>0 && jetPt2>0 && elIsoPt<400000 && pfmet<800000)
+#(elIsoPt>0  && (genHPt>-1  || sampleIndex>0) && jetPt1>0 && jetPt2>0 && elIsoPt<40 && pfmet<80)

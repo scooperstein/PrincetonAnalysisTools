@@ -55,10 +55,6 @@ bool VHbbAnalysis::Analyze(){
     *in["cutFlow"] = 0;
     
 
-    if(debug>1000 && doCutFlow) {
-        std::cout<<"Running cutflow"<<std::endl;
-    }
-
     if(debug>1000) {
          std::cout<<"Imposing trigger and json requirements"<<std::endl;
     }
@@ -69,17 +65,6 @@ bool VHbbAnalysis::Analyze(){
     }
     if (sel) *in["cutFlow"]+=1;   
  
-    if(debug>1000) {
-        std::cout<<"cutting on V and H pt"<<std::endl;
-    }
-
-    // We should really make this cut only after calculating H_pt ourselves
-    //if(*d["V_pt"] < *f["vptcut"] || *d["H_pt"] < *f["hptcut"]) sel = false;
-    //if (sel) *in["cutFlow"] += 1;
-
-    if(debug>1000) {
-        std::cout<<"selecting bjets"<<std::endl;
-    }
 
     // let's also keep track of each jet selection method separately, for science!
     std::pair<int,int> bjets_bestCSV = HighestCSVBJets();
@@ -97,6 +82,13 @@ bool VHbbAnalysis::Analyze(){
     std::pair<int,int> bjets=HighestCSVBJets();
     //std::pair<int,int> bjets=HighestPtJJBJets(); 
 
+    // put CSV cuts out of selection functions
+    if(bjets.first != -1 && bjets.second != -1){
+        if(f["Jet_btagCSV"][bjets.first]<*f["j1ptCSV"] || f["Jet_btagCSV"][bjets.second]<*f["j2ptCSV"]){
+            sel=false;
+        }
+    }
+
     if (bjets.first == -1) {
         sel = false;
         *in["hJetInd1"] = 0;
@@ -107,7 +99,7 @@ bool VHbbAnalysis::Analyze(){
         *in["hJetInd2"] = 1;
     }
     else *in["hJetInd2"] = bjets.second;
-
+  
     if (sel) *in["cutFlow"] += 1; // selected jets
 
     if(debug>1000) {
@@ -128,29 +120,6 @@ bool VHbbAnalysis::Analyze(){
     HJ2.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
 
-    ///// do we need this?
-    ///TLorentzVector HJ1_highestPt, HJ1_highestPtJJ, HJ1_bestCSV;
-    ///TLorentzVector HJ2_highestPt, HJ2_highestPtJJ, HJ2_bestCSV;
-    ///TLorentzVector Hbb_highestPt, Hbb_highestPtJJ, Hbb_bestCSV;
-    ///if (*in["hJetInd1_highestPt"]!=-1 && *in["hJetInd2_highestPt"]!=-1) {
-    ///    HJ1_highestPt.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_highestPt"]], f["Jet_eta"][*in["hJetInd1_highestPt"]], f["Jet_phi"][*in["hJetInd1_highestPt"]], f["Jet_mass"][*in["hJetInd1_highestPt"]]);
-    ///    HJ2_highestPt.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2_highestPt"]], f["Jet_eta"][*in["hJetInd2_highestPt"]], f["Jet_phi"][*in["hJetInd2_highestPt"]], f["Jet_mass"][*in["hJetInd2_highestPt"]]);
-    ///    Hbb_highestPt = HJ1_highestPt + HJ2_highestPt;
-    ///}
-    ///if (*in["hJetInd1_highestPtJJ"]!=-1 && *in["hJetInd2_highestPtJJ"]!=-1) {
-    ///    HJ1_highestPtJJ.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_highestPtJJ"]], f["Jet_eta"][*in["hJetInd1_highestPtJJ"]], f["Jet_phi"][*in["hJetInd1_highestPtJJ"]], f["Jet_mass"][*in["hJetInd1_highestPtJJ"]]);
-    ///    HJ2_highestPtJJ.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2_highestPtJJ"]], f["Jet_eta"][*in["hJetInd2_highestPtJJ"]], f["Jet_phi"][*in["hJetInd2_highestPtJJ"]], f["Jet_mass"][*in["hJetInd2_highestPtJJ"]]);
-    ///    Hbb_highestPtJJ = HJ1_highestPtJJ + HJ2_highestPtJJ;
-    ///}
-    ///if (*in["hJetInd1_bestCSV"]!=-1 && *in["hJetInd2_bestCSV"]!=-1) {
-    ///    HJ1_bestCSV.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_bestCSV"]], f["Jet_eta"][*in["hJetInd1_bestCSV"]], f["Jet_phi"][*in["hJetInd1_bestCSV"]], f["Jet_mass"][*in["hJetInd1_bestCSV"]]);
-    ///    HJ2_bestCSV.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2_bestCSV"]], f["Jet_eta"][*in["hJetInd2_bestCSV"]], f["Jet_phi"][*in["hJetInd2_bestCSV"]], f["Jet_mass"][*in["hJetInd2_bestCSV"]]);
-    ///    Hbb_bestCSV = HJ1_bestCSV + HJ2_bestCSV;
-    ///}
-    ///*f["H_pt_highestPt"] = Hbb_highestPt.Pt();
-    ///*f["H_pt_highestPtJJ"] = Hbb_highestPtJJ.Pt();
-    ///*f["H_pt_bestCSV"] = Hbb_bestCSV.Pt();
-
     *f["H_pt"] = Hbb.Pt();
     if (*f["H_pt"] < *f["hptcut"]) sel=false;
     if (sel) *in["cutFlow"] += 1; // pT(jj) cut
@@ -162,12 +131,12 @@ bool VHbbAnalysis::Analyze(){
     *in["lepInd"] = -1;
     *in["isWmunu"] = 0;
     *in["isWenu"] = 0;
-    if(WmunuHbbSelection()) {
+    if(MuonSelection()) {
         *in["isWmunu"] = 1;
         *in["eventClass"]=0;
         *in["lepInd"] = *in["muInd"];
     } 
-    if(WenuHbbSelection()) {
+    if(ElectronSelection()) {
         *in["isWenu"] = 1;
         if (!(*in["isWmunu"])) {
             *in["eventClass"]=1000;
@@ -176,6 +145,7 @@ bool VHbbAnalysis::Analyze(){
     }
     if (*in["isWmunu"] == 0 && *in["isWenu"] == 0) sel = false;
     if (sel) *in["cutFlow"] += 1; // lepton selection
+    
     
     if (*in["lepInd"] == -1) {
         // not Wenu or Wmunu, use preselected lepton
@@ -206,42 +176,6 @@ bool VHbbAnalysis::Analyze(){
     *f["Lep_HJ1_dPhi"] = Lep.DeltaPhi(HJ1);
     *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
-
-
-    ///// I don't think we need this any more
-    ///TLorentzVector Jet_bestCSV;
-    ///if (*in["hJetInd1_bestCSV"] != -1) {
-    ///    Jet_bestCSV.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_bestCSV"]],f["Jet_eta"][*in["hJetInd1_bestCSV"]],f["Jet_phi"][*in["hJetInd1_bestCSV"]],f["Jet_mass"][*in["hJetInd1_bestCSV"]]);
-    ///    *f["Top1_mass_bestCSV"] = GetRecoTopMass(Jet_bestCSV);
-    ///    *f["Top1_mass_bestCSV_wMET"] = GetRecoTopMass(Jet_bestCSV,true,true);
-    ///}
-    ///else {
-    ///    *f["Top1_mass_bestCSV"] = -999;
-    ///    *f["Top1_mass_bestCSV_wMET"] = -999;
-    ///}   
- 
-    ///TLorentzVector Jet_highestPt;
-    ///if (*in["hJetInd1_highestPt"] != -1) {
-    ///    Jet_highestPt.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_highestPt"]],f["Jet_eta"][*in["hJetInd1_highestPt"]],f["Jet_phi"][*in["hJetInd1_highestPt"]],f["Jet_mass"][*in["hJetInd1_highestPt"]]);
-    ///    *f["Top1_mass_highestPt"] = GetRecoTopMass(Jet_highestPt);
-    ///    *f["Top1_mass_highestPt_wMET"] = GetRecoTopMass(Jet_highestPt,true,true);
-    ///}
-    ///else {
-    ///     *f["Top1_mass_highestPt"] = -999;
-    ///     *f["Top1_mass_highestPt_wMET"] = -999;
-    ///}
-
-    ///TLorentzVector Jet_highestPtJJ;
-    ///if (*in["hJetInd1_highestPtJJ"] != -1) {
-    ///    Jet_highestPtJJ.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_highestPtJJ"]],f["Jet_eta"][*in["hJetInd1_highestPtJJ"]],f["Jet_phi"][*in["hJetInd1_highestPtJJ"]],f["Jet_mass"][*in["hJetInd1_highestPtJJ"]]);
-    ///    *f["Top1_mass_highestPtJJ"] = GetRecoTopMass(Jet_highestPtJJ);
-    ///    *f["Top1_mass_highestPtJJ_wMET"] = GetRecoTopMass(Jet_highestPtJJ,true,true);
-    ///}
-    ///else {
-    ///     *f["Top1_mass_highestPtJJ"] = -999;
-    ///     *f["Top1_mass_highestPtJJ_wMET"] = -999;
-    ///}
-    
 
     *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false); // construct top mass from closest jet to lepton
     *f["Top1_mass_fromLepton_wMET"] = GetRecoTopMass(Lep, false, true); // construct top mass from closest jet to lepton
@@ -528,19 +462,45 @@ bool VHbbAnalysis::Analyze(){
     }
 
     // Control samples
+
+    // if cutflow==0 then jets are bogus
+    // jet pt
+    // lepton pt, iso, id
+    // met_pt > threshold
+    // deltaPhi(met,lep)
+    // V_pt > 100 and bb_mass<250
+    bool baseCSSelection= 
+            (*in["cutFlow"]!=0
+            && f["Jet_pt"][*in["hJetInd1"]]>*f["j1ptCut"]
+            && f["Jet_pt"][*in["hJetInd2"]]>*f["j2ptCut"]
+            && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
+            && *f["met_pt"] > *f["metcut"]
+            && ((*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"])
+              || (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]))
+            && *f["V_pt"]>100 && Hbb.M()<250 && *f["H_pt"] > *f["hptcut"]);
+
     *in["controlSample"]=-1; // maybe this should go much early (before any returns)
     float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
-    if (maxCSV > 0.9){ //ttbar or W+HF
-        if(*in["nAddJets252p9_puid"]>2) { //ttbar
-            *in["controlSample"]=1;
-        } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ *f["met_sumEt"]> 2. && *f["H_mass"]>150 && *f["H_mass"]<90) { //W+HF
-            *in["controlSample"]=2;
+    if(baseCSSelection){
+        if (maxCSV > 0.85){ //ttbar or W+HF
+            if(*in["nAddJets252p9_puid"]>2) { //ttbar
+                *in["controlSample"]=1;
+            //} else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 1. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+                *in["controlSample"]=2;
+            }
+        //} else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 2.){ //W+LF
+        } else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 1.){ //W+LF
+            *in["controlSample"]=3;
         }
-    } else if (maxCSV > 0.3 && *f["met_pt"]/ *f["met_sumEt"] > 2.){ //W+LF
-        *in["controlSample"]=3;
+        if(*in["sampleIndex"]==0){
+            std::cout<<"data CS event "<<*in["controlSample"]<<" maxCSV "<<maxCSV<<" nAddJets252p9_puid "<<*in["nAddJets252p9_puid"]<<" met_pt "<<*f["met_pt"]<<" met_sumEt "<<*f["met_sumEt"]<<" H_mass "<<*f["H_mass"]<<std::endl;
+        }
     }
     
-
+    if(*f["doControlSamples"]==1){
+        if(!sel) sel=( *in["controlSample"]>-1 ); 
+    }
 
     if (doCutFlow) return true; // keep all preselected events for cutflow
     else return sel;
@@ -770,7 +730,7 @@ void VHbbAnalysis::TermAnalysis(){
     return;
 }
 
-bool VHbbAnalysis::WenuHbbSelection(){
+bool VHbbAnalysis::ElectronSelection(){
     bool selectEvent=true;
     if(debug>1000){
         std::cout<<"Running Wenu selections"<<std::endl;
@@ -803,7 +763,7 @@ bool VHbbAnalysis::WenuHbbSelection(){
     return selectEvent;
 }
 
-bool VHbbAnalysis::WmunuHbbSelection(){
+bool VHbbAnalysis::MuonSelection(){
     
     bool selectEvent=true;
     if(debug>1000){
@@ -888,7 +848,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] == 1
             && f["Jet_pt"][i]>*f["j1ptCut"]
-            && f["Jet_btagCSV"][i]>*f["j1ptCSV"]&&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
+            &&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
             } else if(f["Jet_btagCSV"][pair.first]<f["Jet_btagCSV"][i]){
@@ -901,7 +861,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] == 1
             && f["Jet_pt"][i]>*f["j2ptCut"]
-            && f["Jet_btagCSV"][i]>*f["j2ptCSV"]&&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
+            &&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
             } else if(f["Jet_btagCSV"][pair.second]<f["Jet_btagCSV"][i]){

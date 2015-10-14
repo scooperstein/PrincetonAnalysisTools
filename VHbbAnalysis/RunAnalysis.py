@@ -52,7 +52,7 @@ else:
         nFiles = 0
         for filename in sample.files:
             nFiles += 1
-            fname = "%s/%s/%i.submit" % (jobName, sampleName,nFiles)
+            fname = "%s/%s/job%i.submit" % (jobName, sampleName,nFiles)
             submitFile = open(fname, "w")
             content =  "universe = vanilla\n"
             content += "Executable = condor_runscript.sh\n"
