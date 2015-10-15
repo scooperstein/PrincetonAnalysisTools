@@ -23,7 +23,21 @@ name=T_tW    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/ST_tW_top_5f_inc
 name=Tbar_tW   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/VHBB_HEPPY_V13_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/151002_060441/0000/   type=21  xsec=35.6
 
 
-#name=QCD_HT-100To250  file=   type=24  xsec=28730000
-#name=QCD_HT-250To500  file=  type=25   xsec=670500
-#name=QCD_HT-500To1000  file= type=26  xsec=26740
-#name=QCD_HT-1000ToInf  file=  type=27  xsec=769.7
+name=QCD_HT100to200    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/151002_055610/0000     type=24  xsec=2.75e7   
+name=QCD_HT200to300    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/151002_055625/0000     type=25   xsec=1.74e6
+name=QCD_HT300to500    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/151002_055643/0000     type=26  xsec=3.67e5
+name=QCD_HT500to700    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/151002_055657/0000     type=27  xsec=2.94e4
+name=QCD_HT700to1000   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/151002_055711/0000   type=28  xsec=6.52e3
+name=QCD_HT1000to1500  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/151002_055739/0000 type=29  xsec=1.06e3
+name=QCD_HT1500to2000  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/151002_055753/0000 type=30  xsec=1.22e2
+name=QCD_HT2000toInf   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V13_QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/151002_055725/0000   type=31  xsec=25.4
+
+
+
+
+
+
+
+
+
+

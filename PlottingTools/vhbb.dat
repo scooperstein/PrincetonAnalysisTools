@@ -1,4 +1,4 @@
-file=ControlSamples_FullTest_V13_plots.root
+file=ControlSamples_Fullv1_V13_plots.root
 
 dolegend=True  dolog=False
 dotitles=False 
@@ -47,3 +47,14 @@ name=Wbb-HT100To200       sampleIndex=4402   order=25  plot=1  leg=0    scale=1 
 name=Wbb-HT200To400       sampleIndex=4502   order=26  plot=1  leg=0    scale=1      color=416      marker=0   displayName=W+bb-HT200To400
 name=Wbb-HT400To600       sampleIndex=4602   order=27  plot=1  leg=0    scale=1      color=416      marker=0   displayName=W+bb
 name=Wbb-HT600ToInf       sampleIndex=4702   order=28  plot=1  leg=1    scale=1      color=416      marker=0   displayName=W+bb
+
+
+name=QCD_HT100To200     sampleIndex=24    order=40  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_100To200   
+name=QCD_HT200To300     sampleIndex=25    order=41  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_200To300   
+name=QCD_HT300To500     sampleIndex=26    order=42  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_300To500   
+name=QCD_HT500To700     sampleIndex=27    order=43  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_500To700   
+name=QCD_HT700To1000    sampleIndex=28    order=44  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_700To1000  
+name=QCD_HT1000To1500   sampleIndex=29    order=45  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_1000To1500 
+name=QCD_HT1500To2000   sampleIndex=30    order=46  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_1500To2000 
+name=QCD_HT2000ToInf    sampleIndex=31    order=47  plot=1  leg=1    scale=1      color=616      marker=0   displayName=QCD
+
