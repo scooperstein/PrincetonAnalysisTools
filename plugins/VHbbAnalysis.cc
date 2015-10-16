@@ -32,6 +32,10 @@ bool VHbbAnalysis::Preselection(){
     bool sel=true;
     //if( *d["Vtype"]==3 ) sel=true;
     //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
+    
+    // stitch WJets inclusive sample to HT-binned samples
+    if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
+
     // Preselect for two jets and one lepton which pass some minimum pt threshold
     int nPreselJets = 0;
     for (int i=0; i < *in["nJet"]; i++) {

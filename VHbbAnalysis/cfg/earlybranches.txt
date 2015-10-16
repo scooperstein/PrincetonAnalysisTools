@@ -8,4 +8,4 @@ type=1  name=nJet
 type=7  name=Jet_pt         max=100
 type=7  name=selLeptons_pt  max=10
 type=7  name=aLeptons_pt    max=50
-
+type=2  name=lheHT
