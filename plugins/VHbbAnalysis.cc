@@ -32,6 +32,10 @@ bool VHbbAnalysis::Preselection(){
     bool sel=true;
     //if( *d["Vtype"]==3 ) sel=true;
     //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
+    
+    // stitch WJets inclusive sample to HT-binned samples
+    if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
+
     // Preselect for two jets and one lepton which pass some minimum pt threshold
     int nPreselJets = 0;
     for (int i=0; i < *in["nJet"]; i++) {
@@ -49,41 +53,22 @@ bool VHbbAnalysis::Preselection(){
 }
 
 bool VHbbAnalysis::Analyze(){
+    *in["sampleIndex"] = cursample->sampleNum;
     bool sel=true;
     bool doCutFlow = bool(*f["doCutFlow"]);
     *in["cutFlow"] = 0;
-
-    if(debug>1000 && doCutFlow) {
-        std::cout<<"Running cutflow"<<std::endl;
-    }
+    
 
     if(debug>1000) {
-        std::cout<<"cutting on V and H pt"<<std::endl;
+         std::cout<<"Imposing trigger and json requirements"<<std::endl;
     }
-
-    // We should really make this cut only after calculating H_pt ourselves
-    //if(*d["V_pt"] < *f["vptcut"] || *d["H_pt"] < *f["hptcut"]) sel = false;
-    //if (sel) *in["cutFlow"] += 1;
-
-    if(debug>1000) {
-        std::cout<<"selecting bjets"<<std::endl;
+    // Impose trigger requirements
+    if (*f["HLT_WenHbbLowLumi"]!=1 && *f["HLT_WmnHbbLowLumi"]!=1) sel=false;
+    if (*in["sampleIndex"]==0) {
+        if (*f["json"]!=1) sel=false;
     }
-
-    // the jet selection algorithm we actually use for the rest of the analysis chain
-    //std::pair<int,int> bjets=HighestPtBJets();
-    //std::pair<int,int> bjets=HighestCSVBJets();
-    std::pair<int,int> bjets=HighestPtJJBJets(); 
-
-    if (bjets.first == -1) {
-        sel = false;
-        *in["hJetInd1"] = 0;
-    }
-    else *in["hJetInd1"] = bjets.first;
-    if (bjets.second == -1) {
-         sel = false;
-        *in["hJetInd2"] = 1;
-    }
-    else *in["hJetInd2"] = bjets.second;
+    if (sel) *in["cutFlow"]+=1;   
+ 
 
     // let's also keep track of each jet selection method separately, for science!
     std::pair<int,int> bjets_bestCSV = HighestCSVBJets();
@@ -96,31 +81,29 @@ bool VHbbAnalysis::Analyze(){
     *in["hJetInd1_highestPtJJ"] = bjets_highestPtJJ.first;
     *in["hJetInd2_highestPtJJ"] = bjets_highestPtJJ.second; 
 
-   /* *in["nHJetsMatched"] = 0;
-    if(d["hJets_pt"][0] == d["Jet_pt"][*in["hJetInd1"]]) *in["nHJetsMatched"] += 1;
-    if(d["hJets_pt"][1] == d["Jet_pt"][*in["hJetInd2"]]) *in["nHJetsMatched"] += 1; 
-    
-    if(debug>10000) {
-        if(*in["nHJetsMatched"]<2) {
-            std::cout<<"nHJetsMatched = "<<*in["nHJetsMatched"]<<std::endl;
-            std::cout<<"hJets_pt[0] = "<<d["hJets_pt"][0]<<std::endl;
-            std::cout<<"hJets_pt[1] = "<<d["hJets_pt"][1]<<std::endl;
-            std::cout<<"lead jet1 pt = "<<d["Jet_pt"][*in["hJetInd1"]]<<std::endl;
-            std::cout<<"sublead jet2 pt = "<<d["Jet_pt"][*in["hJetInd2"]]<<std::endl;
+    // the jet selection algorithm we actually use for the rest of the analysis chain
+    //std::pair<int,int> bjets=HighestPtBJets();
+    std::pair<int,int> bjets=HighestCSVBJets();
+    //std::pair<int,int> bjets=HighestPtJJBJets(); 
+
+    // put CSV cuts out of selection functions
+    if(bjets.first != -1 && bjets.second != -1){
+        if(f["Jet_btagCSV"][bjets.first]<*f["j1ptCSV"] || f["Jet_btagCSV"][bjets.second]<*f["j2ptCSV"]){
+            sel=false;
         }
-    }*/
+    }
 
-    /*// For now use higgs bjet selection from step 2 ntuples
-    if(d["hJets_btagCSV"][0] < *f["j1ptCSV"] || d["hJets_btagCSV"][1] < *f["j2ptCSV"]) return false;
-    if(d["hJets_pt"][0] < *f["j1ptCut"] || d["hJets_pt"][1] < *f["j2ptCut"]) return false;
-    */
-
-    // We do this now in the jet selection methods
-    /*// Cut on the bjets that we select
-    if(max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]) < *f["j1ptCSV"] || min(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]) < *f["j2ptCSV"]) sel = false;
-    if(f["Jet_pt"][*in["hJetInd1"]] < *f["j1ptCut"] || f["Jet_pt"][*in["hJetInd2"]] < *f["j2ptCut"]) sel = false; 
-    */    
-
+    if (bjets.first == -1) {
+        sel = false;
+        *in["hJetInd1"] = 0;
+    }
+    else *in["hJetInd1"] = bjets.first;
+    if (bjets.second == -1) {
+         sel = false;
+        *in["hJetInd2"] = 1;
+    }
+    else *in["hJetInd2"] = bjets.second;
+  
     if (sel) *in["cutFlow"] += 1; // selected jets
 
     if(debug>1000) {
@@ -141,28 +124,6 @@ bool VHbbAnalysis::Analyze(){
     HJ2.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
 
-    TLorentzVector HJ1_highestPt, HJ1_highestPtJJ, HJ1_bestCSV;
-    TLorentzVector HJ2_highestPt, HJ2_highestPtJJ, HJ2_bestCSV;
-    TLorentzVector Hbb_highestPt, Hbb_highestPtJJ, Hbb_bestCSV;
-    if (*in["hJetInd1_highestPt"]!=-1 && *in["hJetInd2_highestPt"]!=-1) {
-        HJ1_highestPt.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_highestPt"]], f["Jet_eta"][*in["hJetInd1_highestPt"]], f["Jet_phi"][*in["hJetInd1_highestPt"]], f["Jet_mass"][*in["hJetInd1_highestPt"]]);
-        HJ2_highestPt.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2_highestPt"]], f["Jet_eta"][*in["hJetInd2_highestPt"]], f["Jet_phi"][*in["hJetInd2_highestPt"]], f["Jet_mass"][*in["hJetInd2_highestPt"]]);
-        Hbb_highestPt = HJ1_highestPt + HJ2_highestPt;
-    }
-    if (*in["hJetInd1_highestPtJJ"]!=-1 && *in["hJetInd2_highestPtJJ"]!=-1) {
-        HJ1_highestPtJJ.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_highestPtJJ"]], f["Jet_eta"][*in["hJetInd1_highestPtJJ"]], f["Jet_phi"][*in["hJetInd1_highestPtJJ"]], f["Jet_mass"][*in["hJetInd1_highestPtJJ"]]);
-        HJ2_highestPtJJ.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2_highestPtJJ"]], f["Jet_eta"][*in["hJetInd2_highestPtJJ"]], f["Jet_phi"][*in["hJetInd2_highestPtJJ"]], f["Jet_mass"][*in["hJetInd2_highestPtJJ"]]);
-        Hbb_highestPtJJ = HJ1_highestPtJJ + HJ2_highestPtJJ;
-    }
-    if (*in["hJetInd1_bestCSV"]!=-1 && *in["hJetInd2_bestCSV"]!=-1) {
-        HJ1_bestCSV.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1_bestCSV"]], f["Jet_eta"][*in["hJetInd1_bestCSV"]], f["Jet_phi"][*in["hJetInd1_bestCSV"]], f["Jet_mass"][*in["hJetInd1_bestCSV"]]);
-        HJ2_bestCSV.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2_bestCSV"]], f["Jet_eta"][*in["hJetInd2_bestCSV"]], f["Jet_phi"][*in["hJetInd2_bestCSV"]], f["Jet_mass"][*in["hJetInd2_bestCSV"]]);
-        Hbb_bestCSV = HJ1_bestCSV + HJ2_bestCSV;
-    }
-    *f["H_pt_highestPt"] = Hbb_highestPt.Pt();
-    *f["H_pt_highestPtJJ"] = Hbb_highestPtJJ.Pt();
-    *f["H_pt_bestCSV"] = Hbb_bestCSV.Pt();
-
     *f["H_pt"] = Hbb.Pt();
     if (*f["H_pt"] < *f["hptcut"]) sel=false;
     if (sel) *in["cutFlow"] += 1; // pT(jj) cut
@@ -174,12 +135,12 @@ bool VHbbAnalysis::Analyze(){
     *in["lepInd"] = -1;
     *in["isWmunu"] = 0;
     *in["isWenu"] = 0;
-    if(WmunuHbbSelection()) {
+    if(MuonSelection()) {
         *in["isWmunu"] = 1;
         *in["eventClass"]=0;
         *in["lepInd"] = *in["muInd"];
     } 
-    if(WenuHbbSelection()) {
+    if(ElectronSelection()) {
         *in["isWenu"] = 1;
         if (!(*in["isWmunu"])) {
             *in["eventClass"]=1000;
@@ -189,6 +150,7 @@ bool VHbbAnalysis::Analyze(){
     if (*in["isWmunu"] == 0 && *in["isWenu"] == 0) sel = false;
     if (sel) *in["cutFlow"] += 1; // lepton selection
     
+    
     if (*in["lepInd"] == -1) {
         // not Wenu or Wmunu, use preselected lepton
         *in["lepInd"] = 0;
@@ -196,6 +158,7 @@ bool VHbbAnalysis::Analyze(){
 
     if(debug>1000) {
         std::cout<<"cutting on dphi(lep, met)"<<std::endl;
+        std::cout<<*in["lepInd"]<<" "<<f["selLeptons_phi"][*in["lepInd"]]<<" "<<f["selLeptons_eta"][*in["lepInd"]]<<" "<<f["selLeptons_mass"][*in["lepInd"]]<<std::endl;
     }
     *d["lepMetDPhi"]=fabs(EvalDeltaPhi(f["selLeptons_phi"][*in["lepInd"]],*f["met_phi"]));
     if (*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"]) sel = false;
@@ -205,6 +168,9 @@ bool VHbbAnalysis::Analyze(){
 
     TLorentzVector W,Lep, MET, GenBJ1, GenBJ2, GenBJJ;
     // Reconstruct W
+    if(debug>1000) {
+        std::cout<<"met "<<*f["met_pt"]<<" "<<*f["met_phi"]<<std::endl;
+    }
     MET.SetPtEtaPhiM(*f["met_pt"], 0., *f["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
     Lep.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], f["selLeptons_mass"][*in["lepInd"]]); 
     W = MET + Lep; 
@@ -215,45 +181,6 @@ bool VHbbAnalysis::Analyze(){
     *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
 
-    TLorentzVector Jet_bestCSV;
-    int Jet_bestCSV_index = -1;
-    Jet_bestCSV_index = HighestCSVBJets().first;
-    if (Jet_bestCSV_index != -1) {
-        Jet_bestCSV.SetPtEtaPhiM(f["Jet_pt"][Jet_bestCSV_index],f["Jet_eta"][Jet_bestCSV_index],f["Jet_phi"][Jet_bestCSV_index],f["Jet_mass"][Jet_bestCSV_index]);
-        *f["Top1_mass_bestCSV"] = GetRecoTopMass(Jet_bestCSV);
-        *f["Top1_mass_bestCSV_wMET"] = GetRecoTopMass(Jet_bestCSV,true,true);
-    }
-    else {
-        *f["Top1_mass_bestCSV"] = -999;
-        *f["Top1_mass_bestCSV_wMET"] = -999;
-    }   
- 
-    TLorentzVector Jet_highestPt;
-    int Jet_highestPt_index = -1;
-    Jet_highestPt_index = HighestPtBJets().first;
-    if (Jet_highestPt_index != -1) {
-        Jet_highestPt.SetPtEtaPhiM(f["Jet_pt"][Jet_highestPt_index],f["Jet_eta"][Jet_highestPt_index],f["Jet_phi"][Jet_highestPt_index],f["Jet_mass"][Jet_highestPt_index]);
-        *f["Top1_mass_highestPt"] = GetRecoTopMass(Jet_highestPt);
-        *f["Top1_mass_highestPt_wMET"] = GetRecoTopMass(Jet_highestPt,true,true);
-    }
-    else {
-         *f["Top1_mass_highestPt"] = -999;
-         *f["Top1_mass_highestPt_wMET"] = -999;
-    }
-
-    TLorentzVector Jet_highestPtJJ;
-    int Jet_highestPtJJ_index = -1;
-    Jet_highestPtJJ_index = HighestPtJJBJets().first;
-    if (Jet_highestPtJJ_index != -1) {
-        Jet_highestPtJJ.SetPtEtaPhiM(f["Jet_pt"][Jet_highestPtJJ_index],f["Jet_eta"][Jet_highestPtJJ_index],f["Jet_phi"][Jet_highestPtJJ_index],f["Jet_mass"][Jet_highestPtJJ_index]);
-        *f["Top1_mass_highestPtJJ"] = GetRecoTopMass(Jet_highestPtJJ);
-        *f["Top1_mass_highestPtJJ_wMET"] = GetRecoTopMass(Jet_highestPtJJ,true,true);
-    }
-    else {
-         *f["Top1_mass_highestPtJJ"] = -999;
-         *f["Top1_mass_highestPtJJ_wMET"] = -999;
-    }
-    
     *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false); // construct top mass from closest jet to lepton
     *f["Top1_mass_fromLepton_wMET"] = GetRecoTopMass(Lep, false, true); // construct top mass from closest jet to lepton
 
@@ -284,122 +211,24 @@ bool VHbbAnalysis::Analyze(){
     *f["HJ2_minJetDR1"] = min1;
     *f["HJ2_minJetDR2"] = min2;
     if (jetInd1!=-1 && jetInd2!=-1) {
-         TLorentzVector WJet1, WJet2;
-         WJet1.SetPtEtaPhiM(f["Jet_pt"][jetInd1], f["Jet_eta"][jetInd1], f["Jet_phi"][jetInd1], f["Jet_mass"][jetInd1]);
-         WJet2.SetPtEtaPhiM(f["Jet_pt"][jetInd2], f["Jet_eta"][jetInd2], f["Jet_phi"][jetInd2], f["Jet_mass"][jetInd2]);
-         TLorentzVector Top_hadW = WJet1 + WJet2 + HJ2;
-         *f["Top2_mass_hadW"] = Top_hadW.M();
-         *f["HJ2_WJet1_dPhi"] = HJ2.DeltaPhi(WJet1);
-         *f["HJ2_WJet2_dPhi"] = HJ2.DeltaPhi(WJet2);
-         *f["HJ2_WJet1_dEta"] = fabs(HJ2.Eta() - WJet1.Eta()); 
-         *f["HJ2_WJet2_dEta"] = fabs(HJ2.Eta() - WJet2.Eta()); 
-     }
-     else {
-         *f["Top2_mass_hadW"] = -999;
-         *f["HJ2_WJet1_dPhi"] = -999;
-         *f["HJ2_WJet2_dPhi"] = -999;
-         *f["HJ2_WJet1_dEta"] = -999;
-         *f["HJ2_WJet2_dEta"] = -999;
-     }
-
-    // Compare gen kinematics for b jets for signal vs. ttbar
-    if (*in["nGenBQuarkFromH"] > 1) {
-        // signal event
-        GenBJ1.SetPtEtaPhiM(f["GenBQuarkFromH_pt"][0], f["GenBQuarkFromH_eta"][0], f["GenBQuarkFromH_phi"][0], f["GenBQuarkFromH_mass"][0]);
-        GenBJ2.SetPtEtaPhiM(f["GenBQuarkFromH_pt"][1], f["GenBQuarkFromH_eta"][1], f["GenBQuarkFromH_phi"][1], f["GenBQuarkFromH_mass"][1]);
-    }        
-    else if (*in["nGenBQuarkFromTop"] > 1){
-        // ttbar event 
-        GenBJ1.SetPtEtaPhiM(f["GenBQuarkFromTop_pt"][0], f["GenBQuarkFromTop_eta"][0], f["GenBQuarkFromTop_phi"][0], f["GenBQuarkFromTop_mass"][0]);
-        GenBJ2.SetPtEtaPhiM(f["GenBQuarkFromTop_pt"][1], f["GenBQuarkFromTop_eta"][1], f["GenBQuarkFromTop_phi"][1], f["GenBQuarkFromTop_mass"][1]);
+        TLorentzVector WJet1, WJet2;
+        WJet1.SetPtEtaPhiM(f["Jet_pt"][jetInd1], f["Jet_eta"][jetInd1], f["Jet_phi"][jetInd1], f["Jet_mass"][jetInd1]);
+        WJet2.SetPtEtaPhiM(f["Jet_pt"][jetInd2], f["Jet_eta"][jetInd2], f["Jet_phi"][jetInd2], f["Jet_mass"][jetInd2]);
+        TLorentzVector Top_hadW = WJet1 + WJet2 + HJ2;
+        *f["Top2_mass_hadW"] = Top_hadW.M();
+        *f["HJ2_WJet1_dPhi"] = HJ2.DeltaPhi(WJet1);
+        *f["HJ2_WJet2_dPhi"] = HJ2.DeltaPhi(WJet2);
+        *f["HJ2_WJet1_dEta"] = fabs(HJ2.Eta() - WJet1.Eta()); 
+        *f["HJ2_WJet2_dEta"] = fabs(HJ2.Eta() - WJet2.Eta()); 
     }
-
-    *f["GenBJ1_pt"] = GenBJ1.Pt();
-    *f["GenBJ1_eta"] = GenBJ1.Eta();
-    *f["GenBJ1_phi"] = GenBJ1.Phi();
-    *f["GenBJ1_mass"] = GenBJ1.M();
-    *f["GenBJ2_pt"] = GenBJ2.Pt();
-    *f["GenBJ2_eta"] = GenBJ2.Eta();
-    *f["GenBJ2_phi"] = GenBJ2.Phi();
-    *f["GenBJ2_mass"] = GenBJ2.M();
-
-    GenBJJ = GenBJ1 + GenBJ2;
-    *f["GenBJJ_pt"] = GenBJJ.Pt();
-    *f["GenBJJ_eta"] = GenBJJ.Eta();
-    *f["GenBJJ_phi"] = GenBJJ.Phi();
-    *f["GenBJJ_mass"] = GenBJJ.M();
-    *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
-    *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
-    *f["GenBJJ_dEta"] = fabs(GenBJ1.Eta() - GenBJ2.Eta());
-
-    TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
-    double minDR1 = 999;
-    double minDR2 = 999;
-    double minSecDR2 = 999; //second closest gen lepton to second jet
-    int GenLepIndex1 = -1; // index of the lepton closest to jet 1
-    int GenLepIndex2 = -1; // index of the lepton closest to jet 2
-    int GenLepSecIndex2 = -1; // index of the lepton second closest to jet 2
-    for (int i=0; i<*in["nGenLep"]; i++) {
-       TLorentzVector gl;
-       gl.SetPtEtaPhiM(f["GenLep_pt"][i], f["GenLep_eta"][i], f["GenLep_phi"][i], f["GenLep_mass"][i] );
-       double DR1 = gl.DeltaR(GenBJ1);
-       double DR2 = gl.DeltaR(GenBJ2);
-       if (DR1 <= minDR1) {
-           minDR1 = DR1;
-           GenLepIndex1 = i;
-       }
-       if (DR2 <= minDR2) {
-           minSecDR2 = minDR2;
-           GenLepSecIndex2 = GenLepIndex2;
-           minDR2 = DR2;
-           GenLepIndex2 = i;
-       } 
-       else if (DR2 < minSecDR2) {
-           minSecDR2 = DR2;
-           GenLepSecIndex2 = i;
-       }
-    }  
-    if (GenLepIndex1 == GenLepIndex2) {
-        // don't allow us to use the same lepton for each jet
-        GenLepIndex2 = GenLepSecIndex2;
-    }
-        
-    *in["GenLepIndex1"] = GenLepIndex1;
-    *in["GenLepIndex2"] = GenLepIndex2;
-    
-    if (GenLepIndex1!=-1) {
-        GenLep1.SetPtEtaPhiM(f["GenLep_pt"][GenLepIndex1], f["GenLep_eta"][GenLepIndex1], f["GenLep_phi"][GenLepIndex1], f["GenLep_mass"][GenLepIndex1] );
-        *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
-        *f["GenLep_GenBJ1_dEta"] = fabs(GenLep1.Eta() - GenBJ1.Eta());
-        *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
-        
-        // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
-        TLorentzVector GenTop1 = GenLep1 + GenBJ1;
-        *f["GenTop1_mass"] = GenTop1.M();
-    }
-    else { 
-        *f["GenLep_GenBJ1_dR"] = -999;
-        *f["GenLep_GenBJ1_dEta"] = -999;
-        *f["GenLep_GenBJ1_dPhi"] = -999;
-        *f["GenTop1_mass"] = -999;
-    }
-    if (GenLepIndex2!=-1) {
-        GenLep2.SetPtEtaPhiM(f["GenLep_pt"][GenLepIndex2], f["GenLep_eta"][GenLepIndex2], f["GenLep_phi"][GenLepIndex2], f["GenLep_mass"][GenLepIndex2] );
-        *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
-        *f["GenLep_GenBJ2_dEta"] = (GenLep2.Eta(), GenBJ2.Eta());
-        *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
-
-        // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
-        TLorentzVector GenTop2 = GenLep2 + GenBJ2; 
-        *f["GenTop2_mass"] = GenTop2.M();
-    } 
     else {
-        *f["GenLep_GenBJ2_dR"] = -999;
-        *f["GenLep_GenBJ2_dEta"] = -999;
-        *f["GenLep_GenBJ2_dPhi"] = -999;
-        *f["GenTop2_mass"] = -999;
+        *f["Top2_mass_hadW"] = -999;
+        *f["HJ2_WJet1_dPhi"] = -999;
+        *f["HJ2_WJet2_dPhi"] = -999;
+        *f["HJ2_WJet1_dEta"] = -999;
+        *f["HJ2_WJet2_dEta"] = -999;
     }
-    
+
  
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *f["HVdPhi"] = Hbb.DeltaPhi(W);
@@ -407,434 +236,198 @@ bool VHbbAnalysis::Analyze(){
     *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
     //*f["H_pt"] = Hbb.Pt(); // we already do this
 
-    // construct Gen W
-    TLorentzVector GenW1, GenW2;
-    if (*in["nGenVbosons"]>0 && fabs(in["GenVbosons_pdgId"][0])==24) {
-        GenW1.SetPtEtaPhiM(f["GenVbosons_pt"][0], f["GenVbosons_eta"][0], f["GenVbosons_phi"][0], f["GenVbosons_mass"][0]);
-        *f["GenW_GenBJJ_dPhi"] = GenW1.DeltaPhi(GenBJJ);
-        *f["GenW_GenBJJ_dEta"] = fabs(GenW1.Eta() - GenBJJ.Eta());
-        // grab both W's in ttbar events
-        if (*in["nGenVbosons"]>1 && fabs(in["GenVbosons_pdgId"][1])==24) {
-            GenW2.SetPtEtaPhiM(f["GenVbosons_pt"][1], f["GenVbosons_eta"][1], f["GenVbosons_phi"][1], f["GenVbosons_mass"][1]);
-        }
-    }
-    else {
-    
-        *f["GenW_GenBJJ_dPhi"] = -999;
-        *f["GenW_GenBJJ_dEta"] = -999;
-    }
-  
-    std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
-    for (int i=0; i<*in["nGenWZQuark"]; i++) {
-        TLorentzVector v;
-        v.SetPtEtaPhiM(f["GenWZQuark_pt"][i], f["GenWZQuark_eta"][i], f["GenWZQuark_phi"][i], f["GenWZQuark_mass"][i]);
-        genWQuarks.push_back(v);
-    }
- 
-    //int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
-    // Match Jets with Gen B Jets from Higgs/Tops
-    for (int i=0; i<*in["nJet"]; i++) {
-        in["Jet_genJetMatchId"][i] = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 if matched to jet from hadronic W decay
-        TLorentzVector Jet;
-        //GenHJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0],d["GenBQuarkFromHafterISR_eta"][0],d["GenBQuarkFromHafterISR_phi"][0],d["GenBQuarkFromHafterISR_mass"][0]);
-        //GenHJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1],d["GenBQuarkFromHafterISR_eta"][1],d["GenBQuarkFromHafterISR_phi"][1],d["GenBQuarkFromHafterISR_mass"][1]);
-        Jet.SetPtEtaPhiM(f["Jet_pt"][i], f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i]);
-      
-        //double dR1 = Jet.DeltaR(GenHJ1);
-        //double dR2 = Jet.DeltaR(GenHJ2);
-        //std::cout<<"Jet: "<<Jet.Pt()<<", "<<Jet.Eta()<<", "<<Jet.Phi()<<", "<<Jet.M()<<std::endl;
-        //std::cout<<"GenBJ1: "<<GenBJ1.Pt()<<", "<<GenBJ1.Eta()<<", "<<GenBJ1.Phi()<<", "<<GenBJ1.M()<<std::endl;
-        //std::cout<<"GenBJ2: "<<GenBJ2.Pt()<<", "<<GenBJ2.Eta()<<", "<<GenBJ2.Phi()<<", "<<GenBJ2.M()<<std::endl;
-        double dR1 = 999;
-        if (GenBJ1.Pt() > 0) dR1 = Jet.DeltaR(GenBJ1);
-        double dR2 = 999;
-        if (GenBJ2.Pt() > 0) dR2 = Jet.DeltaR(GenBJ2);
-        
-        // try to match the jet to one of the jets from hadronic W decay
-        double dR3 = 999;
-        for (int j=0; j<(int)genWQuarks.size(); j++) {
-            double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[j]);
-            if (Jet_genWQuarkDR < dR3) {
-                dR3 = Jet_genWQuarkDR;
+
+    // Compare gen kinematics for b jets for signal vs. ttbar
+    if(*in["sampleIndex"]!=0) {
+        if (*in["nGenBQuarkFromH"] > 1) {
+            // signal event
+            GenBJ1.SetPtEtaPhiM(f["GenBQuarkFromH_pt"][0], f["GenBQuarkFromH_eta"][0], f["GenBQuarkFromH_phi"][0], f["GenBQuarkFromH_mass"][0]);
+            GenBJ2.SetPtEtaPhiM(f["GenBQuarkFromH_pt"][1], f["GenBQuarkFromH_eta"][1], f["GenBQuarkFromH_phi"][1], f["GenBQuarkFromH_mass"][1]);
+        }        
+        else if (*in["nGenBQuarkFromTop"] > 0){
+            GenBJ1.SetPtEtaPhiM(f["GenBQuarkFromTop_pt"][0], f["GenBQuarkFromTop_eta"][0], f["GenBQuarkFromTop_phi"][0], f["GenBQuarkFromTop_mass"][0]);
+            if (*in["nGenBQuarkFromTop"] > 1) {
+                GenBJ2.SetPtEtaPhiM(f["GenBQuarkFromTop_pt"][1], f["GenBQuarkFromTop_eta"][1], f["GenBQuarkFromTop_phi"][1], f["GenBQuarkFromTop_mass"][1]);
             }
         }
-        f["Jet_genWQuarkDR"][i] = dR3;
-        if (dR3 < min(dR1, dR2) && dR3 < 0.5) {
-            in["Jet_genJetMatchId"][i] = 3; 
-        }
-        else if(dR1 <= dR2 && dR1<0.5) in["Jet_genJetMatchId"][i] = 1;
-        else if (dR2 < 0.5) in["Jet_genJetMatchId"][i] = 2;
-        
-        f["Jet_genHJetMinDR"][i] = min(dR1, dR2);
 
-        if (i == *in["hJetInd1"]) {
-            *f["hJet1_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
-        }
-        else if (i == *in["hJetInd2"]) {
-            *f["hJet2_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
-        }
-        
-    }
-    
-    // count the number of additional leptons and jets, then cut on this number
-    int nAddJet = 0;
-    int nAddJet20 = 0;
-    int nAddJet25 = 0;
-    int nAddJet30 = 0;
-    int nAddJet35 = 0;
-    int nAddJet40 = 0;
-    int nAddJet45 = 0;
-    int nAddJet50 = 0;
-    int nAddJet203p5 = 0;
-    int nAddJet202p5 = 0;
-    int nAddJet253p5 = 0;
-    int nAddJet252p5 = 0;
-    int nAddJet303p5 = 0;
-    int nAddJet302p5 = 0;
-    int nAddJet353p5 = 0;
-    int nAddJet352p5 = 0;
-    int nAddJet403p5 = 0;
-    int nAddJet402p5 =0;
-    int nAddJet453p5 = 0;
-    int nAddJet452p5 =0;
-    int nAddJet503p5 = 0;
-    int nAddJet502p5 =0;
-    int nAddJet_puid = 0;
-    int nAddJet20_puid = 0;
-    int nAddJet25_puid = 0;
-    int nAddJet30_puid = 0;
-    int nAddJet35_puid = 0;
-    int nAddJet40_puid = 0;
-    int nAddJet45_puid = 0;
-    int nAddJet50_puid = 0;
-    int nAddJet203p5_puid = 0;
-    int nAddJet202p5_puid = 0;
-    int nAddJet253p5_puid = 0;
-    int nAddJet252p5_puid = 0;
-    int nAddJet303p5_puid = 0;
-    int nAddJet302p5_puid = 0;
-    int nAddJet353p5_puid = 0;
-    int nAddJet352p5_puid = 0;
-    int nAddJet403p5_puid = 0;
-    int nAddJet402p5_puid =0;
-    int nAddJet453p5_puid = 0;
-    int nAddJet452p5_puid =0;
-    int nAddJet503p5_puid = 0;
-    int nAddJet502p5_puid = 0;
-    int nAddLep = 0;          
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet20++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet25++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet30++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet35++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet40++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet45++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_id"][i]>0) {
-            nAddJet50++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet203p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet202p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet253p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet252p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet303p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet302p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet353p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet352p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet403p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet402p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet453p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet452p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_id"][i]>0) {
-            nAddJet503p5++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_id"][i]>0) {
-            nAddJet502p5++;
-        }  
-    }          
+        *f["GenBJ1_pt"] = GenBJ1.Pt();
+        *f["GenBJ1_eta"] = GenBJ1.Eta();
+        *f["GenBJ1_phi"] = GenBJ1.Phi();
+        *f["GenBJ1_mass"] = GenBJ1.M();
+        *f["GenBJ2_pt"] = GenBJ2.Pt();
+        *f["GenBJ2_eta"] = GenBJ2.Eta();
+        *f["GenBJ2_phi"] = GenBJ2.Phi();
+        *f["GenBJ2_mass"] = GenBJ2.M();
 
+        GenBJJ = GenBJ1 + GenBJ2;
+        *f["GenBJJ_pt"] = GenBJJ.Pt();
+        *f["GenBJJ_eta"] = GenBJJ.Eta();
+        *f["GenBJJ_phi"] = GenBJJ.Phi();
+        *f["GenBJJ_mass"] = GenBJJ.M();
+        *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
+        *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
+        *f["GenBJJ_dEta"] = fabs(GenBJ1.Eta() - GenBJ2.Eta());
+
+        TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
+        double minDR1 = 999;
+        double minDR2 = 999;
+        double minSecDR2 = 999; //second closest gen lepton to second jet
+        int GenLepIndex1 = -1; // index of the lepton closest to jet 1
+        int GenLepIndex2 = -1; // index of the lepton closest to jet 2
+        int GenLepSecIndex2 = -1; // index of the lepton second closest to jet 2
+        for (int i=0; i<*in["nGenLep"]; i++) {
+           TLorentzVector gl;
+           gl.SetPtEtaPhiM(f["GenLep_pt"][i], f["GenLep_eta"][i], f["GenLep_phi"][i], f["GenLep_mass"][i] );
+           double DR1 = gl.DeltaR(GenBJ1);
+           double DR2 = gl.DeltaR(GenBJ2);
+           if (DR1 <= minDR1) {
+               minDR1 = DR1;
+               GenLepIndex1 = i;
+           }
+           if (DR2 <= minDR2) {
+               minSecDR2 = minDR2;
+               GenLepSecIndex2 = GenLepIndex2;
+               minDR2 = DR2;
+               GenLepIndex2 = i;
+           } 
+           else if (DR2 < minSecDR2) {
+               minSecDR2 = DR2;
+               GenLepSecIndex2 = i;
+           }
+        }  
+        if (GenLepIndex1 == GenLepIndex2) {
+            // don't allow us to use the same lepton for each jet
+            GenLepIndex2 = GenLepSecIndex2;
+        }
+            
+        *in["GenLepIndex1"] = GenLepIndex1;
+        *in["GenLepIndex2"] = GenLepIndex2;
+        
+        if (GenLepIndex1!=-1) {
+            GenLep1.SetPtEtaPhiM(f["GenLep_pt"][GenLepIndex1], f["GenLep_eta"][GenLepIndex1], f["GenLep_phi"][GenLepIndex1], f["GenLep_mass"][GenLepIndex1] );
+            *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
+            *f["GenLep_GenBJ1_dEta"] = fabs(GenLep1.Eta() - GenBJ1.Eta());
+            *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
+            
+            // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+            TLorentzVector GenTop1 = GenLep1 + GenBJ1;
+            *f["GenTop1_mass"] = GenTop1.M();
+        }
+        else { 
+            *f["GenLep_GenBJ1_dR"] = -999;
+            *f["GenLep_GenBJ1_dEta"] = -999;
+            *f["GenLep_GenBJ1_dPhi"] = -999;
+            *f["GenTop1_mass"] = -999;
+        }
+        if (GenLepIndex2!=-1) {
+            GenLep2.SetPtEtaPhiM(f["GenLep_pt"][GenLepIndex2], f["GenLep_eta"][GenLepIndex2], f["GenLep_phi"][GenLepIndex2], f["GenLep_mass"][GenLepIndex2] );
+            *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
+            *f["GenLep_GenBJ2_dEta"] = (GenLep2.Eta(), GenBJ2.Eta());
+            *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
+
+            // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+            TLorentzVector GenTop2 = GenLep2 + GenBJ2; 
+            *f["GenTop2_mass"] = GenTop2.M();
+        } 
+        else {
+            *f["GenLep_GenBJ2_dR"] = -999;
+            *f["GenLep_GenBJ2_dEta"] = -999;
+            *f["GenLep_GenBJ2_dPhi"] = -999;
+            *f["GenTop2_mass"] = -999;
+        }
     
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet_puid++;
-        }  
-    }
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet20_puid++;
+        // construct Gen W
+        TLorentzVector GenW1, GenW2;
+        if (*in["nGenVbosons"]>0 && fabs(in["GenVbosons_pdgId"][0])==24) {
+            GenW1.SetPtEtaPhiM(f["GenVbosons_pt"][0], f["GenVbosons_eta"][0], f["GenVbosons_phi"][0], f["GenVbosons_mass"][0]);
+            *f["GenW_GenBJJ_dPhi"] = GenW1.DeltaPhi(GenBJJ);
+            *f["GenW_GenBJJ_dEta"] = fabs(GenW1.Eta() - GenBJJ.Eta());
+            // grab both W's in ttbar events
+            if (*in["nGenVbosons"]>1 && fabs(in["GenVbosons_pdgId"][1])==24) {
+                GenW2.SetPtEtaPhiM(f["GenVbosons_pt"][1], f["GenVbosons_eta"][1], f["GenVbosons_phi"][1], f["GenVbosons_mass"][1]);
+            }
         }
-    }
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet25_puid++;
+        else {
+        
+            *f["GenW_GenBJJ_dPhi"] = -999;
+            *f["GenW_GenBJJ_dEta"] = -999;
         }
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet30_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet35_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet40_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet45_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<4.5 && in["Jet_puId"][i]>0) {
-            nAddJet50_puid++;
-        }  
-    }       
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
-            nAddJet203p5_puid++;
+  
+        std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
+        for (int i=0; i<*in["nGenWZQuark"]; i++) {
+            TLorentzVector v;
+            v.SetPtEtaPhiM(f["GenWZQuark_pt"][i], f["GenWZQuark_eta"][i], f["GenWZQuark_phi"][i], f["GenWZQuark_mass"][i]);
+            genWQuarks.push_back(v);
         }
-    }
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>20 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-            nAddJet202p5_puid++;
-        }
-    }
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
-            nAddJet253p5_puid++;
-        }
-    }
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>25 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-            nAddJet252p5_puid++;
-        }
-    }    
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
-            nAddJet303p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>30 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-            nAddJet302p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
-            nAddJet353p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>35 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-            nAddJet352p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
-            nAddJet403p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>40 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-            nAddJet402p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
-            nAddJet453p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>45 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-            nAddJet452p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<3.5 && in["Jet_puId"][i]>0) {
-            nAddJet503p5_puid++;
-        }  
-    }           
-    for(int i=0; i < *in["nJet"]; i++) {
-        if(i == *in["hJetInd1"] || i == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][i]>50 && fabs(f["Jet_eta"][i])<2.5 && in["Jet_puId"][i]>0) {
-            nAddJet502p5_puid++;
-        }  
-    }           
  
-    *in["nAddJets"] = nAddJet;
-    *in["nAddJets20"] = nAddJet20;
-    *in["nAddJets25"] = nAddJet25;
-    *in["nAddJets30"] = nAddJet30;
-    *in["nAddJets35"] = nAddJet35;
-    *in["nAddJets40"] = nAddJet40;
-    *in["nAddJets45"] = nAddJet45;
-    *in["nAddJets50"] = nAddJet50;
-    *in["nAddJets203p5"] = nAddJet203p5;
-    *in["nAddJets202p5"] = nAddJet202p5; 
-    *in["nAddJets253p5"] = nAddJet253p5;
-    *in["nAddJets252p5"] = nAddJet252p5; 
-    *in["nAddJets303p5"] = nAddJet303p5;
-    *in["nAddJets302p5"] = nAddJet302p5; 
-    *in["nAddJets353p5"] = nAddJet353p5;
-    *in["nAddJets352p5"] = nAddJet352p5;
-    *in["nAddJets403p5"] = nAddJet403p5;
-    *in["nAddJets402p5"] = nAddJet402p5;
-    *in["nAddJets453p5"] = nAddJet453p5;
-    *in["nAddJets452p5"] = nAddJet452p5;
-    *in["nAddJets503p5"] = nAddJet503p5;
-    *in["nAddJets502p5"] = nAddJet502p5;
-    
-    *in["nAddJets_puid"] = nAddJet_puid;
-    *in["nAddJets20_puid"] = nAddJet20_puid;
-    *in["nAddJets25_puid"] = nAddJet25_puid;
-    *in["nAddJets30_puid"] = nAddJet30_puid;
-    *in["nAddJets35_puid"] = nAddJet35_puid;
-    *in["nAddJets40_puid"] = nAddJet40_puid;
-    *in["nAddJets45_puid"] = nAddJet45_puid;
-    *in["nAddJets50_puid"] = nAddJet50_puid;
-    *in["nAddJets203p5_puid"] = nAddJet203p5_puid;
-    *in["nAddJets202p5_puid"] = nAddJet202p5_puid; 
-    *in["nAddJets253p5_puid"] = nAddJet253p5_puid;
-    *in["nAddJets252p5_puid"] = nAddJet252p5_puid; 
-    *in["nAddJets303p5_puid"] = nAddJet303p5_puid;
-    *in["nAddJets302p5_puid"] = nAddJet302p5_puid; 
-    *in["nAddJets353p5_puid"] = nAddJet353p5_puid;
-    *in["nAddJets352p5_puid"] = nAddJet352p5_puid;
-    *in["nAddJets403p5_puid"] = nAddJet403p5_puid;
-    *in["nAddJets402p5_puid"] = nAddJet402p5_puid;
-    *in["nAddJets453p5_puid"] = nAddJet453p5_puid;
-    *in["nAddJets452p5_puid"] = nAddJet452p5_puid;
-    *in["nAddJets503p5_puid"] = nAddJet503p5_puid;
-    *in["nAddJets502p5_puid"] = nAddJet502p5_puid;
+        //int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
+        // Match Jets with Gen B Jets from Higgs/Tops
+        for (int i=0; i<*in["nJet"]; i++) {
+            in["Jet_genJetMatchId"][i] = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 if matched to jet from hadronic W decay
+            TLorentzVector Jet;
+            //GenHJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0],d["GenBQuarkFromHafterISR_eta"][0],d["GenBQuarkFromHafterISR_phi"][0],d["GenBQuarkFromHafterISR_mass"][0]);
+            //GenHJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1],d["GenBQuarkFromHafterISR_eta"][1],d["GenBQuarkFromHafterISR_phi"][1],d["GenBQuarkFromHafterISR_mass"][1]);
+            Jet.SetPtEtaPhiM(f["Jet_pt"][i], f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i]);
+          
+            //double dR1 = Jet.DeltaR(GenHJ1);
+            //double dR2 = Jet.DeltaR(GenHJ2);
+            double dR1 = 999;
+            if (GenBJ1.Pt() > 0) dR1 = Jet.DeltaR(GenBJ1);
+            double dR2 = 999;
+            if (GenBJ2.Pt() > 0) dR2 = Jet.DeltaR(GenBJ2);
+            
+            // try to match the jet to one of the jets from hadronic W decay
+            double dR3 = 999;
+            for (int j=0; j<(int)genWQuarks.size(); j++) {
+                double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[j]);
+                if (Jet_genWQuarkDR < dR3) {
+                    dR3 = Jet_genWQuarkDR;
+                }
+            }
+            f["Jet_genWQuarkDR"][i] = dR3;
+            if (dR3 < min(dR1, dR2) && dR3 < 0.5) {
+                in["Jet_genJetMatchId"][i] = 3; 
+            }
+            else if(dR1 <= dR2 && dR1<0.5) in["Jet_genJetMatchId"][i] = 1;
+            else if (dR2 < 0.5) in["Jet_genJetMatchId"][i] = 2;
+            
+            f["Jet_genHJetMinDR"][i] = min(dR1, dR2);
 
+            if (i == *in["hJetInd1"]) {
+                *f["hJet1_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
+            }
+            else if (i == *in["hJetInd2"]) {
+                *f["hJet2_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
+            }
+        }
+    }
+
+    if(debug>1000) std::cout<<"counting additional leptons"<<std::endl;
+    // count the number of additional leptons and jets, then cut on this number
+    int nAddLep = 0;       
+    // 15 to 30 by 1 GeV, 1.5 to 3 w/ 0.1 in eta 
+    //std::vector<int> ptCuts = {15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35};
+    //std::vector<double> etaCuts = {1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4,3.5};
+    std::vector<int> ptCuts = {25};
+    std::vector<double> etaCuts = {2.9};
+
+    for (int i=0; i < (int)ptCuts.size(); i++) {
+        for (int j=0; j < (int)etaCuts.size(); j++) {
+            int nAddJet_tmp = 0;
+            for (int k=0; k < *in["nJet"]; k++) {
+                if (k == *in["hJetInd1"] || k == *in["hJetInd2"]) continue;
+                if (f["Jet_pt"][k]>ptCuts[i] && fabs(f["Jet_eta"][k])<etaCuts[j] && in["Jet_puId"][k]>0) {
+                    nAddJet_tmp++;
+                }
+            }
+            std::string eta_cut = Form("%.1f", etaCuts[j]); // convert, say, 2.5 to '2p5' 
+            std::replace(eta_cut.begin(), eta_cut.end(), '.', 'p');
+            //std::cout<<Form("nAddJets%i%s_puid",ptCuts[i],eta_cut.c_str())<<std::endl;
+            *in[Form("nAddJets%i%s_puid",ptCuts[i],eta_cut.c_str())] = nAddJet_tmp;
+        }
+    }
+    
     // count additional leptons (check both collections, which are exclusive)
     for (int i=0; i<*in["nselLeptons"]; i++) {
         if (i == *in["lepInd"]) continue; // don't look at the lepton we've selected from the W
@@ -852,7 +445,7 @@ bool VHbbAnalysis::Analyze(){
     if (nAddLep>= *f["nAddLeptonsCut"]) sel = false;
     if (sel) *in["cutFlow"] += 1; // additional lepton veto
 
-    if(nAddJet252p5_puid >= *f["nAddJetsCut"]) sel = false;
+    if(*in["nAddJets252p9_puid"] >= *f["nAddJetsCut"]) sel = false;
     if (sel) *in["cutFlow"] += 1; // additional jet veto
     
     if(fabs(*f["HVdPhi"]) < *f["HVDPhiCut"]) sel = false;
@@ -863,13 +456,54 @@ bool VHbbAnalysis::Analyze(){
     double mean = 104.7 + 0.055 * (*f["H_pt"]);
     double sigma = 20.9* exp(-0.0024*(*f["H_pt"]));
 
-    // mass window cut
+    /*// mass window cut
     if (*f["H_mass"] < (mean - 2*sigma) || *f["H_mass"] > (mean + 2*sigma)) sel=false;
     //if (*d["H_mass"] < 100 || *d["H_mass"] > 150) sel=false;
     if (sel) *in["cutFlow"] += 1; 
-
+    */
     if(debug>1000) {
         std::cout<<"selecting event"<<std::endl;
+    }
+
+    // Control samples
+
+    // if cutflow==0 then jets are bogus
+    // jet pt
+    // lepton pt, iso, id
+    // met_pt > threshold
+    // deltaPhi(met,lep)
+    // V_pt > 100 and bb_mass<250
+    bool baseCSSelection= 
+            (*in["cutFlow"]!=0
+            && f["Jet_pt"][*in["hJetInd1"]]>*f["j1ptCut"]
+            && f["Jet_pt"][*in["hJetInd2"]]>*f["j2ptCut"]
+            && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
+            && *f["met_pt"] > *f["metcut"]
+            && ((*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"])
+              || (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]))
+            && *f["V_pt"]>100 && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
+
+    *in["controlSample"]=-1; // maybe this should go much early (before any returns)
+    float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
+    if(baseCSSelection){
+        if (maxCSV > 0.85){ //ttbar or W+HF
+            if(*in["nAddJets252p9_puid"]>2) { //ttbar
+                *in["controlSample"]=1;
+            //} else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 1. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+                *in["controlSample"]=2;
+            }
+        //} else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 2.){ //W+LF
+        } else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 1.){ //W+LF
+            *in["controlSample"]=3;
+        }
+        if(*in["sampleIndex"]==0){
+            std::cout<<"data CS event "<<*in["controlSample"]<<" maxCSV "<<maxCSV<<" nAddJets252p9_puid "<<*in["nAddJets252p9_puid"]<<" met_pt "<<*f["met_pt"]<<" met_sumEt "<<*f["met_sumEt"]<<" H_mass "<<*f["H_mass"]<<std::endl;
+        }
+    }
+    
+    if(*f["doControlSamples"]==1){
+        if(!sel) sel=( *in["controlSample"]>-1 ); 
     }
 
     if (doCutFlow) return true; // keep all preselected events for cutflow
@@ -884,7 +518,6 @@ void VHbbAnalysis::FinishEvent(){
     //    return;
     //} 
     // General use variables
-    *in["sampleIndex"] = cursample->sampleNum;
    
     // Split WJets and ZJets samples by jet parton flavor
     if (cursample->doJetFlavorSplit) {
@@ -915,9 +548,18 @@ void VHbbAnalysis::FinishEvent(){
     *d["hJets_btagCSV_0_step2"] = d["hJets_btagCSV"][0];
     *d["hJets_btagCSV_1_step2"] = d["hJets_btagCSV"][1];*/
 
-    *f["weight"] = cursample->intWeight;
-    //*f["weight"] = 1.0; // HACK FIXME
-    *f["Vtype_f"] = (float) *f["Vtype"];
+    if(*in["sampleIndex"]!=0){
+        if (*f["genWeight"] > 0) {
+            *f["weight"] = cursample->intWeight;
+        } else {
+            *f["weight"] = cursample->intWeight * -1;
+        }
+    }
+    else {
+        *f["weight"] = 1.0;
+    } 
+
+   *f["Vtype_f"] = (float) *f["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
     *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
     *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
@@ -935,23 +577,22 @@ void VHbbAnalysis::FinishEvent(){
     *f["selLeptons_eleMissingHits_0"] = f["selLeptons_eleMissingHits"][*in["lepInd"]];
     *f["selLeptons_eleChi2_0"] = f["selLeptons_eleChi2"][*in["lepInd"]];
      
- 
-    if (*in["nGenLep"] == 0) {
-        // gen lep is originally a tau?
-        *f["selLeptons_genLepDR_0"] = -1;
-    }
-    else {
-        TLorentzVector GenLep, El;
-        GenLep.SetPtEtaPhiM(f["GenLep_pt"][0],f["GenLep_eta"][0],f["GenLep_phi"][0],f["GenLep_mass"][0]);
-        El.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], f["selLeptons_mass"][*in["lepInd"]]);
-        *f["selLeptons_genLepDR_0"] = El.DeltaR(GenLep);
 
-        
+    if(*in["sampleIndex"]!=0){
+        if (*in["nGenLep"] == 0) {
+            // gen lep is originally a tau?
+            *f["selLeptons_genLepDR_0"] = -1;
+        } else {
+            TLorentzVector GenLep, El;
+            GenLep.SetPtEtaPhiM(f["GenLep_pt"][0],f["GenLep_eta"][0],f["GenLep_phi"][0],f["GenLep_mass"][0]);
+            El.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], f["selLeptons_mass"][*in["lepInd"]]);
+            *f["selLeptons_genLepDR_0"] = El.DeltaR(GenLep);
+        }       
     }
  
 
     *f["naLeptonsPassingCuts"] = *in["nAddLeptons"]; // no need to calculate this twice
-    *f["naJetsPassingCuts"] = *in["nAddJets"];
+    *f["naJetsPassingCuts"] = *in["nAddJets252p9_puid"];
     *f["highestCSVaJet"] = 0.0;
     *f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
     for(int j=0;j<*in["nJet"];j++){
@@ -960,6 +601,7 @@ void VHbbAnalysis::FinishEvent(){
       }       
     
     // Reconstruct Higgs and W and recalculate variables ourselves
+    if(debug>1000) std::cout<<"Making composite candidates"<<std::endl;
     TLorentzVector MET,Lep,W,HJ1,HJ2,Hbb;
     MET.SetPtEtaPhiM(*f["met_pt"], 0., *f["met_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
     Lep.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], f["selLeptons_mass"][*in["lepInd"]]);
@@ -983,7 +625,7 @@ void VHbbAnalysis::FinishEvent(){
     *f["hJets_btagCSV_1"] = (float) f["Jet_btagCSV"][*in["hJetInd2"]]; 
     *f["HVdPhi_f"] = (float) *f["HVdPhi"];
     *f["H_dEta"] = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
-   
+  
     *f["hJets_mt_0"] = HJ1.Mt();
     *f["hJets_mt_1"] = HJ2.Mt();
     *f["H_dR"] = (float) HJ1.DeltaR(HJ2);   
@@ -991,7 +633,7 @@ void VHbbAnalysis::FinishEvent(){
     *f["hJet_ptCorr_0"] = (float) f["Jet_pt"][*in["hJetInd1"]];
     *f["hJet_ptCorr_1"] = (float) f["Jet_pt"][*in["hJetInd2"]];
     *f["met_sumEt_f"] = (float) *f["met_sumEt"]; // is this the right variable??
- 
+
     for (unsigned int i=0; i<bdtInfos.size(); i++) {
 
        BDTInfo tmpBDT = bdtInfos[i];
@@ -1066,7 +708,7 @@ void VHbbAnalysis::FinishEvent(){
        
         //*f["hJets_mt_0"] = hJ1_reg.Mt();
         //*f["hJets_mt_1"] = hJ2_reg.Mt();
-    
+   
         TLorentzVector H_vec_reg = hJ1_reg + hJ2_reg;
         *f["H_mass_reg"] = H_vec_reg.M();
         *f["H_pt_reg"] = H_vec_reg.Pt();
@@ -1075,7 +717,8 @@ void VHbbAnalysis::FinishEvent(){
         *f["H_dR_reg"] = hJ1_reg.DeltaR(hJ2_reg);
         *f["H_dPhi_reg"] = hJ1_reg.DeltaPhi(hJ2_reg);
         *f["H_dEta_reg"] = fabs(hJ1_reg.Eta() - hJ2_reg.Eta() );
-     }
+    }
+
 
     ofile->cd();
     outputTree->Fill();
@@ -1091,7 +734,7 @@ void VHbbAnalysis::TermAnalysis(){
     return;
 }
 
-bool VHbbAnalysis::WenuHbbSelection(){
+bool VHbbAnalysis::ElectronSelection(){
     bool selectEvent=true;
     if(debug>1000){
         std::cout<<"Running Wenu selections"<<std::endl;
@@ -1124,7 +767,7 @@ bool VHbbAnalysis::WenuHbbSelection(){
     return selectEvent;
 }
 
-bool VHbbAnalysis::WmunuHbbSelection(){
+bool VHbbAnalysis::MuonSelection(){
     
     bool selectEvent=true;
     if(debug>1000){
@@ -1209,7 +852,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] == 1
             && f["Jet_pt"][i]>*f["j1ptCut"]
-            && f["Jet_btagCSV"][i]>*f["j1ptCSV"]&&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
+            &&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
             } else if(f["Jet_btagCSV"][pair.first]<f["Jet_btagCSV"][i]){
@@ -1222,7 +865,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] == 1
             && f["Jet_pt"][i]>*f["j2ptCut"]
-            && f["Jet_btagCSV"][i]>*f["j2ptCSV"]&&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
+            &&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
             } else if(f["Jet_btagCSV"][pair.second]<f["Jet_btagCSV"][i]){

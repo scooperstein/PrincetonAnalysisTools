@@ -1,6 +1,7 @@
+type=0  name=Data
 type=10 name=TBarTLep_s
 type=11 name=TBarTLep_t
-type=13 name=TT_Tune4C
+type=12 name=TT_Tune4C
 type=14 name=TTWJets
 type=15 name=TTZJets
 type=16 name=TToLeptons_s
@@ -29,7 +30,11 @@ type=2301 name=DYToLL+b
 type=2302 name=DYToLL+bb
 type=-12501 name=WH125
 type=-12502 name=ZH125
-type=24 name=QCD_HT-100To250
-type=25 name=QCD_HT-250To500
-type=26 name=QCD_HT-500To1000
-type=27 name=QCD_HT-1000ToInf
+type=24 name=QCD_HT100To200
+type=25 name=QCD_HT200To300
+type=26 name=QCD_HT300To500
+type=27 name=QCD_HT500To700
+type=28 name=QCD_HT700To1000
+type=29 name=QCD_HT1000To1500
+type=30 name=QCD_HT1500To2000
+type=31 name=QCD_HT2000ToInf

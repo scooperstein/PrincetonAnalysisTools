@@ -43,11 +43,15 @@ inline SampleContainer::SampleContainer()
 inline void SampleContainer::AddFile(const char* fname) {
     sampleChain->Add(fname);
     files.push_back(fname);
-    std::cout<<nProFromFile<<std::endl; 
+    //std::cout<<nProFromFile<<std::endl; 
     if(nProFromFile) {
         TFile file(fname);
-        TH1F* counter = (TH1F*)file.Get("Count");
-        processedEvents+=counter->GetBinContent(1);
+        //TH1F* counter = (TH1F*)file.Get("Count");
+        //processedEvents+=counter->GetBinContent(1);
+        TH1F* counterPos = (TH1F*)file.Get("CountPosWeight");
+        TH1F* counterNeg = (TH1F*)file.Get("CountNegWeight");
+        int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
+        processedEvents += nEffective;
         file.Close();
     }
     

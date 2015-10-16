@@ -21,10 +21,10 @@ ROOT.gSystem.Load("AnalysisDict.so")
 # reads samples, existing branches and new branches
 samplesToRun = [] # if empty run on all samples
 am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun)
+am.debug=2
 
 if (options.runBatch == False):
     print "Running locally over all samples"
-    am.debug=2
 
     if(am.debug>100):
         am.PrintBranches()
@@ -52,7 +52,7 @@ else:
         nFiles = 0
         for filename in sample.files:
             nFiles += 1
-            fname = "%s/%s/%i.submit" % (jobName, sampleName,nFiles)
+            fname = "%s/%s/job%i.submit" % (jobName, sampleName,nFiles)
             submitFile = open(fname, "w")
             content =  "universe = vanilla\n"
             content += "Executable = condor_runscript.sh\n"
