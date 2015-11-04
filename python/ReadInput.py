@@ -70,7 +70,10 @@ def ReadTextFile(filename, filetype, samplesToRun):
                         # FIXME can this go elsewhere?
                         if settings.has_key("outputname"):
                             am.outputTreeName=settings["outputname"]
-                    samplecon.AddFile(filename)
+                    try:
+                        samplecon.AddFile(filename)
+                    except:
+                        print "Can't add",filename
                 am.AddSample(samplecon)
 
         else:
