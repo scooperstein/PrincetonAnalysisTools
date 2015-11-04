@@ -5,6 +5,10 @@
 #htyp=0  ncat=1  xbins=31  ybins=0   xmin=-0.01  xmax=3.142  ymin=0 ymax=0    name=dphiejet    xaxis=#DeltaphiJet1e  yaxis= var=dphijet1e       catType=ltype
 
 # BJet variables
+#htyp=0  ncat=6  xbins=80  ybins=0   xmin=0      xmax=700    ymin=0 ymax=0    name=lheHT       xaxis=LHE@H_{T}        yaxis= var=lheHT                  catType=CSlep
+#htyp=0  ncat=6  xbins=4   ybins=0   xmin=0      xmax=4      ymin=0 ymax=0    name=lheNb       xaxis=LHE@NumOfbs      yaxis= var=lheNb                  catType=CSlep
+#htyp=0  ncat=6  xbins=4   ybins=0   xmin=0      xmax=4      ymin=0 ymax=0    name=lheNc       xaxis=LHE@NumOfcs      yaxis= var=lheNc                  catType=CSlep
+#htyp=0  ncat=6  xbins=40  ybins=0   xmin=0      xmax=400    ymin=0 ymax=0    name=lheV_pt     xaxis=LHE@P_{T,V}      yaxis= var=lheV_pt                catType=CSlep
 htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetpt   xaxis=Jet1@P_{T}@GeV   yaxis= var=hJets_pt_0             catType=CSlep
 htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=leadjeteta  xaxis=Jet1#eta         yaxis= var=hJets_eta_0            catType=CSlep
 htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCSV  xaxis=Jet1@CSV         yaxis= var=hJets_btagCSV_0        catType=CSlep

@@ -253,6 +253,10 @@ def FindFunction(option):
         PrintPlotNames(plotinfos)
     elif option == "samples":
         PrintSamples(samples)
+    elif option == "integrals":
+        PrintTableOfIntegrals(samples)
+    elif option == "groupintegrals":
+        PrintTableOfIntegrals(samples,True)
     elif option == "vars":
         PrintAllVariables()
     elif option == "save":
@@ -473,10 +477,67 @@ def PrintPlotNames(plotinfos):
         print ind, plotinfos[ind].plotvarname
 
 def PrintSamples(samples):
-    samplenames = samples.keys()
-    for sampleIndex in samplenames:
+    sampleIndices = samples.keys()
+    for sampleIndex in sampleIndices:
         print "Plotting:",samples[sampleIndex].plotsample," sampleIndex:",sampleIndex,"\t",samples[sampleIndex].inshortnames
 
+def PrintTableOfIntegrals(samples,grouped=False):
+    sampleIndices = samples.keys()
+    nCats=cur_plot.ncat
+    orderMap={}
+    for sampleIndex in sampleIndices:
+        orderMap[samples[sampleIndex].order]=sampleIndex
+    ordered=orderMap.keys()
+    ordered.sort()
+    orderedSampleIndices=[]
+    groupedSampleIndices=[]
+#print "samples[sampleIndex].addtoleg",samples[sampleIndex].addtoleg
+    for iOrder in ordered:
+        if samples[orderMap[iOrder]].addtoleg:
+            groupedSampleIndices.append(orderMap[iOrder])
+        orderedSampleIndices.append(orderMap[iOrder])
+
+    table={}
+    if grouped:
+        for sampleIndex in groupedSampleIndices:
+            table[samples[sampleIndex].inshortnames]=[0]*nCats
+    else:
+        for sampleIndex in orderedSampleIndices:
+            table[samples[sampleIndex].inshortnames]=[0]*nCats
+    
+    iGroup=0
+    for sampleIndex in orderedSampleIndices:
+        for iCat in range(nCats):
+            try:
+                histname=str(cur_plot.plotvarname)+"_cat"+str(iCat)+"_"+str(samples[sampleIndex].inshortnames)
+                hist=ROOT.gROOT.FindObject(histname).Clone()
+                if grouped:
+                    table[samples[groupedSampleIndices[iGroup]].inshortnames][iCat]=table[samples[groupedSampleIndices[iGroup]].inshortnames][iCat]+hist.Integral()
+                else:
+                    table[samples[sampleIndex].inshortnames][iCat]=table[samples[sampleIndex].inshortnames][iCat]+hist.Integral()
+            except:
+                print "Can't sum for sample",samples[sampleIndex].inshortnames,"in cat",iCat
+        if sampleIndex==groupedSampleIndices[iGroup]:
+            iGroup=iGroup+1
+
+    if grouped:
+        orderedListForNames=groupedSampleIndices
+    else:
+        orderedListForNames=orderedSampleIndices
+
+    for index in orderedListForNames:
+        name=samples[index].inshortnames
+        if grouped:
+            print repr(samples[index].displayname).rjust(25),
+        else:
+            print repr(name).rjust(25),
+        for iCat in range(len(table[name])):
+            try:
+                print '{:.2e}'.format(table[name][iCat]),
+            except:
+                print '------  ',
+    
+        print
 
 
 #  Setup Functions
