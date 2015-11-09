@@ -479,13 +479,14 @@ bool VHbbAnalysis::Analyze(){
             && f["Jet_pt"][*in["hJetInd2"]]>*f["j2ptCut"]
             && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
             && *f["met_pt"] > *f["metcut"]
-            && ((*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"])
-              || (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]))
-            && *f["V_pt"]>100 && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
+            && ((*in["isWmunu"] && *d["lepMetDPhi"] < *f["muMetDPhiCut"])
+              || (*in["isWenu"] && *d["lepMetDPhi"] < *f["elMetDPhiCut"]))
+            && *f["V_pt"]> *f["vptcut"] && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
 
     *in["controlSample"]=-1; // maybe this should go much early (before any returns)
     float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
     if(baseCSSelection){
+        *in["controlSample"]=0;
         if (maxCSV > 0.85){ //ttbar or W+HF
             if(*in["nAddJets252p9_puid"]>2) { //ttbar
                 *in["controlSample"]=1;
@@ -520,12 +521,78 @@ void VHbbAnalysis::FinishEvent(){
     // General use variables
    
     // Split WJets and ZJets samples by jet parton flavor
+    *in["bMCFlavorSum"] = 0;
+    *in["bMCFlavorSumSelected"] = 0;
+    *in["bGenJetBSumNoEtaNoPt"] = 0;
+    *in["bGenJetBSumNoEta"] = 0;
+    *in["bGenJetBSum"] = 0;
+    
+    *in["sampleIndex_sel"] = 
+    *in["sampleIndex_GenJet"] = 
+    *in["sampleIndex_GenJetNoEta"] = 
+    *in["sampleIndex_GenJetNoEtaNoPt"] = 
+    *in["sampleIndex"];
+    
     if (cursample->doJetFlavorSplit) {
-        int nBJets = 0;
+        *in["sampleIndex"] = *in["sampleIndex"]*100;
+        *in["sampleIndex_sel"] = *in["sampleIndex_sel"]*100;
+        *in["sampleIndex_GenJet"] = *in["sampleIndex_GenJet"]*100;
+        *in["sampleIndex_GenJetNoEta"] = *in["sampleIndex_GenJetNoEta"]*100;
+        *in["sampleIndex_GenJetNoEtaNoPt"] = *in["sampleIndex_GenJetNoEtaNoPt"]*100;
+        
         //std::cout<<fabs(d["hJets_mcFlavour"][0])<<std::endl;
-        if (fabs(in["Jet_mcFlavour"][*in["hJetInd1"]]) == 5) nBJets++;
-        if (fabs(in["Jet_mcFlavour"][*in["hJetInd2"]]) == 5) nBJets++;
-        *in["sampleIndex"] = (*in["sampleIndex"]*100 + nBJets);
+        if (fabs(in["Jet_mcFlavour"][*in["hJetInd1"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
+        if (fabs(in["Jet_mcFlavour"][*in["hJetInd2"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
+    
+        for(int iJet=0;iJet<*in["nJet"];iJet++){
+            if(fabs(in["Jet_mcFlavour"][iJet])==5) *in["bMCFlavorSum"]=*in["bMCFlavorSum"]+1;
+        }
+
+        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
+            *in["bGenJetBSumNoEtaNoPt"]=*in["bGenJetBSumNoEtaNoPt"]+in["GenJet_numBHadrons"][indGJ];
+        }
+
+        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
+            if(f["GenJet_pt"][indGJ]>20) {
+                *in["bGenJetBSumNoEta"]=*in["bGenJetBSumNoEta"]+in["GenJet_numBHadrons"][indGJ];
+            }
+        }
+
+        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
+            if(f["GenJet_pt"][indGJ]>20 && abs(f["GenJet_eta"][indGJ])<2.4) {
+                *in["bGenJetBSum"]=*in["bGenJetBSum"]+in["GenJet_numBHadrons"][indGJ];
+            }
+        }
+        
+        if(*in["bMCFlavorSum"]==1){
+            *in["sampleIndex"] = *in["sampleIndex"] + 1;
+        }else if(*in["bMCFlavorSum"]>1){
+            *in["sampleIndex"] = *in["sampleIndex"] + 2;
+        }
+
+        if(*in["bMCFlavorSumSelected"]==1){
+            *in["sampleIndex_sel"] = *in["sampleIndex_sel"] + 1;
+        }else if(*in["bMCFlavorSumSelected"]>1){
+            *in["sampleIndex_sel"] = *in["sampleIndex_sel"] + 2;
+        }
+        
+        if(*in["bGenJetBSum"]==1){
+            *in["sampleIndex_GenJet"] = *in["sampleIndex_GenJet"] + 1;
+        }else if(*in["bGenJetBSum"]>1){
+            *in["sampleIndex_GenJet"] = *in["sampleIndex_GenJet"] + 2;
+        }
+        
+        if(*in["bGenJetBSumNoEta"]==1){
+            *in["sampleIndex_GenJetNoEta"] = *in["sampleIndex_GenJetNoEta"] + 1;
+        }else if(*in["bGenJetBSumNoEta"]>1){
+            *in["sampleIndex_GenJetNoEta"] = *in["sampleIndex_GenJetNoEta"] + 2;
+        }
+        
+        if(*in["bGenJetBSumNoEtaNoPt"]==1){
+            *in["sampleIndex_GenJetNoEtaNoPt"] = *in["sampleIndex_GenJetNoEtaNoPt"] + 1;
+        }else if(*in["bGenJetBSumNoEtaNoPt"]>1){
+            *in["sampleIndex_GenJetNoEtaNoPt"] = *in["sampleIndex_GenJetNoEtaNoPt"] + 2;
+        }
     } 
 
     // Split by boost category
