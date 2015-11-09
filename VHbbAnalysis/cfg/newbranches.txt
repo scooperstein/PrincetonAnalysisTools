@@ -16,11 +16,24 @@ type=1  name=nHJetsMatched
 type=1  name=eventClass
 type=3  name=lepMetDPhi
 type=1  name=sampleIndex
+type=1  name=sampleIndex_sel
+type=1  name=sampleIndex_GenJet
+type=1  name=sampleIndex_GenJetNoEta
+type=1  name=sampleIndex_GenJetNoEtaNoPt
 type=2  name=weight
 type=1  name=isWenu
 type=1  name=isWmunu
 type=1  name=cutFlow
 type=1  name=controlSample
+
+type=1  name=bMCFlavorSum
+type=1  name=bMCFlavorSumSelected
+type=1  name=bGenJetBSumNoEtaNoPt
+type=1  name=bGenJetBSumNoEta
+type=1  name=bGenJetBSum
+
+
+
 
 type=2  name=H_pt_highestPt
 type=2  name=H_pt_highestPtJJ

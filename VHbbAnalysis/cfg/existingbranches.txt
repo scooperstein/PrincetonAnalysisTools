@@ -6,6 +6,14 @@ type=2  name=HLT_WenHbbLowLumi
 type=2  name=HLT_WmnHbbLowLumi
 
 type=2  name=genWeight 
+type=1  name=nGenJet
+type=7  name=GenJet_pt                          max=20
+type=7  name=GenJet_eta                         max=20
+type=7  name=GenJet_phi                         max=20
+type=7  name=GenJet_mass                        max=20
+type=6  name=GenJet_pdgId                       max=20
+type=6  name=GenJet_numBHadrons                 max=20
+type=6  name=GenJet_numCHadrons                 max=20
 
 type=1  name=nselLeptons 
 type=7  name=selLeptons_eta                     max=20
