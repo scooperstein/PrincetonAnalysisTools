@@ -106,13 +106,13 @@ public :
     Long64_t        LoadTree(Long64_t entry);
     void            InitChain(std::string filename);
     
-    void            SetupBranch(std::string name, int type, int length=-1, std::string prov="existing");
+    void            SetupBranch(std::string name, int type, int length=-1, int onlyMC=0, std::string prov="existing");
     void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true, std::string treetype="output", float val=-999);
     void            SetNewBranches();
     void            ResetBranches();
     void            SetBranches();
     void            PrintBranches();
-    void            GetEarlyEntries(Long64_t entry);
+    void            GetEarlyEntries(Long64_t entry,bool isData=false);
     std::vector<std::string>      ListSampleNames();
     void            PrintBDTInfoValues(BDTInfo bdt);
     

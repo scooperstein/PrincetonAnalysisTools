@@ -497,10 +497,10 @@ bool VHbbAnalysis::Analyze(){
     float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
     if(baseCSSelection){
         *in["controlSample"]=0;
-        if (maxCSV > 0.85){ //ttbar or W+HF
-            if(*in["nAddJets252p9_puid"]>2) { //ttbar
+        if (maxCSV > 0.97){ //ttbar or W+HF
+            if(*in["nAddJets252p9_puid"]>1.5) { //ttbar
                 *in["controlSample"]=1;
-            } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            } else if (*in["nAddJets252p9_puid"]<1.5 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
             //} else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 1. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
                 *in["controlSample"]=2;
             }
@@ -514,7 +514,8 @@ bool VHbbAnalysis::Analyze(){
     }
     
     if(*f["doControlSamples"]==1){
-        if(!sel) sel=( *in["controlSample"]>=-1 ); 
+        //if(!sel) sel=( *in["controlSample"]>-1 ); 
+        sel=( *in["controlSample"]>-1 ); 
     }
 
     if (doCutFlow) return true; // keep all preselected events for cutflow
@@ -533,22 +534,19 @@ void VHbbAnalysis::FinishEvent(){
     // Split WJets and ZJets samples by jet parton flavor
     *in["bMCFlavorSum"] = 0;
     *in["bMCFlavorSumSelected"] = 0;
-    *in["bGenJetBSumNoEtaNoPt"] = 0;
-    *in["bGenJetBSumNoEta"] = 0;
+    *in["bGenJetSum"] = 0;
     *in["bGenJetBSum"] = 0;
     
     *in["sampleIndex_sel"] = 
-    *in["sampleIndex_GenJet"] = 
-    *in["sampleIndex_GenJetNoEta"] = 
-    *in["sampleIndex_GenJetNoEtaNoPt"] = 
+    *in["sampleIndex_GenJetSum"] = 
+    *in["sampleIndex_GenJetSumNB"] = 
     *in["sampleIndex"];
     
     if (cursample->doJetFlavorSplit) {
         *in["sampleIndex"] = *in["sampleIndex"]*100;
         *in["sampleIndex_sel"] = *in["sampleIndex_sel"]*100;
-        *in["sampleIndex_GenJet"] = *in["sampleIndex_GenJet"]*100;
-        *in["sampleIndex_GenJetNoEta"] = *in["sampleIndex_GenJetNoEta"]*100;
-        *in["sampleIndex_GenJetNoEtaNoPt"] = *in["sampleIndex_GenJetNoEtaNoPt"]*100;
+        *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"]*100;
+        *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"]*100;
         
         //std::cout<<fabs(d["hJets_mcFlavour"][0])<<std::endl;
         if (fabs(in["Jet_mcFlavour"][*in["hJetInd1"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
@@ -558,20 +556,13 @@ void VHbbAnalysis::FinishEvent(){
             if(fabs(in["Jet_mcFlavour"][iJet])==5) *in["bMCFlavorSum"]=*in["bMCFlavorSum"]+1;
         }
 
+
         for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
-            *in["bGenJetBSumNoEtaNoPt"]=*in["bGenJetBSumNoEtaNoPt"]+in["GenJet_numBHadrons"][indGJ];
+            *in["bGenJetSum"]=*in["bGenJetSum"]+1;
         }
 
         for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
-            if(f["GenJet_pt"][indGJ]>20) {
-                *in["bGenJetBSumNoEta"]=*in["bGenJetBSumNoEta"]+in["GenJet_numBHadrons"][indGJ];
-            }
-        }
-
-        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
-            if(f["GenJet_pt"][indGJ]>20 && abs(f["GenJet_eta"][indGJ])<2.4) {
-                *in["bGenJetBSum"]=*in["bGenJetBSum"]+in["GenJet_numBHadrons"][indGJ];
-            }
+            *in["bGenJetBSum"]=*in["bGenJetBSum"]+in["GenJet_numBHadrons"][indGJ];
         }
         
         if(*in["bMCFlavorSum"]==1){
@@ -587,21 +578,15 @@ void VHbbAnalysis::FinishEvent(){
         }
         
         if(*in["bGenJetBSum"]==1){
-            *in["sampleIndex_GenJet"] = *in["sampleIndex_GenJet"] + 1;
+            *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"] + 1;
         }else if(*in["bGenJetBSum"]>1){
-            *in["sampleIndex_GenJet"] = *in["sampleIndex_GenJet"] + 2;
+            *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"] + 2;
         }
         
-        if(*in["bGenJetBSumNoEta"]==1){
-            *in["sampleIndex_GenJetNoEta"] = *in["sampleIndex_GenJetNoEta"] + 1;
-        }else if(*in["bGenJetBSumNoEta"]>1){
-            *in["sampleIndex_GenJetNoEta"] = *in["sampleIndex_GenJetNoEta"] + 2;
-        }
-        
-        if(*in["bGenJetBSumNoEtaNoPt"]==1){
-            *in["sampleIndex_GenJetNoEtaNoPt"] = *in["sampleIndex_GenJetNoEtaNoPt"] + 1;
-        }else if(*in["bGenJetBSumNoEtaNoPt"]>1){
-            *in["sampleIndex_GenJetNoEtaNoPt"] = *in["sampleIndex_GenJetNoEtaNoPt"] + 2;
+        if(*in["bGenJetSum"]==1){
+            *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"] + 1;
+        }else if(*in["bGenJetSum"]>1){
+            *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"] + 2;
         }
     } 
 

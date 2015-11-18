@@ -169,15 +169,16 @@ void AnalysisManager::InitChain(std::string filename)
 }
 
 
-void AnalysisManager::SetupBranch(std::string name, int type, int length, std::string prov){
+void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov){
     branches[name] = new TBranch;
-    branchInfos[name] = new BranchInfo(name,type,length,prov);
+    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov);
 
     // Only 0-9 are setup with types for the moment.
     if(type>9 || type<0) {
         std::cout<<"Branch "<<name<<" cannot be set to type "<<type<<std::endl;
         return;
     }
+    if(debug>10000) std::cout<<"checking type and setting branch address"<<std::endl;
 
     if(type==0) {
         ui[name] = new unsigned int;
@@ -229,6 +230,10 @@ void AnalysisManager::ConfigureOutputTree() {
 }
 
 void AnalysisManager::SetupNewBranch(std::string name, int type, int length, bool newmem, std::string treetype, float val){
+    if(debug>1000) {
+        std::cout<<"SetupNewBranch "<<name<<std::endl;
+        std::cout<<"treetype name type length val \t"<<treetype<<" "<<name<<" "<<type<<" "<<length<<" "<<val<<std::endl;
+    }
     
     TTree* treeptr;
     if(treetype=="output") { // outputtree
@@ -246,15 +251,11 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
         return;
     }*/   
     
-    if(debug>1000) {
-        std::cout<<"SetupNewBranch "<<name<<std::endl;
-        std::cout<<"treetype name type length val \t"<<treetype<<" "<<name<<" "<<type<<" "<<length<<" "<<val<<std::endl;
-    }
     if(newmem) {
         if(treetype=="output") { // outputtree
-            branchInfos[name] = new BranchInfo(name,type,length,"new");
+            branchInfos[name] = new BranchInfo(name,type,length,false,"new");
         } else if(treetype=="settings") { // settingstree
-            branchInfos[name] = new BranchInfo(name,type,length,"settings",val);
+            branchInfos[name] = new BranchInfo(name,type,length,false,"settings",val);
         }
     }
     if(debug>1000) std::cout<<"BranchInfo instaniated"<<std::endl; 
@@ -380,10 +381,10 @@ void AnalysisManager::SetNewBranches(){
     }
 }
 
-void AnalysisManager::GetEarlyEntries(Long64_t entry){
+void AnalysisManager::GetEarlyEntries(Long64_t entry, bool isData){
     for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
             ibranch!=branchInfos.end(); ++ibranch){
-        if(ibranch->second->prov == "early") {
+        if(ibranch->second->prov == "early" && !(isData && ibranch->second->onlyMC)) {
             if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
             branches[ibranch->first]->GetEntry(entry);
         }
@@ -501,7 +502,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
             //for (Long64_t jentry=0; jentry<50001;jentry++) {
                 if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
-                GetEarlyEntries(jentry);
+                GetEarlyEntries(jentry, cursample->sampleNum==0);
                 if(debug>100000) std::cout<<"checking preselection"<<std::endl;
                 bool presel = Preselection();
                 if(!presel) continue;
