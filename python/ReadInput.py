@@ -10,11 +10,12 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=0
 
-def ReadTextFile(filename, filetype, samplesToRun):
+def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
          print "samplesToRun is ", samplesToRun
+         print "fileToRun is ", fileToRun
 
     runSelectedSamples = False
     if (len(samplesToRun) > 0):
@@ -33,11 +34,12 @@ def ReadTextFile(filename, filetype, samplesToRun):
 
         if settings.has_key("analysis"):
             am=ROOT.__getattr__(settings["analysis"])()  
-        
+
         if settings.has_key("samples"):
             aminitialized=0
             samples=ReadTextFile(settings["samples"], "samplefile",samplesToRun)
             for name in samples:
+                addedAtLeastOneFile=False
                 if (runSelectedSamples and name not in samplesToRun): continue 
                 sample=samples[name]
                 #print sample, sampledic[sample]
@@ -62,6 +64,11 @@ def ReadTextFile(filename, filetype, samplesToRun):
                     samplecon.procEff = sample["procEff"]
                 print "Reading",sample["name"],"with",len(sample["files"]),"files"
                 for filename in sample["files"]:
+                    if sample["type"]==0 and fileToRun!="":
+                        #print "Do files match?",filename!=fileToRun,filename.find(fileToRun)
+                        if filename!=fileToRun:
+                            continue
+                    
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
                     if aminitialized == 0:
@@ -70,11 +77,14 @@ def ReadTextFile(filename, filetype, samplesToRun):
                         # FIXME can this go elsewhere?
                         if settings.has_key("outputname"):
                             am.outputTreeName=settings["outputname"]
+                    # if data and fileToRun is not empty then only run that file
                     try:
                         samplecon.AddFile(filename)
+                        addedAtLeastOneFile=True
                     except:
                         print "Can't add",filename
-                am.AddSample(samplecon)
+                if addedAtLeastOneFile:
+                    am.AddSample(samplecon)
 
         else:
             print "There are no samples in the config file."
@@ -82,14 +92,14 @@ def ReadTextFile(filename, filetype, samplesToRun):
         if settings.has_key("earlybranches"):
             branches=ReadTextFile(settings["earlybranches"], "branchlist",list())
             for branch in branches:
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1], "early")
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
         else:
             print "There are no existing branches in the config file."
 
         if settings.has_key("existingbranches"):
             branches=ReadTextFile(settings["existingbranches"], "branchlist",list())
             for branch in branches:
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1])
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "existing")
         else:
             print "There are no existing branches in the config file."
 
@@ -244,6 +254,7 @@ def MakeBranchMap(lines):
         branchtype=-1
         arraylength=-1
         val=-999
+        onlyMC=0
         
         for item in line.split():
             name,value = item.split("=")
@@ -255,8 +266,10 @@ def MakeBranchMap(lines):
                 arraylength=int(value)
             if name.find("val") is 0:
                 val=float(value)
+            if name.find("onlyMC") is 0:
+                onlyMC=int(value)
 
-        branches[branchname]= [branchtype,arraylength,val]
+        branches[branchname]= [branchtype,arraylength,val,onlyMC]
 
     return branches            
 

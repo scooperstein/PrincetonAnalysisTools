@@ -11,17 +11,19 @@ public:
     int length;         // for arrays only    
     std::string prov;   // origin of branch:  existing or new
     float val;          // for settings tree... val is static
+    bool onlyMC;        // only get branch for MC
 
-    BranchInfo(std::string _name, int _type, int _length=-1, std::string _prov="existing", float _val=-999);
+    BranchInfo(std::string _name, int _type, int _length=-1, int _onlyMC=0, std::string _prov="existing", float _val=-999);
 
 };
 
-inline BranchInfo::BranchInfo(std::string _name, int _type, int _length, std::string _prov, float _val) :
+inline BranchInfo::BranchInfo(std::string _name, int _type, int _length, int _onlyMC, std::string _prov, float _val) :
     name(_name),
     type(_type),
     length(_length),
     prov(_prov),
-    val(_val)
+    val(_val),
+    onlyMC(_onlyMC)
 {
 }
 
