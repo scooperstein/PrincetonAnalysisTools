@@ -13,6 +13,7 @@ AnalysisManager::AnalysisManager(){
     intL=20000; // pb^-1
     settingsTree = new TTree("settings","settings");
     debug = 0;
+    BDTisSet = false;
     jet1EnergyRegressionIsSet = false;
     jet2EnergyRegressionIsSet = false;
 }
@@ -90,6 +91,7 @@ void AnalysisManager::AddSample(SampleContainer sample){
 }
 
 void AnalysisManager::AddBDT(BDTInfo bdt) {
+    BDTisSet = true;
     bdtInfos.push_back(bdt);
     SetupBDT(bdt);
 }
