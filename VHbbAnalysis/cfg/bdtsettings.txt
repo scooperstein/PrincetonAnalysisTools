@@ -4,15 +4,17 @@
 bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
 xmlFile=aux/TEST_TMVA_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
 
-name=H_mass                 lname=H_mass                      type=1 order=1
-name=H_pt                   lname=H_pt                        type=1 order=2
-name=V_pt                   lname=V_pt                        type=1 order=3
-name=Jet_btagCSV[hJetInd1]  lname=hJets_btagCSV_0             type=1 order=4
-name=Jet_btagCSV[hJetInd2]  lname=hJets_btagCSV_1             type=1 order=5
-name=HVdPhi                 lname=HVdPhi                      type=1 order=6
-name=nAddJet_f              lname=nAddJet_f                   type=1 order=7
-name=nAddLep_f              lname=nAddLep_f                   type=1 order=8
-name=Jet_pt[hJetInd1]       lname=hJets_pt_0                  type=1 order=9
-name=Jet_pt[hJetInd2]       lname=hJets_pt_1                  type=1 order=10
-name=met_pt                 lname=met_pt                      type=1 order=11
-name=selLeptons_eleSieie_0  lname=selLeptons_eleSieie_0       type=1 order=12
+name=H_mass                 lname=H_mass                      isEx=1 isSpec=0 order=1
+name=H_pt                   lname=H_pt                        isEx=1 isSpec=0 order=2
+name=V_pt                   lname=V_pt                        isEx=1 isSpec=0 order=3
+name=Jet_btagCSV[hJetInd1]  lname=hJets_btagCSV_0             isEx=0 isSpec=0 order=4
+name=Jet_btagCSV[hJetInd2]  lname=hJets_btagCSV_1             isEx=0 isSpec=0 order=5
+name=HVdPhi                 lname=HVdPhi                      isEx=1 isSpec=0 order=6
+name=nAddJet_f              lname=nAddJet_f                   isEx=0 isSpec=0 order=7
+name=nAddLep_f              lname=nAddLep_f                   isEx=0 isSpec=0 order=8
+name=Jet_pt[hJetInd1]       lname=hJets_pt_0                  isEx=0 isSpec=0 order=9
+name=Jet_pt[hJetInd2]       lname=hJets_pt_1                  isEx=0 isSpec=0 order=10
+name=met_pt                 lname=met_pt                      isEx=1 isSpec=0 order=11
+name=Top1_mass_fromLepton   lname=Top1_mass_fromLepton        ixEx=0 isSpec=0 order=12
+name=lepMetDPhi             lname=lepMetDPhi                  isEx=0 isSpec=0 order=13
+name=selLeptons_pt[lepInd]  lname=selLeptons_pt_0             ixEx=0 isSpec=0 order=14

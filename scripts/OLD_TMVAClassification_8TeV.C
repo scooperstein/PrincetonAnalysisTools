@@ -180,8 +180,8 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    char outfileName[80];
-   if(iteration==0) sprintf(outfileName,"TEST_TMVA_13TeV_%sSig_%s%s%sBkg_%s%s.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
-   else sprintf(outfileName,"TEST_TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
+   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   else sprintf(outfileName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
    // Create the factory object. Later you can choose the methods
@@ -195,8 +195,8 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    char factoryName[80];
-   if(iteration==0) sprintf(factoryName,"TEST_TMVA_13TeV_%sSig_%s%s%sBkg_%s%s",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
-   else sprintf(factoryName,"TEST_TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
+   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   else sprintf(factoryName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TMVA::Factory *factory = new TMVA::Factory( factoryName, outputFile,
                                                "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification" );
 
@@ -223,8 +223,11 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    factory->AddVariable("Jet_pt[hJetInd1]", 'F');
    factory->AddVariable("Jet_pt[hJetInd2]", 'F');
    factory->AddVariable("met_pt", 'F');
-   
-   factory->AddVariable("selLeptons_eleSieie_0", 'F'); // random variable to put fix weird memory allocation issue FIXME
+   factory->AddVariable("Top1_mass_fromLepton", 'F');
+   factory->AddVariable("lepMetDPhi", 'F');
+   factory->AddVariable("selLeptons_pt[lepInd]", 'F');
+ 
+   //factory->AddVariable("selLeptons_eleSieie_0", 'F'); // random variable to put fix weird memory allocation issue FIXME
 
    /*factory->AddVariable( "H.massCorr", "H.massCorr", "", 'F' );
    factory->AddVariable( "H.ptCorr", "H.ptCorr", "", 'F' );
@@ -552,34 +555,34 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    TChain *sig_training_chain = new TChain("tree");
    TChain *bkg_testing_chain = new TChain("tree");
    TChain *sig_testing_chain = new TChain("tree");
-   //sig_training_chain->Add(Form("%s/WH125/*.root", training_dir.c_str()));
+   sig_training_chain->Add(Form("%s/WH125/*.root", training_dir.c_str()));
    sig_training_chain->Add(Form("%s/ZH125_powheg/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/TT/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/DYToLL/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/TToLeptons_s/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/TToLeptons_t/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/TT/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/DYToLL/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/TToLeptons_s/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/TToLeptons_t/*.root", training_dir.c_str()));
    bkg_training_chain->Add(Form("%s/T_tW/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/Tbar_tW/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/WJets/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/WJets-HT100To200/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/WJets-HT200To400/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/WJets-HT400To600/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/WJets-HT600ToInf/*.root", training_dir.c_str()));
-   //bkg_training_chain->Add(Form("%s/TBarToLep_t/*.root", training_dir.c_str()));
-   //sig_testing_chain->Add(Form("%s/WH125/*.root", testing_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/Tbar_tW/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/WJets/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/WJets-HT100To200/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/WJets-HT200To400/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/WJets-HT400To600/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/WJets-HT600ToInf/*.root", training_dir.c_str()));
+   bkg_training_chain->Add(Form("%s/TBarToLep_t/*.root", training_dir.c_str()));
+   sig_testing_chain->Add(Form("%s/WH125/*.root", testing_dir.c_str()));
    sig_testing_chain->Add(Form("%s/ZH125_powheg/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/TT/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/DYToLL/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/TToLeptons_s/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/TToLeptons_t/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/TT/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/DYToLL/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/TToLeptons_s/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/TToLeptons_t/*.root", testing_dir.c_str()));
    bkg_testing_chain->Add(Form("%s/T_tW/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/Tbar_tW/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/WJets/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/WJets-HT100To200/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/WJets-HT200To400/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/WJets-HT400To600/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/WJets-HT600ToInf/*.root", testing_dir.c_str()));
-   //bkg_testing_chain->Add(Form("%s/TBarToLep_t/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/Tbar_tW/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/WJets/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/WJets-HT100To200/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/WJets-HT200To400/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/WJets-HT400To600/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/WJets-HT600ToInf/*.root", testing_dir.c_str()));
+   bkg_testing_chain->Add(Form("%s/TBarToLep_t/*.root", testing_dir.c_str()));
    TTree *sig_training_tree = (TTree*) sig_training_chain;
    TTree *bkg_training_tree = (TTree*) bkg_training_chain;
    TTree *sig_testing_tree = (TTree*) sig_testing_chain;

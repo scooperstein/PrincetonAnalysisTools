@@ -115,11 +115,15 @@ void AnalysisManager::SetJet2EnergyRegression(BDTInfo reg2) {
 
 void AnalysisManager::PrintBDTInfoValues(BDTInfo bdt) {
     std::cout<<"Printing information for BDT "<<bdt.bdtname<<"..."<<std::endl;
-    for (unsigned int i=0; i<bdt.inputNames.size(); i++) {
+    /*for (unsigned int i=0; i<bdt.inputNames.size(); i++) {
          std::cout<<"Input variable: "<<bdt.inputNames[i].c_str()<<", reference in tree: "<<bdt.localVarNames[i].c_str()<<", current value: "<<*f[bdt.localVarNames[i]]<<std::endl;
      }
      for (unsigned int i=0; i<bdt.inputSpectatorNames.size(); i++) {
          std::cout<<"Spectator variable: "<<bdt.inputSpectatorNames[i].c_str()<<", reference in tree: "<<bdt.localSpectatorVarNames[i].c_str()<<", current value: "<<*f[bdt.localSpectatorVarNames[i]]<<std::endl;
+     }*/
+     for (unsigned int i=0; i < bdt.bdtVars.size(); i++) {
+         BDTVariable bdtvar = bdt.bdtVars[i];
+         std::cout<<"Input variable: "<<bdtvar.varName.c_str()<<", reference in tree: "<<bdtvar.localVarName.c_str()<<", current value: "<<*f[bdtvar.localVarName]<<"isSpec: "<<bdtvar.isSpec<<std::endl;
      }
 }
 
@@ -600,7 +604,7 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     //std::cout<<Form("Setting up variables for BDT %s", bdtInfo.bdtname)<<std::endl;
     TMVA::Reader *thereader = bdtInfo.reader;
     
-    for(unsigned int i=0; i<bdtInfo.inputNames.size(); i++) {
+    /*for(unsigned int i=0; i<bdtInfo.inputNames.size(); i++) {
         //std::cout<<Form("Adding variable to BDT: %s (localName = %s) ",bdtInfo.inputNames[i], bdtInfo.localVarNames[i])<<std::endl;
         
         bdtInfo.reader->AddVariable(bdtInfo.inputNames[i], f[bdtInfo.localVarNames[i]]);
@@ -609,8 +613,17 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     for(unsigned int i=0; i<bdtInfo.inputSpectatorNames.size(); i++) {
         //std::cout<<Form("Adding spectator variable to BDT: %s (localName = %s) ",bdtInfo.inputSpectatorNames[i], bdtInfo.localSpectatorVarNames[i])<<std::endl;
         bdtInfo.reader->AddSpectator(bdtInfo.inputSpectatorNames[i], f[bdtInfo.localSpectatorVarNames[i]]);
-    }
+    }*/
 
+    for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
+        BDTVariable bdtvar = bdtInfo.bdtVars[i];
+        if (!bdtvar.isSpec) {
+            bdtInfo.reader->AddVariable(bdtvar.varName, f[bdtvar.localVarName]);
+        }
+        else {
+            bdtInfo.reader->AddSpectator(bdtvar.varName, f[bdtvar.localVarName]);
+        }
+    }
 
     thereader->BookMVA(bdtInfo.bdtname, bdtInfo.xmlFile);
 

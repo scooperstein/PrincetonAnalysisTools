@@ -623,7 +623,7 @@ void VHbbAnalysis::FinishEvent(){
 
     //*f["Vtype_f"] = (float) *f["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
-    //*f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
+    *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
     //*f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
     //*f["selLeptons_phi_0"] = f["selLeptons_phi"][*in["lepInd"]];
     //*in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
