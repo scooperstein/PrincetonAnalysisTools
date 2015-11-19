@@ -2,7 +2,7 @@
 # type 1 -> Variable used in BDT training
 
 bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
-xmlFile=aux/TEST_TMVA_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
+xmlFile=aux/TMVA_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
 
 name=H_mass                 lname=H_mass                      isEx=1 isSpec=0 order=1
 name=H_pt                   lname=H_pt                        isEx=1 isSpec=0 order=2
