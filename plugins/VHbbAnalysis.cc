@@ -697,6 +697,8 @@ void VHbbAnalysis::FinishEvent(){
     //*f["met_sumEt_f"] = (float) *f["met_sumEt"]; // is this the right variable??
     *f["nAddJet_f"] = (float) *in["nAddJets252p9_puid"];
     *f["nAddLep_f"] = (float) *in["nAddLeptons"];
+    *f["isWenu_f"] = (float) *in["isWenu"];
+    *f["isWmunu_f"] = (float) *in["isWmunu"];
 
     if (BDTisSet) {
         if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
@@ -823,7 +825,7 @@ bool VHbbAnalysis::ElectronSelection(){
             && f["selLeptons_pt"][i]      > *f["eptcut"] 
             && fabs(f["selLeptons_eta"][i]) < *f["eletacut"]
             && f["selLeptons_relIso03"][i]< *f["erelisocut"]
-            && in["selLeptons_eleCutIdCSA14_25ns_v1"][i] >= *f["elidcut"]
+            && in["selLeptons_eleCutIdSpring15_25ns_v1"][i] >= *f["elidcut"]
             ){
             if (f["selLeptons_pt"][i] > elMaxPt) {
                 elMaxPt = f["selLeptons_pt"][i];
