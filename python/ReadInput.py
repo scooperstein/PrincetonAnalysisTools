@@ -21,6 +21,8 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
     if (len(samplesToRun) > 0):
         runSelectedSamples = True
 
+    print "runSelectedSamples",runSelectedSamples
+
     textfile=open(filename, 'r')
 
     filelines=textfile.readlines()
@@ -34,13 +36,17 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
 
         if settings.has_key("analysis"):
             am=ROOT.__getattr__(settings["analysis"])()  
-
+            #am.debug=100000
+        #print "samplesToRun",samplesToRun
         if settings.has_key("samples"):
             aminitialized=0
             samples=ReadTextFile(settings["samples"], "samplefile",samplesToRun)
             for name in samples:
                 addedAtLeastOneFile=False
-                if (runSelectedSamples and name not in samplesToRun): continue 
+                #print "is name in samplesToRun?",name,(name in samplesToRun)
+                if (runSelectedSamples and name not in samplesToRun): 
+                    #print "runSelectedSamples is TRUE and",name,"not in",samplesToRun
+                    continue 
                 sample=samples[name]
                 #print sample, sampledic[sample]
                 samplecon = ROOT.SampleContainer()
@@ -62,16 +68,19 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                     samplecon.doJetFlavorSplit  = bool(sample["doJetFlavorSplit"])
                 if sample.has_key("procEff"):
                     samplecon.procEff = sample["procEff"]
-                print "Reading",sample["name"],"with",len(sample["files"]),"files"
+                #print "Reading",sample["name"],"with",len(sample["files"]),"files"
                 for filename in sample["files"]:
-                    if sample["type"]==0 and fileToRun!="":
-                        #print "Do files match?",filename!=fileToRun,filename.find(fileToRun)
-                        if filename!=fileToRun:
-                            continue
+                    #print filename,fileToRun
+                    #if sample["type"]==0 and fileToRun!="":
+                    #    if filename!=fileToRun:
+                    #        continue
+                    #    else:
+                    #        print "Files match!",filename
                     
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
                     if aminitialized == 0:
+                        print("Initializing with",filename)
                         am.Initialize(filename)
                         aminitialized=1
                         # FIXME can this go elsewhere?
@@ -84,6 +93,7 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                     except:
                         print "Can't add",filename
                 if addedAtLeastOneFile:
+                    print("Adding sample to sample container")
                     am.AddSample(samplecon)
 
         else:
@@ -92,6 +102,7 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
         if settings.has_key("earlybranches"):
             branches=ReadTextFile(settings["earlybranches"], "branchlist",list())
             for branch in branches:
+                print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
                 am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
         else:
             print "There are no existing branches in the config file."
@@ -104,10 +115,12 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
             print "There are no existing branches in the config file."
 
         am.ConfigureOutputTree()
+        print "output tree configured"
             
         if settings.has_key("newbranches"):
             branches=ReadTextFile(settings["newbranches"], "branchlist",list())
             for branch in branches:
+                print(branch,branches[branch][0], branches[branch][1])
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1])
         else:
             print "There are no new branches in the config file."
