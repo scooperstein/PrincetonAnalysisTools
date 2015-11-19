@@ -124,27 +124,32 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
             bdtInfo=ReadTextFile(settings["bdtsettings"], "bdt",list())
             print "read the BDT settings text file for BDT %s" % bdtInfo.bdtname
             # now set up any of the branches if they don't exist yet (must be floats for BDT)
-            for varname in bdtInfo.localVarNames:
-                am.SetupNewBranch(varname, 2)
-            for varname in bdtInfo.localSpectatorVarNames:
-                am.SetupNewBranch(varname, 2)       
+            for bdtvar in bdtInfo.bdtVars:
+                if (bdtvar.isExisting):
+                    am.SetupBranch(bdtvar.localVarName, 2)
+                else:
+                    am.SetupNewBranch(bdtvar.localVarName, 2)
             am.AddBDT(bdtInfo)
             print "added BDT to analysis manager"
         if settings.has_key("reg1settings"):
             print "Adding a Jet 1 Energy Regresion..."
             reg1 = ReadTextFile(settings["reg1settings"], "bdt",list()) 
-            for varname in reg1.localVarNames:
-                am.SetupNewBranch(varname, 2)
-            for varname in reg1.localSpectatorVarNames:
-                am.SetupNewBranch(varname, 2) 
+            for bdtvar in reg1.bdtVars:
+                if (bdtvar.isExisting):
+                    am.SetupBranch(bdtvar.localVarName, 2)
+                else:
+                    am.SetupNewBranch(bdtvar.localVarName, 2)
+            am.AddBDT(reg1)
             am.SetJet1EnergyRegression(reg1) 
         if settings.has_key("reg2settings"):
             print "Adding a Jet 2 Energy Regresion..."
             reg2 = ReadTextFile(settings["reg2settings"], "bdt",list()) 
-            for varname in reg2.localVarNames:
-                am.SetupNewBranch(varname, 2)
-            for varname in reg2.localSpectatorVarNames:
-                am.SetupNewBranch(varname, 2) 
+            for bdtvar in reg2.bdtVars:
+                if (bdtvar.isExisting):
+                    am.SetupBranch(bdtvar.localVarName, 2)
+                else:
+                    am.SetupNewBranch(bdtvar.localVarName, 2)
+            am.AddBDT(reg2)
             am.SetJet2EnergyRegression(reg2) 
         return am    
     elif filetype is "samplefile":
@@ -283,8 +288,9 @@ def SetupBDT(lines):
     for line in lines:
         inputName = ""
         localVarName = ""
-        type = -1
+        isSpec = False
         order = -1
+        isExisting = False
         for item in line.split():
             name,value = item.split("=")
             if name.find("bdtname") is 0:
@@ -301,11 +307,13 @@ def SetupBDT(lines):
                 inputName=value
             if name.find("lname") is 0:
                 localVarName=value
-            if name.find("type") is 0:
-                type=int(value)
+            if name.find("isSpec") is 0:
+                if (int(value) == 1): isSpec = True
             if name.find("order") is 0:
                 order=int(value)
-        vars[order] = (inputName,localVarName,type)
+            if name.find("isEx") is 0:
+                if (int(value) == 1): isExisting = True
+        vars[order] = (inputName,localVarName,isExisting,isSpec)
    
     bdt = ROOT.BDTInfo(bdtname, xmlFile)
     
@@ -314,11 +322,10 @@ def SetupBDT(lines):
  
     for key in keys:
         if (key == -1): continue
-        name, lname, type = vars[key]
-        if (type == 1):
-            print "adding variable %s (%s) " % (name,lname)
-            bdt.AddVariable(name, lname)
-        if (type == 0):
-            print "adding spectator variable %s (%s) " % (name,lname)
-            bdt.AddSpectatorVariable(name, lname)
+        name, lname, isExisting, isSpec = vars[key]
+        if not isSpec:
+            print "adding variable %s (%s) existing: %i " % (name,lname,int(isExisting))
+        else:
+            print "adding spectator variable %s (%s) existing: %i" % (name,lname, int(isExisting))
+        bdt.AddVariable(name, lname, isExisting, isSpec)
     return bdt 

@@ -7,6 +7,7 @@
 
 #pragma link C++ defined_in "HelperClasses/SampleContainer.h";
 #pragma link C++ defined_in "HelperClasses/BDTInfo.h";
+#pragma link C++ defined_in "HelperClasses/BDTVariable.h";
 #pragma link C++ defined_in "HelperClasses/InfoStructs.h";
 #pragma link C++ defined_in "plugins/VHbbAnalysis.h";
 #pragma link C++ defined_in "plugins/VHbbTrigger.h";

@@ -1,23 +1,20 @@
 # type 0 -> Spectator variable
 # type 1 -> Variable used in BDT training
 
-bdtname=BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4
-xmlFile=aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml
+bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
+xmlFile=aux/TMVA_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
 
-name=H.massCorr               lname=H_mass_f                type=1 order=1
-name=H.ptCorr                 lname=H_pt_f                  type=1 order=2
-name=V.pt                     lname=V_pt_f                  type=1 order=3
-name=hJet_csvReshapedNew[0]   lname=hJets_btagCSV_0         type=1 order=4
-name=hJet_csvReshapedNew[1]   lname=hJets_btagCSV_1         type=1 order=5
-name=HVdPhi                   lname=HVdPhi_f                type=1 order=6
-name=H.dEta                   lname=H_dEta                  type=1 order=7
-name=Sum$(aJet_pt>20&&abs(aJet_eta)<4.5)                  lname=naJetsPassingCuts       type=1 order=8
-name=H.dR                     lname=H_dR                    type=1 order=9
-name=abs(deltaPullAngle)      lname=absDeltaPullAngle       type=1 order=10
-name=hJet_ptCorr[0]           lname=hJet_ptCorr_0           type=1 order=11
-name=hJet_ptCorr[1]           lname=hJet_ptCorr_1           type=1 order=12
-name=MaxIf$(aJet_csvReshapedNew,aJet_pt>20&&abs(aJet_eta)<2.5)                lname=highestCSVaJet          type=1 order=13
-name=MinIf$(evalDeltaR(aJet_eta,aJet_phi,H.eta,H.phi),aJet_pt>20&&abs(aJet_eta)<4.5&&aJet_puJetIdL>0)             lname=minDeltaRaJet           type=1 order=14
-name=Vtype                    lname=Vtype_f                 type=0 order=15
-name=Sum$(aLepton_pt>15&&abs(aLepton_eta)<2.5&&(aLepton_pfCombRelIso<0.15))               lname=naLeptonsPassingCuts    type=0 order=16
-name=METtype1corr.et          lname=met_sumEt_f             type=0 order=17
+name=H_mass                 lname=H_mass                      isEx=1 isSpec=0 order=1
+name=H_pt                   lname=H_pt                        isEx=1 isSpec=0 order=2
+name=V_pt                   lname=V_pt                        isEx=1 isSpec=0 order=3
+name=Jet_btagCSV[hJetInd1]  lname=hJets_btagCSV_0             isEx=0 isSpec=0 order=4
+name=Jet_btagCSV[hJetInd2]  lname=hJets_btagCSV_1             isEx=0 isSpec=0 order=5
+name=HVdPhi                 lname=HVdPhi                      isEx=1 isSpec=0 order=6
+name=nAddJet_f              lname=nAddJet_f                   isEx=0 isSpec=0 order=7
+name=nAddLep_f              lname=nAddLep_f                   isEx=0 isSpec=0 order=8
+name=Jet_pt[hJetInd1]       lname=hJets_pt_0                  isEx=0 isSpec=0 order=9
+name=Jet_pt[hJetInd2]       lname=hJets_pt_1                  isEx=0 isSpec=0 order=10
+name=met_pt                 lname=met_pt                      isEx=1 isSpec=0 order=11
+name=Top1_mass_fromLepton   lname=Top1_mass_fromLepton        ixEx=0 isSpec=0 order=12
+name=lepMetDPhi             lname=lepMetDPhi                  isEx=0 isSpec=0 order=13
+name=selLeptons_pt[lepInd]  lname=selLeptons_pt_0             ixEx=0 isSpec=0 order=14

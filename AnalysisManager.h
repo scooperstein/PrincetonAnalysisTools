@@ -61,6 +61,7 @@ public :
     std::vector<BDTInfo>            bdtInfos;
     BDTInfo                         jet1EnergyRegression;
     BDTInfo                         jet2EnergyRegression;
+    bool                            BDTisSet;
     bool                            jet1EnergyRegressionIsSet;
     bool                            jet2EnergyRegressionIsSet;
     std::vector<SampleContainer>    samples; 

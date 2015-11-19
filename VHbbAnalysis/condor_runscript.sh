@@ -10,7 +10,8 @@
 # Set up environment
 echo "setting up the environment"
 #pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_2_0_pre6/src
-pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_4_7/src
+#pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_4_7/src
+pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_4_14/src
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 pushd /uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/
@@ -25,7 +26,7 @@ echo "moving text files to their respective directories"
 mkdir -p cfg
 mv samples.txt earlybranches.txt existingbranches.txt newbranches.txt bdtsettings.txt reg1_settings.txt reg2_settings.txt settings.txt cfg
 mkdir -p aux
-mv new-weights-23Jan.xml TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml aux
+mv new-weights-23Jan.xml TMVA_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml aux
 
 
 echo "running RunSample.py"

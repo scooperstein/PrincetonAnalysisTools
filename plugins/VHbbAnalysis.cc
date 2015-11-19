@@ -32,7 +32,17 @@ bool VHbbAnalysis::Preselection(){
     bool sel=true;
     //if( *d["Vtype"]==3 ) sel=true;
     //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
-    
+    if (*f["onlyEvenEvents"] && *f["onlyOddEvents"]) {
+        std::cout<<"Cannot set both onlyEvenEvents and onlyOddEvents to true!!"<<std::endl;
+        return false;
+    }
+    if (*f["onlyEvenEvents"]) {
+        if (*in["evt"]%2 == 1) sel=false;
+    }    
+    else if (*f["onlyOddEvents"]) {
+        if (*in["evt"]%2 == 0) sel=false;
+    }    
+     
     // stitch WJets inclusive sample to HT-binned samples
     if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
 
@@ -127,7 +137,7 @@ bool VHbbAnalysis::Analyze(){
     *f["H_pt"] = Hbb.Pt();
     if (*f["H_pt"] < *f["hptcut"]) sel=false;
     if (sel) *in["cutFlow"] += 1; // pT(jj) cut
-    
+   
     if (*f["met_pt"] < *f["metcut"]) sel = false;
     if (sel) *in["cutFlow"] += 1; // met cut
     
@@ -482,7 +492,7 @@ bool VHbbAnalysis::Analyze(){
             && ((*in["isWmunu"] && *d["lepMetDPhi"] < *f["muMetDPhiCut"])
               || (*in["isWenu"] && *d["lepMetDPhi"] < *f["elMetDPhiCut"]))
             && *f["V_pt"]> *f["vptcut"] && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
-
+    
     *in["controlSample"]=-1; // maybe this should go much early (before any returns)
     float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
     if(baseCSSelection){
@@ -611,23 +621,23 @@ void VHbbAnalysis::FinishEvent(){
         *f["weight"] = 1.0;
     } 
 
-   *f["Vtype_f"] = (float) *f["Vtype"];
+    //*f["Vtype_f"] = (float) *f["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
     *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
-    *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
-    *f["selLeptons_phi_0"] = f["selLeptons_phi"][*in["lepInd"]];
-    *in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
-    *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
-    *in["selLeptons_tightId_0"] = in["selLeptons_tightId"][*in["lepInd"]];
-    *f["selLeptons_relIso03_0"] = f["selLeptons_relIso03"][*in["lepInd"]];  
+    //*f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
+    //*f["selLeptons_phi_0"] = f["selLeptons_phi"][*in["lepInd"]];
+    //*in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
+    //*in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
+    //*in["selLeptons_tightId_0"] = in["selLeptons_tightId"][*in["lepInd"]];
+    //*f["selLeptons_relIso03_0"] = f["selLeptons_relIso03"][*in["lepInd"]];  
   
     // electron ID variables
-    *f["selLeptons_eleSieie_0"] = f["selLeptons_eleSieie"][*in["lepInd"]];
-    *f["selLeptons_eleDEta_0"] = f["selLeptons_eleDEta"][*in["lepInd"]];
-    *f["selLeptons_eleDPhi_0"] = f["selLeptons_eleDPhi"][*in["lepInd"]];
-    *f["selLeptons_eleHoE_0"] = f["selLeptons_eleHoE"][*in["lepInd"]];
-    *f["selLeptons_eleMissingHits_0"] = f["selLeptons_eleMissingHits"][*in["lepInd"]];
-    *f["selLeptons_eleChi2_0"] = f["selLeptons_eleChi2"][*in["lepInd"]];
+    //*f["selLeptons_eleSieie_0"] = f["selLeptons_eleSieie"][*in["lepInd"]];
+    //*f["selLeptons_eleDEta_0"] = f["selLeptons_eleDEta"][*in["lepInd"]];
+    //*f["selLeptons_eleDPhi_0"] = f["selLeptons_eleDPhi"][*in["lepInd"]];
+    //*f["selLeptons_eleHoE_0"] = f["selLeptons_eleHoE"][*in["lepInd"]];
+    //*f["selLeptons_eleMissingHits_0"] = f["selLeptons_eleMissingHits"][*in["lepInd"]];
+    //*f["selLeptons_eleChi2_0"] = f["selLeptons_eleChi2"][*in["lepInd"]];
      
 
     if(*in["sampleIndex"]!=0){
@@ -643,14 +653,14 @@ void VHbbAnalysis::FinishEvent(){
     }
  
 
-    *f["naLeptonsPassingCuts"] = *in["nAddLeptons"]; // no need to calculate this twice
-    *f["naJetsPassingCuts"] = *in["nAddJets252p9_puid"];
-    *f["highestCSVaJet"] = 0.0;
-    *f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
-    for(int j=0;j<*in["nJet"];j++){
-        if (j == *in["hJetInd1"] || j == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][j]>20 && fabs(f["Jet_eta"][j])<2.5 && f["Jet_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = f["Jet_btagCSV"][j];
-      }       
+    //*f["naLeptonsPassingCuts"] = *in["nAddLeptons"]; // no need to calculate this twice
+    //*f["naJetsPassingCuts"] = *in["nAddJets252p9_puid"];
+    //*f["highestCSVaJet"] = 0.0;
+    //*f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
+    //for(int j=0;j<*in["nJet"];j++){
+    //    if (j == *in["hJetInd1"] || j == *in["hJetInd2"]) continue;
+    //    if(f["Jet_pt"][j]>20 && fabs(f["Jet_eta"][j])<2.5 && f["Jet_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = f["Jet_btagCSV"][j];
+    //  }       
     
     // Reconstruct Higgs and W and recalculate variables ourselves
     if(debug>1000) std::cout<<"Making composite candidates"<<std::endl;
@@ -670,31 +680,36 @@ void VHbbAnalysis::FinishEvent(){
     //*d["HVdPhi"] = Hbb.DeltaPhi(W);
     
     // Set variables used by the BDT
-    *f["H_mass_f"] = (float) *f["H_mass"];
-    *f["H_pt_f"] = (float) *f["H_pt"];
-    *f["V_pt_f"] = (float) *f["V_pt"];
+    //*f["H_mass_f"] = (float) *f["H_mass"];
+    //*f["H_pt_f"] = (float) *f["H_pt"];
+    //*f["V_pt_f"] = (float) *f["V_pt"];
     *f["hJets_btagCSV_0"] = (float) f["Jet_btagCSV"][*in["hJetInd1"]];
     *f["hJets_btagCSV_1"] = (float) f["Jet_btagCSV"][*in["hJetInd2"]]; 
-    *f["HVdPhi_f"] = (float) *f["HVdPhi"];
-    *f["H_dEta"] = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
+    //*f["HVdPhi_f"] = (float) *f["HVdPhi"];
+    //*f["H_dEta"] = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
   
-    *f["hJets_mt_0"] = HJ1.Mt();
-    *f["hJets_mt_1"] = HJ2.Mt();
-    *f["H_dR"] = (float) HJ1.DeltaR(HJ2);   
-    *f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
-    *f["hJet_ptCorr_0"] = (float) f["Jet_pt"][*in["hJetInd1"]];
-    *f["hJet_ptCorr_1"] = (float) f["Jet_pt"][*in["hJetInd2"]];
-    *f["met_sumEt_f"] = (float) *f["met_sumEt"]; // is this the right variable??
+    //*f["hJets_mt_0"] = HJ1.Mt();
+    //*f["hJets_mt_1"] = HJ2.Mt();
+    //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);   
+    //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
+    *f["hJets_pt_0"] = (float) f["Jet_pt"][*in["hJetInd1"]];
+    *f["hJets_pt_1"] = (float) f["Jet_pt"][*in["hJetInd2"]];
+    //*f["met_sumEt_f"] = (float) *f["met_sumEt"]; // is this the right variable??
+    *f["nAddJet_f"] = (float) *in["nAddJets252p9_puid"];
+    *f["nAddLep_f"] = (float) *in["nAddLeptons"];
 
-    for (unsigned int i=0; i<bdtInfos.size(); i++) {
+    if (BDTisSet) {
+        if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
+        for (unsigned int i=0; i<bdtInfos.size(); i++) {
 
-       BDTInfo tmpBDT = bdtInfos[i];
-       if(debug>5000) {
-           PrintBDTInfoValues(tmpBDT);
-           std::cout<<"BDT evaulates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname)<<std::endl;
-       }
-       *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname);
-    }
+            BDTInfo tmpBDT = bdtInfos[i];
+            if(debug>5000) {
+                PrintBDTInfoValues(tmpBDT);
+                std::cout<<"BDT evaulates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname)<<std::endl;
+            }
+            *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname);
+        }
+    }   
 
     if(jet1EnergyRegressionIsSet && jet2EnergyRegressionIsSet) {
         *f["hJets_pt_0"] = float(f["Jet_pt"][*in["hJetInd1"]]);
@@ -795,6 +810,8 @@ bool VHbbAnalysis::ElectronSelection(){
         std::cout<<"in[\"selLeptons_pdgId\"] "<<in["selLeptons_pdgId"][0]<<std::endl;
         std::cout<<"d[\"selLeptons_relIso03\"] "<<f["selLeptons_relIso03"][0]<<std::endl;
         std::cout<<"*d[\"met_pt\"] "<<*f["met_pt"]<<std::endl;
+        std::cout<<"*f[selLeptons_eleSieie_0] = "<<*f["selLeptons_eleSieie_0"]<<std::endl;
+        std::cout<<"*f[hJets_pt_1] = "<<*f["hJets_pt_1"]<<std::endl;
     }
     
     // there is only one selected electron for Vtype == 3 which is the electron tag
