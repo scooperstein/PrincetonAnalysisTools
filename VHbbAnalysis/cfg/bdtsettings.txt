@@ -1,5 +1,5 @@
-# type 0 -> Spectator variable
-# type 1 -> Variable used in BDT training
+# isSpec 1 -> Spectator variable
+# isSpec 0 -> Variable used in BDT training
 
 bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
 xmlFile=aux/TMVA_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml

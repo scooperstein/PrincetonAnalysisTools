@@ -180,7 +180,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    char outfileName[80];
-   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_Nov20-v2_%sSig_%s%s%sBkg_%s%s.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(outfileName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
@@ -195,7 +195,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    char factoryName[80];
-   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_Nov20-v2_%sSig_%s%s%sBkg_%s%s",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(factoryName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TMVA::Factory *factory = new TMVA::Factory( factoryName, outputFile,
                                                "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification" );
@@ -226,6 +226,10 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    factory->AddVariable("Top1_mass_fromLepton", 'F');
    factory->AddVariable("lepMetDPhi", 'F');
    factory->AddVariable("selLeptons_pt[lepInd]", 'F');
+   factory->AddVariable("selLeptons_eta[lepInd]", 'F');
+   factory->AddVariable("selLeptons_relIso03[lepInd]", 'F');
+   factory->AddVariable("isWenu_f", 'F');
+   factory->AddVariable("isWmunu_f", 'F');
  
    //factory->AddVariable("selLeptons_eleSieie_0", 'F'); // random variable to put fix weird memory allocation issue FIXME
 
@@ -549,8 +553,8 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
      mycutsBkg = "H.massCorr>0. && H.massCorr<256. && H.ptCorr>120. && ((Vtype==2 && vLepton_pt[0]>20.) || (Vtype==3 && vLepton_pt[0]>30. && vLepton_wp80[0]>0 && METtype1corr.et>45.)) && V.pt>170. && Sum$(aLepton_pt > 15 && abs(aLepton_eta) < 2.5 && (aLepton_pfCorrIso < 0.1) )==0 && METtype1corr.et<1000. && V.pt<1000 && max(hJet_csvReshapedNew[0],hJet_csvReshapedNew[1])>0.4  && min(hJet_csvReshapedNew[0],hJet_csvReshapedNew[1])>0.4 && hJet_csvReshapedNew[0]>0. && hJet_csvReshapedNew[1]>0. && hJet_ptCorr[0]>30. && hJet_ptCorr[1]>30. && hJet_puJetIdL[0]>0.0 && hJet_puJetIdL[1]>0.0 && hbhe && abs(deltaPullAngle)<5.";
    }
  */
-   std::string training_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_oddEvents/";
-   std::string testing_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_evenEvents/";
+   std::string training_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_Nov20-v2_oddEvents/";
+   std::string testing_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_Nov20-v2_evenEvents/";
    TChain *bkg_training_chain = new TChain("tree");
    TChain *sig_training_chain = new TChain("tree");
    TChain *bkg_testing_chain = new TChain("tree");

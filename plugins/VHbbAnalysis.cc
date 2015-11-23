@@ -170,9 +170,9 @@ bool VHbbAnalysis::Analyze(){
         std::cout<<"cutting on dphi(lep, met)"<<std::endl;
         std::cout<<*in["lepInd"]<<" "<<f["selLeptons_phi"][*in["lepInd"]]<<" "<<f["selLeptons_eta"][*in["lepInd"]]<<" "<<f["selLeptons_mass"][*in["lepInd"]]<<std::endl;
     }
-    *d["lepMetDPhi"]=fabs(EvalDeltaPhi(f["selLeptons_phi"][*in["lepInd"]],*f["met_phi"]));
-    if (*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"]) sel = false;
-    else if (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]) sel = false;
+    *f["lepMetDPhi"]=fabs(EvalDeltaPhi(f["selLeptons_phi"][*in["lepInd"]],*f["met_phi"]));
+    if (*in["isWmunu"] && *f["lepMetDPhi"] > *f["muMetDPhiCut"]) sel = false;
+    else if (*in["isWenu"] && *f["lepMetDPhi"] > *f["elMetDPhiCut"]) sel = false;
     if (sel) *in["cutFlow"] += 1;   
 
 
@@ -489,8 +489,8 @@ bool VHbbAnalysis::Analyze(){
             && f["Jet_pt"][*in["hJetInd2"]]>*f["j2ptCut"]
             && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
             && *f["met_pt"] > *f["metcut"]
-            && ((*in["isWmunu"] && *d["lepMetDPhi"] < *f["muMetDPhiCut"])
-              || (*in["isWenu"] && *d["lepMetDPhi"] < *f["elMetDPhiCut"]))
+            && ((*in["isWmunu"] && *f["lepMetDPhi"] < *f["muMetDPhiCut"])
+              || (*in["isWenu"] && *f["lepMetDPhi"] < *f["elMetDPhiCut"]))
             && *f["V_pt"]> *f["vptcut"] && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
     
     *in["controlSample"]=-1; // maybe this should go much early (before any returns)
@@ -707,7 +707,7 @@ void VHbbAnalysis::FinishEvent(){
             BDTInfo tmpBDT = bdtInfos[i];
             if(debug>5000) {
                 PrintBDTInfoValues(tmpBDT);
-                std::cout<<"BDT evaulates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname)<<std::endl;
+                std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname)<<std::endl;
             }
             *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname);
         }
@@ -715,46 +715,48 @@ void VHbbAnalysis::FinishEvent(){
 
     if(jet1EnergyRegressionIsSet && jet2EnergyRegressionIsSet) {
         *f["hJets_pt_0"] = float(f["Jet_pt"][*in["hJetInd1"]]);
+        *f["hJets_corr_0"] = f["Jet_corr"][*in["hJetInd1"]];
         //*f["hJets_rawPt_0"] = float(d["hJets_rawPt"][0]);
         *f["hJets_eta_0"] = float(f["Jet_eta"][*in["hJetInd1"]]);
-        //*f["hJets_mt_0"] = 0.; // FIXME
+        *f["hJets_mt_0"] = HJ1.Mt();
         *f["hJets_leadTrackPt_0"] = float(f["Jet_leadTrackPt"][*in["hJetInd1"]]);
         *f["hJets_leptonPtRel_0"] = float(f["Jet_leptonPtRel"][*in["hJetInd1"]]);
         *f["hJets_leptonPt_0"] = float(f["Jet_leptonPt"][*in["hJetInd1"]]);
         *f["hJets_leptonDeltaR_0"] = float(f["Jet_leptonDeltaR"][*in["hJetInd1"]]);
-        *f["hJets_chEmEF_0"] = float(f["Jet_chEmEF"][*in["hJetInd1"]]);
-        *f["hJets_chHEF_0"] = float(f["Jet_chHEF"][*in["hJetInd1"]]);
+        //*f["hJets_chEmEF_0"] = float(f["Jet_chEmEF"][*in["hJetInd1"]]);
+        //*f["hJets_chHEF_0"] = float(f["Jet_chHEF"][*in["hJetInd1"]]);
         *f["hJets_neHEF_0"] = float(f["Jet_neHEF"][*in["hJetInd1"]]);
         *f["hJets_neEmEF_0"] = float(f["Jet_neEmEF"][*in["hJetInd1"]]);
         *f["hJets_chMult_0"] = float(f["Jet_chMult"][*in["hJetInd1"]]);
         //*f["hJets_puId_0"] = float(d["hJets_puId"][0]);
-        *f["hJets_vtx3DVal_0"] = 0.;
-        *f["hJets_vtxNtracks_0"] = 0.;
         *f["hJets_vtxMass_0"] = float(f["Jet_vtxMass"][*in["hJetInd1"]]);
         *f["hJets_vtxPt_0"] = float(f["Jet_vtxPt"][*in["hJetInd1"]]);
-        *f["hJets_vtx3DVal_0"] = float(f["Jet_vtx3DVal"][*in["hJetInd1"]]);
+        //*f["hJets_vtx3DVal_0"] = float(f["Jet_vtx3DVal"][*in["hJetInd1"]]);
+        *f["hJets_vtx3dL_0"] = f["Jet_vtx3DVal"][*in["hJetInd1"]];
         *f["hJets_vtxNtracks_0"] = float(f["Jet_vtxNtracks"][*in["hJetInd1"]]);
+        *f["hJets_vtx3deL_0"] = f["Jet_vtx3DSig"][*in["hJetInd1"]];
 
         *f["hJets_pt_1"] = float(f["Jet_pt"][*in["hJetInd2"]]);
+        *f["hJets_corr_1"] = f["Jet_corr"][*in["hJetInd2"]];
         //*f["hJets_rawPt_1"] = float(d["hJets_rawPt"][1]);
         *f["hJets_eta_1"] = float(f["Jet_eta"][*in["hJetInd2"]]);
-        //*f["hJets_mt_1"] = 0.; // FIXME
+        *f["hJets_mt_1"] = HJ2.Mt();
         *f["hJets_leadTrackPt_1"] = float(f["Jet_leadTrackPt"][*in["hJetInd2"]]);
         *f["hJets_leptonPtRel_1"] = float(f["Jet_leptonPtRel"][*in["hJetInd2"]]);
         *f["hJets_leptonPt_1"] = float(f["Jet_leptonPt"][*in["hJetInd2"]]);
         *f["hJets_leptonDeltaR_1"] = float(f["Jet_leptonDeltaR"][*in["hJetInd2"]]);
-        *f["hJets_chEmEF_1"] = float(f["Jet_chEmEF"][*in["hJetInd2"]]);
-        *f["hJets_chHEF_1"] = float(f["Jet_chHEF"][*in["hJetInd2"]]);
+        //*f["hJets_chEmEF_1"] = float(f["Jet_chEmEF"][*in["hJetInd2"]]);
+        //*f["hJets_chHEF_1"] = float(f["Jet_chHEF"][*in["hJetInd2"]]);
         *f["hJets_neHEF_1"] = float(f["Jet_neHEF"][*in["hJetInd2"]]);
         *f["hJets_neEmEF_1"] = float(f["Jet_neEmEF"][*in["hJetInd2"]]);
         *f["hJets_chMult_1"] = float(f["Jet_chMult"][*in["hJetInd2"]]);
         //*f["hJets_puId_1"] = float(f["hJets_puId"][1]);
-        *f["hJets_vtx3DVal_1"] = 0.;
-        *f["hJets_vtxNtracks_1"] = 0.;
         *f["hJets_vtxMass_1"] = float(f["Jet_vtxMass"][*in["hJetInd2"]]);
-        *f["hJets_vtx3DVal_1"] = float(f["Jet_vtx3DVal"][*in["hJetInd2"]]);
+        //*f["hJets_vtx3DVal_1"] = float(f["Jet_vtx3DVal"][*in["hJetInd2"]]); 
+        *f["hJets_vtx3dL_1"] = f["Jet_vtx3DVal"][*in["hJetInd2"]];
         *f["hJets_vtxPt_1"] = float(f["Jet_vtxPt"][1]);
         *f["hJets_vtxNtracks_1"] = float(f["Jet_vtxNtracks"][*in["hJetInd2"]]);
+        *f["hJets_vtx3deL_1"] = f["Jet_vtx3DSig"][*in["hJetInd2"]];
         
         if(debug>10000) {
             std::cout<<"Evaluating the Jet Energy Regression..."<<std::endl;
