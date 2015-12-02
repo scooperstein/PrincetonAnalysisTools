@@ -11,7 +11,7 @@ tfile=ROOT.TFile(filename)
 treename="tree"
 tree=tfile.Get(treename)
 
-outDir="variablePlots_WHbb_Nov20"
+outDir="variablePlots_WHbb_Dec2_2Em3_boundariesAutomated"
 suffix="analysis"
 
 if not os.path.exists(outDir):
@@ -23,6 +23,8 @@ varsmap={}
 def AssignVarsToMap():
     varsmap["jet1csv"]        = tree.hJets_btagCSV_0
     varsmap["jet2csv"]        = tree.hJets_btagCSV_1
+    varsmap["jet1pt"]         = tree.hJets_pt_0
+    varsmap["jet2pt"]         = tree.hJets_pt_1
     varsmap["ptjj"]           = tree.H_pt
     varsmap["ptW"]            = tree.V_pt
     varsmap["met"]            = tree.met_pt
@@ -34,7 +36,8 @@ def AssignVarsToMap():
     varsmap["isWenu"]         = tree.isWenu
     varsmap["isWmunu"]        = tree.isWmunu
     varsmap["type"]           = tree.sampleIndex
-    varsmap["Mjj"]         = tree.H_mass
+    varsmap["Mjj"]            = tree.H_mass
+    varsmap["ptlep"]          = tree.selLeptons_pt_0
 
 yieldsTextFile=open(outDir+"/yields.txt","w+")
 
@@ -43,27 +46,49 @@ cutsets={}
 
 cutsets["Analysis"] = {}
 cutsets["Analysis"]["jet1csv"]       =   [0.9, 0.9]
-cutsets["Analysis"]["jet2csv"]       =   [0.5, 0.5]
-cutsets["Analysis"]["ptjj"]          =   [80, 80]
-cutsets["Analysis"]["ptW"]           =   [80, 80]
-cutsets["Analysis"]["met"]           =   [30, 30]
-cutsets["Analysis"]["HVdPhi"]        =   [2.85, 2.85]
-cutsets["Analysis"]["lepmetdphi"]    =   [1.571, 1.571]
-cutsets["Analysis"]["naddlep"]       =   [1, 1]
+cutsets["Analysis"]["jet2csv"]       =   [0.65, 0.65]
+cutsets["Analysis"]["jet1pt"]        =   [25, 25]
+cutsets["Analysis"]["jet2pt"]        =   [25, 25]
+cutsets["Analysis"]["ptjj"]          =   [55, 55]
+cutsets["Analysis"]["ptW"]           =   [60, 60]
+cutsets["Analysis"]["met"]           =   [0, 0]
+cutsets["Analysis"]["HVdPhi"]        =   [2.8, 2.8]
+cutsets["Analysis"]["lepmetdphi"]    =   [2.0, 2.0]
+cutsets["Analysis"]["naddlep"]       =   [2, 2]
 cutsets["Analysis"]["naddjet"]       =   [2, 2]
 cutsets["Analysis"]["topmass_nomet"] =   [0, 0]
+cutsets["Analysis"]["ptlep"]         =   [25, 25]
 
 cutsets["presel"] = {}
 cutsets["presel"]["jet1csv"]       =   [0.65, 0.65]
-cutsets["presel"]["jet2csv"]       =   [0., 0.]
+cutsets["presel"]["jet2csv"]       =   [0.3, 0.3]
+cutsets["presel"]["jet1pt"]        =   [25, 25]
+cutsets["presel"]["jet2pt"]        =   [25, 25]
 cutsets["presel"]["ptjj"]          =   [50, 50]
 cutsets["presel"]["ptW"]           =   [50, 50]
 cutsets["presel"]["met"]           =   [0, 0]
 cutsets["presel"]["HVdPhi"]        =   [2.0, 2.0]
-cutsets["presel"]["lepmetdphi"]    =   [3.14, 3.14]
+cutsets["presel"]["lepmetdphi"]    =   [2.5, 2.5]
 cutsets["presel"]["naddlep"]       =   [5, 5]
 cutsets["presel"]["naddjet"]       =   [5, 5]
 cutsets["presel"]["topmass_nomet"] =   [0, 0]
+cutsets["presel"]["ptlep"]         =   [25, 25]
+
+## [min, max] possible cut values
+#boundaries["threshold"] = {}
+#boundaries["threshold"]["jet1csv"]       =   [0.9, 1.0]
+#boundaries["threshold"]["jet2csv"]       =   [0.65, 1.0]
+#boundaries["threshold"]["jet1pt"]        =   [25, 25]
+#boundaries["threshold"]["jet2pt"]        =   [25, 25]
+#boundaries["threshold"]["ptjj"]          =   [55, 1000]
+#boundaries["threshold"]["ptW"]           =   [60, 1000]
+#boundaries["threshold"]["met"]           =   [0, 200]
+#boundaries["threshold"]["HVdPhi"]        =   [2.8,3.15]
+#boundaries["threshold"]["lepmetdphi"]    =   [0.0, 2.0]
+#boundaries["threshold"]["naddlep"]       =   [1, 2]
+#boundaries["threshold"]["naddjet"]       =   [1, 2]
+#boundaries["threshold"]["topmass_nomet"] =   [0, 1000]
+#boundaries["threshold"]["ptlep"]         =   [25, 25]
 
 nBins=40
 varstocut={}  # 0 keep less than, 1 keept greater than
@@ -72,12 +97,14 @@ varstocut["jet2csv"]     = [1,nBins,cutsets["presel"]["jet2csv"][0], 1.0, nBins,
 varstocut["ptjj"]        = [1,nBins,cutsets["presel"]["ptjj"][0],400,nBins,cutsets["presel"]["ptjj"][1], 400]
 varstocut["ptW"]         = [1,nBins,cutsets["presel"]["ptW"][0],400,nBins,cutsets["presel"]["ptW"][1], 400]
 varstocut["met"]         = [1,nBins,cutsets["presel"]["met"][0],100,nBins,cutsets["presel"]["met"][1], 100]
-varstocut["HVdPhi"]      = [1,nBins,cutsets["presel"]["HVdPhi"][0], 3.14, nBins,cutsets["presel"]["HVdPhi"][1],3.14]
+varstocut["HVdPhi"]      = [1,nBins,cutsets["presel"]["HVdPhi"][0], 3.14, nBins,cutsets["presel"]["HVdPhi"][1],3.15]
 varstocut["lepmetdphi"]  = [0,nBins,0.,cutsets["presel"]["lepmetdphi"][0],nBins,0.,cutsets["presel"]["lepmetdphi"][1]]
 varstocut["naddlep"]     = [0,5,0,5,5,0,5]
 varstocut["naddjet"]     = [0,5,0,5,5,0,5]
 varstocut["topmass_nomet"] = [1,nBins,cutsets["presel"]["topmass_nomet"][0],500,nBins,cutsets["presel"]["topmass_nomet"][1],500]
-
+varstocut["ptlep"]       = [1,nBins,cutsets["presel"]["ptlep"][0], 100, nBins, cutsets["presel"]["ptlep"][1], 100 ]
+varstocut["jet1pt"]       = [1,15,cutsets["presel"]["jet1pt"][0], 100, 15, cutsets["presel"]["jet1pt"][1], 100 ]
+varstocut["jet2pt"]       = [1,15,cutsets["presel"]["jet2pt"][0], 100, 15, cutsets["presel"]["jet2pt"][1], 100 ]
 
 
 nCats=2
@@ -195,11 +222,17 @@ wps=["Analysis"]
 
 potentialCuts={}  #wp,cat,var
 
-numIterations=1
+numIterations=5
 
 
 for wp in wps:
     print wp
+    # set boundaries so that cuts can never be looser than initial working point
+    boundaries = {}
+    for var in varstocut:
+        boundaries[var] = {}
+        for cat in catMap: 
+            boundaries[var][cat] = cutsets[wp][var][cat] 
     for iteration in range(numIterations):
         if iteration==0:
             originalwp=wp
@@ -390,7 +423,7 @@ for wp in wps:
    
                 leg.Draw("same") 
                 line=ROOT.TLine(cutsets[wp][var][icat],0,cutsets[wp][var][icat], maxval/1.3)
-                line.SetLineColor(1)    
+                line.SetLineColor(4)    
                 line.SetLineWidth(2)
                 line.Draw("same")
          
@@ -407,11 +440,11 @@ for wp in wps:
                     #hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetMinimum(0.1)
                     temp=hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].Clone()
                     line=ROOT.TLine(cutsets[wp][var][icat],0,cutsets[wp][var][icat], hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetMaximum()/1.3)
-                    line.SetLineColor(1)    
+                    line.SetLineColor(4)    
                     line.SetLineWidth(2)
                     line.Draw("same")
         
-                    hLineVal=[0.001,0.001]
+                    hLineVal=[0.002,0.002]
                     #[300,15]
                     #[7.5,1.7]
                     #[900,400] 
@@ -433,16 +466,27 @@ for wp in wps:
                         for iBin in range(hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetNbinsX()-1, 0, -1):
                             lowEdge=hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetBinLowEdge(iBin) + hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetBinWidth(iBin)
                             binVal=hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetBinContent(iBin)
-                            if binVal > hLineVal[icat]:
-                                potentialCuts[wpPlus1][var][catMap[icat]].append(lowEdge)
+                            #if binVal > hLineVal[icat] and lowEdge >= boundaries["threshold"][var][0] and lowEdge <= boundaries["threshold"][var][1]:
+                            if binVal > hLineVal[icat] and lowEdge <= boundaries[var][icat]:
+                                #potentialCuts[wpPlus1][var][catMap[icat]].append(lowEdge)
+                                # instead only move half the distance so it's more stable
+                                if (var.find("nadd")==-1):
+                                    potentialCuts[wpPlus1][var][catMap[icat]].append( (lowEdge + cutsets[wp][var][icat])/2.)
+                                else:
+                                    potentialCuts[wpPlus1][var][catMap[icat]].append(lowEdge)
                     elif (varstocut[var][0] == 1):
                         # cut is greater than
                         for iBin in range(1, hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetNbinsX()):
                             lowEdge=hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetBinLowEdge(iBin)
                             binVal=hists["sob_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetBinContent(iBin)
-                            if binVal > hLineVal[icat]:
-                                potentialCuts[wpPlus1][var][catMap[icat]].append(lowEdge)
-                            
+                            #if binVal > hLineVal[icat] and lowEdge >= boundaries["threshold"][var][0] and lowEdge <= boundaries["threshold"][var][1]:
+                            if binVal > hLineVal[icat] and lowEdge >= boundaries[var][icat]:
+                                #potentialCuts[wpPlus1][var][catMap[icat]].append(lowEdge)
+                                # instead only move half the distance so it's more stable
+                                if (var.find("nadd")==-1):
+                                    potentialCuts[wpPlus1][var][catMap[icat]].append( (lowEdge + cutsets[wp][var][icat])/2.)
+                                else:
+                                    potentialCuts[wpPlus1][var][catMap[icat]].append(lowEdge)
         can.SetLogy(0)
 
 #        for wp in wps:
