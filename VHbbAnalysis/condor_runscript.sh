@@ -26,7 +26,7 @@ echo "moving text files to their respective directories"
 mkdir -p cfg
 mv samples.txt earlybranches.txt existingbranches.txt newbranches.txt bdtsettings.txt reg1_settings.txt reg2_settings.txt settings.txt cfg
 mkdir -p aux
-mv new-weights-23Jan.xml TMVA_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml aux
+mv TMVARegression_BDTG_ttbar_Nov23.weights.xml TMVA_13TeV_Nov23_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml aux
 
 
 echo "running RunSample.py"

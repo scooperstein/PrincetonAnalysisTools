@@ -152,8 +152,7 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                     am.SetupBranch(bdtvar.localVarName, 2)
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
-            am.AddBDT(reg1)
-            am.SetJet1EnergyRegression(reg1) 
+            am.SetJet1EnergyRegression(reg1)
         if settings.has_key("reg2settings"):
             print "Adding a Jet 2 Energy Regresion..."
             reg2 = ReadTextFile(settings["reg2settings"], "bdt",list()) 
@@ -162,7 +161,6 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                     am.SetupBranch(bdtvar.localVarName, 2)
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
-            am.AddBDT(reg2)
             am.SetJet2EnergyRegression(reg2) 
         return am    
     elif filetype is "samplefile":

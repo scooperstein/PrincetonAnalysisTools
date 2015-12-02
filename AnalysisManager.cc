@@ -123,7 +123,7 @@ void AnalysisManager::PrintBDTInfoValues(BDTInfo bdt) {
      }*/
      for (unsigned int i=0; i < bdt.bdtVars.size(); i++) {
          BDTVariable bdtvar = bdt.bdtVars[i];
-         std::cout<<"Input variable: "<<bdtvar.varName.c_str()<<", reference in tree: "<<bdtvar.localVarName.c_str()<<", current value: "<<*f[bdtvar.localVarName]<<"isSpec: "<<bdtvar.isSpec<<std::endl;
+         std::cout<<"Input variable: "<<bdtvar.varName.c_str()<<", reference in tree: "<<bdtvar.localVarName.c_str()<<", current value: "<<*f[bdtvar.localVarName]<<", isSpec: "<<bdtvar.isSpec<<std::endl;
      }
 }
 
@@ -175,8 +175,8 @@ void AnalysisManager::InitChain(std::string filename)
 
 void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov){
     branches[name] = new TBranch;
-    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov);
-
+    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov); 
+    
     // Only 0-9 are setup with types for the moment.
     if(type>9 || type<0) {
         std::cout<<"Branch "<<name<<" cannot be set to type "<<type<<std::endl;
@@ -625,6 +625,7 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
         }
     }
 
+    std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
     thereader->BookMVA(bdtInfo.bdtname, bdtInfo.xmlFile);
 
 }
