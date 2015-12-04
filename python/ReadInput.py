@@ -142,6 +142,7 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                     am.SetupBranch(bdtvar.localVarName, 2)
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
+            am.SetupNewBranch(bdtInfo.bdtname, 2)
             am.AddBDT(bdtInfo)
             print "added BDT to analysis manager"
         if settings.has_key("reg1settings"):
@@ -291,6 +292,7 @@ def MakeBranchMap(lines):
 
 def SetupBDT(lines):
     bdtname = ""
+    bdtmethod = ""
     xmlFile = ""
     inputNames = []
     localVarNames = []
@@ -306,6 +308,9 @@ def SetupBDT(lines):
             name,value = item.split("=")
             if name.find("bdtname") is 0:
                 bdtname=value
+                break
+            if name.find("bdtmethod") is 0:
+                bdtmethod=value
                 break
             #if name.find("method") is 0:
             #    method=value.replace('@', ' ')
@@ -326,7 +331,7 @@ def SetupBDT(lines):
                 if (int(value) == 1): isExisting = True
         vars[order] = (inputName,localVarName,isExisting,isSpec)
    
-    bdt = ROOT.BDTInfo(bdtname, xmlFile)
+    bdt = ROOT.BDTInfo(bdtmethod, bdtname, xmlFile)
     
     keys = vars.keys()
     keys.sort()
