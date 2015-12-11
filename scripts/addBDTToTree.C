@@ -1,4 +1,4 @@
-void addNewCombinedeMvaToOpttree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.root",const char* newfilename="testingtree_mh125_evenbkg_allmvas.root", const char* weights="weights/TMVA_vbf_dijet_diphosherpa_BDT_evenb_fixwt_Gradient.weights.xml",const char* newbranch="combined_bdt",bool refill=false) {
+void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.root",const char* newfilename="testingtree_mh125_evenbkg_allmvas.root", const char* weights="weights/TMVA_vbf_dijet_diphosherpa_BDT_evenb_fixwt_Gradient.weights.xml",const char* newbranch="combined_bdt",bool refill=false) {
   
 #include <string>
 
@@ -14,14 +14,14 @@ void addNewCombinedeMvaToOpttree(const char* oldfilename="testingtree_mh125_even
   Float_t BDT;
 
   tmvaReader_BDT = new TMVA::Reader("V:!Color:Silent");
-  //tmvaReader_BDT->AddVariable("H_mass",&H_mass);
+  tmvaReader_BDT->AddVariable("H_mass",&H_mass);
   tmvaReader_BDT->AddVariable("H_pt", &H_pt);
   tmvaReader_BDT->AddVariable("V_pt", &V_pt);
   tmvaReader_BDT->AddVariable("Jet_btagCSV[hJetInd1]", &hJets_btagCSV_0);
   tmvaReader_BDT->AddVariable("Jet_btagCSV[hJetInd2]", &hJets_btagCSV_1);
   tmvaReader_BDT->AddVariable("HVdPhi", &HVdPhi);
-  tmvaReader_BDT->AddVariable("nAddJet_f", &nAddJet_f);
-  tmvaReader_BDT->AddVariable("nAddLep_f", &nAddLep_f);
+  //tmvaReader_BDT->AddVariable("nAddJet_f", &nAddJet_f);
+  //tmvaReader_BDT->AddVariable("nAddLep_f", &nAddLep_f);
   tmvaReader_BDT->AddVariable("Jet_pt[hJetInd1]", &hJets_pt_0);
   tmvaReader_BDT->AddVariable("Jet_pt[hJetInd2]", &hJets_pt_1);
   tmvaReader_BDT->AddVariable("met_pt", &met_pt);
