@@ -626,7 +626,7 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     }
 
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
-    thereader->BookMVA(bdtInfo.bdtname, bdtInfo.xmlFile);
+    thereader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
 
 }
 

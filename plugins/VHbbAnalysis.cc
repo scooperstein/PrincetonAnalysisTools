@@ -707,9 +707,9 @@ void VHbbAnalysis::FinishEvent(){
             BDTInfo tmpBDT = bdtInfos[i];
             if(debug>5000) {
                 PrintBDTInfoValues(tmpBDT);
-                std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname)<<std::endl;
+                std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
             }
-            *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname);
+            *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
         }
     }   
 
@@ -763,8 +763,8 @@ void VHbbAnalysis::FinishEvent(){
             PrintBDTInfoValues(jet1EnergyRegression);
             PrintBDTInfoValues(jet2EnergyRegression);
         }
-        double r1Pt = jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtname)[0];
-        double r2Pt = jet2EnergyRegression.reader->EvaluateRegression(jet2EnergyRegression.bdtname)[0];
+        double r1Pt = jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtmethod)[0];
+        double r2Pt = jet2EnergyRegression.reader->EvaluateRegression(jet2EnergyRegression.bdtmethod)[0];
 
         *f["Jet1_regWeight"] = r1Pt/(*f["hJets_pt_0"]);
         *f["Jet2_regWeight"] = r2Pt/(*f["hJets_pt_1"]);
