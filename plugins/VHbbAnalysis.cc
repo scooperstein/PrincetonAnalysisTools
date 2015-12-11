@@ -32,7 +32,17 @@ bool VHbbAnalysis::Preselection(){
     bool sel=true;
     //if( *d["Vtype"]==3 ) sel=true;
     //if( *d["Vtype"]>=0 && *d["Vtype"]<=4) sel=true;
-    
+    if (*f["onlyEvenEvents"] && *f["onlyOddEvents"]) {
+        std::cout<<"Cannot set both onlyEvenEvents and onlyOddEvents to true!!"<<std::endl;
+        return false;
+    }
+    if (*f["onlyEvenEvents"]) {
+        if (*in["evt"]%2 == 1) sel=false;
+    }    
+    else if (*f["onlyOddEvents"]) {
+        if (*in["evt"]%2 == 0) sel=false;
+    }    
+     
     // stitch WJets inclusive sample to HT-binned samples
     if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
 
@@ -127,7 +137,7 @@ bool VHbbAnalysis::Analyze(){
     *f["H_pt"] = Hbb.Pt();
     if (*f["H_pt"] < *f["hptcut"]) sel=false;
     if (sel) *in["cutFlow"] += 1; // pT(jj) cut
-    
+   
     if (*f["met_pt"] < *f["metcut"]) sel = false;
     if (sel) *in["cutFlow"] += 1; // met cut
     
@@ -160,9 +170,9 @@ bool VHbbAnalysis::Analyze(){
         std::cout<<"cutting on dphi(lep, met)"<<std::endl;
         std::cout<<*in["lepInd"]<<" "<<f["selLeptons_phi"][*in["lepInd"]]<<" "<<f["selLeptons_eta"][*in["lepInd"]]<<" "<<f["selLeptons_mass"][*in["lepInd"]]<<std::endl;
     }
-    *d["lepMetDPhi"]=fabs(EvalDeltaPhi(f["selLeptons_phi"][*in["lepInd"]],*f["met_phi"]));
-    if (*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"]) sel = false;
-    else if (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]) sel = false;
+    *f["lepMetDPhi"]=fabs(EvalDeltaPhi(f["selLeptons_phi"][*in["lepInd"]],*f["met_phi"]));
+    if (*in["isWmunu"] && *f["lepMetDPhi"] > *f["muMetDPhiCut"]) sel = false;
+    else if (*in["isWenu"] && *f["lepMetDPhi"] > *f["elMetDPhiCut"]) sel = false;
     if (sel) *in["cutFlow"] += 1;   
 
 
@@ -479,22 +489,23 @@ bool VHbbAnalysis::Analyze(){
             && f["Jet_pt"][*in["hJetInd2"]]>*f["j2ptCut"]
             && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
             && *f["met_pt"] > *f["metcut"]
-            && ((*in["isWmunu"] && *d["lepMetDPhi"] > *f["muMetDPhiCut"])
-              || (*in["isWenu"] && *d["lepMetDPhi"] > *f["elMetDPhiCut"]))
-            && *f["V_pt"]>100 && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
-
+            && ((*in["isWmunu"] && *f["lepMetDPhi"] < *f["muMetDPhiCut"])
+              || (*in["isWenu"] && *f["lepMetDPhi"] < *f["elMetDPhiCut"]))
+            && *f["V_pt"]> *f["vptcut"] && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
+    
     *in["controlSample"]=-1; // maybe this should go much early (before any returns)
     float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
     if(baseCSSelection){
-        if (maxCSV > 0.85){ //ttbar or W+HF
-            if(*in["nAddJets252p9_puid"]>2) { //ttbar
+        *in["controlSample"]=0;
+        if (maxCSV > 0.97){ //ttbar or W+HF
+            if(*in["nAddJets252p9_puid"]>1.5) { //ttbar
                 *in["controlSample"]=1;
-            //} else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
-            } else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 1. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            } else if (*in["nAddJets252p9_puid"]<1.5 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            //} else if (*in["nAddJets252p9_puid"]<3 && *f["met_pt"]/ sqrt(*f["met_sumEt"])> 1. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
                 *in["controlSample"]=2;
             }
-        //} else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 2.){ //W+LF
-        } else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 1.){ //W+LF
+        } else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 2.){ //W+LF
+        //} else if (maxCSV > 0.3 && *f["met_pt"]/ sqrt(*f["met_sumEt"]) > 1.){ //W+LF
             *in["controlSample"]=3;
         }
         if(*in["sampleIndex"]==0){
@@ -503,7 +514,8 @@ bool VHbbAnalysis::Analyze(){
     }
     
     if(*f["doControlSamples"]==1){
-        if(!sel) sel=( *in["controlSample"]>-1 ); 
+        //if(!sel) sel=( *in["controlSample"]>-1 ); 
+        sel=( *in["controlSample"]>-1 ); 
     }
 
     if (doCutFlow) return true; // keep all preselected events for cutflow
@@ -520,12 +532,62 @@ void VHbbAnalysis::FinishEvent(){
     // General use variables
    
     // Split WJets and ZJets samples by jet parton flavor
+    *in["bMCFlavorSum"] = 0;
+    *in["bMCFlavorSumSelected"] = 0;
+    *in["bGenJetSum"] = 0;
+    *in["bGenJetBSum"] = 0;
+    
+    *in["sampleIndex_sel"] = 
+    *in["sampleIndex_GenJetSum"] = 
+    *in["sampleIndex_GenJetSumNB"] = 
+    *in["sampleIndex"];
+    
     if (cursample->doJetFlavorSplit) {
-        int nBJets = 0;
+        *in["sampleIndex"] = *in["sampleIndex"]*100;
+        *in["sampleIndex_sel"] = *in["sampleIndex_sel"]*100;
+        *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"]*100;
+        *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"]*100;
+        
         //std::cout<<fabs(d["hJets_mcFlavour"][0])<<std::endl;
-        if (fabs(in["Jet_mcFlavour"][*in["hJetInd1"]]) == 5) nBJets++;
-        if (fabs(in["Jet_mcFlavour"][*in["hJetInd2"]]) == 5) nBJets++;
-        *in["sampleIndex"] = (*in["sampleIndex"]*100 + nBJets);
+        if (fabs(in["Jet_mcFlavour"][*in["hJetInd1"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
+        if (fabs(in["Jet_mcFlavour"][*in["hJetInd2"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
+    
+        for(int iJet=0;iJet<*in["nJet"];iJet++){
+            if(fabs(in["Jet_mcFlavour"][iJet])==5) *in["bMCFlavorSum"]=*in["bMCFlavorSum"]+1;
+        }
+
+
+        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
+            *in["bGenJetSum"]=*in["bGenJetSum"]+1;
+        }
+
+        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
+            *in["bGenJetBSum"]=*in["bGenJetBSum"]+in["GenJet_numBHadrons"][indGJ];
+        }
+        
+        if(*in["bMCFlavorSum"]==1){
+            *in["sampleIndex"] = *in["sampleIndex"] + 1;
+        }else if(*in["bMCFlavorSum"]>1){
+            *in["sampleIndex"] = *in["sampleIndex"] + 2;
+        }
+
+        if(*in["bMCFlavorSumSelected"]==1){
+            *in["sampleIndex_sel"] = *in["sampleIndex_sel"] + 1;
+        }else if(*in["bMCFlavorSumSelected"]>1){
+            *in["sampleIndex_sel"] = *in["sampleIndex_sel"] + 2;
+        }
+        
+        if(*in["bGenJetBSum"]==1){
+            *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"] + 1;
+        }else if(*in["bGenJetBSum"]>1){
+            *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"] + 2;
+        }
+        
+        if(*in["bGenJetSum"]==1){
+            *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"] + 1;
+        }else if(*in["bGenJetSum"]>1){
+            *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"] + 2;
+        }
     } 
 
     // Split by boost category
@@ -559,23 +621,23 @@ void VHbbAnalysis::FinishEvent(){
         *f["weight"] = 1.0;
     } 
 
-   *f["Vtype_f"] = (float) *f["Vtype"];
+    //*f["Vtype_f"] = (float) *f["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
     *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
     *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
-    *f["selLeptons_phi_0"] = f["selLeptons_phi"][*in["lepInd"]];
-    *in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
-    *in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
-    *in["selLeptons_tightId_0"] = in["selLeptons_tightId"][*in["lepInd"]];
+    //*f["selLeptons_phi_0"] = f["selLeptons_phi"][*in["lepInd"]];
+    //*in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
+    //*in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
+    //*in["selLeptons_tightId_0"] = in["selLeptons_tightId"][*in["lepInd"]];
     *f["selLeptons_relIso03_0"] = f["selLeptons_relIso03"][*in["lepInd"]];  
   
     // electron ID variables
-    *f["selLeptons_eleSieie_0"] = f["selLeptons_eleSieie"][*in["lepInd"]];
-    *f["selLeptons_eleDEta_0"] = f["selLeptons_eleDEta"][*in["lepInd"]];
-    *f["selLeptons_eleDPhi_0"] = f["selLeptons_eleDPhi"][*in["lepInd"]];
-    *f["selLeptons_eleHoE_0"] = f["selLeptons_eleHoE"][*in["lepInd"]];
-    *f["selLeptons_eleMissingHits_0"] = f["selLeptons_eleMissingHits"][*in["lepInd"]];
-    *f["selLeptons_eleChi2_0"] = f["selLeptons_eleChi2"][*in["lepInd"]];
+    //*f["selLeptons_eleSieie_0"] = f["selLeptons_eleSieie"][*in["lepInd"]];
+    //*f["selLeptons_eleDEta_0"] = f["selLeptons_eleDEta"][*in["lepInd"]];
+    //*f["selLeptons_eleDPhi_0"] = f["selLeptons_eleDPhi"][*in["lepInd"]];
+    //*f["selLeptons_eleHoE_0"] = f["selLeptons_eleHoE"][*in["lepInd"]];
+    //*f["selLeptons_eleMissingHits_0"] = f["selLeptons_eleMissingHits"][*in["lepInd"]];
+    //*f["selLeptons_eleChi2_0"] = f["selLeptons_eleChi2"][*in["lepInd"]];
      
 
     if(*in["sampleIndex"]!=0){
@@ -591,14 +653,14 @@ void VHbbAnalysis::FinishEvent(){
     }
  
 
-    *f["naLeptonsPassingCuts"] = *in["nAddLeptons"]; // no need to calculate this twice
-    *f["naJetsPassingCuts"] = *in["nAddJets252p9_puid"];
-    *f["highestCSVaJet"] = 0.0;
-    *f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
-    for(int j=0;j<*in["nJet"];j++){
-        if (j == *in["hJetInd1"] || j == *in["hJetInd2"]) continue;
-        if(f["Jet_pt"][j]>20 && fabs(f["Jet_eta"][j])<2.5 && f["Jet_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = f["Jet_btagCSV"][j];
-      }       
+    //*f["naLeptonsPassingCuts"] = *in["nAddLeptons"]; // no need to calculate this twice
+    //*f["naJetsPassingCuts"] = *in["nAddJets252p9_puid"];
+    //*f["highestCSVaJet"] = 0.0;
+    //*f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
+    //for(int j=0;j<*in["nJet"];j++){
+    //    if (j == *in["hJetInd1"] || j == *in["hJetInd2"]) continue;
+    //    if(f["Jet_pt"][j]>20 && fabs(f["Jet_eta"][j])<2.5 && f["Jet_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = f["Jet_btagCSV"][j];
+    //  }       
     
     // Reconstruct Higgs and W and recalculate variables ourselves
     if(debug>1000) std::cout<<"Making composite candidates"<<std::endl;
@@ -618,82 +680,91 @@ void VHbbAnalysis::FinishEvent(){
     //*d["HVdPhi"] = Hbb.DeltaPhi(W);
     
     // Set variables used by the BDT
-    *f["H_mass_f"] = (float) *f["H_mass"];
-    *f["H_pt_f"] = (float) *f["H_pt"];
-    *f["V_pt_f"] = (float) *f["V_pt"];
+    //*f["H_mass_f"] = (float) *f["H_mass"];
+    //*f["H_pt_f"] = (float) *f["H_pt"];
+    //*f["V_pt_f"] = (float) *f["V_pt"];
     *f["hJets_btagCSV_0"] = (float) f["Jet_btagCSV"][*in["hJetInd1"]];
     *f["hJets_btagCSV_1"] = (float) f["Jet_btagCSV"][*in["hJetInd2"]]; 
-    *f["HVdPhi_f"] = (float) *f["HVdPhi"];
-    *f["H_dEta"] = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
+    //*f["HVdPhi_f"] = (float) *f["HVdPhi"];
+    //*f["H_dEta"] = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
   
-    *f["hJets_mt_0"] = HJ1.Mt();
-    *f["hJets_mt_1"] = HJ2.Mt();
-    *f["H_dR"] = (float) HJ1.DeltaR(HJ2);   
-    *f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
-    *f["hJet_ptCorr_0"] = (float) f["Jet_pt"][*in["hJetInd1"]];
-    *f["hJet_ptCorr_1"] = (float) f["Jet_pt"][*in["hJetInd2"]];
-    *f["met_sumEt_f"] = (float) *f["met_sumEt"]; // is this the right variable??
+    //*f["hJets_mt_0"] = HJ1.Mt();
+    //*f["hJets_mt_1"] = HJ2.Mt();
+    //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);   
+    //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
+    *f["hJets_pt_0"] = (float) f["Jet_pt"][*in["hJetInd1"]];
+    *f["hJets_pt_1"] = (float) f["Jet_pt"][*in["hJetInd2"]];
+    //*f["met_sumEt_f"] = (float) *f["met_sumEt"]; // is this the right variable??
+    *f["nAddJet_f"] = (float) *in["nAddJets252p9_puid"];
+    *f["nAddLep_f"] = (float) *in["nAddLeptons"];
+    *f["isWenu_f"] = (float) *in["isWenu"];
+    *f["isWmunu_f"] = (float) *in["isWmunu"];
 
-    for (unsigned int i=0; i<bdtInfos.size(); i++) {
+    if (BDTisSet) {
+        if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
+        for (unsigned int i=0; i<bdtInfos.size(); i++) {
 
-       BDTInfo tmpBDT = bdtInfos[i];
-       if(debug>5000) {
-           PrintBDTInfoValues(tmpBDT);
-           std::cout<<"BDT evaulates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname)<<std::endl;
-       }
-       *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtname);
-    }
+            BDTInfo tmpBDT = bdtInfos[i];
+            if(debug>5000) {
+                PrintBDTInfoValues(tmpBDT);
+                std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
+            }
+            *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
+        }
+    }   
 
     if(jet1EnergyRegressionIsSet && jet2EnergyRegressionIsSet) {
         *f["hJets_pt_0"] = float(f["Jet_pt"][*in["hJetInd1"]]);
+        *f["hJets_corr_0"] = f["Jet_corr"][*in["hJetInd1"]];
         //*f["hJets_rawPt_0"] = float(d["hJets_rawPt"][0]);
         *f["hJets_eta_0"] = float(f["Jet_eta"][*in["hJetInd1"]]);
-        //*f["hJets_mt_0"] = 0.; // FIXME
+        *f["hJets_mt_0"] = HJ1.Mt();
         *f["hJets_leadTrackPt_0"] = float(f["Jet_leadTrackPt"][*in["hJetInd1"]]);
         *f["hJets_leptonPtRel_0"] = float(f["Jet_leptonPtRel"][*in["hJetInd1"]]);
         *f["hJets_leptonPt_0"] = float(f["Jet_leptonPt"][*in["hJetInd1"]]);
         *f["hJets_leptonDeltaR_0"] = float(f["Jet_leptonDeltaR"][*in["hJetInd1"]]);
-        *f["hJets_chEmEF_0"] = float(f["Jet_chEmEF"][*in["hJetInd1"]]);
-        *f["hJets_chHEF_0"] = float(f["Jet_chHEF"][*in["hJetInd1"]]);
+        //*f["hJets_chEmEF_0"] = float(f["Jet_chEmEF"][*in["hJetInd1"]]);
+        //*f["hJets_chHEF_0"] = float(f["Jet_chHEF"][*in["hJetInd1"]]);
         *f["hJets_neHEF_0"] = float(f["Jet_neHEF"][*in["hJetInd1"]]);
         *f["hJets_neEmEF_0"] = float(f["Jet_neEmEF"][*in["hJetInd1"]]);
         *f["hJets_chMult_0"] = float(f["Jet_chMult"][*in["hJetInd1"]]);
         //*f["hJets_puId_0"] = float(d["hJets_puId"][0]);
-        *f["hJets_vtx3DVal_0"] = 0.;
-        *f["hJets_vtxNtracks_0"] = 0.;
         *f["hJets_vtxMass_0"] = float(f["Jet_vtxMass"][*in["hJetInd1"]]);
         *f["hJets_vtxPt_0"] = float(f["Jet_vtxPt"][*in["hJetInd1"]]);
-        *f["hJets_vtx3DVal_0"] = float(f["Jet_vtx3DVal"][*in["hJetInd1"]]);
+        //*f["hJets_vtx3DVal_0"] = float(f["Jet_vtx3DVal"][*in["hJetInd1"]]);
+        *f["hJets_vtx3dL_0"] = f["Jet_vtx3DVal"][*in["hJetInd1"]];
         *f["hJets_vtxNtracks_0"] = float(f["Jet_vtxNtracks"][*in["hJetInd1"]]);
+        *f["hJets_vtx3deL_0"] = f["Jet_vtx3DSig"][*in["hJetInd1"]];
 
         *f["hJets_pt_1"] = float(f["Jet_pt"][*in["hJetInd2"]]);
+        *f["hJets_corr_1"] = f["Jet_corr"][*in["hJetInd2"]];
         //*f["hJets_rawPt_1"] = float(d["hJets_rawPt"][1]);
         *f["hJets_eta_1"] = float(f["Jet_eta"][*in["hJetInd2"]]);
-        //*f["hJets_mt_1"] = 0.; // FIXME
+        *f["hJets_mt_1"] = HJ2.Mt();
         *f["hJets_leadTrackPt_1"] = float(f["Jet_leadTrackPt"][*in["hJetInd2"]]);
         *f["hJets_leptonPtRel_1"] = float(f["Jet_leptonPtRel"][*in["hJetInd2"]]);
         *f["hJets_leptonPt_1"] = float(f["Jet_leptonPt"][*in["hJetInd2"]]);
         *f["hJets_leptonDeltaR_1"] = float(f["Jet_leptonDeltaR"][*in["hJetInd2"]]);
-        *f["hJets_chEmEF_1"] = float(f["Jet_chEmEF"][*in["hJetInd2"]]);
-        *f["hJets_chHEF_1"] = float(f["Jet_chHEF"][*in["hJetInd2"]]);
+        //*f["hJets_chEmEF_1"] = float(f["Jet_chEmEF"][*in["hJetInd2"]]);
+        //*f["hJets_chHEF_1"] = float(f["Jet_chHEF"][*in["hJetInd2"]]);
         *f["hJets_neHEF_1"] = float(f["Jet_neHEF"][*in["hJetInd2"]]);
         *f["hJets_neEmEF_1"] = float(f["Jet_neEmEF"][*in["hJetInd2"]]);
         *f["hJets_chMult_1"] = float(f["Jet_chMult"][*in["hJetInd2"]]);
         //*f["hJets_puId_1"] = float(f["hJets_puId"][1]);
-        *f["hJets_vtx3DVal_1"] = 0.;
-        *f["hJets_vtxNtracks_1"] = 0.;
         *f["hJets_vtxMass_1"] = float(f["Jet_vtxMass"][*in["hJetInd2"]]);
-        *f["hJets_vtx3DVal_1"] = float(f["Jet_vtx3DVal"][*in["hJetInd2"]]);
+        //*f["hJets_vtx3DVal_1"] = float(f["Jet_vtx3DVal"][*in["hJetInd2"]]); 
+        *f["hJets_vtx3dL_1"] = f["Jet_vtx3DVal"][*in["hJetInd2"]];
         *f["hJets_vtxPt_1"] = float(f["Jet_vtxPt"][1]);
         *f["hJets_vtxNtracks_1"] = float(f["Jet_vtxNtracks"][*in["hJetInd2"]]);
+        *f["hJets_vtx3deL_1"] = f["Jet_vtx3DSig"][*in["hJetInd2"]];
         
         if(debug>10000) {
             std::cout<<"Evaluating the Jet Energy Regression..."<<std::endl;
             PrintBDTInfoValues(jet1EnergyRegression);
             PrintBDTInfoValues(jet2EnergyRegression);
         }
-        double r1Pt = jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtname)[0];
-        double r2Pt = jet2EnergyRegression.reader->EvaluateRegression(jet2EnergyRegression.bdtname)[0];
+        double r1Pt = jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtmethod)[0];
+        double r2Pt = jet2EnergyRegression.reader->EvaluateRegression(jet2EnergyRegression.bdtmethod)[0];
 
         *f["Jet1_regWeight"] = r1Pt/(*f["hJets_pt_0"]);
         *f["Jet2_regWeight"] = r2Pt/(*f["hJets_pt_1"]);
@@ -743,6 +814,8 @@ bool VHbbAnalysis::ElectronSelection(){
         std::cout<<"in[\"selLeptons_pdgId\"] "<<in["selLeptons_pdgId"][0]<<std::endl;
         std::cout<<"d[\"selLeptons_relIso03\"] "<<f["selLeptons_relIso03"][0]<<std::endl;
         std::cout<<"*d[\"met_pt\"] "<<*f["met_pt"]<<std::endl;
+        std::cout<<"*f[selLeptons_eleSieie_0] = "<<*f["selLeptons_eleSieie_0"]<<std::endl;
+        std::cout<<"*f[hJets_pt_1] = "<<*f["hJets_pt_1"]<<std::endl;
     }
     
     // there is only one selected electron for Vtype == 3 which is the electron tag
@@ -754,7 +827,7 @@ bool VHbbAnalysis::ElectronSelection(){
             && f["selLeptons_pt"][i]      > *f["eptcut"] 
             && fabs(f["selLeptons_eta"][i]) < *f["eletacut"]
             && f["selLeptons_relIso03"][i]< *f["erelisocut"]
-            && in["selLeptons_eleCutIdCSA14_25ns_v1"][i] >= *f["elidcut"]
+            && in["selLeptons_eleCutIdSpring15_25ns_v1"][i] >= *f["elidcut"]
             ){
             if (f["selLeptons_pt"][i] > elMaxPt) {
                 elMaxPt = f["selLeptons_pt"][i];

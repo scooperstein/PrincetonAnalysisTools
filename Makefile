@@ -6,11 +6,11 @@ HOMEDIR = ${PWD}
 
 all: AnalysisDict.cxx AnalysisDict.so
 
-AnalysisDict.cxx: HelperClasses/SampleContainer.h HelperClasses/InfoStructs.h HelperClasses/BDTInfo.h AnalysisManager.h plugins/VHbbAnalysis.h plugins/VHbbTrigger.h plugins/WorkspaceAnalysis.h LinkDef.h
+AnalysisDict.cxx: HelperClasses/SampleContainer.h HelperClasses/InfoStructs.h HelperClasses/BDTInfo.h HelperClasses/BDTVariable.h AnalysisManager.h plugins/VHbbAnalysis.h plugins/VHbbTrigger.h LinkDef.h
 	rootcint -f $@ -c $^
 
-AnalysisDict.so: AnalysisDict.cxx HelperClasses/SampleContainer.cc HelperClasses/BDTInfo.cc AnalysisManager.cc plugins/VHbbAnalysis.cc plugins/VHbbTrigger.cc plugins/WorkspaceAnalysis.cc
-	g++ -shared -fPIC -o $@ ${ROOTFLAGS} ${ROOTLIBS} -lTMVA -lRooFitCore -I${HOMEDIR} $^
+AnalysisDict.so: AnalysisDict.cxx HelperClasses/SampleContainer.cc HelperClasses/BDTInfo.cc HelperClasses/BDTVariable.cc AnalysisManager.cc plugins/VHbbAnalysis.cc plugins/VHbbTrigger.cc
+	g++ -shared -fPIC -o $@ ${ROOTFLAGS} ${ROOTLIBS} -lTMVA -I${HOMEDIR} $^
 
 clean: 
 	rm AnalysisDict.cxx

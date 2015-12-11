@@ -13,6 +13,7 @@ AnalysisManager::AnalysisManager(){
     intL=20000; // pb^-1
     settingsTree = new TTree("settings","settings");
     debug = 0;
+    BDTisSet = false;
     jet1EnergyRegressionIsSet = false;
     jet2EnergyRegressionIsSet = false;
 }
@@ -90,6 +91,7 @@ void AnalysisManager::AddSample(SampleContainer sample){
 }
 
 void AnalysisManager::AddBDT(BDTInfo bdt) {
+    BDTisSet = true;
     bdtInfos.push_back(bdt);
     SetupBDT(bdt);
 }
@@ -113,11 +115,15 @@ void AnalysisManager::SetJet2EnergyRegression(BDTInfo reg2) {
 
 void AnalysisManager::PrintBDTInfoValues(BDTInfo bdt) {
     std::cout<<"Printing information for BDT "<<bdt.bdtname<<"..."<<std::endl;
-    for (unsigned int i=0; i<bdt.inputNames.size(); i++) {
+    /*for (unsigned int i=0; i<bdt.inputNames.size(); i++) {
          std::cout<<"Input variable: "<<bdt.inputNames[i].c_str()<<", reference in tree: "<<bdt.localVarNames[i].c_str()<<", current value: "<<*f[bdt.localVarNames[i]]<<std::endl;
      }
      for (unsigned int i=0; i<bdt.inputSpectatorNames.size(); i++) {
          std::cout<<"Spectator variable: "<<bdt.inputSpectatorNames[i].c_str()<<", reference in tree: "<<bdt.localSpectatorVarNames[i].c_str()<<", current value: "<<*f[bdt.localSpectatorVarNames[i]]<<std::endl;
+     }*/
+     for (unsigned int i=0; i < bdt.bdtVars.size(); i++) {
+         BDTVariable bdtvar = bdt.bdtVars[i];
+         std::cout<<"Input variable: "<<bdtvar.varName.c_str()<<", reference in tree: "<<bdtvar.localVarName.c_str()<<", current value: "<<*f[bdtvar.localVarName]<<", isSpec: "<<bdtvar.isSpec<<std::endl;
      }
 }
 
@@ -167,15 +173,16 @@ void AnalysisManager::InitChain(std::string filename)
 }
 
 
-void AnalysisManager::SetupBranch(std::string name, int type, int length, std::string prov){
+void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov){
     branches[name] = new TBranch;
-    branchInfos[name] = new BranchInfo(name,type,length,prov);
-
+    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov); 
+    
     // Only 0-9 are setup with types for the moment.
     if(type>9 || type<0) {
         std::cout<<"Branch "<<name<<" cannot be set to type "<<type<<std::endl;
         return;
     }
+    if(debug>10000) std::cout<<"checking type and setting branch address"<<std::endl;
 
     if(type==0) {
         ui[name] = new unsigned int;
@@ -227,6 +234,10 @@ void AnalysisManager::ConfigureOutputTree() {
 }
 
 void AnalysisManager::SetupNewBranch(std::string name, int type, int length, bool newmem, std::string treetype, float val){
+    if(debug>1000) {
+        std::cout<<"SetupNewBranch "<<name<<std::endl;
+        std::cout<<"treetype name type length val \t"<<treetype<<" "<<name<<" "<<type<<" "<<length<<" "<<val<<std::endl;
+    }
     
     TTree* treeptr;
     if(treetype=="output") { // outputtree
@@ -244,15 +255,11 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
         return;
     }*/   
     
-    if(debug>1000) {
-        std::cout<<"SetupNewBranch "<<name<<std::endl;
-        std::cout<<"treetype name type length val \t"<<treetype<<" "<<name<<" "<<type<<" "<<length<<" "<<val<<std::endl;
-    }
     if(newmem) {
         if(treetype=="output") { // outputtree
-            branchInfos[name] = new BranchInfo(name,type,length,"new");
+            branchInfos[name] = new BranchInfo(name,type,length,false,"new");
         } else if(treetype=="settings") { // settingstree
-            branchInfos[name] = new BranchInfo(name,type,length,"settings",val);
+            branchInfos[name] = new BranchInfo(name,type,length,false,"settings",val);
         }
     }
     if(debug>1000) std::cout<<"BranchInfo instaniated"<<std::endl; 
@@ -378,10 +385,10 @@ void AnalysisManager::SetNewBranches(){
     }
 }
 
-void AnalysisManager::GetEarlyEntries(Long64_t entry){
+void AnalysisManager::GetEarlyEntries(Long64_t entry, bool isData){
     for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
             ibranch!=branchInfos.end(); ++ibranch){
-        if(ibranch->second->prov == "early") {
+        if(ibranch->second->prov == "early" && !(isData && ibranch->second->onlyMC)) {
             if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
             branches[ibranch->first]->GetEntry(entry);
         }
@@ -499,7 +506,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
             //for (Long64_t jentry=0; jentry<50001;jentry++) {
                 if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
-                GetEarlyEntries(jentry);
+                GetEarlyEntries(jentry, cursample->sampleNum==0);
                 if(debug>100000) std::cout<<"checking preselection"<<std::endl;
                 bool presel = Preselection();
                 if(!presel) continue;
@@ -597,7 +604,7 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     //std::cout<<Form("Setting up variables for BDT %s", bdtInfo.bdtname)<<std::endl;
     TMVA::Reader *thereader = bdtInfo.reader;
     
-    for(unsigned int i=0; i<bdtInfo.inputNames.size(); i++) {
+    /*for(unsigned int i=0; i<bdtInfo.inputNames.size(); i++) {
         //std::cout<<Form("Adding variable to BDT: %s (localName = %s) ",bdtInfo.inputNames[i], bdtInfo.localVarNames[i])<<std::endl;
         
         bdtInfo.reader->AddVariable(bdtInfo.inputNames[i], f[bdtInfo.localVarNames[i]]);
@@ -606,10 +613,20 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     for(unsigned int i=0; i<bdtInfo.inputSpectatorNames.size(); i++) {
         //std::cout<<Form("Adding spectator variable to BDT: %s (localName = %s) ",bdtInfo.inputSpectatorNames[i], bdtInfo.localSpectatorVarNames[i])<<std::endl;
         bdtInfo.reader->AddSpectator(bdtInfo.inputSpectatorNames[i], f[bdtInfo.localSpectatorVarNames[i]]);
+    }*/
+
+    for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
+        BDTVariable bdtvar = bdtInfo.bdtVars[i];
+        if (!bdtvar.isSpec) {
+            bdtInfo.reader->AddVariable(bdtvar.varName, f[bdtvar.localVarName]);
+        }
+        else {
+            bdtInfo.reader->AddSpectator(bdtvar.varName, f[bdtvar.localVarName]);
+        }
     }
 
-
-    thereader->BookMVA(bdtInfo.bdtname, bdtInfo.xmlFile);
+    std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
+    thereader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
 
 }
 

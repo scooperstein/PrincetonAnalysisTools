@@ -1,26 +1,26 @@
 # type 0 -> Spectator variable
 # type 1 -> Variable used in BDT training
 
+bdtmethod=BDTG
 bdtname="Jet1_pt_regression"
 #xmlFile=../JetEnergyRegression/weights/Wln_noMET.xml
-xmlFile=aux/new-weights-23Jan.xml
+#xmlFile=aux/new-weights-23Jan.xml
+xmlFile=aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml
 
-name=Jet_pt              lname=hJets_pt_0            type=1 order=1
-#name=Jet_rawPt           lname=hJets_rawPt_0           type=1 order=2
-name=rho                 lname=rho                   type=1 order=3
-name=Jet_eta             lname=hJets_eta_0           type=1 order=4
-name=Jet_mt              lname=hJets_mt_0            type=1 order=5
-name=Jet_leadTrackPt     lname=hJets_leadTrackPt_0   type=1 order=6
-name=Jet_leptonPtRel     lname=hJets_leptonPtRel_0   type=1 order=7
-name=Jet_leptonPt        lname=hJets_leptonPt_0      type=1 order=8
-name=Jet_leptonDeltaR    lname=hJets_leptonDeltaR_0  type=1 order=9
-name=Jet_chEmEF          lname=hJets_chEmEF_0        type=1 order=10
-name=Jet_chHEF           lname=hJets_chHEF_0         type=1 order=11
-name=Jet_neHEF           lname=hJets_neHEF_0         type=1 order=12
-name=Jet_neEmEF          lname=hJets_neEmEF_0        type=1 order=13
-name=Jet_chMult          lname=hJets_chMult_0        type=1 order=14
-#name=Jet_puId            lname=hJets_puId_0          type=1 order=15
-name=Jet_vtxPt           lname=hJets_vtxPt_0         type=1 order=15
-name=Jet_vtxMass         lname=hJets_vtxMass_0       type=1 order=16
-name=Jet_vtx3dL          lname=hJets_vtx3DVal_0      type=1 order=17
-name=Jet_vtxNtrk         lname=hJets_vtxNtracks_0    type=1 order=18
+name=Jet_pt              lname=hJets_pt_0            isEx=0 isSpec=0 order=1
+name=Jet_corr            lname=hJets_corr_0          isEx=0 isSpec=0 order=2
+name=rho                 lname=rho                   isEx=1 isSpec=0 order=3
+name=Jet_eta             lname=hJets_eta_0           isEx=0 isSpec=0 order=4
+name=Jet_mt              lname=hJets_mt_0            isEx=0 isSpec=0 order=5
+name=Jet_leadTrackPt     lname=hJets_leadTrackPt_0   isEx=0 isSpec=0 order=6
+name=Jet_leptonPtRel     lname=hJets_leptonPtRel_0   isEx=0 isSpec=0 order=7
+name=Jet_leptonPt        lname=hJets_leptonPt_0      isEx=0 isSpec=0 order=8
+name=Jet_leptonDeltaR    lname=hJets_leptonDeltaR_0  isEx=0 isSpec=0 order=9
+name=Jet_neHEF           lname=hJets_neHEF_0         isEx=0 isSpec=0 order=10
+name=Jet_neEmEF          lname=hJets_neEmEF_0        isEx=0 isSpec=0 order=11
+name=Jet_chMult          lname=hJets_chMult_0        isEx=0 isSpec=0 order=12
+name=Jet_vtxPt           lname=hJets_vtxPt_0         isEx=0 isSpec=0 order=13
+name=Jet_vtxMass         lname=hJets_vtxMass_0       isEx=0 isSpec=0 order=14
+name=Jet_vtx3dL          lname=hJets_vtx3dL_0        isEx=0 isSpec=0 order=15
+name=Jet_vtxNtrk         lname=hJets_vtxNtracks_0    isEx=0 isSpec=0 order=16
+name=Jet_vtx3deL         lname=hJets_vtx3deL_0       isEx=0 isSpec=0 order=17
