@@ -2,6 +2,9 @@ type=0  name=Data
 type=10 name=TBarTLep_s
 type=11 name=TBarTLep_t
 type=12 name=TT_Tune4C
+type=50 name=TT_DiLep
+type=51 name=TT_SingleLepFromT
+type=52 name=TT_SingleLepFromTbar
 type=14 name=TTWJets
 type=15 name=TTZJets
 type=16 name=TToLeptons_s
