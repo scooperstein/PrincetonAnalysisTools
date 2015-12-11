@@ -8,54 +8,61 @@ import sys
 ifile = ROOT.TFile(sys.argv[1])
 tree = ifile.Get("tree")
 
-nbins = 100
 nBinEdges = 30
 nCat = int(sys.argv[2])
+doWPs = False
+if (len(sys.argv) > 3):
+    if (sys.argv[3] ==  "True"): doWPs = True
+    print sys.argv[3]
+    print doWPs
 
-#nbins = 13
-hs = ROOT.TH1F("hs","hs",nbins,-1,1)
-hbkg = ROOT.TH1F("hbkg","hbkg",nbins,-1,1)
-hSig = ROOT.TH1F("hSig","hSig",nbins, -1, 1)
+nbins = 1000
+if (doWPs):
+    nbins = 12
 
-tree.Draw("BDT_wMass_Dec4>>hs","(sampleIndex<0)*weight")
-tree.Draw("BDT_wMass_Dec4>>hbkg","(sampleIndex>0)*weight")
+xlow = -1.
+xhigh = 1.
+if (doWPs):
+    xlow = 1
+    xhigh = 13
 
-hs_wp = ROOT.TH1F("hs_wp","hs_wp",nbins,1,13)
-hbkg_wp = ROOT.TH1F("hbkg_wp","hbkg_wp",nbins,1,13)
-hSig_wp = ROOT.TH1F("hSig_wp","hSig_wp",nbins,1,13)
+hs = ROOT.TH1F("hs","hs",nbins,xlow,xhigh)
+hbkg = ROOT.TH1F("hbkg","hbkg",nbins,xlow,xhigh)
+hSig = ROOT.TH1F("hSig","hSig",nbins, xlow, xhigh)
+hSig2 = ROOT.TH2F("hSig","hSig",nbins,xlow,xhigh,nbins,xlow,xhigh)
 
-hs_wp.SetBinContent(1,1.32)
-hs_wp.SetBinContent(2,2.432)
-hs_wp.SetBinContent(3,0.627)
-hs_wp.SetBinContent(4,1.097)
-hs_wp.SetBinContent(5,1.286)
-hs_wp.SetBinContent(6,1.212)
-hs_wp.SetBinContent(7,0.966)
-hs_wp.SetBinContent(8,0.397)
-hs_wp.SetBinContent(9,0.231)
-hs_wp.SetBinContent(10,0.198)
-hs_wp.SetBinContent(11,0.114)
-hs_wp.SetBinContent(12,0.136)
-hs_wp.SetBinContent(13,0.214)
+if not doWPs:
+    tree.Draw("BDT_wMass_Dec4>>hs","(sampleIndex<0)*weight")
+    tree.Draw("BDT_wMass_Dec4>>hbkg","(sampleIndex>0)*weight")
 
-hbkg_wp.SetBinContent(1,523.6)
-hbkg_wp.SetBinContent(2,1090.86)
-hbkg_wp.SetBinContent(3,172.6)
-hbkg_wp.SetBinContent(4,233.87)
-hbkg_wp.SetBinContent(5,227.57)
-hbkg_wp.SetBinContent(6,140.8)
-hbkg_wp.SetBinContent(7,71.72)
-hbkg_wp.SetBinContent(8,18.37)
-hbkg_wp.SetBinContent(9,6.488)
-hbkg_wp.SetBinContent(10,4.035)
-hbkg_wp.SetBinContent(11,1.23)
-hbkg_wp.SetBinContent(12,1.904)
-hbkg_wp.SetBinContent(13,1.853)
+else:
+    hs_wp.SetBinContent(1,1.32)
+    hs_wp.SetBinContent(2,2.432)
+    hs_wp.SetBinContent(3,0.627)
+    hs_wp.SetBinContent(4,1.097)
+    hs_wp.SetBinContent(5,1.286)
+    hs_wp.SetBinContent(6,1.212)
+    hs_wp.SetBinContent(7,0.966)
+    hs_wp.SetBinContent(8,0.397)
+    hs_wp.SetBinContent(9,0.231)
+    hs_wp.SetBinContent(10,0.198)
+    hs_wp.SetBinContent(11,0.114)
+    hs_wp.SetBinContent(12,0.136)
+    hs_wp.SetBinContent(13,0.214)
 
-# do cut-based working points instead
-#hs = hs_wp
-#hbkg = hbkg_wp
-#hSig = hSig_wp
+    hbkg_wp.SetBinContent(1,523.6)
+    hbkg_wp.SetBinContent(2,1090.86)
+    hbkg_wp.SetBinContent(3,172.6)
+    hbkg_wp.SetBinContent(4,233.87)
+    hbkg_wp.SetBinContent(5,227.57)
+    hbkg_wp.SetBinContent(6,140.8)
+    hbkg_wp.SetBinContent(7,71.72)
+    hbkg_wp.SetBinContent(8,18.37)
+    hbkg_wp.SetBinContent(9,6.488)
+    hbkg_wp.SetBinContent(10,4.035)
+    hbkg_wp.SetBinContent(11,1.23)
+    hbkg_wp.SetBinContent(12,1.904)
+    hbkg_wp.SetBinContent(13,1.853)
 
 boundaries = []
 S_tot = hs.Integral()
@@ -63,19 +70,21 @@ S_tot = hs.Integral()
 for i in range(1,nbins+1):
     S_frac = hs.Integral(1,i-1)/S_tot;
     #print i, S_frac
-    if (S_frac >= ((len(boundaries)+1)*1.0)/nBinEdges):
+    if (doWPs):
         boundaries.append(hs.GetBinLowEdge(i))
-boundaries.append(1.0)
+    elif (S_frac >= ((len(boundaries)+1)*1.0)/nBinEdges):
+        boundaries.append(hs.GetBinLowEdge(i))
+boundaries.append(xhigh)
 print "boundary bin edges are..."
 print boundaries
 
 boundaries_array = numpy.zeros(len(boundaries),dtype=float)
 for i in range(len(boundaries)):
     boundaries_array[i] = boundaries[i]
-hs = hs.Rebin(len(boundaries)-1,"",boundaries_array)
-hbkg = hbkg.Rebin(len(boundaries)-1,"",boundaries_array)
-hSig = hSig.Rebin(len(boundaries)-1,"",boundaries_array)
-
+if not doWPs:
+    hs = hs.Rebin(len(boundaries)-1,"",boundaries_array)
+    hbkg = hbkg.Rebin(len(boundaries)-1,"",boundaries_array)
+    hSig = hSig.Rebin(len(boundaries)-1,"",boundaries_array)
 nbinsNew = hs.GetNbinsX()
 print "nbinsNew = ",nbinsNew
 
@@ -160,8 +169,13 @@ for bset in bsets:
         #print binLow, binHigh, S, B
         if (B > 0):
             combSens += pow(S,2)/B
+            #combSens += pow(S,2)/pow(sqrt(B)+0.1*B,2)
     combSens = sqrt(combSens)
-    #hSig.Fill(hs.GetXaxis().FindBin(bset[1]), combSens)
+    if (nCat == 2):
+        print hs.GetXaxis().FindBin(bset[1]), combSens
+        hSig.Fill(bset[1], combSens)
+    elif (nCat == 3):
+        hSig2.Fill(bset[1], bset[2], combSens)
     bset.append(combSens)
     if (combSens > bestSig):
         bestSig = combSens
@@ -194,9 +208,12 @@ print "best category boundaries are..."
 print bestWP
 print "with combined sensitivity: %f" % bestSig
 
-#c1 = ROOT.TCanvas("c1","c1")
-
-#hSig.Draw("hist")
-#raw_input()
+if (nCat == 2 or nCat == 3):
+    c1 = ROOT.TCanvas("c1","c1")
+    if (nCat == 2):
+        hSig.Draw("hist")
+    if (nCat == 3):
+        hSig2.Draw("colZ")
+    raw_input()
 
 
