@@ -8,8 +8,23 @@ import sys
 ifile = ROOT.TFile(sys.argv[1])
 tree = ifile.Get("tree")
 
-nBinEdges = 30
 nCat = int(sys.argv[2])
+
+ofile = ROOT.TFile("ofile.root","RECREATE")
+otree = ROOT.TTree("otree","otree")
+ncat = numpy.zeros(1, dtype=int)
+ncat[0] = nCat
+S_arr = numpy.zeros(nCat, dtype=float)
+B_arr = numpy.zeros(nCat, dtype=float)
+Sig   = numpy.zeros(1, dtype=float)
+bound_arr = numpy.zeros(nCat+1, dtype=float)
+otree.Branch("nCat",ncat,"nCat/I")
+otree.Branch("S",S_arr,"S[nCat]/D")
+otree.Branch("B",B_arr,"B[nCat]/D")
+otree.Branch("Sig",Sig,"Sig/D")
+otree.Branch("Boundaries",bound_arr,"Boundaries[%i]/D" % (nCat + 1))
+
+nBinEdges = 30
 doWPs = False
 if (len(sys.argv) > 3):
     if (sys.argv[3] ==  "True"): doWPs = True
@@ -159,6 +174,7 @@ elif (nCat == 8):
 bestSig = 0.
 bestWP = ()
 
+#print bsets
 for bset in bsets:
     combSens = 0.
     for i in range(len(bset)-1):
@@ -166,11 +182,18 @@ for bset in bsets:
         binHigh = hs.GetXaxis().FindBin(bset[i+1])
         S = hs.Integral(binLow, binHigh)
         B = hbkg.Integral(binLow, binHigh)
+        S_arr[i] = S
+        B_arr[i] = B
+        bound_arr[i] = bset[i]
         #print binLow, binHigh, S, B
         if (B > 0):
             combSens += pow(S,2)/B
             #combSens += pow(S,2)/pow(sqrt(B)+0.1*B,2)
     combSens = sqrt(combSens)
+    Sig[0] = float(combSens)
+    bound_arr[len(bset)-1] = bset[len(bset)-1]
+    print ncat[0],S_arr,B_arr,bound_arr,Sig[0]
+    otree.Fill()
     if (nCat == 2):
         print hs.GetXaxis().FindBin(bset[1]), combSens
         hSig.Fill(bset[1], combSens)
@@ -215,5 +238,7 @@ if (nCat == 2 or nCat == 3):
     if (nCat == 3):
         hSig2.Draw("colZ")
     raw_input()
-
+ofile.cd()
+otree.Write()
+ofile.Close()
 
