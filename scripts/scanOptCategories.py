@@ -192,7 +192,7 @@ for bset in bsets:
     combSens = sqrt(combSens)
     Sig[0] = float(combSens)
     bound_arr[len(bset)-1] = bset[len(bset)-1]
-    print ncat[0],S_arr,B_arr,bound_arr,Sig[0]
+    #print ncat[0],S_arr,B_arr,bound_arr,Sig[0]
     otree.Fill()
     if (nCat == 2):
         print hs.GetXaxis().FindBin(bset[1]), combSens
