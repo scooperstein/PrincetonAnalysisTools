@@ -6,6 +6,8 @@ type=2  name=vetolep            val=1
 type=2  name=intL               val=1280 # 1/pb
 type=2  name=doCutFlow          val=0
 type=2  name=doControlSamples   val=1
+type=2  name=onlyEvenEvents     val=0
+type=2  name=onlyOddEvents      val=0
 
 type=2  name=j1ptCut            val=30
 type=2  name=j2ptCut            val=30
