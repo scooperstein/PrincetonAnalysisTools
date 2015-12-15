@@ -71,11 +71,11 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                 #print "Reading",sample["name"],"with",len(sample["files"]),"files"
                 for filename in sample["files"]:
                     #print filename,fileToRun
-                    #if sample["type"]==0 and fileToRun!="":
-                    #    if filename!=fileToRun:
-                    #        continue
-                    #    else:
-                    #        print "Files match!",filename
+                    if sample["type"]==0 and fileToRun!="":
+                        if filename!=fileToRun:
+                            continue
+                        else:
+                            print "Files match!",filename
                     
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
@@ -105,7 +105,7 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                 print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
                 am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
         else:
-            print "There are no existing branches in the config file."
+            print "There are no early branches in the config file."
 
         if settings.has_key("existingbranches"):
             branches=ReadTextFile(settings["existingbranches"], "branchlist",list())
