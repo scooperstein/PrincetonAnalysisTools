@@ -26,9 +26,10 @@ class VHbbAnalysis : public AnalysisManager {
 
     bool ElectronSelection();
     bool MuonSelection();
+    float ReWeightMC(int nPU=0);
     std::pair<int,int> HighestPtBJets();
     std::pair<int,int> HighestCSVBJets();
     std::pair<int,int> HighestPtJJBJets();
-    double GetRecoTopMass(TLorentzVector Jet, bool isJet=true, bool useMET=false);
+    double GetRecoTopMass(TLorentzVector Jet, bool isJet=true, bool useMET=false, bool regPT=true);
 };
 
