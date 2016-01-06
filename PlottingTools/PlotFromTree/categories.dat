@@ -1,3 +1,4 @@
+catName=sel     catDef:cutFlow>=9&&isWmunu,cutFlow>=9&&isWenu
 catName=mueta   catDef:muEta<1.4,muEta>=1.4
 catName=eleta   catDef:elEta>1.566,elEta<1.442
 catName=elisoeta   catDef:abs(elIsoEta)>1.5,abs(elIsoEta)<1.5
