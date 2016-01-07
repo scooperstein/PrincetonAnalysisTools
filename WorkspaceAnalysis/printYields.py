@@ -11,13 +11,19 @@ cats = ["WenLowPt","WenHighPt","WmnLowPt","WmnMidPt","WmnHighPt"]
 cat_labels = ["ch1_Wenu","ch1_Wenu3","ch2_Wmunu","ch2_Wmunu2","ch2_Wmunu3"]
 #cat_labels = ["ch1_WenuL","ch1_WenuH","ch1_Wenu3L","ch1_Wenu3H","ch2_WmunuL","ch2_WmunuH","ch2_Wmunu2L","ch2_Wmunu2H","ch2_Wmunu3L","ch2_Wmunu3H"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
-samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
+#samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
+samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
 #samples = ["WH","TT","s_Top"]
 #samples = ["WH","TT"]
 #cats = ["WmnLowPt","WmnMidPt", "WmnHighPt"]
 #cat_labels = ["ch2_Wmunu", "ch2_Wmunu2","ch2_Wmunu3"]
 #cats = ["WenLowPt", "WenHighPt"]
 #cat_labels = ["ch1_Wenu","ch1_Wenu3"]
+if (len(sys.argv) > 2):
+    s = sys.argv[2].strip(',')
+    cats = s.split(',')
+    print cats
+    cat_labels = cats
 
 fake_obs_line = "observation  "
 
@@ -93,18 +99,46 @@ dc_string += "\n"
 dc_string += "process                                                     "
 for label in cat_labels:
     for i in range(len(samples)):
-        dc_string += str(i)
+        dc_string += str(i-1)
         if (i < 10): dc_string += "           "
         else: dc_string += "          "
 dc_string += "\n"
 dc_string += rates
 # dummy systematic
 dc_string += "\n"
-dc_string += "lumi    lnN      "
-for i in range(len(cat_labels)):
-    for j in range(len(samples)):
-        dc_string += "1.0001    "
-dc_string += "\n"
+#dc_string += "lumi    lnN      "
+#for i in range(len(cat_labels)):
+#    for j in range(len(samples)):
+#        dc_string += "1.0001    "
+#dc_string += "\n"
+
+systematics = ""
+if (len(sys.argv) > 3):
+    sys_file = open(sys.argv[3],"r")
+    for line in sys_file:
+        if (line[0] == '#'): continue
+        line = line.strip()
+        params = line.split(' ')
+        # remove extra spaces, there's probably a smarter way to do this
+        paramsToKeep = []
+        for param in params:
+            if (param != ''):
+                paramsToKeep.append(param)
+        params = paramsToKeep
+        name = params[0]
+        sysType = params[1]
+        val = params[2]
+        sysSamples = params[3].split(',')
+        sysLine = "%s    %s" % (name, sysType)
+        for i in range(len(cats)):
+            for sample in samples:
+                if sample in sysSamples:
+                    sysLine += "     %s" % val
+                else:
+                    sysLine += "     -"  
+        sysLine += "\n"
+        systematics += sysLine
+dc_string += systematics
 
 ofile = open(sys.argv[1],"write")
 ofile.write(dc_string)

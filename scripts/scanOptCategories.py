@@ -5,9 +5,16 @@ import sys
 
 #ifile = ROOT.TFile("TMVA_13TeV_Dec4_H125Sig_0b1b2bWjetsTTbarBkg_Mjj.root")
 #ifile = ROOT.TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/PlottingTools/Nm1Cuts/Dec4_McForOpt/output_allsamples_wBDTS.root")
-ifile = ROOT.TFile(sys.argv[1])
+if (len(sys.argv) != 4 and len(sys.argv) != 5):
+    print "Usage: python scanOptCategories.py [ifilename] [nCat] [ofilename] [doWPs=False]"
+    sys.exit(1)
+
+ifilename = sys.argv[1]
+ifile = ROOT.TFile(ifilename)
 tree = ifile.Get("tree")
 
+useCombine = True # calculate significance using full data card with Combine
+bdtname = "BDT_wMass_Dec4"
 presel = "H_mass>90 && H_mass<150"
 #presel = "H_mass>0"
 
@@ -55,8 +62,8 @@ hSig2 = ROOT.TH2F("hSig","hSig",nbins,xlow,xhigh,nbins,xlow,xhigh)
 
 hbkgTot = ROOT.TH1F("hbkgTot","hbkgTot",100,-1.,1.)
 hsTot = ROOT.TH1F("hsTot","hsTot",100, -1., 1.)
-tree.Draw("BDT_noMjj_Dec14_3000_5>>hsTot","(sampleIndex<0&&(%s))*weight" % presel)
-tree.Draw("BDT_noMjj_Dec14_3000_5>>hbkgTot","(sampleIndex>0&&(%s))*weight" % presel)
+tree.Draw("%s>>hsTot" % bdtname,"(sampleIndex<0&&(%s))*weight" % presel)
+tree.Draw("%s>>hbkgTot" % bdtname,"(sampleIndex>0&&(%s))*weight" % presel)
 
 sDen = hsTot.Integral()
 bkgDen = hbkgTot.Integral()
@@ -98,8 +105,8 @@ if doWPs:
     hbkg.SetBinContent(15,0.0)
 
 else: 
-    tree.Draw("BDT_noMjj_Dec14_3000_5>>hs","(sampleIndex<0&&(%s))*weight" % presel)
-    tree.Draw("BDT_noMjj_Dec14_3000_5>>hbkg","(sampleIndex>0&&(%s))*weight" % presel)
+    tree.Draw("%s>>hs" % bdtname,"(sampleIndex<0&&(%s))*weight" % presel)
+    tree.Draw("%s>>hbkg" % bdtname,"(sampleIndex>0&&(%s))*weight" % presel)
 
 boundaries= []
 subBoundaries = {}
@@ -230,8 +237,17 @@ for bset in bsets:
         if (B > 0):
             combSens += pow(S,2)/B
             #combSens += pow(S,2)/pow(sqrt(B)+0.1*B,2)
+            if (useCombine):
+                print "python ../splitSamples.py %s Cat%i '(%s)&&(%s>=%f)&&(%s<%f)'" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1])
         #binLow = binHigh + 1
     combSens = sqrt(combSens)
+    if (useCombine):
+        cat_labels = ""
+        for i in range(nCat):
+            cat_labels += "Cat%i," % i
+        print "python ../../WorkspaceAnalysis/printYields.py dc.txt ../../WorkspaceAnalysis/systematics.txt %s" % cat_labels
+        print "combine -M ProfileLikelihood --significance dc.txt -t -1 --expectSignal=1 > combine_output.txt"
+        print "cat combine_output.txt | grep Significance:"
     Sig[0] = float(combSens)
     bound_arr[len(bset)-1] = bset[len(bset)-1]
     #print ncat[0],S_arr,B_arr,bound_arr,Sig[0]
