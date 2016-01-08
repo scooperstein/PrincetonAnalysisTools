@@ -20,6 +20,7 @@ type=1  name=sampleIndex_sel
 type=1  name=sampleIndex_GenJetSum
 type=1  name=sampleIndex_GenJetSumNB
 type=2  name=weight
+type=2  name=weight_PU
 type=1  name=isWenu
 type=1  name=isWmunu
 type=1  name=cutFlow
@@ -137,6 +138,8 @@ type=2  name=Top1_mass_highestPtJJ
 type=2  name=Top1_mass_highestPtJJ_wMET
 type=2  name=Top1_mass_fromLepton
 type=2  name=Top1_mass_fromLepton_wMET
+type=2  name=Top1_mass_fromLepton_regPT
+type=2  name=Top1_mass_fromLepton_regPT_wMET
 #type=2  name=Top2_mass
 type=2  name=Top2_mass_hadW
 type=2  name=HJ1_HJ2_dPhi

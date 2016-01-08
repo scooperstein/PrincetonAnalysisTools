@@ -175,8 +175,10 @@ void AnalysisManager::InitChain(std::string filename)
 
 void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov){
     branches[name] = new TBranch;
+    if(debug>10000) std::cout<<"new TBranch"<<std::endl;
     branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov); 
-    
+    if(debug>10000) std::cout<<"new BranchInfo"<<std::endl;
+
     // Only 0-9 are setup with types for the moment.
     if(type>9 || type<0) {
         std::cout<<"Branch "<<name<<" cannot be set to type "<<type<<std::endl;
@@ -231,6 +233,8 @@ void AnalysisManager::SetupBranch(std::string name, int type, int length, int on
 // call after adding all pre-existing branches, but before adding any new branches
 void AnalysisManager::ConfigureOutputTree() {
     outputTree = fChain->CloneTree(0);
+    if(debug>100000) std::cout<<"getting entries of outputTree"<<std::endl;
+    if(debug>100000) std::cout<<"entries "<<outputTree->GetEntries()<<std::endl;
 }
 
 void AnalysisManager::SetupNewBranch(std::string name, int type, int length, bool newmem, std::string treetype, float val){
@@ -248,12 +252,6 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
         std::cout<<"treetype "<<treetype<<" is unknown.  Not setting up "<<name<<std::endl;
         return;
     }
-    //treeptr=outputTree;
-    /*if(branchInfos.count(name) != 0) {
-        // branch already exists
-        std::cout<<Form("Attempting to setup new branch %s, but it already exists in the output tree!", name.c_str())<<std::endl;
-        return;
-    }*/   
     
     if(newmem) {
         if(treetype=="output") { // outputtree
@@ -664,13 +662,6 @@ void AnalysisManager::m(std::string key){
 }
 
 
-//Value AnalysisManager::RetrieveValue(std::string key)
-//{
-//    //get value
-//    //std::string value = *f[key];
-//    std::string value("123");
-//    return { value };
-//}
 double AnalysisManager::EvalDeltaPhi(double phi0, double phi1){
     double dPhi = fabs(phi0-phi1);
     //std::cout<<"dPhi PI "<<dPhi<<" "<<PI<<std::endl;

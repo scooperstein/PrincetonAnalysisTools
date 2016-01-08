@@ -1,0 +1,19 @@
+# bkg scale factor uncertainties 
+#
+# bkg modeling (powheg vs mcAtNlo shapes for example)
+#
+# uncertainty on jets and btag
+#
+# uncertainty on stat. templates
+#
+lumi_13TeV               lnN 1.04 WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b
+CMS_vhbb_boost_EWK_8TeV  lnN 1.02 ZH,WH
+CMS_vhbb_boost_QCD_8TeV  lnN 1.05 QCD
+CMS_vhbb_eff_e_8TeV      lnN 1.03 figureitout
+CMS_vhbb_eff_m_8TeV      lnN 1.03 figureitout
+QCDscale_VH              lnN 1.04 ZH,WH
+QCDscale_VV              lnN 1.04 WZ
+QCDscale_ttbar           lnN 1.06 TT
+#add UEPS shape
+pdf_gg                   lnN 1.01 s_Top,QCD
+pdf_qqbar                lnN 1.01 ZH,WH,WZ
