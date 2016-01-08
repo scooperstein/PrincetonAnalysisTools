@@ -93,7 +93,7 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                     except:
                         print "Can't add",filename
                 if addedAtLeastOneFile:
-                    print("Adding sample to sample container")
+                    print("Adding sample %s to sample container with %i events " % (samplecon.sampleName, samplecon.processedEvents))
                     am.AddSample(samplecon)
 
         else:
