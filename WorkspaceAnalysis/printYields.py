@@ -12,7 +12,8 @@ cat_labels = ["ch1_Wenu","ch1_Wenu3","ch2_Wmunu","ch2_Wmunu2","ch2_Wmunu3"]
 #cat_labels = ["ch1_WenuL","ch1_WenuH","ch1_Wenu3L","ch1_Wenu3H","ch2_WmunuL","ch2_WmunuH","ch2_Wmunu2L","ch2_Wmunu2H","ch2_Wmunu3L","ch2_Wmunu3H"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
+#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
+samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
 #samples = ["WH","TT","s_Top"]
 #samples = ["WH","TT"]
 #cats = ["WmnLowPt","WmnMidPt", "WmnHighPt"]
@@ -36,7 +37,8 @@ for i in range(len(cats)):
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
     cat_fake_obs_line = ""
-    for sample in samples:
+    for sample in samples: 
+        print sample
         #nyield = ifile.Get("%s/%s" % (cat,sample)).Integral()
         nyield = ifile.Get(sample).Integral()
         if (nyield > 0): zeroYield = False
@@ -56,6 +58,7 @@ for i in range(len(cats)):
     if not zeroYield: 
         rates += cat_rates
         fake_obs_line += cat_fake_obs_line
+        #fake_obs_line += "   %.4f" % nBkgTot
     else: cats_to_remove.append(cats[i])
     print "Total Signal Yield: %.4f" % nSigTot
     print "Total Background Yield: %.4f" % nBkgTot
@@ -66,12 +69,46 @@ for cat in cats_to_remove:
 
 print rates
 
+systematics = ""
+nSys = 0
+if (len(sys.argv) > 3):
+    sys_file = open(sys.argv[3],"r")
+    for line in sys_file:
+        if (line[0] == '#'): continue
+        line = line.strip()
+        params = line.split(' ')
+        # remove extra spaces, there's probably a smarter way to do this
+        paramsToKeep = []
+        for param in params:
+            if (param != ''):
+                paramsToKeep.append(param)
+        params = paramsToKeep
+        name = params[0]
+        sysType = params[1]
+        val = params[2]
+        sysSamples = params[3].split(',')
+        sysLine = name
+        for i in range(48 - len(name)):
+            sysLine += " "
+        sysLine += sysType
+        for i in range(12 - len(sysType)):
+            sysLine += " "
+        nSys += 1
+        for i in range(len(cats)):
+            for sample in samples:
+                if sample in sysSamples:
+                    sysLine += "%s        " % val
+                else:
+                    sysLine += "-           "  
+        sysLine += "\n"
+        systematics += sysLine
+
 dc_string += "imax %i number of bins\n" % len(cats)
 dc_string += "jmax %i number of processes minus 1\n" % (len(samples) - 1)
-dc_string += "kmax 1 number of nuisance parameters\n"
+dc_string += "kmax %i number of nuisance parameters\n" % nSys
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
-#for i in range(len(cats)):
-#    dc_string += "shapes *           %s    hists_%s.root $PROCESS $PROCESS_$SYSTEMATIC\n" % (cat_labels[i],cats[i])
+for i in range(len(cats)):
+    dc_string += "shapes *           %s    hists_%s.root $PROCESS $PROCESS_$SYSTEMATIC\n" % (cat_labels[i],cats[i])
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 dc_string += "bin          "
 for label in cat_labels:
@@ -110,34 +147,8 @@ dc_string += "\n"
 #for i in range(len(cat_labels)):
 #    for j in range(len(samples)):
 #        dc_string += "1.0001    "
-#dc_string += "\n"
+dc_string += "\n"
 
-systematics = ""
-if (len(sys.argv) > 3):
-    sys_file = open(sys.argv[3],"r")
-    for line in sys_file:
-        if (line[0] == '#'): continue
-        line = line.strip()
-        params = line.split(' ')
-        # remove extra spaces, there's probably a smarter way to do this
-        paramsToKeep = []
-        for param in params:
-            if (param != ''):
-                paramsToKeep.append(param)
-        params = paramsToKeep
-        name = params[0]
-        sysType = params[1]
-        val = params[2]
-        sysSamples = params[3].split(',')
-        sysLine = "%s    %s" % (name, sysType)
-        for i in range(len(cats)):
-            for sample in samples:
-                if sample in sysSamples:
-                    sysLine += "     %s" % val
-                else:
-                    sysLine += "     -"  
-        sysLine += "\n"
-        systematics += sysLine
 dc_string += systematics
 
 ofile = open(sys.argv[1],"write")

@@ -2,6 +2,8 @@ import ROOT
 from math import sqrt,pow
 import numpy
 import sys
+#import subprocess
+import os
 
 #ifile = ROOT.TFile("TMVA_13TeV_Dec4_H125Sig_0b1b2bWjetsTTbarBkg_Mjj.root")
 #ifile = ROOT.TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/PlottingTools/Nm1Cuts/Dec4_McForOpt/output_allsamples_wBDTS.root")
@@ -9,12 +11,14 @@ if (len(sys.argv) != 4 and len(sys.argv) != 5):
     print "Usage: python scanOptCategories.py [ifilename] [nCat] [ofilename] [doWPs=False]"
     sys.exit(1)
 
+ROOT.gROOT.SetBatch(True)
+
 ifilename = sys.argv[1]
 ifile = ROOT.TFile(ifilename)
 tree = ifile.Get("tree")
 
 useCombine = True # calculate significance using full data card with Combine
-bdtname = "BDT_wMass_Dec4"
+bdtname = "BDT_wMass_Dec14_3000_5"
 presel = "H_mass>90 && H_mass<150"
 #presel = "H_mass>0"
 
@@ -219,6 +223,16 @@ bestWP = ()
 for bset in bsets:
     combSens = 0.
     binLow = 1
+    bound_label = ""
+    for bound in bset:
+        bound_label += "%f_" % bound
+    bound_label = bound_label.replace('-','m')
+    if (useCombine):
+        print "mkdir -p %i/%s" % (nCat, bound_label)
+        os.system("mkdir -p %i/%s" % (nCat, bound_label))
+        print "cd %i/%s" % (nCat, bound_label)
+        os.chdir("%i/%s" % (nCat, bound_label))
+        os.system("pwd")
     for i in range(len(bset)-1):
         binLow = hs.GetXaxis().FindBin(bset[i])
         binHigh = hs.GetXaxis().FindBin(bset[i+1]) - 1
@@ -238,16 +252,27 @@ for bset in bsets:
             combSens += pow(S,2)/B
             #combSens += pow(S,2)/pow(sqrt(B)+0.1*B,2)
             if (useCombine):
-                print "python ../splitSamples.py %s Cat%i '(%s)&&(%s>=%f)&&(%s<%f)'" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1])
+                print "python ../../../splitSamples.py %s Cat%i '(%s)&&(%s>=%f)&&(%s<%f)'" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1])
+                os.system("python ../../../splitSamples.py %s Cat%i '(%s)&&(%s>=%f)&&(%s<%f)'" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1]))
         #binLow = binHigh + 1
     combSens = sqrt(combSens)
     if (useCombine):
         cat_labels = ""
         for i in range(nCat):
             cat_labels += "Cat%i," % i
-        print "python ../../WorkspaceAnalysis/printYields.py dc.txt ../../WorkspaceAnalysis/systematics.txt %s" % cat_labels
+        bound_label = ""
+        print "python ../../../../WorkspaceAnalysis/printYields.py dc.txt %s ../../../../WorkspaceAnalysis/systematics.txt" % cat_labels
+        os.system("python ../../../../WorkspaceAnalysis/printYields.py dc.txt %s ../../../../WorkspaceAnalysis/systematics.txt" % cat_labels)
         print "combine -M ProfileLikelihood --significance dc.txt -t -1 --expectSignal=1 > combine_output.txt"
-        print "cat combine_output.txt | grep Significance:"
+        os.system("combine -M ProfileLikelihood --significance dc.txt -t -1 --expectSignal=1 > combine_output.txt")
+        combOut = open("combine_output.txt","r")
+        for line in combOut:
+            if (line.find("Significance") != -1):
+                combSens = float(line.split()[1])
+                print combSens
+        print "cd -"
+        os.chdir("../..")
+       
     Sig[0] = float(combSens)
     bound_arr[len(bset)-1] = bset[len(bset)-1]
     #print ncat[0],S_arr,B_arr,bound_arr,Sig[0]
