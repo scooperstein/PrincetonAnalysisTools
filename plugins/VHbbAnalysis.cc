@@ -804,8 +804,11 @@ void VHbbAnalysis::FinishEvent(){
     }
 
 
-    ofile->cd();
-    outputTree->Fill();
+    // FIXME nominal must be last
+    if(cursyst->name=="nominal"){
+        ofile->cd();
+        outputTree->Fill();
+    }
     return;
 }
 

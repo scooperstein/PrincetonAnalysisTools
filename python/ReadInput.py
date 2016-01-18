@@ -10,7 +10,7 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=0
 
-def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
+def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
@@ -102,15 +102,15 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
         if settings.has_key("earlybranches"):
             branches=ReadTextFile(settings["earlybranches"], "branchlist",list())
             for branch in branches:
-                print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
+                print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
         else:
             print "There are no early branches in the config file."
 
         if settings.has_key("existingbranches"):
             branches=ReadTextFile(settings["existingbranches"], "branchlist",list())
             for branch in branches:
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "existing")
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "existing", branches[branch][4])
         else:
             print "There are no existing branches in the config file."
 
@@ -163,6 +163,14 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet2EnergyRegression(reg2) 
+        
+        if settings.has_key("systematics"):
+            systs = ReadTextFile(settings["systematics"], "systematics") 
+            for syst in systs:
+                print "add Systematic"
+                am.AddSystematic(syst)
+                print "added Systematic"
+
         return am    
     elif filetype is "samplefile":
         samples=MakeSampleMap(filelines)
@@ -173,6 +181,9 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
     elif filetype is "bdt":
         bdtInfo=SetupBDT(filelines)
         return bdtInfo
+    elif filetype is "systematics":
+        systContainers=SetupSyst(filelines)
+        return systContainers
     else:
         print "Unknown filetype ", filetype
 
@@ -272,6 +283,7 @@ def MakeBranchMap(lines):
         arraylength=-1
         val=-999
         onlyMC=0
+        lengthBranch=""
         
         for item in line.split():
             name,value = item.split("=")
@@ -285,8 +297,11 @@ def MakeBranchMap(lines):
                 val=float(value)
             if name.find("onlyMC") is 0:
                 onlyMC=int(value)
+            if name.find("lengthBranch") is 0:
+                print "FOUND LENGTH BRANCH",value
+                lengthBranch=str(value)
 
-        branches[branchname]= [branchtype,arraylength,val,onlyMC]
+        branches[branchname]= [branchtype,arraylength,val,onlyMC,lengthBranch]
 
     return branches            
 
@@ -345,3 +360,31 @@ def SetupBDT(lines):
             print "adding spectator variable %s (%s) existing: %i" % (name,lname, int(isExisting))
         bdt.AddVariable(name, lname, isExisting, isSpec)
     return bdt 
+
+
+def SetupSyst(lines):
+    systs=[]
+    for line in lines:
+        syst=ROOT.SystematicContainer()
+        for item in line.split():
+            key,value=item.split("=")
+            if key=="name":
+                syst.name=value
+            elif key=="branches":
+                for brnchName in value.split(","):
+                    syst.AddBranchName(brnchName)
+            elif key=="scales":
+                scales=[]
+                for scale in value.split(","):
+                    syst.AddScale(float(scale))
+            elif key=="smears":
+                smears=[]
+                for smear in value.split(","):
+                    syst.AddSmear(float(smear))
+            else:
+                print "In systematics file, what is:",item
+
+            # FIXME need to add passing 2d histogram from filename
+
+        systs.append(syst)
+    return systs
