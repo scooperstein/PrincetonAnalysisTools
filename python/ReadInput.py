@@ -169,6 +169,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
             for syst in systs:
                 print "add Systematic"
                 am.AddSystematic(syst)
+                am.SetupNewBranch("Pass_%s" % syst.name, 4)
                 print "added Systematic"
 
         return am    

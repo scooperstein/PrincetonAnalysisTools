@@ -528,17 +528,22 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
                 if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
                 Long64_t ientry = LoadTree(jentry);
                 if (ientry < 0) break;
-                nb = fChain->GetEntry(jentry);   
-                nbytes += nb;
+                //nb = fChain->GetEntry(jentry);   
+                //nbytes += nb;
                 
                 anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                    nb = fChain->GetEntry(jentry);   
+                    nbytes += nb;
                     
                     cursyst=&(systematics[iSyst]);
                     ApplySystematics();
                     if(debug>1000) std::cout<<"running analysis"<<std::endl;
                     bool select = Analyze();
-                    if(select) anyPassing=true;
+                    if(select) { 
+                        anyPassing=true;
+                        *b[Form("Pass_%s",cursyst->name.c_str())] = true;
+                    }
                     if(select || (cursyst->name=="nominal" && anyPassing)){
                         if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
                         FinishEvent();
@@ -627,6 +632,17 @@ void AnalysisManager::SetupSystematicsBranches(){
             SetupNewBranch(newName, 
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type,
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length);
+        }
+        for(int iBDT=0; iBDT<bdtInfos.size(); iBDT++) {
+            std::string bdtname(bdtInfos[iBDT].bdtname);
+            if (systematics[iSyst].name != "nominal") {
+                bdtname.append("_");
+                bdtname.append(systematics[iSyst].name);
+                SetupNewBranch(bdtname, 2);
+            }
+        }
+        if (systematics[iSyst].name != "nominal") {
+            SetupNewBranch(Form("H_mass_%s", systematics[iSyst].name.c_str()), 2);
         }
     }
 }

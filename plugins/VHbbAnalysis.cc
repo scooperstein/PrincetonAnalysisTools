@@ -246,7 +246,12 @@ bool VHbbAnalysis::Analyze(){
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *f["HVdPhi"] = Hbb.DeltaPhi(W);
     *f["H_mass_step2"] = *f["H_mass"];
-    *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
+    if (cursyst->name == "nominal") {
+        *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
+    }
+    else {
+        *f[Form("H_mass_%s",cursyst->name.c_str())] = Hbb.M();
+    }
     //*f["H_pt"] = Hbb.Pt(); // we already do this
 
 
@@ -722,7 +727,12 @@ void VHbbAnalysis::FinishEvent(){
                 PrintBDTInfoValues(tmpBDT);
                 std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
             }
-            *f[tmpBDT.bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
+            std::string bdtname(tmpBDT.bdtname);
+            if (cursyst->name != "nominal") {
+                bdtname.append("_");
+                bdtname.append(cursyst->name);
+            }
+            *f[bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
         }
     }   
 
