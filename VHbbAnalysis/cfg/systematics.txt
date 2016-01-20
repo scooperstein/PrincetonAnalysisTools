@@ -1,3 +1,10 @@
 #nominal needs to go last
-name=JES_Up   branches=Jet_pt,Jet_rawPt   scales=1.1,1.1   smears=0,0
+name=JEC_Up       branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JECUp
+name=JEC_Down     branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JECDown
+name=JER_Up       branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JERUp
+name=JER_Down     branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JERDown
+name=bTagHFUp     branches=Jet_btagCSV       scaleVar=Jet_bTagWeightHFUp
+name=bTagHFDown   branches=Jet_btagCSV       scaleVar=Jet_bTagWeightHFDown
+name=bTagLFUp     branches=Jet_btagCSV       scaleVar=Jet_bTagWeightLFUp
+name=bTagLFDown   branches=Jet_btagCSV       scaleVar=Jet_bTagWeightLFDown
 name=nominal

@@ -169,6 +169,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
             for syst in systs:
                 print "add Systematic"
                 am.AddSystematic(syst)
+                am.SetupNewBranch("Pass_%s" % syst.name, 4)
                 print "added Systematic"
 
         return am    
@@ -381,6 +382,8 @@ def SetupSyst(lines):
                 smears=[]
                 for smear in value.split(","):
                     syst.AddSmear(float(smear))
+            elif key=="scaleVar":
+                syst.scaleVar=value
             else:
                 print "In systematics file, what is:",item
 

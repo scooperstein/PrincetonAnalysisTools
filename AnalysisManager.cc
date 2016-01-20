@@ -528,17 +528,22 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
                 if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
                 Long64_t ientry = LoadTree(jentry);
                 if (ientry < 0) break;
-                nb = fChain->GetEntry(jentry);   
-                nbytes += nb;
+                //nb = fChain->GetEntry(jentry);   
+                //nbytes += nb;
                 
                 anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                    nb = fChain->GetEntry(jentry);   
+                    nbytes += nb;
                     
                     cursyst=&(systematics[iSyst]);
                     ApplySystematics();
                     if(debug>1000) std::cout<<"running analysis"<<std::endl;
                     bool select = Analyze();
-                    if(select) anyPassing=true;
+                    if(select) { 
+                        anyPassing=true;
+                        *b[Form("Pass_%s",cursyst->name.c_str())] = true;
+                    }
                     if(select || (cursyst->name=="nominal" && anyPassing)){
                         if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
                         FinishEvent();
@@ -628,6 +633,17 @@ void AnalysisManager::SetupSystematicsBranches(){
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type,
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length);
         }
+        for(int iBDT=0; iBDT<bdtInfos.size(); iBDT++) {
+            std::string bdtname(bdtInfos[iBDT].bdtname);
+            if (systematics[iSyst].name != "nominal") {
+                bdtname.append("_");
+                bdtname.append(systematics[iSyst].name);
+                SetupNewBranch(bdtname, 2);
+            }
+        }
+        if (systematics[iSyst].name != "nominal") {
+            SetupNewBranch(Form("H_mass_%s", systematics[iSyst].name.c_str()), 2);
+        }
     }
 }
 
@@ -649,12 +665,26 @@ void AnalysisManager::ApplySystematics(bool early){
             // smearing can be added at any time
             if(thisType==2){
                 // scale the current branch
-                *f[oldBranchName.c_str()]=*f[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                if (cursyst->scaleVar == "") {
+                    // flat scaling
+                    *f[oldBranchName.c_str()]=*f[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                }
+                else {
+                    // dynamic scaling
+                    *f[oldBranchName.c_str()]=*f[oldBranchName.c_str()] * *f[cursyst->scaleVar];
+                }
                 // copy the value to the new branch
                 *f[systBranchName.c_str()]=*f[oldBranchName.c_str()];
             } else if(thisType==3){
                 // scale the current branch
-                *d[oldBranchName.c_str()]=*d[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                if (cursyst->scaleVar == "") {
+                    // flat scaling
+                    *d[oldBranchName.c_str()]=*d[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                }
+                else {
+                    // dynamic scaling
+                    *d[oldBranchName.c_str()]=*d[oldBranchName.c_str()] * *d[cursyst->scaleVar];
+                }
                 // copy the value to the new branch
                 *d[systBranchName.c_str()]=*d[oldBranchName.c_str()];
             } else if(thisType==7){
@@ -662,7 +692,14 @@ void AnalysisManager::ApplySystematics(bool early){
                 //std::cout<<"length "<<*in[existingBranchInfo->lengthBranch]<<std::endl;
                 for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
                     //std::cout<<"old val "<<f[oldBranchName.c_str()][ind]<<std::endl;
-                    f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    if (cursyst->scaleVar == "") {
+                         // flat scaling
+                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    }
+                    else {
+                         // dynamic scaling
+                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * f[cursyst->scaleVar][ind];
+                    }
                     //std::cout<<"new val "<<f[oldBranchName.c_str()][ind]<<std::endl;
                     // copy the value to the new branch
                     f[systBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind];
@@ -670,7 +707,14 @@ void AnalysisManager::ApplySystematics(bool early){
                 }
             } else if(thisType==8){
                 for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
-                    d[oldBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    if (cursyst->scaleVar == "") {
+                         // flat scaling
+                        d[oldBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    }
+                    else {
+                        // dynamic scaling
+                        d[oldBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind] * d[cursyst->scaleVar][ind];
+                    }
                     // copy the value to the new branch
                     d[systBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind];
                 }

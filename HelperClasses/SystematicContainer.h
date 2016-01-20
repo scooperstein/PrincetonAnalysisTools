@@ -22,6 +22,7 @@ class SystematicContainer {
     std::vector<std::string> branchesToEdit;
     std::vector<float> scales;  // scale value by
     std::vector<float> smears;  // smear value (after scaling)
+    std::string scaleVar; // dynamic scaling, JER's for example
 
     // anticipating tables of eta/pt
     TH2F scaleTable;
