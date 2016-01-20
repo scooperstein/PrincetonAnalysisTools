@@ -11,6 +11,7 @@ inline SystematicContainer::SystematicContainer()
 {
     name = "";
     apply=true;
+    scaleVar = "";
 }
 
 inline void SystematicContainer::TurnOff(){

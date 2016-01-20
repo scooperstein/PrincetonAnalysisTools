@@ -382,6 +382,8 @@ def SetupSyst(lines):
                 smears=[]
                 for smear in value.split(","):
                     syst.AddSmear(float(smear))
+            elif key=="scaleVar":
+                syst.scaleVar=value
             else:
                 print "In systematics file, what is:",item
 
