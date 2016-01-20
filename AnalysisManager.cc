@@ -90,6 +90,10 @@ void AnalysisManager::AddSample(SampleContainer sample){
     samples.push_back(sample);
 }
 
+void AnalysisManager::AddSystematic(SystematicContainer syst){
+    systematics.push_back(syst);
+}
+
 void AnalysisManager::AddBDT(BDTInfo bdt) {
     BDTisSet = true;
     bdtInfos.push_back(bdt);
@@ -173,10 +177,10 @@ void AnalysisManager::InitChain(std::string filename)
 }
 
 
-void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov){
+void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov, std::string lengthBranch){
     branches[name] = new TBranch;
     if(debug>10000) std::cout<<"new TBranch"<<std::endl;
-    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov); 
+    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov,-999.,lengthBranch); 
     if(debug>10000) std::cout<<"new BranchInfo"<<std::endl;
 
     // Only 0-9 are setup with types for the moment.
@@ -466,6 +470,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
     //}  
     // let's add some of our own branches
     SetNewBranches();
+    SetupSystematicsBranches();
     // FIXME add branches to settings regarding splitting
     //SetupNewBranch("jobNum", 3, -1, true, "settings", jobNum);
     settingsTree->Fill();
@@ -504,22 +509,41 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
             //for (Long64_t jentry=0; jentry<50001;jentry++) {
                 if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
+                
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
-                if(debug>100000) std::cout<<"checking preselection"<<std::endl;
-                bool presel = Preselection();
-                if(!presel) continue;
+
+                bool anyPassing=false;
+                for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                    cursyst=&(systematics[iSyst]);
+                    ApplySystematics(true);
+
+                    if(debug>100000) std::cout<<"checking preselection"<<std::endl;
+                    bool presel = Preselection();
+                    if(presel) anyPassing=true;
+                }
+                
+                if(!anyPassing) continue;
+  
 
                 if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
                 Long64_t ientry = LoadTree(jentry);
                 if (ientry < 0) break;
-                nb = fChain->GetEntry(jentry);   nbytes += nb;
-  
-                if(debug>1000) std::cout<<"running analysis"<<std::endl;
-                bool select = Analyze();
-                if(select){
-                    if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                    FinishEvent();
-                    saved++;
+                nb = fChain->GetEntry(jentry);   
+                nbytes += nb;
+                
+                anyPassing=false;
+                for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                    
+                    cursyst=&(systematics[iSyst]);
+                    ApplySystematics();
+                    if(debug>1000) std::cout<<"running analysis"<<std::endl;
+                    bool select = Analyze();
+                    if(select) anyPassing=true;
+                    if(select || (cursyst->name=="nominal" && anyPassing)){
+                        if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
+                        FinishEvent();
+                        if(cursyst->name=="nominal") saved++;
+                    }
                 }
             } // end event loop
         } // end file loop
@@ -551,9 +575,12 @@ bool AnalysisManager::Analyze(){
             
 void AnalysisManager::FinishEvent(){
     //need to fill the tree, hist, or whatever here.
-   
-    ofile->cd();
-    outputTree->Fill();
+  
+    // FIXME nominal must be last!
+    if(cursyst->name=="nominal"){
+        ofile->cd();
+        outputTree->Fill();
+    }
     return;
 }
 
@@ -568,64 +595,88 @@ void AnalysisManager::TermAnalysis() {
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
 void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
-
-    // let's do 8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg as an example
-    //if(debug>100){
-    //    thereader = new TMVA::Reader( "!Color:!Silent" );
-    //} else {
-    //    thereader = new TMVA::Reader( "!Color:Silent" );
-    //}
-    /*int bdtType = 0;
-    if (bdtType == 0) {
-        thereader->AddVariable("H.massCorr",                &testMass); 
-        thereader->AddVariable("H.ptCorr",                  &H.ptCorr);
-        thereader->AddVariable("V.pt",                      &V.pt);
-        thereader->AddVariable("hJet_csvReshapedNew[0]",    &(f["hJet_csvReshapedNew"][0]) );
-        thereader->AddVariable("hJet_csvReshapedNew[1]",    &(f["hJet_csvReshapedNew"][1]) );
-        thereader->AddVariable("HVdPhi",                    f["HVdPhi"]);
-        thereader->AddVariable("H.dEta",                    &H.dEta);
-        thereader->AddVariable("Sum$(aJet_pt>20 && abs(aJet_eta)<4.5)", f["naJetsPassingCuts"]);
-        thereader->AddVariable("H.dR",                      &H.dR);
-        thereader->AddVariable("abs(deltaPullAngle)",       f["absDeltaPullAngle"]);
-        thereader->AddVariable("hJet_ptCorr[0]",            &(f["hJet_ptCorr"][0]) );
-        thereader->AddVariable("hJet_ptCorr[1]",            &(f["hJet_ptCorr"][1]) );
-        thereader->AddVariable("MaxIf$(aJet_csvReshapedNew,aJet_pt>20 && abs(aJet_eta)<2.5)", f["highestCSVaJet"]);
-        thereader->AddVariable("MinIf$(evalDeltaR(aJet_eta,aJet_phi,H.eta,H.phi),aJet_pt>20 && abs(aJet_eta)<4.5 && aJet_puJetIdL>0)", f["minDeltaRaJet"]);   
- 
-        thereader->AddSpectator("Vtype", f["Vtype_f"]);
-        thereader->AddSpectator("Sum$(aLepton_pt > 15 && abs(aLepton_eta) < 2.5 && (aLepton_pfCombRelIso < 0.15) )", f["naLeptonsPassingCuts"]);
-        thereader->AddSpectator("METtype1corr.et", &METtype1corr.et);
-
-        thereader->BookMVA("BDT method","aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml");
-        //thereader->BookMVA("BDT method",bdtInfo.xmlFile);
-    }*/
-    //std::cout<<Form("Setting up variables for BDT %s", bdtInfo.bdtname)<<std::endl;
     TMVA::Reader *thereader = bdtInfo.reader;
     
-    /*for(unsigned int i=0; i<bdtInfo.inputNames.size(); i++) {
-        //std::cout<<Form("Adding variable to BDT: %s (localName = %s) ",bdtInfo.inputNames[i], bdtInfo.localVarNames[i])<<std::endl;
-        
-        bdtInfo.reader->AddVariable(bdtInfo.inputNames[i], f[bdtInfo.localVarNames[i]]);
-    }
-
-    for(unsigned int i=0; i<bdtInfo.inputSpectatorNames.size(); i++) {
-        //std::cout<<Form("Adding spectator variable to BDT: %s (localName = %s) ",bdtInfo.inputSpectatorNames[i], bdtInfo.localSpectatorVarNames[i])<<std::endl;
-        bdtInfo.reader->AddSpectator(bdtInfo.inputSpectatorNames[i], f[bdtInfo.localSpectatorVarNames[i]]);
-    }*/
-
     for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
         BDTVariable bdtvar = bdtInfo.bdtVars[i];
         if (!bdtvar.isSpec) {
             bdtInfo.reader->AddVariable(bdtvar.varName, f[bdtvar.localVarName]);
-        }
-        else {
+        } else {
             bdtInfo.reader->AddSpectator(bdtvar.varName, f[bdtvar.localVarName]);
         }
     }
 
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
     thereader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
+}
 
+
+void AnalysisManager::SetupSystematicsBranches(){
+    std::cout<<"loop through systematics "<<systematics.size()<<std::endl;
+    for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+        std::cout<<"syst name "<<systematics[iSyst].name<<std::endl;
+        for(int iBrnch=0; iBrnch<systematics[iSyst].branchesToEdit.size(); iBrnch++){
+            std::string newName(systematics[iSyst].branchesToEdit[iBrnch]);
+            newName.append("_");
+            newName.append(systematics[iSyst].name);
+            std::cout<<"\tbranch name "<<newName<<std::endl;
+            std::cout<<"\t\ttype, length,  "
+                <<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type<<", "
+                <<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length<<std::endl;
+                //<<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length<<" "
+            SetupNewBranch(newName, 
+                branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type,
+                branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length);
+        }
+    }
+}
+
+// applies scales to floats and doubles (and arrays)
+// smearing can be added; other types can be added.
+void AnalysisManager::ApplySystematics(bool early){
+    for(int iBrnch=0; iBrnch<cursyst->branchesToEdit.size(); iBrnch++){
+        //std::cout<<"iBrnch "<<iBrnch<<std::endl;
+        std::string oldBranchName(cursyst->branchesToEdit[iBrnch]);
+        BranchInfo* existingBranchInfo = branchInfos[oldBranchName.c_str()];
+        //std::cout<<"early? "<< branchInfos[cursyst->branchesToEdit[iBrnch]]->prov<<std::endl;
+        if(!early || (early && branchInfos[cursyst->branchesToEdit[iBrnch]]->prov == "early")){
+            std::string systBranchName(oldBranchName);
+            systBranchName.append("_");
+            systBranchName.append(cursyst->name);
+            //std::cout<<"new branch "<<systBranchName.c_str()<<std::endl;
+            int thisType=existingBranchInfo->type;
+            // just doing floats and doubles
+            // smearing can be added at any time
+            if(thisType==2){
+                // scale the current branch
+                *f[oldBranchName.c_str()]=*f[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                // copy the value to the new branch
+                *f[systBranchName.c_str()]=*f[oldBranchName.c_str()];
+            } else if(thisType==3){
+                // scale the current branch
+                *d[oldBranchName.c_str()]=*d[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                // copy the value to the new branch
+                *d[systBranchName.c_str()]=*d[oldBranchName.c_str()];
+            } else if(thisType==7){
+                //std::cout<<"length branch "<<existingBranchInfo->lengthBranch<<std::endl;
+                //std::cout<<"length "<<*in[existingBranchInfo->lengthBranch]<<std::endl;
+                for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
+                    //std::cout<<"old val "<<f[oldBranchName.c_str()][ind]<<std::endl;
+                    f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    //std::cout<<"new val "<<f[oldBranchName.c_str()][ind]<<std::endl;
+                    // copy the value to the new branch
+                    f[systBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind];
+                    //std::cout<<"new branch "<<f[systBranchName.c_str()][ind]<<std::endl;
+                }
+            } else if(thisType==8){
+                for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
+                    d[oldBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    // copy the value to the new branch
+                    d[systBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind];
+                }
+            }
+        }
+    }
 }
 
 
