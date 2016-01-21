@@ -2,7 +2,7 @@
 # isSpec 0 -> Variable used in BDT training
 
 bdtmethod=BDT
-#bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
+bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
 bdtname=CMS_vhbb_BDT_Wln_13TeV
 #xmlFile=aux/TMVA_13TeV_Nov23_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
 xmlFile=aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
@@ -23,6 +23,6 @@ name=lepMetDPhi             lname=lepMetDPhi                  isEx=0 isSpec=0 or
 name=selLeptons_pt[lepInd]  lname=selLeptons_pt_0             ixEx=0 isSpec=0 order=14
 name=selLeptons_eta[lepInd] lname=selLeptons_eta_0            ixEx=0 isSpec=0 order=15
 name=selLeptons_relIso03[lepInd] lname=selLeptons_relIso03_0  ixEx=0 isSpec=0 order=16
-name=isWenu_f               lname=isWenu_f                    isEx=0 isSpec=0 order=17
+name=isWenu                 lname=isWenu_f                    isEx=0 isSpec=0 order=17
 name=isWmunu_f              lname=isWumnu_f                   isEx=0 isSpec=0 order=18
 
