@@ -13,7 +13,7 @@ cat_labels = ["ch1_Wenu","ch1_Wenu3","ch2_Wmunu","ch2_Wmunu2","ch2_Wmunu3"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
+samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
 #samples = ["WH","TT","s_Top"]
 #samples = ["WH","TT"]
 #cats = ["WmnLowPt","WmnMidPt", "WmnHighPt"]
@@ -100,6 +100,25 @@ if (len(sys.argv) > 3):
                     sysLine += "%s        " % val
                 else:
                     sysLine += "-           "  
+        sysLine += "\n"
+        systematics += sysLine
+
+if (len(sys.argv) > 4):
+    binStats_file = open(sys.argv[4],"r")
+    for line in binStats_file:
+        if (line[0] == '#'): continue
+        line = line.strip()
+        sysLine = line
+        for i in range(48 - len(line)):
+            sysLine += " "
+        sysLine += "shape      "
+        nSys += 1
+        for i in range(len(cats)):
+            for sample in samples:
+                if (sysLine.find(sample) != -1):
+                    sysLine += "1.0        "
+                else:
+                    sysLine += "-           "
         sysLine += "\n"
         systematics += sysLine
 
