@@ -49,7 +49,7 @@ bool VHbbAnalysis::Preselection(){
     // Preselect for two jets and one lepton which pass some minimum pt threshold
     int nPreselJets = 0;
     for (int i=0; i < *in["nJet"]; i++) {
-        if (f["Jet_pt"][i] > *f["JetPtPresel"]) nPreselJets++;
+        if (f["Jet_pt_reg"][i] > *f["JetPtPresel"]) nPreselJets++;
     }
     int nPreselLep = 0;
     for (int i=0; i < *in["nselLeptons"]; i++) {
@@ -121,17 +121,17 @@ bool VHbbAnalysis::Analyze(){
         std::cout<<"hJetInd1 = "<<*in["hJetInd1"]<<std::endl;
         std::cout<<"hJetInd2 = "<<*in["hJetInd2"]<<std::endl;
         std::cout<<"found two bjets with pt and CSV "
-            <<f["Jet_pt"][*in["hJetInd1"]]<<" "
+            <<f["Jet_pt_reg"][*in["hJetInd1"]]<<" "
             <<f["Jet_btagCSV"][*in["hJetInd1"]]<<" "
-            <<f["Jet_pt"][*in["hJetInd2"]]<<" "
+            <<f["Jet_pt_reg"][*in["hJetInd2"]]<<" "
             <<f["Jet_btagCSV"][*in["hJetInd2"]]<<" "
             <<std::endl;
     }
     
     // Reconstruct Higgs
     TLorentzVector HJ1,HJ2,Hbb;
-    HJ1.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]]);
-    HJ2.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
+    HJ1.SetPtEtaPhiM(f["Jet_pt_reg"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(f["Jet_pt_reg"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
 
     *f["H_pt"] = Hbb.Pt();
@@ -205,10 +205,10 @@ bool VHbbAnalysis::Analyze(){
     for (int i=0; i<*in["nJet"]; i++) {
         if (i==*in["hJetInd1"] || i==*in["hJetInd2"]) continue;
         // make some basic jet id/kinematic cut
-        if (f["Jet_pt"][i] < 30 || in["Jet_puId"][i]==0) continue;
+        if (f["Jet_pt_reg"][i] < 30 || in["Jet_puId"][i]==0) continue;
         //if (in["Jet_mcMatchId"][i] == 0) continue;
         TLorentzVector j;
-        j.SetPtEtaPhiM(f["Jet_pt"][i], f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i] );
+        j.SetPtEtaPhiM(f["Jet_pt_reg"][i], f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i] );
         double DR = j.DeltaR(HJ2);
         if (DR <= min1) {
             min2 = min1;
@@ -225,8 +225,8 @@ bool VHbbAnalysis::Analyze(){
     *f["HJ2_minJetDR2"] = min2;
     if (jetInd1!=-1 && jetInd2!=-1) {
         TLorentzVector WJet1, WJet2;
-        WJet1.SetPtEtaPhiM(f["Jet_pt"][jetInd1], f["Jet_eta"][jetInd1], f["Jet_phi"][jetInd1], f["Jet_mass"][jetInd1]);
-        WJet2.SetPtEtaPhiM(f["Jet_pt"][jetInd2], f["Jet_eta"][jetInd2], f["Jet_phi"][jetInd2], f["Jet_mass"][jetInd2]);
+        WJet1.SetPtEtaPhiM(f["Jet_pt_reg"][jetInd1], f["Jet_eta"][jetInd1], f["Jet_phi"][jetInd1], f["Jet_mass"][jetInd1]);
+        WJet2.SetPtEtaPhiM(f["Jet_pt_reg"][jetInd2], f["Jet_eta"][jetInd2], f["Jet_phi"][jetInd2], f["Jet_mass"][jetInd2]);
         TLorentzVector Top_hadW = WJet1 + WJet2 + HJ2;
         *f["Top2_mass_hadW"] = Top_hadW.M();
         *f["HJ2_WJet1_dPhi"] = HJ2.DeltaPhi(WJet1);
@@ -386,7 +386,7 @@ bool VHbbAnalysis::Analyze(){
             TLorentzVector Jet;
             //GenHJ1.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][0],d["GenBQuarkFromHafterISR_eta"][0],d["GenBQuarkFromHafterISR_phi"][0],d["GenBQuarkFromHafterISR_mass"][0]);
             //GenHJ2.SetPtEtaPhiM(d["GenBQuarkFromHafterISR_pt"][1],d["GenBQuarkFromHafterISR_eta"][1],d["GenBQuarkFromHafterISR_phi"][1],d["GenBQuarkFromHafterISR_mass"][1]);
-            Jet.SetPtEtaPhiM(f["Jet_pt"][i], f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i]);
+            Jet.SetPtEtaPhiM(f["Jet_pt_reg"][i], f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i]);
           
             //double dR1 = Jet.DeltaR(GenHJ1);
             //double dR2 = Jet.DeltaR(GenHJ2);
@@ -435,7 +435,7 @@ bool VHbbAnalysis::Analyze(){
             int nAddJet_tmp = 0;
             for (int k=0; k < *in["nJet"]; k++) {
                 if (k == *in["hJetInd1"] || k == *in["hJetInd2"]) continue;
-                if (f["Jet_pt"][k]>ptCuts[i] && fabs(f["Jet_eta"][k])<etaCuts[j] && in["Jet_puId"][k]>0) {
+                if (f["Jet_pt_reg"][k]>ptCuts[i] && fabs(f["Jet_eta"][k])<etaCuts[j] && in["Jet_puId"][k]>0) {
                     nAddJet_tmp++;
                 }
             }
@@ -493,8 +493,8 @@ bool VHbbAnalysis::Analyze(){
     // V_pt > 100 and bb_mass<250
     bool baseCSSelection= 
             (*in["cutFlow"]!=0
-            && f["Jet_pt"][*in["hJetInd1"]]>*f["j1ptCut"]
-            && f["Jet_pt"][*in["hJetInd2"]]>*f["j2ptCut"]
+            && f["Jet_pt_reg"][*in["hJetInd1"]]>*f["j1ptCut"]
+            && f["Jet_pt_reg"][*in["hJetInd2"]]>*f["j2ptCut"]
             && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
             && *f["met_pt"] > *f["metcut"]
             && ((*in["isWmunu"] && *f["lepMetDPhi"] < *f["muMetDPhiCut"])
@@ -545,6 +545,9 @@ void VHbbAnalysis::FinishEvent(){
     }
 
     *f["weight"]= *f["weight"] * *f["weight_PU"];
+    if (cursyst->name == "nominal") {
+        *f["weight"] = *f["weight"] * *f["bTagWeight"];
+    }
 
     // Split WJets and ZJets samples by jet parton flavor
     *in["bMCFlavorSum"] = 0;
@@ -677,7 +680,7 @@ void VHbbAnalysis::FinishEvent(){
     //*f["minDeltaRaJet"] = 9999.0; // FIXME add correct initialization
     //for(int j=0;j<*in["nJet"];j++){
     //    if (j == *in["hJetInd1"] || j == *in["hJetInd2"]) continue;
-    //    if(f["Jet_pt"][j]>20 && fabs(f["Jet_eta"][j])<2.5 && f["Jet_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = f["Jet_btagCSV"][j];
+    //    if(f["Jet_pt_reg"][j]>20 && fabs(f["Jet_eta"][j])<2.5 && f["Jet_btagCSV"][j]>*f["highestCSVaJet"]) *f["highestCSVaJet"] = f["Jet_btagCSV"][j];
     //  }       
     
     // Reconstruct Higgs and W and recalculate variables ourselves
@@ -687,8 +690,8 @@ void VHbbAnalysis::FinishEvent(){
     Lep.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], f["selLeptons_mass"][*in["lepInd"]]);
     W = MET + Lep;
 
-    HJ1.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]]);
-    HJ2.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
+    HJ1.SetPtEtaPhiM(f["Jet_pt_reg"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]]);
+    HJ2.SetPtEtaPhiM(f["Jet_pt_reg"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
     
     // We already calculate these in Analyze()
@@ -710,8 +713,8 @@ void VHbbAnalysis::FinishEvent(){
     //*f["hJets_mt_1"] = HJ2.Mt();
     //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);   
     //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
-    *f["hJets_pt_0"] = (float) f["Jet_pt"][*in["hJetInd1"]];
-    *f["hJets_pt_1"] = (float) f["Jet_pt"][*in["hJetInd2"]];
+    *f["hJets_pt_0"] = (float) f["Jet_pt_reg"][*in["hJetInd1"]];
+    *f["hJets_pt_1"] = (float) f["Jet_pt_reg"][*in["hJetInd2"]];
     //*f["met_sumEt_f"] = (float) *f["met_sumEt"]; // is this the right variable??
     *f["nAddJet_f"] = (float) *in["nAddJets252p9_puid"];
     *f["nAddLep_f"] = (float) *in["nAddLeptons"];
@@ -906,18 +909,18 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
 
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] == 1
-            && f["Jet_pt"][i]>*f["j1ptCut"]
+            && f["Jet_pt_reg"][i]>*f["j1ptCut"]
             && f["Jet_btagCSV"][i]>*f["j1ptCSV"]&&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
-            } else if(f["Jet_pt"][pair.first]<f["Jet_pt"][i]){
+            } else if(f["Jet_pt_reg"][pair.first]<f["Jet_pt"][i]){
                 pair.first = i;
             }
         }
         /*if( pair.first == -1) {
             pair.first = i;
         }
-        else if(d["Jet_pt"][pair.first]<d["Jet_pt"][i]){
+        else if(d["Jet_pt_reg"][pair.first]<d["Jet_pt"][i]){
             pair.first = i;
         }*/
     }
@@ -925,18 +928,18 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     for(int i=0; i<*in["nJet"]; i++){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] == 1
-            && f["Jet_pt"][i]>*f["j2ptCut"]
+            && f["Jet_pt_reg"][i]>*f["j2ptCut"]
             && f["Jet_btagCSV"][i]>*f["j2ptCSV"]&&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
-            } else if(f["Jet_pt"][pair.second]<f["Jet_pt"][i]){
+            } else if(f["Jet_pt_reg"][pair.second]<f["Jet_pt"][i]){
                 pair.second = i;
             }
         }
         /*if (pair.second == -1) {
             pair.second = i;
         }
-        else if(d["Jet_pt"][pair.second]<d["Jet_pt"][i]){
+        else if(d["Jet_pt_reg"][pair.second]<d["Jet_pt"][i]){
             pair.second = i;
         }*/
     }
@@ -950,7 +953,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
 
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] == 1
-            && f["Jet_pt"][i]>*f["j1ptCut"]
+            && f["Jet_pt_reg"][i]>*f["j1ptCut"]
             &&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
@@ -963,7 +966,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(){
     for(int i=0; i<*in["nJet"]; i++){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] == 1
-            && f["Jet_pt"][i]>*f["j2ptCut"]
+            && f["Jet_pt_reg"][i]>*f["j2ptCut"]
             &&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
@@ -983,17 +986,17 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
     double maxPtJJ = 0.;
     for (int i=0; i<*in["nJet"]; i++) {
         if(in["Jet_puId"][i] == 1
-            && f["Jet_pt"][i]>*f["j1ptCut"]
+            && f["Jet_pt_reg"][i]>*f["j1ptCut"]
             && fabs(f["Jet_eta"][i])<*f["j1etaCut"]) {
             TLorentzVector jet1;
-            jet1.SetPtEtaPhiM(f["Jet_pt"][i],f["Jet_eta"][i],f["Jet_phi"][i],f["Jet_mass"][i]);
+            jet1.SetPtEtaPhiM(f["Jet_pt_reg"][i],f["Jet_eta"][i],f["Jet_phi"][i],f["Jet_mass"][i]);
             for (int j=0; j<*in["nJet"]; j++) {
                 if (i == j) continue;
                 if(in["Jet_puId"][j] == 1
-                    && f["Jet_pt"][j]>*f["j2ptCut"]
+                    && f["Jet_pt_reg"][j]>*f["j2ptCut"]
                     && fabs(f["Jet_eta"][j])<*f["j2etaCut"]) {
                     TLorentzVector jet2;
-                    jet2.SetPtEtaPhiM(f["Jet_pt"][j],f["Jet_eta"][j],f["Jet_phi"][j],f["Jet_mass"][j]);
+                    jet2.SetPtEtaPhiM(f["Jet_pt_reg"][j],f["Jet_eta"][j],f["Jet_phi"][j],f["Jet_mass"][j]);
                     TLorentzVector jj = jet1 + jet2;
                     double ptJJ = jj.Pt();
                     if (ptJJ >= maxPtJJ) {
@@ -1006,7 +1009,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
                                 std::cout<<"maxPtJJ = "<<maxPtJJ<<std::endl;
                             }
                             if (f["Jet_btagCSV"][j] > f["Jet_btagCSV"][i]) {
-                            //if (f["Jet_pt"][j] > f["Jet_pt"][i]) {
+                            //if (f["Jet_pt_reg"][j] > f["Jet_pt"][i]) {
                                 pair.first = j;
                                 pair.second = i; 
                             }

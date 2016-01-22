@@ -1,0 +1,27 @@
+# bkg scale factor uncertainties 
+#
+# bkg modeling (powheg vs mcAtNlo shapes for example)
+#
+# uncertainty on jets and btag
+#
+# uncertainty on stat. templates
+#
+lumi_13TeV                lnN 1.04 WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF
+CMS_vhbb_boost_EWK_13TeV  lnN 1.02 ZH,WH
+CMS_vhbb_boost_QCD_13TeV  lnN 1.05 ZH,WH
+CMS_vhbb_eff_e_13TeV      lnN 1.03 ZH,WH,s_Top,QCD,VVLF,VVHF
+#CMS_vhbb_eff_m_13TeV      lnN 1.03 ZH,WH,s_Top,QCD,VVLF,VVHF
+QCDscale_VH               lnN 1.04 ZH,WH
+QCDscale_VV               lnN 1.04 VVLF,VVHF
+QCDscale_ttbar            lnN 1.06 s_Top
+#add UEPS shape
+pdf_gg                    lnN 1.01 s_Top,QCD
+pdf_qqbar                 lnN 1.01 ZH,WH,VVLF,VVHF
+CMS_vhbb_scale_j        shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_JES  JEC
+CMS_vhbb_res_j          shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  1.0  JER
+CMS_vhbb_bTagWeightHF   shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_HF
+CMS_vhbb_bTagWeightLF   shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_LF
+CMS_vhbb_bTagWeightStats1 shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_Stats1
+CMS_vhbb_bTagWeightStats2 shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_Stats2
+CMS_vhbb_btagWeightcErr1  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_cErr1
+CMS_vhbb_btagWeightcErr2  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_cErr2
