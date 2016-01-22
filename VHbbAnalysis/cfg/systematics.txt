@@ -1,10 +1,10 @@
 #nominal needs to go last
-name=JEC_Up       branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JECUp
-name=JEC_Down     branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JECDown
-name=JER_Up       branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JERUp
-name=JER_Down     branches=Jet_pt,Jet_rawPt  scaleVar=Jet_corr_JERDown
-name=bTagHFUp     branches=Jet_btagCSV       scaleVar=Jet_bTagWeightHFUp
-name=bTagHFDown   branches=Jet_btagCSV       scaleVar=Jet_bTagWeightHFDown
-name=bTagLFUp     branches=Jet_btagCSV       scaleVar=Jet_bTagWeightLFUp
-name=bTagLFDown   branches=Jet_btagCSV       scaleVar=Jet_bTagWeightLFDown
+name=JECUp       branches=Jet_pt,Jet_rawPt,Jet_pt_reg  scaleVar=Jet_corr_JECUp   
+name=JECDown     branches=Jet_pt,Jet_rawPt,Jet_pt_reg  scaleVar=Jet_corr_JECDown
+name=JERUp       branches=Jet_pt,Jet_rawPt,Jet_pt_reg  scaleVar=Jet_corr_JERUp        
+name=JERDown     branches=Jet_pt,Jet_rawPt,Jet_pt_reg  scaleVar=Jet_corr_JERDown
+#name=bTagHFUp           sysWeight=bTagWeightHFUp
+#name=bTagHFDown         sysWeight=bTagWeightHFDown
+#name=bTagLFUp           sysWeight=bTagWeightLFUp
+#name=bTagLFDown         sysWeight=bTagWeightLFDown
 name=nominal
