@@ -56,8 +56,7 @@ sampleMap = {} # map sampleNames to list of sampleIndex's
 
 #sampleMap["data_obs"] = [16,17,10,11,20,21,50,51,52,2200,2201,2202,2300,2301,2302,3500,3501,3502,4400,4401,4402,4500,4501,4502,4600,4601,4602,4700,4701,4702,24,25,26,27,28,29,30,31] # dummy filler until we unblind
 sampleMap["data_obs"] = [50,51,52]
-#sampleMap["TT"] = [50,51,52]
-sampleMap["TT"] = [12]
+sampleMap["TT"] = [50,51,52]
 sampleMap["s_Top"] = [16,17,10,11,20,21]
 sampleMap["WH"] = [-12501]
 sampleMap["ZH"] = [-12502]
@@ -72,8 +71,9 @@ sampleMap["Zj1b"] = [2301]
 sampleMap["Zj2b"] = [2302]
 
 # first rebin the histogram so that the first and last bins are not empty and have less than 35% stat. uncertainty
-hBkg = ROOT.TH1F("hBkg","hBkg",nBins+1,-1,1)
-tree.Draw("%s>>hBkg" % bdtname,"((%s)&&sampleIndex>0)*weight*(2.2/1.28)" % presel)
+hBkg = ROOT.TH1F("hBkg","hBkg",nBins,-1,1)
+#tree.Draw("%s>>hBkg" % bdtname,"((%s)&&sampleIndex>0)*weight*(2.2/1.28)" % presel)
+tree.Draw("%s>>hBkg" % bdtname,"((%s)&&sampleIndex>0)*weight*1000" % presel)
 binBoundaries = numpy.zeros(nBins+1,dtype=float)
 binBoundaries[0] = -1.0
 binBoundaries[nBins] = 1.0
@@ -82,6 +82,10 @@ foundHighBinEdge = False
 for ibin in range(2,nBins):
     if not foundLowBinEdge:
         B_low = hBkg.Integral(1,ibin)
+        #print "edge = ",hBkg.GetBinLowEdge(ibin+1)
+        #print "B_low = ",B_low
+        #if (B_low > 0):
+        #    print "1./sqrt(B_low) = ",1./sqrt(B_low)
         if (B_low > 0 and 1./sqrt(B_low) < 0.35):
             binBoundaries[1] = hBkg.GetBinLowEdge(ibin+1)
             foundLowBinEdge = True
@@ -110,7 +114,7 @@ for sample in sampleMap:
     hBDT = ROOT.TH1F(sample,sample,nBins,-1,1)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight" % cutString)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight*(2.2/1.28)" % cutString) # temp hack to avoid rerunning just to change lumi
-    tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight" % cutString) # temp hack to avoid rerunning just to change lumi
+    tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)*weight*1000" % cutString) # temp hack to avoid rerunning just to change lumi
     hBDT = hBDT.Rebin(nBins, "", binBoundaries)
     # Add bin-by-bin stat. uncertainties
     if (sample not in ["WH","ZH","data_obs"]):
@@ -123,7 +127,7 @@ for sample in sampleMap:
                 hBinStatUp.SetName("%s_CMS_vhbb_stat%s_%s_bin%i_13TeVUp" % (sample,sample,catName,ibin))
                 hBinStatDown.SetName("%s_CMS_vhbb_stat%s_%s_bin%i_13TeVDown" % (sample,sample,catName,ibin))
                 hBinStatUp.SetBinContent(ibin, B + sqrt(B))
-                hBinStatDown.SetBinContent(ibin, B - sqrt(B))
+                hBinStatDown.SetBinContent(ibin, max(B - sqrt(B),0.000001))
                 otextfile.write("CMS_vhbb_stat%s_%s_bin%i_13TeV\n" % (sample,catName,ibin))
                 ofile.cd()
                 hBinStatUp.Write()
@@ -136,21 +140,23 @@ for sample in sampleMap:
         hBDTSystDown = ROOT.TH1F("%s_%sDown" % (sample,syst), "%s_%sDown" % (sample,syst),nBins,-1,1)
         sysBDTNameUp = bdtname
         sysBDTNameDown = bdtname
+        passSys = "Pass_nominal"
         if (sysName != ""):
             sysBDTNameUp += "_%sUp" % sysName
             sysBDTNameDown += "_%sDown" % sysName
+            pasSys = "Pass_%s" % sysName 
         if (sysWeight != "1.0"):
             #tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"(%s)*weight*(2.2/1.28)*(%sUp)" % (cutString,sysWeight)) # temp hack to avoid rerunning just to change lumi 
-            tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"(%s)*weight*(%sUp)" % (cutString,sysWeight)) # temp hack to avoid rerunning just to change lumi 
+            tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"((%s)&&%s)*weight*1000*(%sUp)" % (cutString,passSys,sysWeight)) # temp hack to avoid rerunning just to change lumi 
         else:
             #tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"(%s)*weight*(2.2/1.28)" % (cutString)) # temp hack to avoid rerunning just to change lumi 
-            tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"(%s)*weight" % (cutString)) # temp hack to avoid rerunning just to change lumi 
+            tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"((%s)&&%s)*weight*1000" % (cutString,passSys)) # temp hack to avoid rerunning just to change lumi 
         if (sysWeight != "1.0"):
             #tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"(%s)*weight*(2.2/1.28)*(%sDown)" % (cutString,sysWeight)) # temp hack to avoid rerunning just to change lumi 
-            tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"(%s)*weight*(%sDown)" % (cutString,sysWeight)) # temp hack to avoid rerunning just to change lumi 
+            tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"((%s)&&%s)*weight*1000*(%sDown)" % (cutString,passSys,sysWeight)) # temp hack to avoid rerunning just to change lumi 
         else:
             #tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"(%s)*weight*(2.2/1.28)" % (cutString)) # temp hack to avoid rerunning just to change lumi 
-            tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"(%s)*weight" % (cutString)) # temp hack to avoid rerunning just to change lumi 
+            tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"((%s)&&%s)*weight*1000" % (cutString,passSys)) # temp hack to avoid rerunning just to change lumi 
         ofile.cd()
         hBDTSystUp.Write()
         hBDTSystDown.Write()

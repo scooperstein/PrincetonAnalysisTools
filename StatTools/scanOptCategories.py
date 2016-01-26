@@ -18,7 +18,8 @@ ifile = ROOT.TFile(ifilename)
 tree = ifile.Get("tree")
 
 useCombine = True # calculate significance using full data card with Combine
-bdtname = "BDT_wMass_Dec14_3000_5"
+bdtname = "CMS_vhbb_BDT_Wln_13TeV"
+#bdtname = "BDT_wMass_Dec14_3000_5"
 presel = "H_mass>90 && H_mass<150"
 #presel = "H_mass>0"
 
@@ -228,15 +229,17 @@ for bset in bsets:
         bound_label += "%f_" % bound
     bound_label = bound_label.replace('-','m')
     if (useCombine):
-        print "mkdir -p %i/%s" % (nCat, bound_label)
-        os.system("mkdir -p %i/%s" % (nCat, bound_label))
+        if not os.path.exists("%i" % (nCat)):
+            os.mkdir("%i" % (nCat))
+        if not os.path.exists("%i/%s" % (nCat, bound_label)):
+            os.mkdir("%i/%s" % (nCat, bound_label))
         print "cd %i/%s" % (nCat, bound_label)
         os.chdir("%i/%s" % (nCat, bound_label))
         os.system("pwd")
     for i in range(len(bset)-1):
         binLow = hs.GetXaxis().FindBin(bset[i])
         binHigh = hs.GetXaxis().FindBin(bset[i+1]) - 1
-        if (binHigh == 0): continue
+        #if (binHigh == 0): continue
         #print hs.GetBinLowEdge(binLow), hs.GetBinLowEdge(binHigh)
         #if (binLow == binHigh):
         #    S = 0.
@@ -248,21 +251,29 @@ for bset in bsets:
         B_arr[i] = B
         bound_arr[i] = bset[i]
         #print binLow, binHigh, S, B
-        if (B > 0):
+        if (B > 0 or B<=0):
             combSens += pow(S,2)/B
             #combSens += pow(S,2)/pow(sqrt(B)+0.1*B,2)
             if (useCombine):
-                print "python ../../../splitSamples.py %s Cat%i '(%s)&&(%s>=%f)&&(%s<%f)'" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1])
-                os.system("python ../../../splitSamples.py %s Cat%i '(%s)&&(%s>=%f)&&(%s<%f)'" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1]))
+                print "python ../../../splitSamples.py ../../%s WmnCat%i 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)' ../../../systematics_Wmn.txt" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1])
+		os.system("python ../../../splitSamples.py ../../%s WmnCat%i 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)' ../../../systematics_Wmn.txt" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1]))
+		print "python ../../../splitSamples.py ../../%s WenCat%i ''isWenu&&(%s)&&(%s>=%f)&&(%s<%f)' ../../../systematics_Wen.txt" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1])
+                os.system("python ../../../splitSamples.py ../../%s WenCat%i 'isWenu&&(%s)&&(%s>=%f)&&(%s<%f)' ../../../systematics_Wen.txt" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1]))
         #binLow = binHigh + 1
     combSens = sqrt(combSens)
     if (useCombine):
-        cat_labels = ""
+        cat_labels_Wmn = ""
+        cat_labels_Wen = ""
         for i in range(nCat):
-            cat_labels += "Cat%i," % i
+            cat_labels_Wmn += "WmnCat%i," % i
+            cat_labels_Wen += "WenCat%i," % i
         bound_label = ""
-        print "python ../../../../WorkspaceAnalysis/printYields.py dc.txt %s ../../../../WorkspaceAnalysis/systematics.txt" % cat_labels
-        os.system("python ../../../../WorkspaceAnalysis/printYields.py dc.txt %s ../../../../WorkspaceAnalysis/systematics.txt" % cat_labels)
+        print "python ../../../printYields.py dc_Wmn.txt %s ../../../systematics_Wmn.txt" % cat_labels_Wmn
+        os.system("python ../../../printYields.py dc_Wmn.txt %s ../../../systematics_Wmn.txt" % cat_labels_Wmn)
+        print "python ../../../printYields.py dc_Wen.txt %s ../../../systematics_Wen.txt" % cat_labels_Wen
+        os.system("python ../../../printYields.py dc_Wen.txt %s ../../../systematics_Wen.txt" % cat_labels_Wen)
+        print "combineCards.py Wmn=dc_Wmn.txt Wen=dc_Wen.txt > dc.txt"  
+        os.system("combineCards.py Wmn=dc_Wmn.txt Wen=dc_Wen.txt > dc.txt") 
         print "combine -M ProfileLikelihood --significance dc.txt -t -1 --expectSignal=1 > combine_output.txt"
         os.system("combine -M ProfileLikelihood --significance dc.txt -t -1 --expectSignal=1 > combine_output.txt")
         combOut = open("combine_output.txt","r")

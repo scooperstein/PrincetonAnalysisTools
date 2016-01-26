@@ -24,7 +24,7 @@ if (len(sys.argv) > 2):
     s = sys.argv[2].strip(',')
     cats = s.split(',')
     print cats
-    cat_labels = cats
+    cat_labels = list(cats)
 
 fake_obs_line = "observation  "
 
@@ -76,6 +76,7 @@ if (len(sys.argv) > 3):
     for line in sys_file:
         if (line[0] == '#'): continue
         line = line.strip()
+        #print line
         params = line.split(' ')
         # remove extra spaces, there's probably a smarter way to do this
         paramsToKeep = []
@@ -85,8 +86,14 @@ if (len(sys.argv) > 3):
         params = paramsToKeep
         name = params[0]
         sysType = params[1]
-        val = params[2]
         sysSamples = params[3].split(',')
+        vals = []
+        if (params[2].find(',') == -1):
+            for sample in sysSamples:
+                vals.append(params[2])
+        else:
+            # separate values for different processes
+            vals = params[2].split(',')
         sysLine = name
         for i in range(48 - len(name)):
             sysLine += " "
@@ -95,16 +102,21 @@ if (len(sys.argv) > 3):
             sysLine += " "
         nSys += 1
         for i in range(len(cats)):
+            j = 0
             for sample in samples:
                 if sample in sysSamples:
-                    sysLine += "%s        " % val
+                    sysLine += "%s        " % vals[j]
+                    j += 1
                 else:
                     sysLine += "-           "  
         sysLine += "\n"
         systematics += sysLine
 
-if (len(sys.argv) > 4):
-    binStats_file = open(sys.argv[4],"r")
+for cat in cat_labels:
+    try:
+        binStats_file = open("binStats_%s.txt" % cat,"r")
+    except FileOpenError:
+        continue
     for line in binStats_file:
         if (line[0] == '#'): continue
         line = line.strip()
@@ -113,9 +125,9 @@ if (len(sys.argv) > 4):
             sysLine += " "
         sysLine += "shape      "
         nSys += 1
-        for i in range(len(cats)):
+        for cat_i in cat_labels:
             for sample in samples:
-                if (sysLine.find(sample) != -1):
+                if (cat_i == cat and sysLine.find(sample) != -1):
                     sysLine += "1.0        "
                 else:
                     sysLine += "-           "

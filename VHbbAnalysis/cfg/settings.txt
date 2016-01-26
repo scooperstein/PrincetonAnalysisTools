@@ -3,38 +3,38 @@
 
 # ONLY USE FLOATS
 type=2  name=vetolep            val=1
-type=2  name=intL               val=1280 # 1/pb
+type=2  name=intL               val=2200 # 1/pb
 type=2  name=doCutFlow          val=0
 type=2  name=doControlSamples   val=0
 type=2  name=onlyEvenEvents     val=0
-type=2  name=onlyOddEvents      val=1
+type=2  name=onlyOddEvents      val=0
 
 type=2  name=j1ptCut            val=30
 type=2  name=j2ptCut            val=30
-type=2  name=j1ptCSV            val=-1
-type=2  name=j2ptCSV            val=-1
+type=2  name=j1ptCSV            val=0.85
+type=2  name=j2ptCSV            val=0.6
 type=2  name=j1etaCut           val=2.5
 type=2  name=j2etaCut           val=2.5
 
-type=2  name=JetPtPresel        val=30
-type=2  name=LepPtPresel        val=20
+type=2  name=JetPtPresel        val=25
+type=2  name=LepPtPresel        val=25
 
 type=2  name=eptcut             val=25
 type=2  name=muptcut            val=25
 type=2  name=eletacut           val=2.5
 type=2  name=muetacut           val=2.4
-type=2  name=metcut             val=45
+type=2  name=metcut             val=0
 type=2  name=erelisocut         val=0.1
 type=2  name=murelisocut        val=0.1
-type=2  name=elMetDPhiCut       val=100
-type=2  name=muMetDPhiCut       val=100
+type=2  name=elMetDPhiCut       val=2.0
+type=2  name=muMetDPhiCut       val=2.0
 type=2  name=elidcut            val=4
 type=2  name=muidcut            val=1
 
-type=2  name=HVDPhiCut          val=-100
-type=2  name=hptcut             val=80
-type=2  name=vptcut             val=80 # use eventClass variable instead
+type=2  name=HVDPhiCut          val=2.5
+type=2  name=hptcut             val=50
+type=2  name=vptcut             val=50 # use eventClass variable instead
 
 # events must have number of add. jets/leptons < this value
-type=2  name=nAddJetsCut        val=100
-type=2  name=nAddLeptonsCut     val=100
+type=2  name=nAddJetsCut        val=2
+type=2  name=nAddLeptonsCut     val=2
