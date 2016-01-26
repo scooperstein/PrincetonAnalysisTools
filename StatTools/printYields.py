@@ -24,7 +24,7 @@ if (len(sys.argv) > 2):
     s = sys.argv[2].strip(',')
     cats = s.split(',')
     print cats
-    cat_labels = cats
+    cat_labels = list(cats)
 
 fake_obs_line = "observation  "
 
@@ -112,8 +112,11 @@ if (len(sys.argv) > 3):
         sysLine += "\n"
         systematics += sysLine
 
-if (len(sys.argv) > 4):
-    binStats_file = open(sys.argv[4],"r")
+for cat in cat_labels:
+    try:
+        binStats_file = open("binStats_%s.txt" % cat,"r")
+    except FileOpenError:
+        continue
     for line in binStats_file:
         if (line[0] == '#'): continue
         line = line.strip()
@@ -122,9 +125,9 @@ if (len(sys.argv) > 4):
             sysLine += " "
         sysLine += "shape      "
         nSys += 1
-        for i in range(len(cats)):
+        for cat_i in cat_labels:
             for sample in samples:
-                if (sysLine.find(sample) != -1):
+                if (cat_i == cat and sysLine.find(sample) != -1):
                     sysLine += "1.0        "
                 else:
                     sysLine += "-           "

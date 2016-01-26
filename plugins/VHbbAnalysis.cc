@@ -49,7 +49,7 @@ bool VHbbAnalysis::Preselection(){
     // Preselect for two jets and one lepton which pass some minimum pt threshold
     int nPreselJets = 0;
     for (int i=0; i < *in["nJet"]; i++) {
-        if (f["Jet_pt_reg"][i] > *f["JetPtPresel"]) nPreselJets++;
+        if (f["Jet_pt"][i] > *f["JetPtPresel"]) nPreselJets++;
     }
     int nPreselLep = 0;
     for (int i=0; i < *in["nselLeptons"]; i++) {
@@ -435,7 +435,7 @@ bool VHbbAnalysis::Analyze(){
             int nAddJet_tmp = 0;
             for (int k=0; k < *in["nJet"]; k++) {
                 if (k == *in["hJetInd1"] || k == *in["hJetInd2"]) continue;
-                if (f["Jet_pt_reg"][k]>ptCuts[i] && fabs(f["Jet_eta"][k])<etaCuts[j] && in["Jet_puId"][k]>0) {
+                if (f["Jet_pt"][k]>ptCuts[i] && fabs(f["Jet_eta"][k])<etaCuts[j] && in["Jet_puId"][k]>0) {
                     nAddJet_tmp++;
                 }
             }

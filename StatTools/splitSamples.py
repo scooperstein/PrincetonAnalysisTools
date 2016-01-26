@@ -127,7 +127,7 @@ for sample in sampleMap:
                 hBinStatUp.SetName("%s_CMS_vhbb_stat%s_%s_bin%i_13TeVUp" % (sample,sample,catName,ibin))
                 hBinStatDown.SetName("%s_CMS_vhbb_stat%s_%s_bin%i_13TeVDown" % (sample,sample,catName,ibin))
                 hBinStatUp.SetBinContent(ibin, B + sqrt(B))
-                hBinStatDown.SetBinContent(ibin, B - sqrt(B))
+                hBinStatDown.SetBinContent(ibin, max(B - sqrt(B),0.000001))
                 otextfile.write("CMS_vhbb_stat%s_%s_bin%i_13TeV\n" % (sample,catName,ibin))
                 ofile.cd()
                 hBinStatUp.Write()
