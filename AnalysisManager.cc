@@ -163,6 +163,7 @@ void AnalysisManager::InitChain(std::string filename)
     //std::cout<<"opening "<<filename.c_str()<<std::endl;
     //TFile* tf = TFile::Open(filename.c_str());
     //std::cout<<"adding to chain"<<std::endl;
+    //fChain->Add(tf);
     fChain->Add(filename.c_str());
     fCurrent = -1;
     fChain->SetMakeClass(1);
@@ -515,7 +516,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
                 bool anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
                     cursyst=&(systematics[iSyst]);
-                    ApplySystematics(true);
+                    //ApplySystematics(true);
 
                     if(debug>100000) std::cout<<"checking preselection"<<std::endl;
                     bool presel = Preselection();

@@ -18,9 +18,11 @@ ifile = ROOT.TFile(ifilename)
 tree = ifile.Get("tree")
 
 useCombine = True # calculate significance using full data card with Combine
-bdtname = "CMS_vhbb_BDT_Wln_13TeV"
+bdtname = "V_pt"
+#bdtname = "CMS_vhbb_BDT_Wln_13TeV"
 #bdtname = "BDT_wMass_Dec14_3000_5"
-presel = "H_mass>90 && H_mass<150"
+presel = ""
+#presel = "H_mass>90 && H_mass<150"
 #presel = "H_mass>0"
 
 nCat = int(sys.argv[2])
@@ -42,7 +44,8 @@ otree.Branch("Boundaries",bound_arr,"Boundaries[%i]/D" % (nCat + 1))
 # split different sig. eff. ranges by specified bin sizes of sig. eff.
 # stepSize, sigEffMax
 #binSplitting = [(1./50,0.0,0.1),(1./50,0.1,0.75),(1./100,0.75,0.95),(1./200,0.95,1.0)]
-binSplitting = [(1./30,0.0,0.5),(1./60,0.5,1.0)]
+#binSplitting = [(1./30,0.0,0.5),(1./60,0.5,1.0)]
+binSplitting = [(1./10,0.0,1.0)]
 #binSplitting = [(1./30,0.0,1.0)]
 doWPs = False
 if (len(sys.argv) > 4):
@@ -54,8 +57,10 @@ nbins = 1000
 if (doWPs):
     nbins = 14
 
-xlow = -1.
-xhigh = 1.
+xlow = 50
+xhigh = 500
+#xlow = -1.
+#xhigh = 1.
 if (doWPs):
     xlow = 1
     xhigh = 15
@@ -65,8 +70,8 @@ hbkg = ROOT.TH1F("hbkg","hbkg",nbins,xlow,xhigh)
 hSig = ROOT.TH1F("hSig","hSig",nbins, xlow, xhigh)
 hSig2 = ROOT.TH2F("hSig","hSig",nbins,xlow,xhigh,nbins,xlow,xhigh)
 
-hbkgTot = ROOT.TH1F("hbkgTot","hbkgTot",100,-1.,1.)
-hsTot = ROOT.TH1F("hsTot","hsTot",100, -1., 1.)
+hbkgTot = ROOT.TH1F("hbkgTot","hbkgTot",100,xlow,xhigh)
+hsTot = ROOT.TH1F("hsTot","hsTot",100, xlow, xhigh)
 tree.Draw("%s>>hsTot" % bdtname,"(sampleIndex<0&&(%s))*weight" % presel)
 tree.Draw("%s>>hbkgTot" % bdtname,"(sampleIndex>0&&(%s))*weight" % presel)
 

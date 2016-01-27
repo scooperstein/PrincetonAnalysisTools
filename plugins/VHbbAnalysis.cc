@@ -42,7 +42,6 @@ bool VHbbAnalysis::Preselection(){
     else if (*f["onlyOddEvents"]) {
         if (*in["evt"]%2 == 0) sel=false;
     }    
-     
     // stitch WJets inclusive sample to HT-binned samples
     if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
 
@@ -50,6 +49,7 @@ bool VHbbAnalysis::Preselection(){
     int nPreselJets = 0;
     for (int i=0; i < *in["nJet"]; i++) {
         if (f["Jet_pt"][i] > *f["JetPtPresel"]) nPreselJets++;
+        //std::cout<<"Jet_pt["<<i<<"] = "<<f["Jet_pt"][i]<<std::endl;
     }
     int nPreselLep = 0;
     for (int i=0; i < *in["nselLeptons"]; i++) {
@@ -479,9 +479,6 @@ bool VHbbAnalysis::Analyze(){
     //if (*d["H_mass"] < 100 || *d["H_mass"] > 150) sel=false;
     if (sel) *in["cutFlow"] += 1; 
     */
-    if(debug>1000) {
-        std::cout<<"selecting event"<<std::endl;
-    }
 
     // Control samples
 
@@ -565,8 +562,7 @@ void VHbbAnalysis::FinishEvent(){
         *in["sampleIndex_sel"] = *in["sampleIndex_sel"]*100;
         *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"]*100;
         *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"]*100;
-        
-        //std::cout<<fabs(d["hJets_mcFlavour"][0])<<std::endl;
+       
         if (fabs(in["Jet_mcFlavour"][*in["hJetInd1"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
         if (fabs(in["Jet_mcFlavour"][*in["hJetInd2"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
     
@@ -608,7 +604,7 @@ void VHbbAnalysis::FinishEvent(){
         }
 
         // default now the number of b's counted
-        *in["sampleIndex"]=*in["sampleIndex_GenJetSumNB"];
+        *in["sampleIndex"]=*in["sampleIndex_GenJetSum"];
     } 
 
     // Split by boost category
