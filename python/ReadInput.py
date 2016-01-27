@@ -79,7 +79,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
                     
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
-                    if aminitialized == 0:
+                    if aminitialized == 0: 
                         print("Initializing with",filename)
                         am.Initialize(filename)
                         aminitialized=1
@@ -244,13 +244,24 @@ def MakeSampleMap(lines):
             if name.find("file") is 0:
                 samplepaths.append(str(value))
             if name.find("dir") is 0:
-                from os import listdir
-                from os.path import isfile, join
-                onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
-                for rootfile in onlyfiles:
-                    #print rootfile
-                    if rootfile.find(".root") != -1:
-                        samplepaths.append(str(value)+"/"+str(rootfile))
+                print value
+                if value.find("/store") is 0:
+                    import subprocess
+                    onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", "root://cmseos.fnal.gov", "ls", value]).split('\n')
+                    for filepath in onlyFiles:
+                        #filepath = "root://xrootd-cms.infn.it/" + filepath
+                        #filepath = "root://cmsxrootd.fnal.gov/" + filepath
+                        filepath = "root://cmseos.fnal.gov/" + filepath
+                        if filepath.find(".root") != -1:
+                            samplepaths.append(filepath)
+                else:
+                    from os import listdir
+                    from os.path import isfile, join
+                    onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
+                    for rootfile in onlyfiles:
+                        #print rootfile
+                        if rootfile.find(".root") != -1:
+                            samplepaths.append(str(value)+"/"+str(rootfile))
             if name.find("type") is 0:
                 sample["type"]=int(value)
             if name.find("xsec") is 0:

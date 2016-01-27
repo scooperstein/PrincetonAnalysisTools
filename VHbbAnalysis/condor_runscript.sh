@@ -24,9 +24,9 @@ echo "successfully set up the enviroment"
 
 echo "moving text files to their respective directories"
 mkdir -p cfg
-mv samples.txt earlybranches.txt existingbranches.txt newbranches.txt bdtsettings.txt reg1_settings.txt reg2_settings.txt settings.txt cfg
+mv samples.txt earlybranches.txt existingbranches.txt newbranches.txt bdtsettings.txt reg1_settings.txt reg2_settings.txt settings.txt systematics.txt cfg
 mkdir -p aux
-mv TMVARegression_BDTG_ttbar_Nov23.weights.xml TMVA_13TeV_Nov23_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml aux
+mv TMVARegression_BDTG_ttbar_Nov23.weights.xml  TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml aux
 
 
 echo "running RunSample.py"
