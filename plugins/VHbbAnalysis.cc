@@ -246,10 +246,9 @@ bool VHbbAnalysis::Analyze(){
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *f["HVdPhi"] = Hbb.DeltaPhi(W);
     *f["H_mass_step2"] = *f["H_mass"];
-    if (cursyst->name == "nominal") {
-        *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
-    }
-    else {
+        
+    *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
+    if (cursyst->name != "nominal") {
         *f[Form("H_mass_%s",cursyst->name.c_str())] = Hbb.M();
     }
     //*f["H_pt"] = Hbb.Pt(); // we already do this
