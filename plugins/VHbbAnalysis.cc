@@ -534,16 +534,26 @@ void VHbbAnalysis::FinishEvent(){
     //    return;
     //} 
     // General use variables
+    *f["weight_ptQCD"] = 1.0;
+    *f["weight_ptEWK"] = 1.0;
     if(*in["sampleIndex"]!=0){
         *f["weight_PU"]=ReWeightMC(*in["nTrueInt"]);
+        if (*in["nGenTop"]==0 && *in["nGenVbosons"]>0) {
+            // only apply to Z/W+jet samples
+            *f["weight_ptQCD"]=ptWeightQCD(*in["nGenVbosons"], *f["lheHT"], in["GenVbosons_pdgId"][0]);
+            *f["weight_ptEWK"]=ptWeightEWK(*in["nGenVbosons"], f["GenVbosons_pt"][0], *f["VtypeSim"], in["GenVbosons_pdgId"][0]);
+        }
     } else {
         *f["weight_PU"]=1;
     }
 
     *f["weight"]= *f["weight"] * *f["weight_PU"];
-    if (cursyst->name == "nominal") {
-        *f["weight"] = *f["weight"] * *f["bTagWeight"];
-    }
+ 
+    // we need to just save the bTagWeight since we only want to apply it
+    // for the nominal shape
+    //if (cursyst->name == "nominal") {
+    //    *f["weight"] = *f["weight"] * *f["bTagWeight"];
+    //}
 
     // Split WJets and ZJets samples by jet parton flavor
     *in["bMCFlavorSum"] = 0;
@@ -1226,3 +1236,42 @@ double mc2[52]={4.8551E-07,
   return data2[nPU]/mc2[nPU];
 }
 
+// from https://twiki.cern.ch/twiki/bin/view/CMS/VHiggsBBCodeUtils#V_X_QCD_and_EWK_corrections
+float VHbbAnalysis::ptWeightQCD(int nGenVbosons, float lheHT, int GenVbosons_pdgId){
+  float SF = 1.;
+  if (lheHT>100 && nGenVbosons==1){
+    if (GenVbosons_pdgId == 23){ // Z
+    SF =   ((lheHT>100 && lheHT<200)*1.588 * ( 280.35 / (409.860000) ) + (lheHT>200 && lheHT<400)*1.438 * ( 77.67 / ( 110.880000 )) + (lheHT>400 && lheHT<600)*1.494 * (10.73 / (13.189 )) + (lheHT>600)*1.139 * ( 4.116 / (4.524300) ));
+    }
+    if (abs(GenVbosons_pdgId) == 24){
+      SF =   ((lheHT>100 && lheHT<200)*1.588 * ( 1345 / (1.23 *  1.29e3) ) + (lheHT>200 && lheHT<400)*1.438 * ( 359.7 / ( 1.23 *  3.86e2)) + (lheHT>400 && lheHT<600)*1.494 * (48.91 / (1.23 * 47.9 )) + (lheHT>600)*1.139 * ( 18.77 / (1.23 * 19.9) ));
+    }
+  }
+  return SF>0?SF:0;
+}
+
+// weights correction for EWK NLO correction
+// from https://twiki.cern.ch/twiki/bin/view/CMS/VHiggsBBCodeUtils#V_X_QCD_and_EWK_corrections
+float VHbbAnalysis::ptWeightEWK(int nGenVbosons,float GenVbosons_pt,int VtypeSim,int GenVbosons_pdgId){
+  float SF = 1.;
+  if (nGenVbosons ==1)
+    {
+      if (VtypeSim == 0 || VtypeSim == 1 || VtypeSim == 4 || VtypeSim == 5)
+    {
+      if (GenVbosons_pdgId == 23)
+        {
+          //for Z options
+          if (GenVbosons_pt > 100. && GenVbosons_pt < 3000) SF = -0.1808051+6.04146*(TMath::Power((GenVbosons_pt+759.098),-0.242556));
+        }
+    }
+      else if (VtypeSim == 2 || VtypeSim == 3)
+    {
+      //for W options
+      if (GenVbosons_pdgId == 24 || GenVbosons_pdgId == -24)
+        {
+          if (GenVbosons_pt > 100. && GenVbosons_pt < 3000) SF = -0.830041+7.93714*(TMath::Power((GenVbosons_pt+877.978),-0.213831));
+        }
+    }
+    }
+  return SF>0?SF:0;
+}

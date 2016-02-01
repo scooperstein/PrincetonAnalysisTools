@@ -21,6 +21,8 @@ type=1  name=sampleIndex_GenJetSum
 type=1  name=sampleIndex_GenJetSumNB
 type=2  name=weight
 type=2  name=weight_PU
+type=2  name=weight_ptQCD
+type=2  name=weight_ptEWK
 type=1  name=isWenu
 type=1  name=isWmunu
 type=1  name=cutFlow

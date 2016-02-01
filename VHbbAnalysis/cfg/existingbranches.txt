@@ -15,8 +15,16 @@ type=2  name=bTagWeight_LFUp
 type=2  name=bTagWeight_LFDown
 type=2  name=bTagWeight_Stats1Up
 type=2  name=bTagWeight_Stats1Down
+#type=2  name=bTagWeight_Stats1LFUp
+#type=2  name=bTagWeight_Stats1LFDown
+#type=2  name=bTagWeight_Stats1HFUp
+#type=2  name=bTagWeight_Stats1HFDown
 type=2  name=bTagWeight_Stats2Up
 type=2  name=bTagWeight_Stats2Down
+#type=2  name=bTagWeight_Stats2LFUp
+#type=2  name=bTagWeight_Stats2LFDown
+#type=2  name=bTagWeight_Stats2HFUp
+#type=2  name=bTagWeight_Stats2HFDown
 type=2  name=bTagWeight_cErr1Up
 type=2  name=bTagWeight_cErr1Down
 type=2  name=bTagWeight_cErr2Up
@@ -24,6 +32,7 @@ type=2  name=bTagWeight_cErr2Down
 type=2  name=bTagWeight_JESUp
 type=2  name=bTagWeight_JESDown
 
+type=2  name=VtypeSim                                   onlyMC=1
 type=1  name=nTrueInt                                   onlyMC=1
 type=2  name=genWeight                                  onlyMC=1
 type=1  name=nGenJet                                    onlyMC=1
@@ -142,6 +151,8 @@ type=7  name=GenVbosons_eta                   max=10  onlyMC=1
 type=7  name=GenVbosons_phi                   max=10  onlyMC=1
 type=7  name=GenVbosons_mass                  max=10  onlyMC=1
 type=6  name=GenVbosons_pdgId                 max=10  onlyMC=1
+
+type=1  name=nGenTop                                  onlyMC=1
 
 ## variables needed for the jet energy regression, maybe we can find a way to
 ## not save these?
