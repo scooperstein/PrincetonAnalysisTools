@@ -1,0 +1,1 @@
+json=aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json  name=runD_IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins  binning=abseta_pt_ratio  branches=selLeptons_pt_0,selLeptons_eta_0  branchname=weight_SMuTrig

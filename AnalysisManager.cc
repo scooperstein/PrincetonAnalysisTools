@@ -94,6 +94,10 @@ void AnalysisManager::AddSystematic(SystematicContainer syst){
     systematics.push_back(syst);
 }
 
+void AnalysisManager::AddScaleFactor(SFContainer sf) {
+    scaleFactors.push_back(sf);
+}
+
 void AnalysisManager::AddBDT(BDTInfo bdt) {
     BDTisSet = true;
     bdtInfos.push_back(bdt);
@@ -548,6 +552,17 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
                     if(select || (cursyst->name=="nominal" && anyPassing)){
                         if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
                         FinishEvent();
+                        for (int i=0; i < scaleFactors.size(); i++) {
+                            SFContainer sf = scaleFactors[i];
+                            float sf_err = 0.0;
+                            if (sf.binning.find("abs") == -1) {
+                                *f[sf.branchname] = sf.getScaleFactor(*f[sf.branches[0]], *f[sf.branches[1]], sf_err);
+                            }
+                            else {
+                                *f[sf.branchname] = sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err);
+                            }
+                            *f[Form("%s_err",sf.branchname.c_str())] = sf_err;
+                        }
                         if(cursyst->name=="nominal") saved++;
                     }
                 }
