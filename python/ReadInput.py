@@ -459,32 +459,37 @@ def SetupSF(lines):
             etaBins.append(etaL)
             etaBins.append(etaH)            
  
-            if (nIter == 0):
-                for ptKey, result in sorted(values.iteritems()):
-                    ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
-                    ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
-                    ptBins.append(ptL)
-                    ptBins.append(ptH)
-            nIter += 1
+            for ptKey, result in sorted(values.iteritems()):
+                ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+                ptBins.append(ptL)
+                ptBins.append(ptH)
 
         etaBins = list(set(etaBins)) # get rid of duplicates
         ptBins = list(set(ptBins))
         etaBins = sorted(etaBins)
         ptBins = sorted(ptBins)
         
-        print etaBins, ptBins
+        #print etaBins, ptBins
         SF.scaleMap = TH2F(SF.name, SF.name, len(ptBins)-1, array(ptBins), len(etaBins)-1, array(etaBins))
-        print array(ptBins), array(etaBins)
+        #print array(ptBins), array(etaBins)
 
         for etaKey, values in sorted(res[SF.binning].iteritems()):
             etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
             etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
-
+            binLow1 = SF.scaleMap.GetYaxis().FindBin(etaL)
+            binHigh1 = SF.scaleMap.GetYaxis().FindBin(etaH) - 1
             for ptKey, result in sorted(values.iteritems()):
                 ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
                 ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
-                SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
-                SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
-                   
+                binLow2 = SF.scaleMap.GetXaxis().FindBin(ptL)
+                binHigh2 = SF.scaleMap.GetXaxis().FindBin(ptH) - 1
+                for ibin1 in range(binLow1,binHigh1+1):
+                    for ibin2 in range(binLow2,binHigh2+1):
+                        #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
+                        #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
+                        SF.scaleMap.SetBinContent(ibin2,ibin1, result["value"])
+                        SF.scaleMap.SetBinError(ibin2,ibin1, result["error"])
+                        #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
         SFs.append(SF)
     return SFs
