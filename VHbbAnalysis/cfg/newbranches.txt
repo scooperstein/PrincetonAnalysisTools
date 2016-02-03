@@ -46,8 +46,6 @@ type=1  name=nAddLeptons
 type=2  name=nAddLep_f
 type=2  name=nAddJet_f
 
-type=2  name=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
-
 type=2  name=naJetsPassingCuts
 #type=2  name=BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4
 type=2  name=naLeptonsPassingCuts
