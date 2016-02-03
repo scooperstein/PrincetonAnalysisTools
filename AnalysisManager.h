@@ -22,6 +22,7 @@
 #include "HelperClasses/InfoStructs.h"
 #include "HelperClasses/SystematicContainer.cc"
 #include "HelperClasses/SampleContainer.cc"
+#include "HelperClasses/SFContainer.cc"
 
 //#include "HelperClasses/BaseAnalysis.h"
 
@@ -70,7 +71,9 @@ public :
     void                            AddSample(SampleContainer sample);
     std::vector<SystematicContainer>  systematics;
     SystematicContainer*            cursyst; 
+    std::vector<SFContainer>        scaleFactors;
     void                            AddSystematic(SystematicContainer syst);
+    void                            AddScaleFactor(SFContainer sf);
     void                            AddBDT(BDTInfo bdtInfo);
     void                            SetJet1EnergyRegression(BDTInfo reg1);
     void                            SetJet2EnergyRegression(BDTInfo reg2);

@@ -13,3 +13,4 @@ reg2settings=cfg/reg2_settings.txt
 settings=cfg/settings.txt
 
 systematics=cfg/systematics.txt
+scalefactors=cfg/scalefactors.txt

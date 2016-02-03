@@ -1,6 +1,9 @@
 #~ /usr/bin/python
 import sys
 import ROOT
+import json
+from numpy import array
+from ROOT import TH2F
 #ROOT.gSystem.Load("SampleContainer_cc.so")
 #ROOT.gSystem.Load("AnalysisManager_cc.so")
 #ROOT.gSystem.Load("VHbbAnalysis_cc.so")
@@ -171,7 +174,16 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
                 am.AddSystematic(syst)
                 am.SetupNewBranch("Pass_%s" % syst.name, 4)
                 print "added Systematic"
-
+ 
+        if settings.has_key("scalefactors"):
+            sfs = ReadTextFile(settings["scalefactors"], "scalefactors")
+            for sf in sfs:
+                print "add scale factor"
+                am.AddScaleFactor(sf)
+                am.SetupNewBranch(sf.branchname, 2)
+                am.SetupNewBranch(sf.branchname+"_err", 2)
+                print "added scale factor"   
+ 
         return am    
     elif filetype is "samplefile":
         samples=MakeSampleMap(filelines)
@@ -185,6 +197,9 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
     elif filetype is "systematics":
         systContainers=SetupSyst(filelines)
         return systContainers
+    elif filetype is "scalefactors":
+        sfContainers=SetupSF(filelines)
+        return sfContainers
     else:
         print "Unknown filetype ", filetype
 
@@ -402,3 +417,79 @@ def SetupSyst(lines):
 
         systs.append(syst)
     return systs
+
+def SetupSF(lines):
+    SFs=[]
+    for line in lines:
+        SF=ROOT.SFContainer()
+        for item in line.split():
+            key,value=item.split("=")
+            if key=="json":
+                SF.jsonFile=value
+            elif key=="branches":
+                for brnchName in value.split(","):
+                    SF.AddBranch(brnchName)
+            elif key=="name":
+                SF.name=value
+            elif key=="binning":
+                SF.binning=value
+            elif key=="branchname":
+                SF.branchname=value 
+            else:
+                print "In scale factor file, what is:",item
+        # now parse the json and build the scale factor map
+        f = open(SF.jsonFile, 'r')
+        results = json.load(f)
+        if SF.name not in results.keys():
+            print SF.name,": not found in json file: ",SF.jsonFile
+        f.close()
+        stripForEta = 5
+        res = results[SF.name]
+        if SF.binning not in res.keys():
+            print SF.binning," not in list of binnings: ",res.keys()
+        if "abseta" in SF.binning:
+            stripForEta = 8
+
+        etaBins = []
+        ptBins = []
+        nIter = 0
+        for etaKey, values in sorted(res[SF.binning].iteritems()):
+            etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+            etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+            etaBins.append(etaL)
+            etaBins.append(etaH)            
+ 
+            for ptKey, result in sorted(values.iteritems()):
+                ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+                ptBins.append(ptL)
+                ptBins.append(ptH)
+
+        etaBins = list(set(etaBins)) # get rid of duplicates
+        ptBins = list(set(ptBins))
+        etaBins = sorted(etaBins)
+        ptBins = sorted(ptBins)
+        
+        #print etaBins, ptBins
+        SF.scaleMap = TH2F(SF.name, SF.name, len(ptBins)-1, array(ptBins), len(etaBins)-1, array(etaBins))
+        #print array(ptBins), array(etaBins)
+
+        for etaKey, values in sorted(res[SF.binning].iteritems()):
+            etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+            etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+            binLow1 = SF.scaleMap.GetYaxis().FindBin(etaL)
+            binHigh1 = SF.scaleMap.GetYaxis().FindBin(etaH) - 1
+            for ptKey, result in sorted(values.iteritems()):
+                ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+                binLow2 = SF.scaleMap.GetXaxis().FindBin(ptL)
+                binHigh2 = SF.scaleMap.GetXaxis().FindBin(ptH) - 1
+                for ibin1 in range(binLow1,binHigh1+1):
+                    for ibin2 in range(binLow2,binHigh2+1):
+                        #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
+                        #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
+                        SF.scaleMap.SetBinContent(ibin2,ibin1, result["value"])
+                        SF.scaleMap.SetBinError(ibin2,ibin1, result["error"])
+                        #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
+        SFs.append(SF)
+    return SFs

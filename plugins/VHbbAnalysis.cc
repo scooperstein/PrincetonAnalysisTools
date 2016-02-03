@@ -548,7 +548,7 @@ void VHbbAnalysis::FinishEvent(){
     }
 
     *f["weight"]= *f["weight"] * *f["weight_PU"];
- 
+
     // we need to just save the bTagWeight since we only want to apply it
     // for the nominal shape
     //if (cursyst->name == "nominal") {
