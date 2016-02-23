@@ -259,6 +259,11 @@ print "nentries = ",nentries
 for entry in range(nentries):
     if (entry%10000 == 0): print "processing entry: %i" % entry
     tree.GetEntry(entry)
+    if (tree.sampleIndex == 0):
+        # data event
+        bTagWeights["bTagWeightNew"][0] = 1.0
+        otree.Fill()
+        continue
     #print Jet_pt, hJetInd1
     #print Jet_pt[hJetInd1], Jet_eta[hJetInd1], Jet_hadronFlavour[hJetInd1], Jet_btagCSV[hJetInd1], bweightcalc.btag
     #jet1 = Jet(Jet_pt[hJetInd1], Jet_eta[hJetInd1], Jet_hadronFlavour[hJetInd1], Jet_btagCSV[hJetInd1], bweightcalc.btag)
@@ -267,7 +272,7 @@ for entry in range(nentries):
     jets = []
     for i in range(tree.nJet):
         if (tree.Jet_pt[i] > 30 and abs(tree.Jet_eta[i]) < 2.4): 
-            jet = Jet(tree.Jet_pt[i], tree.Jet_eta[i], tree.Jet_mcFlavour[i], tree.Jet_btagCSV[i], bweightcalc.btag)
+            jet = Jet(tree.Jet_pt[i], tree.Jet_eta[i], tree.Jet_hadronFlavour[i], tree.Jet_btagCSV[i], bweightcalc.btag)
             jets.append(jet)
 
     bTagWeights["bTagWeightNew"][0] = bweightcalc.calcEventWeight(

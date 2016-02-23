@@ -73,7 +73,7 @@ bool VHbbAnalysis::Analyze(){
          std::cout<<"Imposing trigger and json requirements"<<std::endl;
     }
     // Impose trigger requirements
-    if (*f["HLT_WenHbbLowLumi"]!=1 && *f["HLT_WmnHbbLowLumi"]!=1) sel=false;
+    if (*in["HLT_WenHbbLowLumi"]!=1 && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
     if (*in["sampleIndex"]==0) {
         if (*f["json"]!=1) sel=false;
     }
@@ -191,11 +191,11 @@ bool VHbbAnalysis::Analyze(){
     *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
 
-    *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false, false, false); // construct top mass from closest jet to lepton
-    *f["Top1_mass_fromLepton_wMET"] = GetRecoTopMass(Lep, false, true, false); // construct top mass from closest jet to lepton
+    *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false, 0, false); // construct top mass from closest jet to lepton
+    *f["Top1_mass_fromLepton_wMET"] = GetRecoTopMass(Lep, false, 1, false); // construct top mass from closest jet to lepton
     
-    *f["Top1_mass_fromLepton_regPT"] = GetRecoTopMass(Lep, false, false, true); // construct top mass from closest jet to lepton
-    *f["Top1_mass_fromLepton_regPT_wMET"] = GetRecoTopMass(Lep, false, true, true); // construct top mass from closest jet to lepton
+    *f["Top1_mass_fromLepton_regPT"] = GetRecoTopMass(Lep, false, 0, true); // construct top mass from closest jet to lepton
+    *f["Top1_mass_fromLepton_regPT_wMET"] = GetRecoTopMass(Lep, false, 1, true); // construct top mass from closest jet to lepton
 
     // Let's try to reconstruct the second top from a hadronically decaying W
     double min1 = 999.;
@@ -1039,13 +1039,14 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
     return pair;    
 }
 
-double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, bool useMET, bool regPT) {
+double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, bool regPT) {
 
     // Try to reconstruct the top in ttbar with leptonic W decay
     // if isJet is true, construct top as given jet + closest lepton
     // if isJet is false, construct top as given lepton + closest lepton
     //
-    // if useMET is true, construct the top using the jet + lepton + met and take the transverse mass
+    // if useMET is 1, construct the top using the jet + lepton + met and take the transverse mass
+    // if useMET is 2, construct the top using the jet + lepton + met, calculate met pZ by assuming mW
     double Top_mass = -999; // return value
 
     double minDR = 999;
@@ -1098,7 +1099,7 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, bool useMET,
         else return -999;
     }
 
-    if (useMET) {
+    if (useMET==1) {
         TLorentzVector MET;
         MET.SetPtEtaPhiM(*f["met_pt"],0.,*f["met_phi"],0.);
         TLorentzVector Obj_transverse, Obj2_transverse; // can only consider transverse (x-y plane) 4-vector components if using MET
@@ -1115,6 +1116,48 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, bool useMET,
         }*/
         return Top_transverse.M(); // particle physics two-particle Mt = sqrt(Et**2 - pt**2)
     }
+    else if (useMET==2) {
+        TLorentzVector MET;
+        MET.SetPtEtaPhiM(*f["met_pt"],0.,*f["met_phi"],0.);
+        TLorentzVector lep, jet;
+        if (isJet) {
+            lep = Obj2; 
+            jet = Obj;
+        }
+        else {
+            lep = Obj;
+            jet = Obj2;
+        }  
+        TLorentzVector W_trans = lep + MET; // W w/ transverse neutrino info
+        TLorentzVector W; // full W four-vector, to be constructed assuming PDG W mass
+        // solve analytically for neutrino pZ
+        double mW = 80.376;
+        double alpha = TMath::Power(mW,2) + TMath::Power(W_trans.Pt(),2) + TMath::Power(lep.Pz(),2) - TMath::Power(lep.E(),2) - TMath::Power(MET.Pt(), 2);
+        double a = 4*TMath::Power(lep.E(),2) - 4*TMath::Power(lep.Pz(),2);
+        double b = -4 * alpha * lep.Pz();
+        double c = 4*TMath::Power(lep.E(),2)*TMath::Power(MET.Pt(),2) - TMath::Power(alpha,2);
+        double pzm_p = (-1*b + TMath::Sqrt(TMath::Power(b,2) - 4*a*c) ) / (2 * a);
+        double pzm_m = (-1*b - TMath::Sqrt(TMath::Power(b,2) - 4*a*c) ) / (2 * a);
+        //MET.SetPz(pzm_p);
+        W.SetPxPyPzE(W_trans.Px(), W_trans.Py(), lep.Pz() + pzm_p, TMath::Sqrt(TMath::Power(lep.E(),2) + TMath::Power(MET.Pt(),2) + TMath::Power(pzm_p,2) ) );  
+        std::cout<<"met_pt = "<<MET.Pt()<<std::endl;
+        std::cout<<"E_lep = "<<lep.E()<<std::endl;
+        std::cout<<"lep_pz = "<<lep.Pz()<<std::endl;;
+        std::cout<<"pt_W = "<<W_trans.Pt()<<std::endl;
+        std::cout<<"alpha = "<<alpha<<std::endl;
+        std::cout<<"a = "<<a<<std::endl;
+        std::cout<<"b = "<<b<<std::endl;
+        std::cout<<"c = "<<c<<std::endl;
+        std::cout<<"pzm_p = "<<pzm_p<<std::endl;
+        std::cout<<"pzm_m = "<<pzm_m<<std::endl;
+        std::cout<<"W.M() = "<<W.M()<<std::endl;
+        std::cout<<"W.Pt() = "<<W.Pt()<<std::endl;
+        std::cout<<"W.Pz() = "<<W.Pz()<<std::endl;
+        std::cout<<"W.E() = "<<W.E()<<std::endl;
+        TLorentzVector Top = W + jet;
+        return Top.M(); 
+            
+    } 
 
     TLorentzVector Top = Obj + Obj2;
     return Top.M();

@@ -5,9 +5,9 @@
 #name=Run2015D-PromptReco-v4_Mu     dir=/store/group/lpchbb/HeppyNtuples/V15/SingleMuon/VHBB_HEPPY_V15_SingleMuon__Run2015D-PromptReco-v4/151027_145845/0000              type=0   xsec=1
 
 name=Run2015C-16Dec2015-v1_Ele     dir=/store/group/lpchbb/HeppyNtuples/V20a/SingleElectron/VHBB_HEPPY_V20a_SingleElectron__Run2015C_25ns-16Dec2015-v1/160211_134223/0000/    type=0  xsec=1
-name=Run2015D-16Dec2015-v1     dir=/store/group/lpchbb/HeppyNtuples/V20a/SingleElectron/VHBB_HEPPY_V20a_SingleElectron__Run2015D-16Dec2015-v1/160212_105020/0000     type=0  xsec=1
-name=Run2015C-16Dec2015-v1    dir=/store/group/lpchbb/HeppyNtuples/V20/SingleMuon/VHBB_HEPPY_V20_SingleMuon__Run2015C_25ns-16Dec2015-v1/160210_081022/0000/      type=0   xsec=1
-name=Run2015D-16Dec2015-v1    dir=/store/group/lpchbb/HeppyNtuples/V20/SingleMuon/VHBB_HEPPY_V20_SingleMuon__Run2015D-16Dec2015-v1/160210_081323/0000        type=0  xsec=1
+name=Run2015D-16Dec2015-v1_Ele     dir=/store/group/lpchbb/HeppyNtuples/V20a/SingleElectron/VHBB_HEPPY_V20a_SingleElectron__Run2015D-16Dec2015-v1/160212_105020/0000          type=0  xsec=1
+name=Run2015C-16Dec2015-v1_Mu      dir=/store/group/lpchbb/HeppyNtuples/V20/SingleMuon/VHBB_HEPPY_V20_SingleMuon__Run2015C_25ns-16Dec2015-v1/160210_081022/0000/              type=0  xsec=1
+name=Run2015D-16Dec2015-v1_Mu      dir=/store/group/lpchbb/HeppyNtuples/V20/SingleMuon/VHBB_HEPPY_V20_SingleMuon__Run2015D-16Dec2015-v1/160210_081323/0000                    type=0  xsec=1
 
 ##name=Run2015C_Muons      dir=/store/group/lpchbb/HeppyNtuples/V13/SingleMuon/VHBB_HEPPY_V13_SingleMuon__Run2015C-PromptReco-v1/151002_085004/0000/              type=0   xsec=1
 ##name=Run2015C_Electrons  dir=/store/group/lpchbb/HeppyNtuples/V13/SingleElectron/VHBB_HEPPY_V13_SingleElectron__Run2015C-PromptReco-v1/151002_101048/0000/      type=0   xsec=1

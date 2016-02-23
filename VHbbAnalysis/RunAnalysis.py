@@ -55,8 +55,9 @@ else:
             fname = "%s/%s/job%i.submit" % (jobName, sampleName,nFiles)
             submitFile = open(fname, "w")
             content =  "universe = vanilla\n"
-            content += "Executable = condor_runscript.sh\n"
-            content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nFiles)
+            content += "Executable = %s/condor_runscript.sh\n" % jobName
+            content += "Arguments = %s %s %s output_%s_%i.root\n" % (options.configFile, sampleName, filename,sampleName, nFiles)
+            #content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nFiles)
             #content += "Requirements   =  OpSys == 'LINUX' && (Arch =='INTEL' || Arch =='x86_64')\n"
             content += "initialdir = %s/%s\n" % (jobName,sampleName)
             content += "Should_Transfer_Files = YES\n"
@@ -65,12 +66,55 @@ else:
             content += "Log    = %i.log\n"    % nFiles
             content += "Notification = never\n"
             content += "WhenToTransferOutput=On_Exit\n"
-            content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt\n" % options.configFile
+            #content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../aux/MuonIso_Z_RunCD_Reco74X_Dec1.json,../../aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json,../../aux/MuonID_Z_RunCD_Reco74X_Dec1.json,../../aux/CutBasedID_TightWP.json,../../aux/CutBasedID_LooseWP.json,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt,../../cfg/scalefactors.txt\n" % options.configFile
             content += "Queue = 1\n"
             print content
             submitFile.write(content)
             submitFile.close()
             submitFiles.append(fname)
+
+    condor_runscript_text = '''
+
+        #!/bin/bash
+        ##
+        ## Script to run Analysis Manager jobs on Condor from the LPC
+        ## Author: Stephane Cooperstein
+        ##
+        ## Argument 1: Analysis config file
+        ## Argument 2: Sample name to run on
+        ##
+
+        export ORIG_DIR=$PWD
+        # Set up environment
+        echo "setting up the environment"
+        cd %s/..
+        source /cvmfs/cms.cern.ch/cmsset_default.sh
+        eval `scramv1 runtime -sh`
+        pwd
+        ls
+        #source env.sh
+        source %s/../env.sh
+        cd VHbbAnalysis
+        #source /cvmfs/cms.cern.ch/slc6_amd64_gcc481/lcg/root/5.34.22-cms/bin/thisroot.sh
+        #source /cvmfs/cms.cern.ch/slc6_amd64_gcc481/lcg/root/5.34.18-cms/bin/thisroot.sh
+        echo "successfully set up the enviroment"
+
+        #echo "moving text files to their respective directories"
+        #mkdir -p cfg
+        #mv samples.txt earlybranches.txt existingbranches.txt newbranches.txt bdtsettings.txt reg1_settings.txt reg2_settings.txt settings.txt systematics.txt scalefactors.txt cfg
+        #mkdir -p aux
+        #mv TMVARegression_BDTG_ttbar_Nov23.weights.xml  TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml MuonIso_Z_RunCD_Reco74X_Dec1.json SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json MuonID_Z_RunCD_Reco74X_Dec1.json CutBasedID_TightWP.json CutBasedID_LooseWP.json aux
+
+
+        echo "running RunSample.py"
+        echo $ORIG_DIR/$4
+        python RunSample.py $1 $2 $3 $ORIG_DIR/$4
+        ls
+        echo "all done!" ''' % (os.getcwd(), os.getcwd() )
+
+    runscript = open("%s/condor_runscript.sh" % (jobName) , "w")
+    runscript.write(condor_runscript_text)
+    runscript.close()
 
     # Send job to condor
     print "Submit files created, sending jobs to Condor..."
