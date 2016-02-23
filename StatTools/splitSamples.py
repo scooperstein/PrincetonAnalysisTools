@@ -163,7 +163,7 @@ for sample in sampleMap:
         for ibin in range(1, hBDT.GetNbinsX()):
             B = hBDT.GetBinContent(ibin)
             B_err = hBDT.GetBinError(ibin)
-            hBDT.GetXaxis().SetRange(ibin,ibin)
+            #hBDT.GetXaxis().SetRange(ibin,ibin)
             #B_eff = hBDT.GetEffectiveEntries() # effective statistical number of entries in bin considering weights
             if ( B > 0 and ( ( B >=1 and (B_err/sqrt(B)) > tolerance) or (B < 1 and B_err/B > tolerance) ) ):
                 #hBinStat = ROOT.TH1F("CMS_vhbb_stat%s_%s_bin%i_13TeV" % (sample,catName,ibin),"CMS_vhbb_stat%s_%s_bin%i_13TeV" % (sample,catName,ibin),nBins,-1,1)
