@@ -2,8 +2,8 @@
 #     array +5;   vector +10;
 
 type=2  name=json
-type=2  name=HLT_WenHbbLowLumi
-type=2  name=HLT_WmnHbbLowLumi
+type=1  name=HLT_WenHbbLowLumi
+type=1  name=HLT_WmnHbbLowLumi
 
 type=1  name=nPVs
 type=2  name=rho
@@ -13,14 +13,14 @@ type=2  name=bTagWeight_HFUp
 type=2  name=bTagWeight_HFDown
 type=2  name=bTagWeight_LFUp
 type=2  name=bTagWeight_LFDown
-type=2  name=bTagWeight_Stats1Up
-type=2  name=bTagWeight_Stats1Down
+#type=2  name=bTagWeight_Stats1Up
+#type=2  name=bTagWeight_Stats1Down
 #type=2  name=bTagWeight_Stats1LFUp
 #type=2  name=bTagWeight_Stats1LFDown
 #type=2  name=bTagWeight_Stats1HFUp
 #type=2  name=bTagWeight_Stats1HFDown
-type=2  name=bTagWeight_Stats2Up
-type=2  name=bTagWeight_Stats2Down
+#type=2  name=bTagWeight_Stats2Up
+#type=2  name=bTagWeight_Stats2Down
 #type=2  name=bTagWeight_Stats2LFUp
 #type=2  name=bTagWeight_Stats2LFDown
 #type=2  name=bTagWeight_Stats2HFUp
@@ -118,6 +118,7 @@ type=7  name=Jet_vtxNtracks                   max=100     lengthBranch=nJet
 type=7  name=Jet_vtxPt                        max=100     lengthBranch=nJet
 type=7  name=Jet_phi                          max=100     lengthBranch=nJet
 type=6  name=Jet_mcFlavour                    max=100     lengthBranch=nJet  onlyMC=1 
+type=6  name=Jet_hadronFlavour                max=100     lengthBranch=nJet  onlyMC=1 
 type=7  name=Jet_btagCSVV0                    max=100     lengthBranch=nJet
 type=7  name=Jet_btagnew                      max=100     lengthBranch=nJet
 type=7  name=Jet_btagCMVA                     max=100     lengthBranch=nJet

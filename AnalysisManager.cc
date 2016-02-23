@@ -413,7 +413,7 @@ std::vector<std::string> AnalysisManager::ListSampleNames() {
 
 
 // Process all input samples and all events
-void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNum){
+void AnalysisManager::Loop(std::string sampleName, std::string filename, std::string ofilename){
     // Specify sample name if we want to run on only a particular sample, specify
     // filename if we want to run only on a specific file from that sample.
     if(!sampleName.empty()){
@@ -440,11 +440,12 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
                         }
                     }
                     onlySample->processedEvents = processedEvents;
-                    ofile = new TFile(Form("%s_%s_%i.root",outputTreeName.c_str(),samples[0].sampleName.c_str(),fNum),"recreate");
+                    //ofile = new TFile(Form("%s_%s_%i.root",outputTreeName.c_str(),samples[0].sampleName.c_str(),fNum),"recreate");
                 }
                 else {
-                    ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
+                    //ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
                 }
+                ofile = new TFile(ofilename.c_str(), "recreate");
                 samples.clear();
                 samples.push_back(*onlySample);
                 break;
@@ -511,7 +512,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
             int saved=0;
             // FIXME need a loop over systematics
             for (Long64_t jentry=0; jentry<nentries;jentry++) {
-            //for (Long64_t jentry=0; jentry<50001;jentry++) {
+            //for (Long64_t jentry=0; jentry<1001;jentry++) {
                 if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
                 
@@ -560,6 +561,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
                             }
                             else {
                                 *f[sf.branchname] = sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err);
+             //std::cout<<*f[sf.branches[0]]<<": ,"<<*f[sf.branches[1]]<<": ,"<<std::cout<<sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err)<<std::endl;
                             }
                             *f[Form("%s_err",sf.branchname.c_str())] = sf_err;
                         }

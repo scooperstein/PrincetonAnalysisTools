@@ -32,4 +32,4 @@ print "Done printing branches, now to loop"
 if (len(sys.argv) == 3):
     am.Loop(sys.argv[2])
 else:
-    am.Loop(sys.argv[2], sys.argv[3], int(sys.argv[4]))
+    am.Loop(sys.argv[2], sys.argv[3], sys.argv[4])

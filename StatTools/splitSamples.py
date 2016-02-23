@@ -70,7 +70,7 @@ tree = ifile.Get("tree")
 bdtname = "CMS_vhbb_BDT_Wln_13TeV"
 #nBins = 1000
 nBins = 20
-tolerance = 0.25 # dB/B tolerance for bin-by-bin stat. uncertainties
+tolerance = 0.5 # dB/B tolerance for bin-by-bin stat. uncertainties
 
 sampleMap = {} # map sampleNames to list of sampleIndex's
 sampleMapAltModel = {} # alternate MC samples for model shape systematics
@@ -119,18 +119,18 @@ foundHighBinEdge = False
 for ibin in range(2,nBins):
     if not foundLowBinEdge:
         B_low = hBkg.Integral(1,ibin)
-        S_low = hSig.Integral(1,ibin)
+        #S_low = hSig.Integral(1,ibin)
         #print "edge = ",hBkg.GetBinLowEdge(ibin+1)
         #print "B_low = ",B_low
         #if (B_low > 0):
         #    print "1./sqrt(B_low) = ",1./sqrt(B_low)
-        if (B_low > 0 and 1./sqrt(B_low) < 0.35 and S_low > 0 and 1./sqrt(S_low) > 0.35):
+        if (B_low > 0 and 1./sqrt(B_low) < 0.35):
             binBoundaries[1] = hBkg.GetBinLowEdge(ibin+1)
             foundLowBinEdge = True
     if not foundHighBinEdge:
         B_high = hBkg.Integral(nBins-ibin+1, nBins) 
-        S_high = hSig.Integral(nBins-ibin+1, nBins) 
-        if (B_high > 0 and 1./sqrt(B_high) < 0.35 and S_high > 0 and 1./sqrt(S_high) > 0.35):
+        #S_high = hSig.Integral(nBins-ibin+1, nBins) 
+        if (B_high > 0 and 1./sqrt(B_high) < 0.35):
             binBoundaries[nBins-1] = hBkg.GetBinLowEdge(nBins-ibin+1)
             foundHighBinEdge = True
 # split the middle bins equidistantly
@@ -162,7 +162,10 @@ for sample in sampleMap:
     if (sample not in ["WH","ZH","data_obs"]):
         for ibin in range(1, hBDT.GetNbinsX()):
             B = hBDT.GetBinContent(ibin)
-            if ( B > 0 and (1./sqrt(B)) > tolerance ):
+            B_err = hBDT.GetBinError(ibin)
+            hBDT.GetXaxis().SetRange(ibin,ibin)
+            #B_eff = hBDT.GetEffectiveEntries() # effective statistical number of entries in bin considering weights
+            if ( B > 0 and ( ( B >=1 and (B_err/sqrt(B)) > tolerance) or (B < 1 and B_err/B > tolerance) ) ):
                 #hBinStat = ROOT.TH1F("CMS_vhbb_stat%s_%s_bin%i_13TeV" % (sample,catName,ibin),"CMS_vhbb_stat%s_%s_bin%i_13TeV" % (sample,catName,ibin),nBins,-1,1)
                 hBinStatUp = hBDT.Clone()
                 hBinStatDown = hBDT.Clone()
