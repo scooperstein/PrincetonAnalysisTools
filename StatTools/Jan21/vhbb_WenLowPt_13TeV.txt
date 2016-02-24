@@ -1,16 +1,16 @@
 imax 1 number of bins
 jmax 9 number of processes minus 1
-kmax 61 number of nuisance parameters
+kmax 131 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes *           WenLowPt    hists_WenLowPt.root $PROCESS $PROCESS_$SYSTEMATIC
 ----------------------------------------------------------------------------------------------------------------------------------
 bin          WenLowPt    
-observation     3135.7091
+observation     2907.3404
 
 bin                                                         WenLowPt    WenLowPt    WenLowPt    WenLowPt    WenLowPt    WenLowPt    WenLowPt    WenLowPt    WenLowPt    WenLowPt    
 process                                                     ZH          WH          s_Top       TT          Wj0b        Wj1b        Wj2b        VVHF        VVLF        QCD         
 process                                                     -1           0           1           2           3           4           5           6           7           8           
-rate                                                        0.8153      4.3968      1321.4344   3135.7091   611.6597    101.4404    246.0284    0.0000      0.0000      122.9640    
+rate                                                        0.7144      4.2858      483.6359    2907.3404   216.5653    65.8804     212.8676    17.5463     6.9959      0.0000      
 
 lumi_13TeV                                      lnN         1.04        1.04        1.04        1.04        1.04        1.04        1.04        1.04        1.04        1.04        
 CMS_vhbb_boost_EWK_13TeV                        lnN         1.02        1.02        -           -           -           -           -           -           -           -           
@@ -31,38 +31,82 @@ CMS_vhbb_bTagWeightHFStats2                     shape       1.0        1.0      
 CMS_vhbb_bTagWeightLFStats2                     shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
 CMS_vhbb_btagWeightcErr1                        shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
 CMS_vhbb_btagWeightcErr2                        shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
+CMS_vhbb_puWeight                               shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
 CMS_vhbb_TTModel_Wln_13TeV                      shape       -           -           -           1.0        -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenLowPt_bin1_13TeV          shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenLowPt_bin2_13TeV          shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenLowPt_bin19_13TeV         shape      -           -           1.0        -           -           -           -           -           -           -           
+CMS_vhbb_WHModel_Wln_13TeV                      shape       -           1.0        -           -           -           -           -           -           -           -           
+CMS_vhbb_Wj0bModel_Wln_13TeV                    shape       -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_Wj1bModel_Wln_13TeV                    shape       -           -           -           -           -           1.0        -           -           -           -           
+CMS_vhbb_Wj2bModel_Wln_13TeV                    shape       -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin1_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin2_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin3_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin4_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin5_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin6_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenLowPt_bin7_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
+CMS_vhbb_statWj2b_WenLowPt_bin8_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
+CMS_vhbb_statWj2b_WenLowPt_bin9_13TeV           shape      -           -           -           -           -           -           1.0        -           -           -           
+CMS_vhbb_statWj2b_WenLowPt_bin10_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
+CMS_vhbb_statWj2b_WenLowPt_bin11_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
+CMS_vhbb_statWj2b_WenLowPt_bin12_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
+CMS_vhbb_statWj2b_WenLowPt_bin13_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin14_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin15_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin16_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin17_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin18_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenLowPt_bin19_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj0b_WenLowPt_bin1_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin1_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin2_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin3_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin4_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin5_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin6_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin7_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin8_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin9_13TeV             shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin10_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin11_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin12_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin13_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin14_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin15_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin16_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin17_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin18_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenLowPt_bin19_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statVVLF_WenLowPt_bin5_13TeV           shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin6_13TeV           shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin7_13TeV           shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin8_13TeV           shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin9_13TeV           shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin10_13TeV          shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin11_13TeV          shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin12_13TeV          shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin13_13TeV          shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin15_13TeV          shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenLowPt_bin18_13TeV          shape      -           -           -           -           -           -           -           -           1.0        -           
 CMS_vhbb_statWj0b_WenLowPt_bin2_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
 CMS_vhbb_statWj0b_WenLowPt_bin3_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
 CMS_vhbb_statWj0b_WenLowPt_bin4_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin6_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin7_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin8_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin9_13TeV           shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin10_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin11_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin12_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin13_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin14_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin15_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statWj0b_WenLowPt_bin16_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
 CMS_vhbb_statWj0b_WenLowPt_bin18_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
 CMS_vhbb_statWj0b_WenLowPt_bin19_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin1_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenLowPt_bin2_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin3_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenLowPt_bin4_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin5_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin6_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin7_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin8_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenLowPt_bin9_13TeV           shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin10_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin11_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin12_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
@@ -73,3 +117,29 @@ CMS_vhbb_statWj1b_WenLowPt_bin16_13TeV          shape      -           -        
 CMS_vhbb_statWj1b_WenLowPt_bin17_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin18_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenLowPt_bin19_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin1_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin2_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin3_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin4_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin5_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin6_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin7_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin8_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin9_13TeV            shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin10_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin11_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin12_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin13_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin14_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin15_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin16_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin17_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin18_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenLowPt_bin19_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statVVHF_WenLowPt_bin2_13TeV           shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenLowPt_bin4_13TeV           shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenLowPt_bin5_13TeV           shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenLowPt_bin6_13TeV           shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenLowPt_bin7_13TeV           shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenLowPt_bin8_13TeV           shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenLowPt_bin10_13TeV          shape      -           -           -           -           -           -           -           1.0        -           -           
