@@ -40,9 +40,14 @@ inline SampleContainer::SampleContainer()
     procEff = 1.;
 }
 
-inline void SampleContainer::AddFile(const char* fname) {
-    sampleChain->Add(fname);
+inline void SampleContainer::AddFile(const char* fname,int isBatch) {
     files.push_back(fname);
+    std::cout<<"in SC "<<fname<<std::endl;
+    std::cout<<"isBatch "<<isBatch<<std::endl;
+    
+    if( isBatch==1 ) return;
+    
+    sampleChain->Add(fname);
     //std::cout<<nProFromFile<<std::endl; 
     if(nProFromFile) {
         TFile *file = TFile::Open(fname);
