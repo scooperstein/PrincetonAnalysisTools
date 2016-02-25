@@ -73,7 +73,8 @@ bool VHbbAnalysis::Analyze(){
          std::cout<<"Imposing trigger and json requirements"<<std::endl;
     }
     // Impose trigger requirements
-    if (*in["HLT_WenHbbLowLumi"]!=1 && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
+    //if (*in["HLT_WenHbbLowLumi"]!=1 && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
+    if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_Ele27_WPLoose_Gsf_v"] && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
     if (*in["sampleIndex"]==0) {
         if (*f["json"]!=1) sel=false;
     }
@@ -547,7 +548,7 @@ void VHbbAnalysis::FinishEvent(){
         *f["weight_PU"]=1;
     }
 
-    *f["weight"]= *f["weight"] * *f["weight_PU"];
+    //*f["weight"]= *f["weight"] * *f["weight_PU"];
 
     // we need to just save the bTagWeight since we only want to apply it
     // for the nominal shape
@@ -882,7 +883,7 @@ bool VHbbAnalysis::MuonSelection(){
         std::cout<<"*in[\"nselLeptons\"] "<<*in["nselLeptons"]<<std::endl;
         std::cout<<"d[\"selLeptons_pt\"][0] "<<f["selLeptons_pt"][0]<<std::endl;
         std::cout<<"in[\"selLeptons_pdgId\"] "<<in["selLeptons_pdgId"][0]<<std::endl;
-        std::cout<<"d[\"selLeptons_relIso03\"] "<<f["selLeptons_relIso03"][0]<<std::endl;
+        std::cout<<"d[\"selLeptons_relIso04\"] "<<f["selLeptons_relIso03"][0]<<std::endl;
         std::cout<<"*d[\"met_pt\"] "<<*f["met_pt"]<<std::endl;
     }
     
@@ -1143,6 +1144,7 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
         std::cout<<"met_pt = "<<MET.Pt()<<std::endl;
         std::cout<<"E_lep = "<<lep.E()<<std::endl;
         std::cout<<"lep_pz = "<<lep.Pz()<<std::endl;;
+        std::cout<<"lep_pt = "<<lep.Pt()<<std::endl;;
         std::cout<<"pt_W = "<<W_trans.Pt()<<std::endl;
         std::cout<<"alpha = "<<alpha<<std::endl;
         std::cout<<"a = "<<a<<std::endl;
