@@ -13,7 +13,7 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=0
 
-def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
+def ReadTextFile(filename, filetype, samplesToRun="", fileToRun="", isBatch=0):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
@@ -91,7 +91,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun=""):
                             am.outputTreeName=settings["outputname"]
                     # if data and fileToRun is not empty then only run that file
                     try:
-                        samplecon.AddFile(filename)
+                        print "adding file, isBatch",isBatch
+                        samplecon.AddFile(filename,isBatch)
                         addedAtLeastOneFile=True
                     except:
                         print "Can't add",filename

@@ -8,8 +8,8 @@ parser = OptionParser()
 parser.add_option("-c", "--config", dest="configFile", default="vhbb_config.txt",
                   help="specify config file for this analysis"
 )
-parser.add_option("-b", "--batch", dest="runBatch", default=False,
-                  help="run analysis jobs on condor (default=False)"
+parser.add_option("-b", "--batch", dest="runBatch", default=0, type=int, 
+                  help="run analysis jobs on condor (default=0)"
 )
 parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
                   help="Specify label for condor jobs. Only to be used when running batch jobs"
@@ -20,7 +20,7 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 # reads samples, existing branches and new branches
 samplesToRun = [] # if empty run on all samples
-am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun)
+am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun,"",options.runBatch)
 am.debug=2
 
 if (options.runBatch == False):
