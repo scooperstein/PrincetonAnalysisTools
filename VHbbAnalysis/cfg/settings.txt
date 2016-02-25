@@ -17,15 +17,15 @@ type=2  name=j1etaCut           val=2.5
 type=2  name=j2etaCut           val=2.5
 
 type=2  name=JetPtPresel        val=25
-type=2  name=LepPtPresel        val=25
+type=2  name=LepPtPresel        val=30
 
-type=2  name=eptcut             val=25
+type=2  name=eptcut             val=30
 type=2  name=muptcut            val=25
 type=2  name=eletacut           val=2.5
 type=2  name=muetacut           val=2.4
 type=2  name=metcut             val=0
-type=2  name=erelisocut         val=0.1
-type=2  name=murelisocut        val=0.1
+type=2  name=erelisocut         val=0.12
+type=2  name=murelisocut        val=0.15
 type=2  name=elMetDPhiCut       val=2.0
 type=2  name=muMetDPhiCut       val=2.0
 type=2  name=elidcut            val=4

@@ -1,16 +1,16 @@
 imax 1 number of bins
 jmax 9 number of processes minus 1
-kmax 94 number of nuisance parameters
+kmax 85 number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes *           WenHighPt    hists_WenHighPt.root $PROCESS $PROCESS_$SYSTEMATIC
 ----------------------------------------------------------------------------------------------------------------------------------
 bin          WenHighPt    
-observation     860.2138
+observation     675.2285
 
 bin                                                         WenHighPt   WenHighPt   WenHighPt   WenHighPt   WenHighPt   WenHighPt   WenHighPt   WenHighPt   WenHighPt   WenHighPt   
 process                                                     ZH          WH          s_Top       TT          Wj0b        Wj1b        Wj2b        VVHF        VVLF        QCD         
 process                                                     -1           0           1           2           3           4           5           6           7           8           
-rate                                                        0.2382      2.7450      357.7108    860.2138    238.5703    40.3903     111.4435    0.0000      0.0000      29.1177     
+rate                                                        0.1988      2.5564      152.1971    675.2285    67.5797     16.7447     80.8823     8.0549      3.0697      0.0000      
 
 lumi_13TeV                                      lnN         1.04        1.04        1.04        1.04        1.04        1.04        1.04        1.04        1.04        1.04        
 CMS_vhbb_boost_EWK_13TeV                        lnN         1.02        1.02        -           -           -           -           -           -           -           -           
@@ -31,78 +31,69 @@ CMS_vhbb_bTagWeightHFStats2                     shape       1.0        1.0      
 CMS_vhbb_bTagWeightLFStats2                     shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
 CMS_vhbb_btagWeightcErr1                        shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
 CMS_vhbb_btagWeightcErr2                        shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
+CMS_vhbb_puWeight                               shape       1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        1.0        
 CMS_vhbb_TTModel_Wln_13TeV                      shape       -           -           -           1.0        -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin1_13TeV         shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin2_13TeV         shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin14_13TeV        shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin15_13TeV        shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin16_13TeV        shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin17_13TeV        shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin18_13TeV        shape      -           -           1.0        -           -           -           -           -           -           -           
-CMS_vhbb_stats_Top_WenHighPt_bin19_13TeV        shape      -           -           1.0        -           -           -           -           -           -           -           
+CMS_vhbb_WHModel_Wln_13TeV                      shape       -           1.0        -           -           -           -           -           -           -           -           
+CMS_vhbb_Wj0bModel_Wln_13TeV                    shape       -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_Wj1bModel_Wln_13TeV                    shape       -           -           -           -           -           1.0        -           -           -           -           
+CMS_vhbb_Wj2bModel_Wln_13TeV                    shape       -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenHighPt_bin1_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenHighPt_bin2_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin3_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
 CMS_vhbb_statWj2b_WenHighPt_bin4_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin5_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin6_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin7_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin8_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin9_13TeV          shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin10_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin11_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin12_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin13_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin14_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin15_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin16_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin17_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin18_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
-CMS_vhbb_statWj2b_WenHighPt_bin19_13TeV         shape      -           -           -           -           -           -           1.0        -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin1_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin2_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin3_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin4_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin5_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin6_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin7_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin8_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin9_13TeV            shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin10_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin11_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin12_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin13_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin14_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin15_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin16_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin17_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
+CMS_vhbb_statTT_WenHighPt_bin18_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
 CMS_vhbb_statTT_WenHighPt_bin19_13TeV           shape      -           -           -           1.0        -           -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin1_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin2_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin3_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin4_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin5_13TeV          shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin12_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin13_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin14_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin15_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin16_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin17_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin18_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
-CMS_vhbb_statWj0b_WenHighPt_bin19_13TeV         shape      -           -           -           -           1.0        -           -           -           -           -           
+CMS_vhbb_statVVLF_WenHighPt_bin8_13TeV          shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenHighPt_bin10_13TeV         shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenHighPt_bin12_13TeV         shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenHighPt_bin14_13TeV         shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenHighPt_bin15_13TeV         shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenHighPt_bin16_13TeV         shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenHighPt_bin18_13TeV         shape      -           -           -           -           -           -           -           -           1.0        -           
+CMS_vhbb_statVVLF_WenHighPt_bin19_13TeV         shape      -           -           -           -           -           -           -           -           1.0        -           
 CMS_vhbb_statWj1b_WenHighPt_bin1_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin2_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin3_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenHighPt_bin4_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenHighPt_bin5_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenHighPt_bin6_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin7_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin8_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin9_13TeV          shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin10_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin11_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin12_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin13_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin14_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin15_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenHighPt_bin16_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statWj1b_WenHighPt_bin17_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenHighPt_bin18_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
 CMS_vhbb_statWj1b_WenHighPt_bin19_13TeV         shape      -           -           -           -           -           1.0        -           -           -           -           
-CMS_vhbb_statQCD_WenHighPt_bin1_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin2_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin3_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin5_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin6_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin7_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin8_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin9_13TeV           shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin10_13TeV          shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin11_13TeV          shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin12_13TeV          shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin14_13TeV          shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin17_13TeV          shape      -           -           -           -           -           -           -           -           -           1.0        
-CMS_vhbb_statQCD_WenHighPt_bin18_13TeV          shape      -           -           -           -           -           -           -           -           -           1.0        
+CMS_vhbb_statBkg_WenHighPt_bin1_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin2_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin3_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin4_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin5_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin6_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin7_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin8_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin9_13TeV           shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin10_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin11_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin12_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin13_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin14_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin15_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin16_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statBkg_WenHighPt_bin18_13TeV          shape      -           -           -           -           -           -           -           -           -           -           
+CMS_vhbb_statVVHF_WenHighPt_bin5_13TeV          shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenHighPt_bin6_13TeV          shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenHighPt_bin8_13TeV          shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenHighPt_bin10_13TeV         shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenHighPt_bin11_13TeV         shape      -           -           -           -           -           -           -           1.0        -           -           
+CMS_vhbb_statVVHF_WenHighPt_bin12_13TeV         shape      -           -           -           -           -           -           -           1.0        -           -           
