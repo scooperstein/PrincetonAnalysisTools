@@ -74,7 +74,7 @@ bool VHbbAnalysis::Analyze(){
     }
     // Impose trigger requirements
     //if (*in["HLT_WenHbbLowLumi"]!=1 && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
-    if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_Ele27_WPLoose_Gsf_v"] && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
+    if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_Ele27_WPLoose_Gsf_v"] && *in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
     if (*in["sampleIndex"]==0) {
         if (*f["json"]!=1) sel=false;
     }
@@ -546,6 +546,7 @@ void VHbbAnalysis::FinishEvent(){
         }
     } else {
         *f["weight_PU"]=1;
+        *f["puWeight"]=1;
     }
 
     //*f["weight"]= *f["weight"] * *f["weight_PU"];

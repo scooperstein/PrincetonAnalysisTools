@@ -6,6 +6,8 @@ type=1  name=HLT_WenHbbLowLumi
 type=1  name=HLT_WmnHbbLowLumi
 type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
+type=1  name=HLT_BIT_HLT_IsoMu20_v
+type=1  name=HLT_BIT_HLT_IsoTkMu20_v
 
 type=1  name=nPVs
 type=2  name=rho
