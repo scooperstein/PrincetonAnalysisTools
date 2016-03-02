@@ -3,6 +3,7 @@ import os
 import ROOT
 import numpy as np
 import sys
+import array
 
 class BTagWeightCalculator:
     """
@@ -215,8 +216,10 @@ class Jet :
 #csvpath = os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/csv"
 csvpath = "./"
 bweightcalc = BTagWeightCalculator(
-    csvpath + "/csv_rwt_fit_hf_2015_12_14.root",
-    csvpath + "/csv_rwt_fit_lf_2015_12_14.root"
+    #csvpath + "/csv_rwt_fit_hf_2015_12_14.root",
+    #csvpath + "/csv_rwt_fit_lf_2015_12_14.root"
+    csvpath + "/csv_rwt_fit_hf_76x_2016_02_08.root",
+    csvpath + "/csv_rwt_fit_lf_76x_2016_02_08.root"
 )
 #bweightcalc.btag = "btagCSV"
 bweightcalc.btag = "btag"
@@ -252,6 +255,17 @@ for syst in ["JES", "LF", "HF", "LFStats1", "LFStats2", "HFStats1", "HFStats2", 
     for sdir in ["Up", "Down"]:
         bTagWeights["bTagWeightNew_"+syst+sdir] = np.zeros(1, dtype=float)
         otree.Branch("bTagWeightNew_"+syst+sdir, bTagWeights["bTagWeightNew_"+syst+sdir], "bTagWeightNew_"+syst+sdir+"/D")
+
+## hack to add puWeight = 1.0 for data events
+#puWeight = np.zeros(1)
+#puWeight[0] = 1.0
+#puWeight = array.array( 'f', [1.0] )
+#puWeightUp = array.array( 'f', [1.0] )
+#puWeightDown = array.array( 'f', [1.0] )
+#otree.SetBranchAddress("puWeight",puWeight)
+#otree.Branch("puWeight",puWeight,"puWeight/F")
+#otree.Branch("puWeightUp",puWeight,"puWeight/F")
+#otree.Branch("puWeightDown",puWeight,"puWeight/F")
 
 #nentries = 1000
 nentries = tree.GetEntries()
