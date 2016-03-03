@@ -144,8 +144,10 @@ type=2  name=Top1_mass_highestPtJJ
 type=2  name=Top1_mass_highestPtJJ_wMET
 type=2  name=Top1_mass_fromLepton
 type=2  name=Top1_mass_fromLepton_wMET
+type=2  name=Top1_mass_fromLepton_w4MET
 type=2  name=Top1_mass_fromLepton_regPT
 type=2  name=Top1_mass_fromLepton_regPT_wMET
+type=2  name=Top1_mass_fromLepton_regPT_w4MET
 #type=2  name=Top2_mass
 type=2  name=Top2_mass_hadW
 type=2  name=HJ1_HJ2_dPhi
