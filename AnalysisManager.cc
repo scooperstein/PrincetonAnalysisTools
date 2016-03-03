@@ -556,12 +556,19 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                         for (int i=0; i < scaleFactors.size(); i++) {
                             SFContainer sf = scaleFactors[i];
                             float sf_err = 0.0;
-                            if (sf.binning.find("abs") == -1) {
-                                *f[sf.branchname] = sf.getScaleFactor(*f[sf.branches[0]], *f[sf.branches[1]], sf_err);
+                            if (cursample->sampleNum != 0) {
+                                if (sf.binning.find("abs") == -1) {
+                                    *f[sf.branchname] = sf.getScaleFactor(*f[sf.branches[0]], *f[sf.branches[1]], sf_err);
+                                }
+                                else {
+                                    *f[sf.branchname] = sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err);
+                                     //std::cout<<*f[sf.branches[0]]<<": ,"<<*f[sf.branches[1]]<<": ,"<<std::cout<<sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err)<<std::endl;
+                                }
                             }
                             else {
-                                *f[sf.branchname] = sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err);
-             //std::cout<<*f[sf.branches[0]]<<": ,"<<*f[sf.branches[1]]<<": ,"<<std::cout<<sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err)<<std::endl;
+                                // data event, scale factor should just be 1.0
+                                *f[sf.branchname] = 1.0;
+                                sf_err = 1.0;
                             }
                             *f[Form("%s_err",sf.branchname.c_str())] = sf_err;
                         }
@@ -715,6 +722,7 @@ void AnalysisManager::ApplySystematics(bool early){
                          f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
                     }
                     else {
+                         //std::cout<<f[oldBranchName.c_str()][ind]<<" * "<<f[cursyst->scaleVar][ind]<<std::endl;
                          // dynamic scaling
                          f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * f[cursyst->scaleVar][ind];
                     }

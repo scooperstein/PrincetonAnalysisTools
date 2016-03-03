@@ -257,9 +257,9 @@ for syst in ["JES", "LF", "HF", "LFStats1", "LFStats2", "HFStats1", "HFStats2", 
         otree.Branch("bTagWeightNew_"+syst+sdir, bTagWeights["bTagWeightNew_"+syst+sdir], "bTagWeightNew_"+syst+sdir+"/D")
 
 ## hack to add puWeight = 1.0 for data events
-#puWeight = np.zeros(1)
+puWeight = np.zeros(1)
 #puWeight[0] = 1.0
-#puWeight = array.array( 'f', [1.0] )
+puWeight = array.array( 'f', [1.0] )
 #puWeightUp = array.array( 'f', [1.0] )
 #puWeightDown = array.array( 'f', [1.0] )
 #otree.SetBranchAddress("puWeight",puWeight)

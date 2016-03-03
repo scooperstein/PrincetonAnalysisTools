@@ -45,6 +45,15 @@ bool VHbbAnalysis::Preselection(){
     // stitch WJets inclusive sample to HT-binned samples
     if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
 
+    // Heppy jet corrections for JER/JEC are full correction, it's easier to just use the
+    // correction on top of the nominal
+    for (int i=0; i<*in["nJet"]; i++) {
+        f["Jet_corr_JERUp_ratio"][i] = f["Jet_corr_JERUp"][i] / f["Jet_corr"][i] ; 
+        f["Jet_corr_JERDown_ratio"][i] = f["Jet_corr_JERDown"][i] / f["Jet_corr"][i] ; 
+        f["Jet_corr_JECUp_ratio"][i] = f["Jet_corr_JECUp"][i] / f["Jet_corr"][i] ; 
+        f["Jet_corr_JECDown_ratio"][i] = f["Jet_corr_JECDown"][i] / f["Jet_corr"][i] ; 
+    }
+
     // Preselect for two jets and one lepton which pass some minimum pt threshold
     int nPreselJets = 0;
     for (int i=0; i < *in["nJet"]; i++) {
@@ -67,7 +76,6 @@ bool VHbbAnalysis::Analyze(){
     bool sel=true;
     bool doCutFlow = bool(*f["doCutFlow"]);
     *in["cutFlow"] = 0;
-    
 
     if(debug>1000) {
          std::cout<<"Imposing trigger and json requirements"<<std::endl;
@@ -186,7 +194,7 @@ bool VHbbAnalysis::Analyze(){
     Lep.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], f["selLeptons_mass"][*in["lepInd"]]); 
     W = MET + Lep; 
     *f["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
-
+    *f["V_mt"] = W.Mt();
 
     *f["Lep_HJ1_dPhi"] = Lep.DeltaPhi(HJ1);
     *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
@@ -248,6 +256,7 @@ bool VHbbAnalysis::Analyze(){
     *f["HVdPhi"] = Hbb.DeltaPhi(W);
     *f["H_mass_step2"] = *f["H_mass"];
         
+    //std::cout<<cursyst->name.c_str()<<": Hbb.M() = "<<Hbb.M()<<", Jet_pt_reg[jetInd1] = "<<f["Jet_pt_reg"][jetInd1]<<", Jet_pt_reg[jetInd2] = "<<f["Jet_pt_reg"][jetInd2]<<", "<<(f["Jet_corr_JECUp"][jetInd1] / f["Jet_corr"][jetInd1])<<", "<<(f["Jet_corr_JECDown"][jetInd1] / f["Jet_corr"][jetInd1])<<std::endl;
     *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
     if (cursyst->name != "nominal") {
         *f[Form("H_mass_%s",cursyst->name.c_str())] = Hbb.M();
@@ -863,7 +872,8 @@ bool VHbbAnalysis::ElectronSelection(){
             && f["selLeptons_pt"][i]      > *f["eptcut"] 
             && fabs(f["selLeptons_eta"][i]) < *f["eletacut"]
             && f["selLeptons_relIso03"][i]< *f["erelisocut"]
-            && in["selLeptons_eleCutIdSpring15_25ns_v1"][i] >= *f["elidcut"]
+            //&& in["selLeptons_eleCutIdSpring15_25ns_v1"][i] >= *f["elidcut"]
+            && in["selLeptons_tightId"][i] >= *f["elidcut"]
             ){
             if (f["selLeptons_pt"][i] > elMaxPt) {
                 elMaxPt = f["selLeptons_pt"][i];
@@ -884,7 +894,7 @@ bool VHbbAnalysis::MuonSelection(){
         std::cout<<"*in[\"nselLeptons\"] "<<*in["nselLeptons"]<<std::endl;
         std::cout<<"d[\"selLeptons_pt\"][0] "<<f["selLeptons_pt"][0]<<std::endl;
         std::cout<<"in[\"selLeptons_pdgId\"] "<<in["selLeptons_pdgId"][0]<<std::endl;
-        std::cout<<"d[\"selLeptons_relIso04\"] "<<f["selLeptons_relIso03"][0]<<std::endl;
+        std::cout<<"d[\"selLeptons_relIso04\"] "<<f["selLeptons_relIso04"][0]<<std::endl;
         std::cout<<"*d[\"met_pt\"] "<<*f["met_pt"]<<std::endl;
     }
     
@@ -897,7 +907,7 @@ bool VHbbAnalysis::MuonSelection(){
         if(fabs(in["selLeptons_pdgId"][i])==13 
             && f["selLeptons_pt"][i]      > *f["muptcut"]
             && fabs(f["selLeptons_eta"][i]) < *f["muetacut"]
-            && f["selLeptons_relIso03"][i]< *f["murelisocut"]
+            && f["selLeptons_relIso04"][i]< *f["murelisocut"]
             && in["selLeptons_tightId"][i] >= *f["muidcut"]
             ){
             if (f["selLeptons_pt"][i] > muMaxPt) {
