@@ -91,7 +91,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun="", isBatch=0):
                             am.outputTreeName=settings["outputname"]
                     # if data and fileToRun is not empty then only run that file
                     try:
-                        print "adding file, isBatch",isBatch
+                        #print "adding file, isBatch",isBatch
                         samplecon.AddFile(filename,isBatch)
                         addedAtLeastOneFile=True
                     except:
@@ -410,7 +410,8 @@ def SetupSyst(lines):
                 for smear in value.split(","):
                     syst.AddSmear(float(smear))
             elif key=="scaleVar":
-                syst.scaleVar=value
+                for scalevar in value.split(","):
+                    syst.AddScaleVar(scalevar)
             else:
                 print "In systematics file, what is:",item
 

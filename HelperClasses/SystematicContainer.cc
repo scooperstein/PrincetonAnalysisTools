@@ -11,7 +11,6 @@ inline SystematicContainer::SystematicContainer()
 {
     name = "";
     apply=true;
-    scaleVar = "";
 }
 
 inline void SystematicContainer::TurnOff(){
@@ -24,6 +23,10 @@ inline void SystematicContainer::AddBranchName(std::string brnchName){
 
 inline void SystematicContainer::AddScale(float newScale){
     scales.push_back(newScale);
+}
+
+inline void SystematicContainer::AddScaleVar(std::string newScaleVar){
+    scaleVar.push_back(newScaleVar);
 }
 
 inline void SystematicContainer::AddSmear(float newSmear){
