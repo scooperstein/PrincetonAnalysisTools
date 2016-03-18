@@ -106,7 +106,7 @@ sampleMap["QCD"]  = [24,25,26,27,28,29,30,31]
 
 allSampInd = [] # list of all indices for all backgrounds
 for sample in sampleMap:
-    if (sample == "WH" or sample == "ZH"): continue
+    if (sample == "WH" or sample == "ZH" or sample == "data_obs"): continue
     allSampInd.extend(sampleMap[sample])
 sampleMap["Bkg"] = allSampInd
 if not args.doData:

@@ -7,7 +7,7 @@
 
 
 ptSplit=180
-if [$4]; then
+if [ ! -z $4 ]; then
     ptSplit=$4
 fi
 
@@ -35,11 +35,17 @@ python ../printYields.py -c  WenHighPt -i hists_WenHightPt.root -s ../systematic
 python ../printYields.py -c WenLowPt -i hists_WenLowPt.root -s ../systematics_Wen.txt -b  binStats_WenLowPt.txt
 
 # Control Region Datacards
-export SFs_Wmn="TT_Wmn,Wj0b_Wmn,Wj1b_Wmn,Wj2b_Wmn"
-export SFs_Wen="TT_Wen,Wj0b_Wen,Wj1b_Wen,Wj2b_Wen"
-if [ $3]; then
-    export SFs_Wmn="TT_Wln,Wj0b_Wln,Wj1b_Wln,Wj2b_Wln"
+#export SFs_Wmn="TT_Wmn,Wj0b_Wmn,Wj1b_Wmn,Wj2b_Wmn"
+export SFs_Wmn="TT_Wmn,Wj0b_Wmn,Wj1b_Wj2b_Wmn"
+#export SFs_Wen="TT_Wen,Wj0b_Wen,Wj1b_Wen,Wj2b_Wen"
+export SFs_Wen="TT_Wen,Wj0b_Wen,Wj1b_Wj2b_Wen"
+echo "arg 3 = ${3}"
+if [ $3 -eq '1' ]
+then
+    #export SFs_Wmn="TT_Wln,Wj0b_Wln,Wj1b_Wln,Wj2b_Wln"
+    export SFs_Wmn="TT_Wln,Wj0b_Wln,Wj1b_Wj2b_Wln"
     export SFs_Wen=$SFs_Wmn
+fi
 
 python ../printYields.py -c ttWmn -i hists_ttWmn.root -s ../systematics_Wmn.txt -b binStats_ttWmn.txt -r $SFs_Wmn 
 python ../printYields.py -c ttWen -i hists_ttWen.root -s ../systematics_Wen.txt -b binStats_ttWen.txt -r $SFs_Wen

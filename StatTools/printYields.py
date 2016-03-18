@@ -93,17 +93,9 @@ systematics = ""
 
 scale_factors = args.rateParams.split(',')
 for scale_factor in scale_factors:
-    SF_sample = ""
     for sample in samples:
         if (scale_factor.find(sample) != -1):
-            SF_sample += sample + "," 
-    SF_sample = SF_sample[:-1] # remove final comma 
-    if (SF_sample == ""):
-        print "Want to include scale factor in datacard %s, but it does not match with any sample in the list of samples!" % scale_factor
-        print samples
-        continue
-    sf_line = "SF_%s  rateParam  %s %s  1\n" % (scale_factor,cats[0], SF_sample)
-    systematics += sf_line
+            systematics += "SF_%s  rateParam  %s %s  1\n" % (scale_factor,cats[0], sample) 
 
 nSys = 0
 
