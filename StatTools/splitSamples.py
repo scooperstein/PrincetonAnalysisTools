@@ -15,6 +15,8 @@ parser.add_argument('-c', '--catName', type=str, default="Cat", help="The catego
 parser.add_argument('-p', '--preselection', type=str, default="", help="The category selection cuts on top of ntuple")
 parser.add_argument('-s', '--systematics', type=str, default="", help="The systematics config file")
 parser.add_argument('-w', '--weights', type=str, default="", help="Comma-separated list of weights to apply on top of nominal 'weight'")
+parser.add_argument('-d', '--doData', type=bool, default=False, help="If true run on real data, if false compute data as sum of background pdf's")
+parser.add_argument('-v', '--varname', type=str, default="CMS_vhbb_BDT_Wln_13TeV", help="The name of the variable shape which goes into the histograms and will be fitted")
 args = parser.parse_args()
 print args
 
@@ -67,7 +69,8 @@ print weight_string
 tree = ifile.Get("tree")
 #bdtname = "BDT_wMass_Dec14_3000_5"
 #bdtname = "BDT_wMass_Dec4"
-bdtname = "CMS_vhbb_BDT_Wln_13TeV"
+#bdtname = "CMS_vhbb_BDT_Wln_13TeV"
+bdtname = args.varname # not necessarily the bdt shape, can fit whatever shape is specified
 #nBins = 1000
 nBins = 20
 tolerance = 0.5 # dB/B tolerance for bin-by-bin stat. uncertainties
@@ -76,26 +79,38 @@ sampleMap = {} # map sampleNames to list of sampleIndex's
 sampleMapAltModel = {} # alternate MC samples for model shape systematics
 
 #sampleMap["data_obs"] = [16,17,10,11,20,21,50,51,52,2200,2201,2202,2300,2301,2302,3500,3501,3502,4400,4401,4402,4500,4501,4502,4600,4601,4602,4700,4701,4702,24,25,26,27,28,29,30,31] # dummy filler until we unblind
-sampleMap["data_obs"] = [50,51,52]
-#sampleMap["TT"] = [50,51,52]
-sampleMap["TT"] = [12]
-sampleMapAltModel["TT"] = [13]
-sampleMap["s_Top"] = [16,17,10,11,20,21]
+#sampleMap["data_obs"] = [50,51,52]
+sampleMap["data_obs"] = [0]
+sampleMap["TT"] = [50,51,52]
+#sampleMap["TT"] = [12]
+sampleMapAltModel["TT"] = [120]
+sampleMap["s_Top"] = [16,17,20,21]
 sampleMap["WH"] = [-12501]
+sampleMapAltModel["WH"] = [-125010, -125011]
 sampleMap["ZH"] = [-12502]
 sampleMap["Wj0b"] = [2200,4400,4500,4600,4700]
-#sampleMapAltModel["Wj0b"] = [2200]
+sampleMapAltModel["Wj0b"] = [6000]
 sampleMap["Wj1b"] = [2201,4401,4501,4601,4701]
-#sampleMapAltModel["Wj1b"] = [2201]
+sampleMapAltModel["Wj1b"] = [6001]
 sampleMap["Wj2b"] = [2202,4402,4502,4602,4702]
-#sampleMapAltModel["Wj2b"] = [2202]
-sampleMap["VVHF"] = [3501,3502]
-sampleMap["VVLF"] = [3500]
+sampleMapAltModel["Wj2b"] = [6002]
+sampleMap["VVHF"] = [3501,3502,3601,3602,3701,3702]
+sampleMap["VVLF"] = [3500,3600,3700]
 sampleMap["QCD"]  = [24,25,26,27,28,29,30,31]
 #sampleMap["Zj0b"] = [2300]
 #sampleMap["Zj1b"] = [2301]
 #sampleMap["Zj2b"] = [2302]
+#sampleMapAltModel["Zj0b"] = [23000]
+#sampleMapAltModel["Zj1b"] = [23001]
+#sampleMapAltModel["Zj2b"] = [23002]
 
+allSampInd = [] # list of all indices for all backgrounds
+for sample in sampleMap:
+    if (sample == "WH" or sample == "ZH"): continue
+    allSampInd.extend(sampleMap[sample])
+sampleMap["Bkg"] = allSampInd
+if not args.doData:
+    sampleMap["data_obs"] = allSampInd # fake data as sum of all background MC
 
 def makeCutString(sample, sMap):
     cutString = presel + "&&("
@@ -109,7 +124,9 @@ def makeCutString(sample, sMap):
 hBkg = ROOT.TH1F("hBkg","hBkg",nBins,-1,1)
 hSig = ROOT.TH1F("hSig","hSig",nBins,-1,1)
 #tree.Draw("%s>>hBkg" % bdtname,"((%s)&&sampleIndex>0)*weight*(2.2/1.28)" % presel)
-tree.Draw("%s>>hBkg" % bdtname,"((%s)&&sampleIndex>0&&sampleIndex!=13)*bTagWeightNew*%s" % (presel,weight_string))
+bkgCutString = makeCutString("Bkg", sampleMap)
+print bkgCutString
+tree.Draw("%s>>hBkg" % bdtname,"((%s)&&(%s))*bTagWeightNew*%s" % (presel,bkgCutString,weight_string))
 tree.Draw("%s>>hSig" % bdtname,"((%s)&&sampleIndex==-12501)*bTagWeightNew*%s" % (presel,weight_string))
 binBoundaries = numpy.zeros(nBins+1,dtype=float)
 binBoundaries[0] = -1.0
@@ -144,6 +161,7 @@ ofile = ROOT.TFile("hists_%s.root" % catName, "RECREATE")
 otextfile = open("binStats_%s.txt" % catName, "w")
 hBkg.Write()
 for sample in sampleMap:
+    if (sample == "Bkg"): continue
     #cutString = presel + "&&("
     #for index in sampleMap[sample]:
     #        cutString += "(sampleIndex==%i)||" % index
@@ -156,7 +174,11 @@ for sample in sampleMap:
     hBDT = ROOT.TH1F(sample,sample,nBins,binBoundaries)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight" % cutString)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight*(2.2/1.28)" % cutString) # temp hack to avoid rerunning just to change lumi
-    tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)*bTagWeightNew*%s" % (cutString,weight_string)) # temp hack to avoid rerunning just to change lumi
+    if (sample == "data_obs" and args.doData):
+        # make sure we don't weight actual data by puWeight, SF's, etc.
+        tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString)) # temp hack to avoid rerunning just to change lumi
+    else:
+        tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)*bTagWeightNew*%s" % (cutString,weight_string)) # temp hack to avoid rerunning just to change lumi
     #hBDT = hBDT.Rebin(nBins, "", binBoundaries)
     # Add bin-by-bin stat. uncertainties
     if (sample not in ["WH","ZH","data_obs"]):
