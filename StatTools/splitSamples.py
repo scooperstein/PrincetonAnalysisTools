@@ -174,7 +174,7 @@ for sample in sampleMap:
     hBDT = ROOT.TH1F(sample,sample,nBins,binBoundaries)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight" % cutString)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight*(2.2/1.28)" % cutString) # temp hack to avoid rerunning just to change lumi
-    if (sample == "data_obs" and args.doData):
+    if (sample == "data_obs" and not args.doData):
         # make sure we don't weight actual data by puWeight, SF's, etc.
         tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString)) # temp hack to avoid rerunning just to change lumi
     else:

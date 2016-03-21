@@ -15,10 +15,10 @@ echo "ptSplit = "
 echo "$ptSplit"
 
 # Signal Region Workspaces
-python ../splitSamples.py -i $1 -c WmnLowPt -p "cutFlow>=9&&isWmunu&&V_pt>100&&V_pt<${ptSplit}&&Vtype==2" -s ../systematics_Wmn.txt -w SF_MuIDLoose,SF_MuIsoLoose,SF_SMuTrig,weight_PU
-python ../splitSamples.py -i $1 -c WmnHighPt -p "cutFlow>=9&&isWmunu&&V_pt>${ptSplit}&&Vtype==2" -s ../systematics_Wmn.txt -w SF_MuIDLoose,SF_MuIsoLoose,SF_SMuTrig,weight_PU
-python ../splitSamples.py -i $1 -c WenLowPt -p "cutFlow>=9&&isWenu&&V_pt>100&&V_pt<${ptSplit}&&Vtype==3" -s  ../systematics_Wen.txt -w SF_ElIdMVATrigWP80,weight_PU
-python ../splitSamples.py -i $1 -c WenHighPt -p "cutFlow>=9&&isWenu&&V_pt>=${ptSplit}&&Vtype==3" -s ../systematics_Wen.txt -w SF_ElIdMVATrigWP80,weight_PU
+python ../splitSamples.py -i $1 -c WmnLowPt -p "cutFlow>=9&&isWmunu&&V_pt>100&&V_pt<${ptSplit}&&Vtype==2" -s ../systematics_Wmn.txt -w SF_MuIDLoose,SF_MuIsoLoose,SF_SMuTrig,weight_PU -d True
+python ../splitSamples.py -i $1 -c WmnHighPt -p "cutFlow>=9&&isWmunu&&V_pt>${ptSplit}&&Vtype==2" -s ../systematics_Wmn.txt -w SF_MuIDLoose,SF_MuIsoLoose,SF_SMuTrig,weight_PU -d True
+python ../splitSamples.py -i $1 -c WenLowPt -p "cutFlow>=9&&isWenu&&V_pt>100&&V_pt<${ptSplit}&&Vtype==3" -s  ../systematics_Wen.txt -w SF_ElIdMVATrigWP80,weight_PU -d True
+python ../splitSamples.py -i $1 -c WenHighPt -p "cutFlow>=9&&isWenu&&V_pt>=${ptSplit}&&Vtype==3" -s ../systematics_Wen.txt -w SF_ElIdMVATrigWP80,weight_PU -d True
 
 ## Control Regions Workspaces
 python ../splitSamples.py -i $2 -c ttWmn -p "isWmunu&&V_pt>100&&Vtype==2&&controlSample==1" -s ../systematics_Wmn.txt -w SF_MuIDLoose,SF_MuIsoLoose,SF_SMuTrig,weight_PU -d True -v Jet_btagCSV[hJetInd2]
@@ -31,19 +31,19 @@ python ../splitSamples.py -i $2 -c wlfWen -p "isWenu&&V_pt>100&&Vtype==3&&contro
 # Signal Region Datacards
 python ../printYields.py -c WmnHighPt -i hists_WmnHighPt.root -s ../systematics_Wmn.txt -b binStats_WmnHighPt.txt
 python ../printYields.py -c WmnLowPt -i hists_WmnLowPt.root -s ../systematics_Wmn.txt -b binStats_WmnLowPt.txt
-python ../printYields.py -c  WenHighPt -i hists_WenHightPt.root -s ../systematics_Wen.txt -b binStats_WenHighPt.txt
+python ../printYields.py -c WenHighPt -i hists_WenHighPt.root -s ../systematics_Wen.txt -b binStats_WenHighPt.txt
 python ../printYields.py -c WenLowPt -i hists_WenLowPt.root -s ../systematics_Wen.txt -b  binStats_WenLowPt.txt
 
 # Control Region Datacards
-#export SFs_Wmn="TT_Wmn,Wj0b_Wmn,Wj1b_Wmn,Wj2b_Wmn"
-export SFs_Wmn="TT_Wmn,Wj0b_Wmn,Wj1b_Wj2b_Wmn"
-#export SFs_Wen="TT_Wen,Wj0b_Wen,Wj1b_Wen,Wj2b_Wen"
-export SFs_Wen="TT_Wen,Wj0b_Wen,Wj1b_Wj2b_Wen"
+export SFs_Wmn="TT_Wmn,Wj0b_Wmn,Wj1b_Wmn,Wj2b_Wmn"
+#export SFs_Wmn="TT_Wmn,Wj0b_Wmn,Wj1b_Wj2b_Wmn"
+export SFs_Wen="TT_Wen,Wj0b_Wen,Wj1b_Wen,Wj2b_Wen"
+#export SFs_Wen="TT_Wen,Wj0b_Wen,Wj1b_Wj2b_Wen"
 echo "arg 3 = ${3}"
 if [ $3 -eq '1' ]
 then
-    #export SFs_Wmn="TT_Wln,Wj0b_Wln,Wj1b_Wln,Wj2b_Wln"
-    export SFs_Wmn="TT_Wln,Wj0b_Wln,Wj1b_Wj2b_Wln"
+    export SFs_Wmn="TT_Wln,Wj0b_Wln,Wj1b_Wln,Wj2b_Wln"
+    #export SFs_Wmn="TT_Wln,Wj0b_Wln,Wj1b_Wj2b_Wln"
     export SFs_Wen=$SFs_Wmn
 fi
 
@@ -59,5 +59,6 @@ python ../printYields.py -c wlfWen -i hists_wlfWen.root -s ../systematics_Wen.tx
 #combineCards.py WmnLowPt=vhbb_WmnLowPt_13TeV.txt WmnHighPt=vhbb_WmnHighPt_13TeV.txt > vhbb_Wmn_13TeV.txt
 #combineCards.py WenLowPt=vhbb_WenLowPt_13TeV.txt WenHighPt=vhbb_WenHighPt_13TeV.txt WmnLowPt=vhbb_WmnLowPt_13TeV.txt WmnHighPt=vhbb_WmnHighPt_13TeV.txt > vhbb_Wln_13TeV.txt
 #combineCards.py ttWmn=vhbb_ttWmn_13TeV.txt ttWen=vhbb_ttWen_13TeV.txt whfWmn=vhbb_whfWmn_13TeV.txt whfWen=vhbb_whfWen_13TeV.txt wlfWmn=vhbb_wlfWmn_13TeV.txt wlfWen=vhbb_wlfWen_13TeV.txt > vhbb_CS_13TeV.txt
+#combineCards.py ttWmn=vhbb_ttWmn_13TeV.txt ttWen=vhbb_ttWen_13TeV.txt whfWmn=vhbb_whfWmn_13TeV.txt whfWen=vhbb_whfWen_13TeV.txt wlfWmn=vhbb_wlfWmn_13TeV.txt wlfWen=vhbb_wlfWen_13TeV.txt WmnLowPt=vhbb_WmnLowPt_13TeV.txt WmnHighPt=vhbb_WmnHighPt_13TeV.txt WenLowPt=vhbb_WenLowPt_13TeV.txt WenHighPt=vhbb_WenHighPt_13TeV.txt > vhbb_Wln_13TeV.txt
 #combine -M MaxLikelihoodFit vhbb_CS_13TeV.txt --saveShapes --saveWithUncertainties -v 3 --expectSignal=0
 #combine -M ProfileLikelihood -m 125 --signif --pvalue -t -1 --expectSignal=1 vhbb_Wln_13TeV.txt

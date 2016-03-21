@@ -171,7 +171,7 @@ dc_string += "jmax %i number of processes minus 1\n" % (len(samples) - 1)
 dc_string += "kmax %i number of nuisance parameters\n" % nSys
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 for i in range(len(cats)):
-    dc_string += "shapes *           %s    hists_%s.root $PROCESS $PROCESS_$SYSTEMATIC\n" % (cat_labels[i],cats[i])
+    dc_string += "shapes *           %s    %s $PROCESS $PROCESS_$SYSTEMATIC\n" % (cat_labels[i],args.ihistfile)
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 dc_string += "bin          "
 for label in cat_labels:
