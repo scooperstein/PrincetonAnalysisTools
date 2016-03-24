@@ -14,6 +14,7 @@ parser.add_option("-b", "--batch", dest="runBatch", default=0, type=int,
 parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
                   help="Specify label for condor jobs. Only to be used when running batch jobs"
 )
+parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=1, type=int, help="Number of input files per batch job")
 (options, args) = parser.parse_args()
 
 ROOT.gSystem.Load("AnalysisDict.so")
@@ -44,26 +45,38 @@ else:
 
     submitFiles = []
 
-    #for sampleName in am.ListSampleNames(): 
+    #for sampleName in am.ListSampleNames():
+    nFilesPerJob = options.nFilesPerJob 
     for sample in am.samples:
         sampleName = sample.sampleName
         print sampleName
         os.system("mkdir -p %s/%s" % (jobName,sampleName))
-        nFiles = 0
-        for filename in sample.files:
-            nFiles += 1
-            fname = "%s/%s/job%i.submit" % (jobName, sampleName,nFiles)
+        nProcJobs = 0
+        nFiles = len(sample.files)
+        nJobs = nFiles / nFilesPerJob + 1
+        #for filename in sample.files:
+        for i in range(nJobs):
+            filesToRun = ""
+            for j in range(nFilesPerJob):
+                index = i*nFilesPerJob + j
+                if (index >= nFiles): continue
+                filesToRun += "%s," % sample.files[index]
+            filesToRun = filesToRun[:-1] # remove trailing ','
+            if (filesToRun == ""): continue
+
+            nProcJobs += 1
+            fname = "%s/%s/job%i.submit" % (jobName, sampleName,nProcJobs)
             submitFile = open(fname, "w")
             content =  "universe = vanilla\n"
             content += "Executable = %s/condor_runscript.sh\n" % jobName
-            content += "Arguments = %s %s %s output_%s_%i.root\n" % (options.configFile, sampleName, filename,sampleName, nFiles)
-            #content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nFiles)
+            content += "Arguments = %s %s %s output_%s_%i.root\n" % (options.configFile, sampleName, filesToRun,sampleName, nProcJobs)
+            #content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nProcJobs)
             #content += "Requirements   =  OpSys == 'LINUX' && (Arch =='INTEL' || Arch =='x86_64')\n"
             content += "initialdir = %s/%s\n" % (jobName,sampleName)
             content += "Should_Transfer_Files = YES\n"
-            content += "Output = %i.stdout\n" % nFiles
-            content += "Error  = %i.stderr\n" % nFiles
-            content += "Log    = %i.log\n"    % nFiles
+            content += "Output = %i.stdout\n" % nProcJobs
+            content += "Error  = %i.stderr\n" % nProcJobs
+            content += "Log    = %i.log\n"    % nProcJobs
             content += "Notification = never\n"
             content += "WhenToTransferOutput=On_Exit\n"
             #content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../aux/MuonIso_Z_RunCD_Reco74X_Dec1.json,../../aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json,../../aux/MuonID_Z_RunCD_Reco74X_Dec1.json,../../aux/CutBasedID_TightWP.json,../../aux/CutBasedID_LooseWP.json,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt,../../cfg/scalefactors.txt\n" % options.configFile
@@ -109,14 +122,13 @@ else:
         echo "running RunSample.py"
         echo $ORIG_DIR/$4
         python RunSample.py $1 $2 $3 $ORIG_DIR/$4
-        ls
         echo "all done!" ''' % (os.getcwd(), os.getcwd() )
 
     runscript = open("%s/condor_runscript.sh" % (jobName) , "w")
     runscript.write(condor_runscript_text)
     runscript.close()
 
-    # Send job to condor
+    ## Send job to condor
     print "Submit files created, sending jobs to Condor..."
     for file in submitFiles:
         print("condor_submit %s" % file)

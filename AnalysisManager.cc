@@ -4,6 +4,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
 #include <TFile.h>
@@ -415,28 +416,39 @@ std::vector<std::string> AnalysisManager::ListSampleNames() {
 // Process all input samples and all events
 void AnalysisManager::Loop(std::string sampleName, std::string filename, std::string ofilename){
     // Specify sample name if we want to run on only a particular sample, specify
-    // filename if we want to run only on a specific file from that sample.
+    // filenames if we want to run only on specific files from that sample.
+    std::vector<std::string> filenames;
+    if (!filename.empty()) {
+        std::stringstream ss(filename);
+        std::string file;
+        while (std::getline(ss, file, ','))
+        {
+            filenames.push_back(file);
+        }
+    }
     if(!sampleName.empty()){
         bool sampleFound=false;
         for(int i=0; i<(int)samples.size(); i++) {
             if(sampleName == samples[i].sampleName) {
                 sampleFound=true;
                 SampleContainer* onlySample = new SampleContainer(samples[i]);
-                if (!filename.empty()) {
+                if (filenames.size() > 0) {
                     // keep track of total number of processed events for the sample
                     // so we still get the weight right
                     int processedEvents = onlySample->processedEvents;
                     std::vector<std::string> sampleFiles = onlySample->files;
                     onlySample->files.clear();
                     onlySample->sampleChain = new TChain("tree");
-                    if (std::find(sampleFiles.begin(), sampleFiles.end(), filename) != sampleFiles.end() ) {
-                        onlySample->AddFile(filename.c_str());
-                    }
-                    else {
-                        std::cout<<"Analysis Manager tried to run on file "<<filename<<" in sample "<<sampleName<<", but this file is not in the sample's list of files. Skipping..."<<std::endl;
-                        std::cout<<"Let's print the full list of files for this sample..."<<std::endl;
-                        for (int k=0; k<(int)sampleFiles.size(); k++) {
-                            std::cout<<sampleFiles[k]<<std::endl;
+                    for (int j=0; j<(int)filenames.size(); j++) {
+                        if (std::find(sampleFiles.begin(), sampleFiles.end(), filenames[j]) != sampleFiles.end() ) {
+                            onlySample->AddFile(filenames[j].c_str());
+                        }
+                        else {
+                            std::cout<<"Analysis Manager tried to run on file "<<filenames[j]<<" in sample "<<sampleName<<", but this file is not in the sample's list of files. Skipping..."<<std::endl;
+                            std::cout<<"Let's print the full list of files for this sample..."<<std::endl;
+                            for (int k=0; k<(int)sampleFiles.size(); k++) {
+                                std::cout<<sampleFiles[k]<<std::endl;
+                            }
                         }
                     }
                     onlySample->processedEvents = processedEvents;
