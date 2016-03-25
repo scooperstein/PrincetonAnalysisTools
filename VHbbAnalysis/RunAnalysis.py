@@ -14,7 +14,7 @@ parser.add_option("-b", "--batch", dest="runBatch", default=0, type=int,
 parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
                   help="Specify label for condor jobs. Only to be used when running batch jobs"
 )
-parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=1, type=int, help="Number of input files per batch job")
+parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=10, type=int, help="Number of input files per batch job")
 (options, args) = parser.parse_args()
 
 ROOT.gSystem.Load("AnalysisDict.so")
