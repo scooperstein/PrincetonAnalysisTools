@@ -1,30 +1,49 @@
 import ROOT
-import sys
+#import sys
+import argparse
+
+parser = argparse.ArgumentParser("Create datacards from histograms")
+parser.add_argument('-c', '--channelName', type=str, default="Chan", help="The label for the channel in the datacard")
+parser.add_argument('-i', '--ihistfile', type=str, default="hists.root", help="The input root file with the histograms")
+parser.add_argument('-s', '--systematics', type=str, default="", help="The systematics config. file (default no systematics)")
+parser.add_argument('-b', '--binstats', type=str, default="", help="Text file listing all the individual bin. stat. uncertainties to include")
+parser.add_argument('-r', '--rateParams', type=str, default="", help="Comma-separated list of samples for which to include freely floating scale factors") 
+args = parser.parse_args()
+
 
 rates = "rate                                                        " # yields in datacard format
 dc_string = "" # write datacard
 
 #ifile = ROOT.TFile("hists.root")
 
-cats = ["WenLowPt","WenHighPt","WmnLowPt","WmnMidPt","WmnHighPt"]
+#cats = ["WenLowPt","WenHighPt","WmnLowPt","WmnMidPt","WmnHighPt"]
 #cats = ["WenLowPt_0","WenLowPt_1","WenHighPt_0","WenHighPt_1","WmnLowPt_0","WmnLowPt_1","WmnMidPt_0","WmnMidPt_1","WmnHighPt_0","WmnHighPt_1"]
-cat_labels = ["ch1_Wenu","ch1_Wenu3","ch2_Wmunu","ch2_Wmunu2","ch2_Wmunu3"]
+#cat_labels = ["ch1_Wenu","ch1_Wenu3","ch2_Wmunu","ch2_Wmunu2","ch2_Wmunu3"]
 #cat_labels = ["ch1_WenuL","ch1_WenuH","ch1_Wenu3L","ch1_Wenu3H","ch2_WmunuL","ch2_WmunuH","ch2_Wmunu2L","ch2_Wmunu2H","ch2_Wmunu3L","ch2_Wmunu3H"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD"]
 #samples = ["WH","TT","s_Top"]
 #samples = ["WH","TT"]
 #cats = ["WmnLowPt","WmnMidPt", "WmnHighPt"]
 #cat_labels = ["ch2_Wmunu", "ch2_Wmunu2","ch2_Wmunu3"]
 #cats = ["WenLowPt", "WenHighPt"]
 #cat_labels = ["ch1_Wenu","ch1_Wenu3"]
-if (len(sys.argv) > 2):
-    s = sys.argv[2].strip(',')
-    cats = s.split(',')
-    print cats
-    cat_labels = list(cats)
+#if (len(sys.argv) > 2):
+#    s = sys.argv[2].strip(',')
+#    cats = s.split(',')
+#    print cats
+#    cat_labels = list(cats)
+
+# It probably makes sense to just run this script once per channel and
+# then combine the datacards with combineDatacard.py, but the code is set
+# up for multiple channels at a time if ever necessary.
+cats = []
+cat_labels = []
+cats.append(args.channelName)
+cat_labels.append(args.channelName)
 
 fake_obs_line = "observation  "
 
@@ -33,10 +52,12 @@ for i in range(len(cats)):
     print "Calculating Yields for Category: %s: %s" % (cats[i],cat_labels[i])
     nBkgTot = 0.0;
     nSigTot = 0.0;
-    ifile = ROOT.TFile("hists_%s.root" % cats[i])
+    #ifile = ROOT.TFile("hists_%s.root" % cats[i])
+    ifile = ROOT.TFile(args.ihistfile, "r")
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
-    cat_fake_obs_line = ""
+    nData = ifile.Get("data_obs").Integral()
+    cat_fake_obs_line = "   %.4f" % nData
     for sample in samples: 
         print sample
         #nyield = ifile.Get("%s/%s" % (cat,sample)).Integral()
@@ -54,7 +75,6 @@ for i in range(len(cats)):
             cat_rates += "%.4f    " % nyield
         else:
             cat_rates += "%.4f   " % nyield
-        if (sample == "TT"): cat_fake_obs_line += "   %.4f" % nyield
     if not zeroYield: 
         rates += cat_rates
         fake_obs_line += cat_fake_obs_line
@@ -70,9 +90,17 @@ for cat in cats_to_remove:
 print rates
 
 systematics = ""
+
+scale_factors = args.rateParams.split(',')
+for scale_factor in scale_factors:
+    for sample in samples:
+        if (scale_factor.find(sample) != -1):
+            systematics += "SF_%s  rateParam  %s %s  1\n" % (scale_factor,cats[0], sample) 
+
 nSys = 0
-if (len(sys.argv) > 3):
-    sys_file = open(sys.argv[3],"r")
+
+if (args.systematics != ""):
+    sys_file = open(args.systematics,"r")
     for line in sys_file:
         if (line[0] == '#'): continue
         line = line.strip()
@@ -95,6 +123,7 @@ if (len(sys.argv) > 3):
             # separate values for different processes
             vals = params[2].split(',')
         sysLine = name
+        
         for i in range(48 - len(name)):
             sysLine += " "
         sysLine += sysType
@@ -112,34 +141,37 @@ if (len(sys.argv) > 3):
         sysLine += "\n"
         systematics += sysLine
 
-for cat in cat_labels:
-    try:
-        binStats_file = open("binStats_%s.txt" % cat,"r")
-    except FileOpenError:
-        continue
-    for line in binStats_file:
-        if (line[0] == '#'): continue
-        line = line.strip()
-        sysLine = line
-        for i in range(48 - len(line)):
-            sysLine += " "
-        sysLine += "shape      "
-        nSys += 1
-        for cat_i in cat_labels:
-            for sample in samples:
-                if (cat_i == cat and sysLine.find(sample) != -1):
-                    sysLine += "1.0        "
-                else:
-                    sysLine += "-           "
-        sysLine += "\n"
-        systematics += sysLine
+if (args.binstats != ""):
+    for cat in cat_labels:
+        try:
+            binStats_file = open(args.binstats, "r")
+            #binStats_file = open("binStats_%s.txt" % cat,"r")
+        except FileOpenError:
+            print "Couldn't open binstats file %s" % args.binstats
+            continue
+        for line in binStats_file:
+            if (line[0] == '#'): continue
+            line = line.strip()
+            sysLine = line
+            for i in range(48 - len(line)):
+                sysLine += " "
+            sysLine += "shape      "
+            nSys += 1
+            for cat_i in cat_labels:
+                for sample in samples:
+                    if (cat_i == cat and sysLine.find(sample) != -1):
+                        sysLine += "1.0        "
+                    else:
+                        sysLine += "-           "
+            sysLine += "\n"
+            systematics += sysLine
 
 dc_string += "imax %i number of bins\n" % len(cats)
 dc_string += "jmax %i number of processes minus 1\n" % (len(samples) - 1)
 dc_string += "kmax %i number of nuisance parameters\n" % nSys
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 for i in range(len(cats)):
-    dc_string += "shapes *           %s    hists_%s.root $PROCESS $PROCESS_$SYSTEMATIC\n" % (cat_labels[i],cats[i])
+    dc_string += "shapes *           %s    %s $PROCESS $PROCESS_$SYSTEMATIC\n" % (cat_labels[i],args.ihistfile)
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 dc_string += "bin          "
 for label in cat_labels:
@@ -182,7 +214,7 @@ dc_string += "\n"
 
 dc_string += systematics
 
-ofile = open(sys.argv[1],"write")
+ofile = open("vhbb_%s_13TeV.txt" % args.channelName ,"write")
 ofile.write(dc_string)
 ofile.close()
 print dc_string

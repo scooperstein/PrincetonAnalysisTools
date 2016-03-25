@@ -13,12 +13,12 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=0
 
-def ReadTextFile(filename, filetype, samplesToRun="", fileToRun="", isBatch=0):
+def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
          print "samplesToRun is ", samplesToRun
-         print "fileToRun is ", fileToRun
+         print "filesToRun is ", filesToRun
 
     runSelectedSamples = False
     if (len(samplesToRun) > 0):
@@ -73,9 +73,9 @@ def ReadTextFile(filename, filetype, samplesToRun="", fileToRun="", isBatch=0):
                     samplecon.procEff = sample["procEff"]
                 #print "Reading",sample["name"],"with",len(sample["files"]),"files"
                 for filename in sample["files"]:
-                    #print filename,fileToRun
-                    if sample["type"]==0 and fileToRun!="":
-                        if filename!=fileToRun:
+                    #print filename,filesToRun
+                    if sample["type"]==0 and len(filesToRun)!=0:
+                        if filename not in filesToRun:
                             continue
                         else:
                             print "Files match!",filename
@@ -423,6 +423,7 @@ def SetupSyst(lines):
 def SetupSF(lines):
     SFs=[]
     for line in lines:
+        print line
         SF=ROOT.SFContainer()
         for item in line.split():
             key,value=item.split("=")
