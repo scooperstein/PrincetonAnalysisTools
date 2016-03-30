@@ -525,7 +525,9 @@ bool VHbbAnalysis::Analyze(){
     // jet pt
     // lepton pt, iso, id
     // met_pt > threshold
-    // deltaPhi(met,lep)
+    // deltaPhi(met,lep) -- NO
+            //&& ((*in["isWmunu"] && *f["lepMetDPhi"] < *f["muMetDPhiCut"])
+            //  || (*in["isWenu"] && *f["lepMetDPhi"] < *f["elMetDPhiCut"]))
     // V_pt > 100 and bb_mass<250
     bool baseCSSelection= 
             (*in["cutFlow"]!=0
@@ -534,8 +536,7 @@ bool VHbbAnalysis::Analyze(){
             && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
             && *f["met_pt"] > *f["metcut"]
             && *in["nAddLeptons"] == 0
-            && ((*in["isWmunu"] && *f["lepMetDPhi"] < *f["muMetDPhiCut"])
-              || (*in["isWenu"] && *f["lepMetDPhi"] < *f["elMetDPhiCut"]))
+            && (*in["isWmunu"] ||*in["isWenu"])
             && *f["V_pt"]> *f["vptcut"] && *f["H_mass"]<250 && *f["H_pt"] > *f["hptcut"]);
     
     *in["controlSample"]=-1; // maybe this should go much early (before any returns)
