@@ -558,6 +558,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     ApplySystematics();
                     if(debug>1000) std::cout<<"running analysis"<<std::endl;
                     bool select = Analyze();
+                    *b[Form("Pass_%s",cursyst->name.c_str())] = false;
                     if(select) { 
                         anyPassing=true;
                         *b[Form("Pass_%s",cursyst->name.c_str())] = true;

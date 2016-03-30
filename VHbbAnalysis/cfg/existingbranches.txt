@@ -2,6 +2,8 @@
 #     array +5;   vector +10;
 
 type=2  name=json
+type=1  name=lumi
+type=1  name=run
 type=1  name=HLT_WenHbbLowLumi
 type=1  name=HLT_WmnHbbLowLumi
 type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
@@ -9,6 +11,8 @@ type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_IsoMu20_v
 type=1  name=HLT_BIT_HLT_IsoTkMu20_v
+#type=2  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
+#type=2  name=HLT_BIT_HLT_Ele27_WP85_Gsf_v
 
 type=1  name=nPVs
 type=2  name=rho
@@ -21,24 +25,23 @@ type=2  name=bTagWeight_HFUp
 type=2  name=bTagWeight_HFDown
 type=2  name=bTagWeight_LFUp
 type=2  name=bTagWeight_LFDown
-#type=2  name=bTagWeight_Stats1Up
-#type=2  name=bTagWeight_Stats1Down
-#type=2  name=bTagWeight_Stats1LFUp
-#type=2  name=bTagWeight_Stats1LFDown
-#type=2  name=bTagWeight_Stats1HFUp
-#type=2  name=bTagWeight_Stats1HFDown
-#type=2  name=bTagWeight_Stats2Up
-#type=2  name=bTagWeight_Stats2Down
-#type=2  name=bTagWeight_Stats2LFUp
-#type=2  name=bTagWeight_Stats2LFDown
-#type=2  name=bTagWeight_Stats2HFUp
-#type=2  name=bTagWeight_Stats2HFDown
+type=2  name=bTagWeight_LFStats1Up
+type=2  name=bTagWeight_LFStats1Down
+type=2  name=bTagWeight_HFStats1Up
+type=2  name=bTagWeight_HFStats1Down
+type=2  name=bTagWeight_LFStats2Up
+type=2  name=bTagWeight_LFStats2Down
+type=2  name=bTagWeight_HFStats2Up
+type=2  name=bTagWeight_HFStats2Down
 type=2  name=bTagWeight_cErr1Up
 type=2  name=bTagWeight_cErr1Down
 type=2  name=bTagWeight_cErr2Up
 type=2  name=bTagWeight_cErr2Down
 type=2  name=bTagWeight_JESUp
 type=2  name=bTagWeight_JESDown
+
+type=2  name=htJet30
+type=2  name=mhtJet30
 
 type=2  name=VtypeSim                                   onlyMC=1
 type=1  name=nTrueInt                                   onlyMC=1
@@ -72,6 +75,75 @@ type=7  name=selLeptons_eleDPhi                 max=20
 type=7  name=selLeptons_eleHoE                  max=20
 type=7  name=selLeptons_eleMissingHits          max=20
 type=7  name=selLeptons_eleChi2                 max=20
+type=7  name=selLeptons_lostHits                max=20
+type=7  name=selLeptons_nStations               max=20
+type=7  name=selLeptons_trkKink                 max=20
+type=7  name=selLeptons_caloCompatibility       max=20
+type=7  name=selLeptons_globalTrackChi2         max=20
+type=7  name=selLeptons_nChamberHits            max=20
+type=7  name=selLeptons_isPFMuon                max=20
+type=7  name=selLeptons_isGlobalMuon            max=20
+type=7  name=selLeptons_isTrackerMuon           max=20
+type=7  name=selLeptons_pixelHits               max=20
+type=7  name=selLeptons_trackerLayers           max=20
+type=7  name=selLeptons_pixelLayers             max=20
+type=6  name=selLeptons_eleMVArawSpring15Trig   max=20
+type=6  name=selLeptons_eleMVAIdSpring15Trig      max=20
+type=6  name=selLeptons_eleMVArawSpring15NonTrig  max=20
+type=6  name=selLeptons_eleMVAIdSpring15NonTrig     max=20
+type=7  name=selLeptons_SF_IsoLoose             max=20
+type=7  name=selLeptons_SFerr_IsoLoose          max=20
+type=7  name=selLeptons_SF_IsoTight             max=20
+type=7  name=selLeptons_SFerr_IsoTight          max=20
+type=7  name=selLeptons_SF_IdCutLoose           max=20
+type=7  name=selLeptons_SFerr_IdCutLoose        max=20
+type=7  name=selLeptons_SF_IdCutTight           max=20
+type=7  name=selLeptons_SFerr_IdCutTight        max=20
+type=7  name=selLeptons_SF_IdMVALoose           max=20
+type=7  name=selLeptons_SFerr_IdMVALoose        max=20
+type=7  name=selLeptons_SF_IdMVATight           max=20
+type=7  name=selLeptons_SFerr_IdMVATight        max=20
+type=7  name=selLeptons_SF_HLT_RunD4p3          max=20
+type=7  name=selLeptons_SFerr_HLT_RunD4p3       max=20
+type=7  name=selLeptons_SF_HLT_RunD4p2          max=20
+type=7  name=selLeptons_SFerr_HLT_RunD4p2       max=20
+type=7  name=selLeptons_SF_HLT_RunC             max=20
+type=7  name=selLeptons_SFerr_HLT_RunC          max=20
+
+
+type=1  name=nvLeptons 
+type=7  name=vLeptons_pt                     max=20
+type=7  name=vLeptons_eta                     max=20
+type=7  name=vLeptons_phi                     max=20
+type=7  name=vLeptons_mass                    max=20
+type=7  name=vLeptons_relIso03                max=20
+type=7  name=vLeptons_relIso04                max=20
+type=6  name=vLeptons_pdgId                   max=20
+type=6  name=vLeptons_eleCutIdCSA14_25ns_v1   max=20
+type=6  name=vLeptons_eleCutIdSpring15_25ns_v1 max=20
+type=6  name=vLeptons_tightId                 max=20
+type=7  name=vLeptons_eleSieie                max=20
+type=7  name=vLeptons_eleDEta                 max=20
+type=7  name=vLeptons_eleDPhi                 max=20
+type=7  name=vLeptons_eleHoE                  max=20
+type=7  name=vLeptons_eleMissingHits          max=20
+type=7  name=vLeptons_eleChi2                 max=20
+type=7  name=vLeptons_lostHits                max=20
+type=7  name=vLeptons_nStations               max=20
+type=7  name=vLeptons_trkKink                 max=20
+type=7  name=vLeptons_caloCompatibility       max=20
+type=7  name=vLeptons_globalTrackChi2         max=20
+type=7  name=vLeptons_nChamberHits            max=20
+type=7  name=vLeptons_isPFMuon                max=20
+type=7  name=vLeptons_isGlobalMuon            max=20
+type=7  name=vLeptons_isTrackerMuon           max=20
+type=7  name=vLeptons_pixelHits               max=20
+type=7  name=vLeptons_trackerLayers           max=20
+type=7  name=vLeptons_pixelLayers             max=20
+type=6  name=vLeptons_eleMVArawSpring15Trig   max=20
+type=6  name=vLeptons_eleMVAIdSpring15Trig      max=20
+type=6  name=vLeptons_eleMVArawSpring15NonTrig  max=20
+type=6  name=vLeptons_eleMVAIdSpring15NonTrig     max=20
 
 type=2  name=H_mass                            
 type=2  name=H_pt
@@ -98,7 +170,11 @@ type=7  name=GenLepFromTop_mass                 max=10  onlyMC=1
 type=7  name=aLeptons_eta                       max=50
 type=6  name=aLeptons_pdgId                     max=50
 type=7  name=aLeptons_relIso03                  max=50
+type=7  name=aLeptons_relIso04                  max=50
+type=6  name=aLeptons_tightId                  max=50
 type=6  name=aLeptons_eleCutIdCSA14_25ns_v1     max=50
+type=6  name=aLeptons_eleMVArawSpring15Trig   max=50
+type=6  name=aLeptons_eleMVAIdSpring15Trig      max=50
 
 type=1  name=nGenWZQuark  onlyMC=1
 type=7  name=GenWZQuark_pt                      max=10  onlyMC=1
