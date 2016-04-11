@@ -16,7 +16,10 @@ parser.add_argument('-p', '--preselection', type=str, default="", help="The cate
 parser.add_argument('-s', '--systematics', type=str, default="", help="The systematics config file")
 parser.add_argument('-w', '--weights', type=str, default="", help="Comma-separated list of weights to apply on top of nominal 'weight'")
 parser.add_argument('-d', '--doData', type=bool, default=False, help="If true run on real data, if false compute data as sum of background pdf's")
+parser.add_argument('-t', '--dataTree', type=str, default="", help="If doData is true, you specify here the ntuple with the real data events")
 parser.add_argument('-v', '--varname', type=str, default="CMS_vhbb_BDT_Wln_13TeV", help="The name of the variable shape which goes into the histograms and will be fitted")
+parser.add_argument('-xl','--xlow', type=float, default=-1.0, help="Lowest bin edge of fitted distribution")
+parser.add_argument('-xh','--xhigh', type=float, default=1.0, help="Highest bin edge of fitted distribution")
 args = parser.parse_args()
 print args
 
@@ -72,7 +75,8 @@ tree = ifile.Get("tree")
 #bdtname = "CMS_vhbb_BDT_Wln_13TeV"
 bdtname = args.varname # not necessarily the bdt shape, can fit whatever shape is specified
 #nBins = 1000
-nBins = 20
+nBins = 20  # number of bins in final histogram after rebinning
+nBinsFine = 100 # number of candidate bin edges to begin with
 tolerance = 0.5 # dB/B tolerance for bin-by-bin stat. uncertainties
 
 sampleMap = {} # map sampleNames to list of sampleIndex's
@@ -83,7 +87,7 @@ sampleMapAltModel = {} # alternate MC samples for model shape systematics
 sampleMap["data_obs"] = [0]
 sampleMap["TT"] = [50,51,52]
 #sampleMap["TT"] = [12]
-sampleMapAltModel["TT"] = [120]
+sampleMapAltModel["TT"] = [12]
 sampleMap["s_Top"] = [16,17,20,21]
 sampleMap["WH"] = [-12501]
 sampleMapAltModel["WH"] = [-125010, -125011]
@@ -97,9 +101,9 @@ sampleMapAltModel["Wj2b"] = [6002]
 sampleMap["VVHF"] = [3501,3502,3601,3602,3701,3702]
 sampleMap["VVLF"] = [3500,3600,3700]
 sampleMap["QCD"]  = [24,25,26,27,28,29,30,31]
-#sampleMap["Zj0b"] = [2300]
-#sampleMap["Zj1b"] = [2301]
-#sampleMap["Zj2b"] = [2302]
+sampleMap["Zj0b"] = [2300,6100,6200,6300,6400]
+sampleMap["Zj1b"] = [2301,6101,6201,6301,6401]
+sampleMap["Zj2b"] = [2302,6102,6202,6302,6402]
 #sampleMapAltModel["Zj0b"] = [23000]
 #sampleMapAltModel["Zj1b"] = [23001]
 #sampleMapAltModel["Zj2b"] = [23002]
@@ -120,20 +124,24 @@ def makeCutString(sample, sMap):
     cutString += ")"
     return cutString
 
+print "Bkg string = ",makeCutString("Bkg", sampleMap)
+print "Wj0b string = ",makeCutString("Wj0b", sampleMap)
+print "Thank you for your attention!"
+
 # first rebin the histogram so that the first and last bins are not empty and have less than 35% stat. uncertainty
-hBkg = ROOT.TH1F("hBkg","hBkg",nBins,-1,1)
-hSig = ROOT.TH1F("hSig","hSig",nBins,-1,1)
+hBkg = ROOT.TH1F("hBkg","hBkg",nBinsFine,args.xlow,args.xhigh)
+hSig = ROOT.TH1F("hSig","hSig",nBinsFine,args.xlow,args.xhigh)
 #tree.Draw("%s>>hBkg" % bdtname,"((%s)&&sampleIndex>0)*weight*(2.2/1.28)" % presel)
 bkgCutString = makeCutString("Bkg", sampleMap)
 print bkgCutString
-tree.Draw("%s>>hBkg" % bdtname,"((%s)&&(%s))*bTagWeightNew*%s" % (presel,bkgCutString,weight_string))
-tree.Draw("%s>>hSig" % bdtname,"((%s)&&sampleIndex==-12501)*bTagWeightNew*%s" % (presel,weight_string))
+tree.Draw("%s>>hBkg" % bdtname,"((%s)&&(%s))*bTagWeight*%s" % (presel,bkgCutString,weight_string))
+tree.Draw("%s>>hSig" % bdtname,"((%s)&&sampleIndex==-12501)*bTagWeight*%s" % (presel,weight_string))
 binBoundaries = numpy.zeros(nBins+1,dtype=float)
-binBoundaries[0] = -1.0
-binBoundaries[nBins] = 1.0
+binBoundaries[0] = args.xlow
+binBoundaries[nBins] = args.xhigh
 foundLowBinEdge = False
 foundHighBinEdge = False
-for ibin in range(2,nBins):
+for ibin in range(2,nBinsFine):
     if not foundLowBinEdge:
         B_low = hBkg.Integral(1,ibin)
         #S_low = hSig.Integral(1,ibin)
@@ -141,25 +149,26 @@ for ibin in range(2,nBins):
         #print "B_low = ",B_low
         #if (B_low > 0):
         #    print "1./sqrt(B_low) = ",1./sqrt(B_low)
+        #print B_low,ibin,hBkg.Integral(),args.xlow,args.xhigh
         if (B_low > 0 and 1./sqrt(B_low) < 0.35):
             binBoundaries[1] = hBkg.GetBinLowEdge(ibin+1)
             foundLowBinEdge = True
     if not foundHighBinEdge:
-        B_high = hBkg.Integral(nBins-ibin+1, nBins) 
-        #S_high = hSig.Integral(nBins-ibin+1, nBins) 
+        B_high = hBkg.Integral(nBinsFine-ibin+1, nBinsFine) 
+        #S_high = hSig.Integral(nBinsFine-ibin+1, nBinsFine) 
         if (B_high > 0 and 1./sqrt(B_high) < 0.35):
-            binBoundaries[nBins-1] = hBkg.GetBinLowEdge(nBins-ibin+1)
+            binBoundaries[nBins-1] = hBkg.GetBinLowEdge(nBinsFine-ibin+1)
             foundHighBinEdge = True
 # split the middle bins equidistantly
 for i in range(2,nBins-1):
     binBoundaries[i] = binBoundaries[1] + (i-1)*((binBoundaries[nBins-1] - binBoundaries[1])/(nBins-2)) 
 
-hBkg = hBkg.Rebin(nBins, "", binBoundaries)
+#hBkg = hBkg.Rebin(nBins, "", binBoundaries)
 print binBoundaries
 
 ofile = ROOT.TFile("hists_%s.root" % catName, "RECREATE")
 otextfile = open("binStats_%s.txt" % catName, "w")
-hBkg.Write()
+#hBkg.Write()
 for sample in sampleMap:
     if (sample == "Bkg"): continue
     #cutString = presel + "&&("
@@ -174,11 +183,15 @@ for sample in sampleMap:
     hBDT = ROOT.TH1F(sample,sample,nBins,binBoundaries)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight" % cutString)
     #tree.Draw("%s>>%s" % (bdtname, sample),"(%s)*weight*(2.2/1.28)" % cutString) # temp hack to avoid rerunning just to change lumi
-    if (sample == "data_obs" and not args.doData):
+    if (sample == "data_obs" and args.doData):
+        ifile_data = ROOT.TFile(args.dataTree,"r")
+        tree_data = ifile_data.Get("tree")
+        ofile.cd()
         # make sure we don't weight actual data by puWeight, SF's, etc.
-        tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString)) # temp hack to avoid rerunning just to change lumi
+        tree_data.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString)) # temp hack to avoid rerunning just to change lumi
+        ifile_data.Close()
     else:
-        tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)*bTagWeightNew*%s" % (cutString,weight_string)) # temp hack to avoid rerunning just to change lumi
+        tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)*bTagWeight*%s" % (cutString,weight_string)) # temp hack to avoid rerunning just to change lumi
     #hBDT = hBDT.Rebin(nBins, "", binBoundaries)
     # Add bin-by-bin stat. uncertainties
     if (sample not in ["WH","ZH","data_obs"]):
@@ -219,14 +232,14 @@ for sample in sampleMap:
             tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"((%s)&&%s)*%s*(%sDown)" % (cutString,passSys,weight_string,sysWeight)) # temp hack to avoid rerunning just to change lumi 
         else:
             #tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"(%s)*weight*(2.2/1.28)" % (cutString)) # temp hack to avoid rerunning just to change lumi 
-            tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"((%s)&&%s)*%s*bTagWeightNew" % (cutString,passSys,weight_string)) # temp hack to avoid rerunning just to change lumi 
+            tree.Draw("%s>>%s_%sUp" % (sysBDTNameUp, sample, syst),"((%s)&&%s)*%s*bTagWeight" % (cutString,passSys,weight_string)) # temp hack to avoid rerunning just to change lumi 
             #tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"(%s)*weight*(2.2/1.28)" % (cutString)) # temp hack to avoid rerunning just to change lumi 
-            tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"((%s)&&%s)*%s*bTagWeightNew" % (cutString,passSys,weight_string)) # temp hack to avoid rerunning just to change lumi 
+            tree.Draw("%s>>%s_%sDown" % (sysBDTNameDown, sample, syst),"((%s)&&%s)*%s*bTagWeight" % (cutString,passSys,weight_string)) # temp hack to avoid rerunning just to change lumi 
             if (syst.find("Model") != -1):
                 # shape from different sample (amc@NLO vs. POWHEG, for example)
                 cutStringAltModel = makeCutString(sample,sampleMapAltModel)
                 hBDTAltModel = ROOT.TH1F("%s_%sAltModel" % (sample,syst), "%s_%sAltModel" % (sample,syst),nBins,binBoundaries)
-                tree.Draw("%s>>%s_%sAltModel" % (sysBDTNameUp, sample, syst),"((%s)&&%s)*%s*bTagWeightNew" % (cutStringAltModel,passSys,weight_string))
+                tree.Draw("%s>>%s_%sAltModel" % (sysBDTNameUp, sample, syst),"((%s)&&%s)*%s*bTagWeight" % (cutStringAltModel,passSys,weight_string))
                 # hnom + (hnom - halt) = 2*hnom - halt
                 hBDTSystUp.Scale(2.0)
                 hBDTSystUp.Add(hBDTAltModel, -1.0)

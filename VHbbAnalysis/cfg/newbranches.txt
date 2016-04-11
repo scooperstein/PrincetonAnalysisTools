@@ -45,6 +45,7 @@ type=2  name=H_pt_highestPtJJ
 type=2  name=H_pt_bestCSV
 
 type=2  name=jjWPtBalance
+type=2  name=CS_SF
 
 type=1  name=nAddJets252p9_puid
 type=2  name=AddJets252p9_puid_leadJet_pt
@@ -166,6 +167,7 @@ type=2  name=Top1_mass_fromLepton_regPT_w4MET
 type=2  name=Top2_mass_hadW
 type=2  name=HJ1_HJ2_dPhi
 type=2  name=HJ1_HJ2_dEta
+type=2  name=HJ1_HJ2_dR
 type=2  name=HJ2_minJetDR1
 type=2  name=HJ2_minJetDR2
 type=2  name=HJ2_WJet1_dPhi

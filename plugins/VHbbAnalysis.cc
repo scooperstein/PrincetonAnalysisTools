@@ -210,6 +210,8 @@ bool VHbbAnalysis::Analyze(){
     Lep.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], f["selLeptons_mass"][*in["lepInd"]]); 
     W = MET + Lep; 
     *f["V_pt"] = W.Pt(); // uncomment this line if we want to recalculate W.pt ourselves
+     if (*f["V_pt"] < *f["vptcut"]) sel=false;
+    if (sel) *in["cutFlow"] += 1; // pT(W) cut
     //*f["V_mt"] = W.Mt();
     double cosPhi12 = ( Lep.Px()*MET.Px() + Lep.Py()*MET.Py() ) / ( Lep.Pt()*MET.Pt() ); // cos of the angle between the lepton and the missing energy
     *f["V_mt"] = TMath::Sqrt( 2*Lep.Pt()*MET.Pt() * (1 - cosPhi12) );
@@ -219,6 +221,7 @@ bool VHbbAnalysis::Analyze(){
     *f["Lep_HJ2_dPhi"] = Lep.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dEta"] = fabs( HJ1.Eta() - HJ2.Eta());
+    *f["HJ1_HJ2_dR"] = HJ1.DeltaR(HJ2);
 
     *f["Top1_mass_fromLepton"] = GetRecoTopMass(Lep, false, 0, false); // construct top mass from closest jet to lepton
     *f["Top1_mass_fromLepton_wMET"] = GetRecoTopMass(Lep, false, 1, false); // construct top mass from closest jet to lepton
@@ -530,7 +533,7 @@ bool VHbbAnalysis::Analyze(){
             //  || (*in["isWenu"] && *f["lepMetDPhi"] < *f["elMetDPhiCut"]))
     // V_pt > 100 and bb_mass<250
     bool baseCSSelection= 
-            (*in["cutFlow"]!=0
+            (*in["cutFlow"]>=2
             && f["Jet_pt_reg"][*in["hJetInd1"]]>*f["j1ptCut"]
             && f["Jet_pt_reg"][*in["hJetInd2"]]>*f["j2ptCut"]
             && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
@@ -873,6 +876,17 @@ void VHbbAnalysis::FinishEvent(){
         *f["H_dEta_reg"] = fabs(hJ1_reg.Eta() - hJ2_reg.Eta() );
     }
 
+    // add control sample fitted scale factor (already computed)
+    *f["CS_SF"] = 1.0;
+    if (*in["sampleIndex"]==2200 || *in["sampleIndex"]==4400 || *in["sampleIndex"]==4500 || *in["sampleIndex"]==4600 || *in["sampleIndex"]==4700) {
+        *f["CS_SF"] = *f["SF_Wj0b"];
+    }
+    else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702) {
+        *f["CS_SF"] = *f["SF_WHF"];
+    }
+    else if (*in["sampleIndex"]==50 || *in["sampleIndex"]==51 || *in["sampleIndex"]==52 || *in["sampleIndex"]==12 || *in["sampleIndex"]==120 || *in["sampleIndex"]==500) {
+        *f["CS_SF"] = *f["SF_TT"];
+    }
 
     // FIXME nominal must be last
     if(cursyst->name=="nominal"){
