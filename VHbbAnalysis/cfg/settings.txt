@@ -3,7 +3,7 @@
 
 # ONLY USE FLOATS
 type=2  name=vetolep            val=1
-type=2  name=intL               val=2300 # 1/pb
+type=2  name=intL               val=20000 # 1/pb
 type=2  name=doCutFlow          val=0
 type=2  name=doControlSamples   val=0
 type=2  name=onlyEvenEvents     val=0
@@ -16,8 +16,8 @@ type=2  name=j2ptCSV            val=0.46
 type=2  name=j1etaCut           val=2.5
 type=2  name=j2etaCut           val=2.5
 
-type=2  name=JetPtPresel        val=25
-type=2  name=LepPtPresel        val=25
+type=2  name=JetPtPresel        val=20
+type=2  name=LepPtPresel        val=20
 
 type=2  name=eptcut             val=25
 type=2  name=muptcut            val=25
@@ -32,9 +32,13 @@ type=2  name=elidcut            val=2
 type=2  name=muidcut            val=1
 
 type=2  name=HVDPhiCut          val=2.5
-type=2  name=hptcut             val=50
-type=2  name=vptcut             val=50 # use eventClass variable instead
+type=2  name=hptcut             val=100
+type=2  name=vptcut             val=100 # use eventClass variable instead
 
 # events must have number of add. jets/leptons < this value
 type=2  name=nAddJetsCut        val=2
 type=2  name=nAddLeptonsCut     val=1
+
+type=2  name=SF_Wj0b            val=1.29
+type=2  name=SF_WHF             val=2.39
+type=2  name=SF_TT              val=0.94
