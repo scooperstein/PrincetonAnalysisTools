@@ -15,7 +15,7 @@
 #name=WJets-HT600ToInf  dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=47  xsec=18.77 kfac=1.21  doJetFlavorSplit=1 
 #name=WBJets  dir=/store/group/lpchbb/HeppyNtuples/V21/WBJetsToLNu_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=48  xsec=34.2 kfac=1.21  doJetFlavorSplit=1
 #name=WJets_BGenFilter  dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_BGenFilter_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=49 xsec=201.8 kfac=1.21 doJetFlavorSplit=1
-name=TT_powheg  dir=/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-powheg-pythia8/VHBB_HEPPY_V21a_TT_TuneCUETP8M1_13TeV-powheg-Py8__fall15MAv2-pu25ns15v1_76r2as_v12_ext3-v1,/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-powheg-pythia8/VHBB_HEPPY_V21a_TT_TuneCUETP8M1_13TeV-powheg-Py8__fall15MAv2-pu25ns15v1_76r2as_v12_ext4-v1/ type=120  xsec=831.76
+name=TT_powheg  dir=/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-powheg-pythia8/VHBB_HEPPY_V21a_TT_TuneCUETP8M1_13TeV-powheg-Py8__fall15MAv2-pu25ns15v1_76r2as_v12_ext3-v1,/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-powheg-pythia8/VHBB_HEPPY_V21a_TT_TuneCUETP8M1_13TeV-powheg-Py8__fall15MAv2-pu25ns15v1_76r2as_v12_ext4-v1/ type=120  xsec=831.76 npro=284256622
 ##name=TT_madgraph dir=  type=500  xsec=831.76
 #name=TT  dir=/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/  type=12  xsec=831.76
 #name=TT_DiLep  dir=/store/group/lpchbb/HeppyNtuples/V21/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/ type=50 xsec=88.3

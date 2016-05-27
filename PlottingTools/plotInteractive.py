@@ -83,7 +83,8 @@ domergecats=False
 StaticMin=False
 StaticMax=False
 dotitles=False
-cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
+#cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
+cattitles=["W#mu#nu","We#nu"]
 dointegrals=False
 domean=False
 

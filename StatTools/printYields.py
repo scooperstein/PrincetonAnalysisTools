@@ -25,6 +25,7 @@ dc_string = "" # write datacard
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
 samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD"]
+#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
 #samples = ["WH","TT","s_Top"]
 #samples = ["WH","TT"]
 #cats = ["WmnLowPt","WmnMidPt", "WmnHighPt"]
@@ -56,12 +57,12 @@ for i in range(len(cats)):
     ifile = ROOT.TFile(args.ihistfile, "r")
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
-    nData = ifile.Get("data_obs").Integral()
+    nData = ifile.Get("BDT_%s_data_obs" % cat_labels[i]).Integral()
     cat_fake_obs_line = "   %.4f" % nData
     for sample in samples: 
         print sample
         #nyield = ifile.Get("%s/%s" % (cat,sample)).Integral()
-        nyield = ifile.Get(sample).Integral()
+        nyield = ifile.Get("BDT_%s_%s" % (cat_labels[i],sample)).Integral()
         if (nyield > 0): zeroYield = False
         print "%s = %.4f" % (sample, nyield )
         if (sample != "WH" and sample != "ZH"): nBkgTot += nyield
@@ -153,7 +154,7 @@ if (args.binstats != ""):
             if (line[0] == '#'): continue
             line = line.strip()
             sysLine = line
-            for i in range(48 - len(line)):
+            for i in range(60 - len(line)):
                 sysLine += " "
             sysLine += "shape      "
             nSys += 1
@@ -171,7 +172,7 @@ dc_string += "jmax %i number of processes minus 1\n" % (len(samples) - 1)
 dc_string += "kmax %i number of nuisance parameters\n" % nSys
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 for i in range(len(cats)):
-    dc_string += "shapes *           %s    %s $PROCESS $PROCESS_$SYSTEMATIC\n" % (cat_labels[i],args.ihistfile)
+    dc_string += "shapes *           %s    %s BDT_$CHANNEL_$PROCESS BDT_$CHANNEL_$PROCESS_$SYSTEMATIC\n" % (cat_labels[i],args.ihistfile)
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 dc_string += "bin          "
 for label in cat_labels:
