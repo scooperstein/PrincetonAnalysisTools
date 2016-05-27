@@ -39,6 +39,10 @@ type=2  name=isWenu_f
 type=2  name=isWmunu_f
 
 type=2  name=V_mt
+type=2  name=HVdEta
+type=2  name=HVdEta_4MET
+type=2  name=H_dEta
+type=2  name=JJEtaBal
 
 type=2  name=H_pt_highestPt
 type=2  name=H_pt_highestPtJJ
@@ -118,6 +122,8 @@ type=2  name=H_dEta_reg
 type=2  name=Jet1_regWeight
 type=2  name=Jet2_regWeight
 
+type=2  name=softActivityVH_njets5_f
+
 type=2  name=GenBJ1_pt
 type=2  name=GenBJ1_eta
 type=2  name=GenBJ1_phi
@@ -163,6 +169,12 @@ type=2  name=Top1_mass_fromLepton_w4MET
 type=2  name=Top1_mass_fromLepton_regPT
 type=2  name=Top1_mass_fromLepton_regPT_wMET
 type=2  name=Top1_mass_fromLepton_regPT_w4MET
+type=2  name=Top1_mass_bestCSV_regPT
+type=2  name=Top1_mass_bestCSV_regPT_wMET
+type=2  name=Top1_mass_bestCSV_regPT_w4MET
+type=2  name=Top1_mass_highestPtJJ_regPT
+type=2  name=Top1_mass_highestPtJJ_regPT_wMET
+type=2  name=Top1_mass_highestPtJJ_regPT_w4MET
 #type=2  name=Top2_mass
 type=2  name=Top2_mass_hadW
 type=2  name=HJ1_HJ2_dPhi

@@ -56,6 +56,11 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch) {
         TH1F* counterPos = (TH1F*)file->Get("CountPosWeight");
         TH1F* counterNeg = (TH1F*)file->Get("CountNegWeight");
         int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
+        if(sampleNum==49) {
+            //special prescription for WJets_BGenFilter sample weighting
+            TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
+            nEffective = counterFullWeight->GetBinContent(1); 
+        }
         processedEvents += nEffective;
         file->Close();
     }

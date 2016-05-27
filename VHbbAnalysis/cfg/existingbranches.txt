@@ -55,9 +55,7 @@ type=6  name=GenJet_pdgId                       max=20  onlyMC=1
 type=6  name=GenJet_numBHadrons                 max=20  onlyMC=1
 type=6  name=GenJet_numCHadrons                 max=20  onlyMC=1
 
-type=2  name=lheNb  onlyMC=1
 type=2  name=lheNc  onlyMC=1
-type=2  name=lheV_pt  onlyMC=1
 
 type=1  name=nselLeptons 
 type=7  name=selLeptons_eta                     max=20

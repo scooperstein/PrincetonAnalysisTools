@@ -51,12 +51,12 @@
 #include "TMVA/Tools.h"
 #endif
 
-void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMin = 150, int maxDepth = 3, float adaboostbeta = 0.2, int iteration = 0, TString myMethodList = "")
+void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 450, float MinNodeSize = 0.05, int maxDepth = 3, float adaboostbeta = 0.1, int iteration = 0, TString myMethodList = "")
 {
 
   std::cout<<"\n--------------------------------------------------\n"
 	   <<"This iteration is with the following configuration:\n"
- 	   <<"nTrees = "<<nTrees<<"\nnEventsMin = "<<nEventsMin
+ 	   <<"nTrees = "<<nTrees<<"\nMinNodeSize = "<<MinNodeSize
  	   <<"\nmaxDepth = "<<maxDepth<<"\nadaBoostBeta = "<<adaboostbeta
  	   <<"\n--------------------------------------------------\n";
 
@@ -180,7 +180,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    char outfileName[80];
-   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_Nov20-v2_%sSig_%s%s%sBkg_%s%s.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_May23_%i_%i_%sSig_%s%s%sBkg_%s%s.root",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(outfileName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
@@ -195,10 +195,10 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    char factoryName[80];
-   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_Nov20-v2_%sSig_%s%s%sBkg_%s%s",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_May23_%i_%i_%sSig_%s%s%sBkg_%s%s",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(factoryName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TMVA::Factory *factory = new TMVA::Factory( factoryName, outputFile,
-                                               "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification" );
+                                               "!V:!Silent:Color:DrawProgressBar:Transformations=I:AnalysisType=Classification" );
 
    // If you wish to modify default settings
    // (please check "src/Config.h" to see all available global options)
@@ -211,25 +211,30 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
 
    // 13 TeV discriminating variables
    factory->AddVariable("H_mass", 'F');
+   //factory->AddVariable("HJ1_HJ2_dR", 'F');
    factory->AddVariable("H_pt",   'F');
    factory->AddVariable("V_pt",   'F');
-   factory->AddVariable("Jet_btagCSV[hJetInd1]", 'F');
    factory->AddVariable("Jet_btagCSV[hJetInd2]", 'F');
+   factory->AddVariable("Top1_mass_fromLepton_regPT_w4MET", 'F');
    factory->AddVariable("HVdPhi", 'F');
-   //factory->AddVariable("NAddJet:=nAddJets252p9_puid", 'I');
-   //factory->AddVariable("NAddLep:=nAddLeptons", 'I');
    factory->AddVariable("nAddJet_f", 'F');
-   factory->AddVariable("nAddLep_f", 'F');
-   factory->AddVariable("Jet_pt[hJetInd1]", 'F');
-   factory->AddVariable("Jet_pt[hJetInd2]", 'F');
-   factory->AddVariable("met_pt", 'F');
-   factory->AddVariable("Top1_mass_fromLepton", 'F');
    factory->AddVariable("lepMetDPhi", 'F');
-   factory->AddVariable("selLeptons_pt[lepInd]", 'F');
-   factory->AddVariable("selLeptons_eta[lepInd]", 'F');
-   factory->AddVariable("selLeptons_relIso03[lepInd]", 'F');
-   factory->AddVariable("isWenu_f", 'F');
-   factory->AddVariable("isWmunu_f", 'F');
+   factory->AddVariable("softActivityVH_njets5", 'I');
+   //factory->AddVariable("Jet_pt_reg[hJetInd1]", 'F');
+   //factory->AddVariable("Jet_pt_reg[hJetInd2]", 'F');
+   //factory->AddVariable("selLeptons_pt[lepInd]", 'F');
+   //factory->AddVariable("selLeptons_relIso_0", 'F');
+   //factory->AddVariable("Jet_btagCSV[hJetInd1]", 'F');
+   //factory->AddVariable("selLeptons_eta[lepInd]", 'F');
+   //factory->AddVariable("Jet_eta[hJetInd1]", 'F');
+   //factory->AddVariable("Jet_eta[hJetInd2]", 'F');
+   //factory->AddVariable("jjWPtBalance", 'F');
+   //factory->AddVariable("AddJets252p9_puid_leadJet_btagCSV", 'F');
+   //factory->AddVariable("AddJets252p9_puid_leadJet_pt", 'F');
+   factory->AddVariable("V_mt", 'F');
+   factory->AddVariable("met_pt", 'F');
+   //factory->AddVariable("HVdEta_4MET", 'F');
+   //factory->AddVariable("JJEtaBal", 'F');
  
    //factory->AddVariable("selLeptons_eleSieie_0", 'F'); // random variable to put fix weird memory allocation issue FIXME
 
@@ -553,13 +558,13 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
      mycutsBkg = "H.massCorr>0. && H.massCorr<256. && H.ptCorr>120. && ((Vtype==2 && vLepton_pt[0]>20.) || (Vtype==3 && vLepton_pt[0]>30. && vLepton_wp80[0]>0 && METtype1corr.et>45.)) && V.pt>170. && Sum$(aLepton_pt > 15 && abs(aLepton_eta) < 2.5 && (aLepton_pfCorrIso < 0.1) )==0 && METtype1corr.et<1000. && V.pt<1000 && max(hJet_csvReshapedNew[0],hJet_csvReshapedNew[1])>0.4  && min(hJet_csvReshapedNew[0],hJet_csvReshapedNew[1])>0.4 && hJet_csvReshapedNew[0]>0. && hJet_csvReshapedNew[1]>0. && hJet_ptCorr[0]>30. && hJet_ptCorr[1]>30. && hJet_puJetIdL[0]>0.0 && hJet_puJetIdL[1]>0.0 && hbhe && abs(deltaPullAngle)<5.";
    }
  */
-   std::string training_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_Nov20-v2_oddEvents/";
-   std::string testing_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_Nov20-v2_evenEvents/";
+   //std::string training_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_Nov20-v2_oddEvents/";
+   //std::string testing_dir = "/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/VHbbAnalysis/V14_Wlnu_MCforBDT_Nov20-v2_evenEvents/";
    TChain *bkg_training_chain = new TChain("tree");
    TChain *sig_training_chain = new TChain("tree");
    TChain *bkg_testing_chain = new TChain("tree");
    TChain *sig_testing_chain = new TChain("tree");
-   sig_training_chain->Add(Form("%s/WH125/*.root", training_dir.c_str()));
+   /*sig_training_chain->Add(Form("%s/WH125/*.root", training_dir.c_str()));
    sig_training_chain->Add(Form("%s/ZH125_powheg/*.root", training_dir.c_str()));
    bkg_training_chain->Add(Form("%s/TT/*.root", training_dir.c_str()));
    bkg_training_chain->Add(Form("%s/DYToLL/*.root", training_dir.c_str()));
@@ -587,13 +592,20 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    bkg_testing_chain->Add(Form("%s/WJets-HT400To600/*.root", testing_dir.c_str()));
    bkg_testing_chain->Add(Form("%s/WJets-HT600ToInf/*.root", testing_dir.c_str()));
    bkg_testing_chain->Add(Form("%s/TBarToLep_t/*.root", testing_dir.c_str()));
+   */
+   bkg_training_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_May23_SR/ofile_odd_bkg.root");
+   sig_training_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_May23_SR/ofile_odd_sig.root");
+   bkg_testing_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_May23_SR/ofile_even_bkg.root");
+   sig_testing_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_May23_SR/ofile_even_sig.root");
    TTree *sig_training_tree = (TTree*) sig_training_chain;
    TTree *bkg_training_tree = (TTree*) bkg_training_chain;
    TTree *sig_testing_tree = (TTree*) sig_testing_chain;
    TTree *bkg_testing_tree = (TTree*) bkg_testing_chain;
    //std::cout<<training_chain->GetEntries()<<", "<<testing_chain->GetEntries()<<std::endl;
    //std::cout<<training_tree->GetEntries()<<", "<<testing_tree->GetEntries()<<std::endl;
-   factory->SetWeightExpression("weight");
+   //factory->SetWeightExpression("(1+(sampleIndex==2200||sampleIndex==4400||sampleIndex==4500||sampleIndex==4600||sampleIndex==4700)*0.29 + (sampleIndex==2201||sampleIndex==4401||sampleIndex==4501||sampleIndex==4601||sampleIndex==4701||sampleIndex==2202||sampleIndex==4402||sampleIndex==4502||sampleIndex==4602||sampleIndex==4702)*1.39 + (sampleIndex==50||sampleIndex==51||sampleIndex==52)*-0.06)*weight*weight_PU*bTagWeight*weight_ptQCD*weight_ptEWK*selLeptons_SF_IsoTight[lepInd]*(selLeptons_SF_IdCutTight[lepInd]*isWmunu + selLeptons_SF_IdMVATight[lepInd]*isWenu)"); // include CR-fitted scale factors
+   factory->SetWeightExpression("weight*weight_PU*bTagWeight*CS_SF*weight_ptQCD*weight_ptEWK*selLeptons_SF_IsoTight[lepInd]*(selLeptons_SF_IdCutTight[lepInd]*isWmunu + selLeptons_SF_IdMVATight[lepInd]*isWenu)");
+   //factory->SetWeightExpression("weight");
    factory->AddSignalTree(sig_training_tree,1.0,TMVA::Types::kTraining);
    factory->AddBackgroundTree(bkg_training_tree,1.0,TMVA::Types::kTraining);
    factory->AddSignalTree(sig_testing_tree,1.0,TMVA::Types::kTesting);
@@ -605,8 +617,12 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
    // for training, and the other half for testing:
 //       factory->PrepareTrainingAndTestTree( mycutsSig, mycutsBkg, "SplitMode=random:!V" );
 //factory->PrepareTrainingAndTestTree(mycutsSig,mycutsBkg,"NormMode=None:!V");
-  //factory->PrepareTrainingAndTestTree(mycutsSig,mycutsBkg,"!V");
-  factory->PrepareTrainingAndTestTree("sampleIndex<0","sampleIndex>0","!V");
+  //TCut mycutsSig = "sampleIndex<0&&hJets_btagCSV_0>0.95&&hJets_btagCSV_1>0.82&&H_pt>84&&V_pt>100&&abs(HVdPhi)>2.92&&abs(lepMetDPhi)<1.4&&nAddLep_f<1&&nAddJet_f<1&&H_mass>90&&H_mass<150";
+  //TCut mycutsBkg = "sampleIndex>0&&hJets_btagCSV_0>0.95&&hJets_btagCSV_1>0.82&&H_pt>84&&V_pt>100&&abs(HVdPhi)>2.92&&abs(lepMetDPhi)<1.4&&nAddLep_f<1&&nAddJet_f<1&&H_mass>90&&H_mass<150";
+  TCut mycutsSig = "JJEtaBal<10&&sampleIndex==-12501&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100";
+  TCut mycutsBkg = "JJEtaBal<10&&sampleIndex>0&&sampleIndex!=12&&sampleIndex!=120&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&((sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4402)||(sampleIndex==4502)||(sample    Index==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==50)|    |(sampleIndex==51)||(sampleIndex==52)||(sampleIndex==3500)||(sampleIndex==3600)||(sampleIndex==3700)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==    6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sam    pleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==24)||(sampleIndex==25)||(sampleIndex==26)||(sampleIndex==27)||(sampleIndex==28)||(sam    pleIndex==29)||(sampleIndex==30)||(sampleIndex==31)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==3501)||(sampleIndex==3502)||    (sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3701)||(sampleIndex==3702))";
+  factory->PrepareTrainingAndTestTree(mycutsSig,mycutsBkg,"!V");
+  //factory->PrepareTrainingAndTestTree("sampleIndex==-12501","sampleIndex>0","!V");
    // To also specify the number of testing events, use:
    //    factory->PrepareTrainingAndTestTree( mycut,
    //                                         "NSigTrain=3000:NBkgTrain=3000:NSigTest=3000:NBkgTest=3000:SplitMode=Random:!V" );
@@ -770,8 +786,8 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
                            "!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:NNodesMax=5" );
 
    char parString[150];
-   //sprintf(parString,"!H:!V:NTrees=%i:nEventsMin=%i:MaxDepth=%i:BoostType=AdaBoost:AdaBoostBeta=%.2f:SeparationType=MisClassificationError:nCuts=-1:PruneMethod=NoPruning"
-   sprintf(parString,"!H:!V:NTrees=%i:nEventsMin=%i:MaxDepth=%i:BoostType=AdaBoost:AdaBoostBeta=%.2f:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning",nTrees,nEventsMin,maxDepth,adaboostbeta);
+   //sprintf(parString,"!H:!V:NTrees=%i:MinNodeSize=%i:MaxDepth=%i:BoostType=AdaBoost:AdaBoostBeta=%.2f:SeparationType=MisClassificationError:nCuts=-1:PruneMethod=NoPruning",nTrees,MinNodeSize,maxDepth,adaboostbeta);
+   sprintf(parString,"!H:!V:NTrees=%i:MinNodeSize=%.2f:MaxDepth=%i:BoostType=AdaBoost:AdaBoostBeta=%.2f:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning",nTrees,MinNodeSize,maxDepth,adaboostbeta);
    if (Use["BDT"])  // Adaptive Boost
       factory->BookMethod( TMVA::Types::kBDT, "BDT", parString );
 
@@ -781,7 +797,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 1000, int nEventsMi
 
    if (Use["BDTD"]) // Decorrelation + Adaptive Boost
       factory->BookMethod( TMVA::Types::kBDT, "BDTD",
-                           "!H:!V:NTrees=400:nEventsMin=400:MaxDepth=3:BoostType=AdaBoost:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning:VarTransform=Decorrelate" );
+                           "!H:!V:NTrees=400:MinNodeSize=400:MaxDepth=3:BoostType=AdaBoost:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning:VarTransform=Decorrelate" );
 
    // RuleFit -- TMVA implementation of Friedman's method
    if (Use["RuleFit"])
