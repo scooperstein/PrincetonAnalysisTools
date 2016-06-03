@@ -87,7 +87,7 @@ dotitles=False
 #cattitles=["Electron Barrel (Eta < 0.8)","Electron Barrel (Eta > 0.8)","Electron Endcaps"]
 #cattitles=["|#eta| < 0.8","0.8 < |#eta| < 1.4442","|#eta| > 1.556"]
 cattitles = ["TT (W#mu#nu)","W+HF (W#mu#nu)","W+LF (W#mu#nu)","TT (We#nu)","W+HF (We#nu)", "W+LF (We#nu)"]
-cattitles=["W#mu#nu","We#nu"]
+#cattitles=["W#mu#nu","We#nu"]
 dointegrals=False
 domean=False
 
@@ -1219,8 +1219,9 @@ def Plot(num,printsuffix="",printcat=-1):
 
                 # draw MC statistical uncertainty band
                 mcErrBand[icat] = ROOT.TGraphErrors()
-                for ibin in range(mcTot[icat].GetNbinsX()):
-                    mcErrBand[icat].SetPoint(ibin,mcTot[icat].GetBinLowEdge(ibin),1.)
+                for ibin in range(1,mcTot[icat].GetNbinsX()+1):
+                    mcErrBand[icat].SetPoint(ibin,mcTot[icat].GetBinLowEdge(ibin)+(mcTot[icat].GetBinWidth(ibin)/2),1.)
+                    #mcErrBand[icat].SetPoint(ibin,mcTot[icat].GetBinLowEdge(ibin),1.)
                     e = 0.0
                     if mcTot[icat].GetBinContent(ibin)>0:
                         e = mcTot[icat].GetBinError(ibin) / mcTot[icat].GetBinContent(ibin)
@@ -1259,8 +1260,11 @@ def Plot(num,printsuffix="",printcat=-1):
 
             if dolegend:
                 if dodivide or dosoverb or dosoversqrtb:
-                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol * 2
-                    can.cd(cat)
+                    if docats:
+                        cat = (icat%Ncol)+1+(icat/Ncol)*Ncol * 2
+                        can.cd(cat)
+                    else:
+                        can.cd(1)
                     #pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 ) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
                     #can.cd(pad_id)
                 legend.Draw()
