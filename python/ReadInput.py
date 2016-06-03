@@ -1,6 +1,9 @@
 #~ /usr/bin/python
 import sys
 import ROOT
+import json
+from numpy import array
+from ROOT import TH2F
 #ROOT.gSystem.Load("SampleContainer_cc.so")
 #ROOT.gSystem.Load("AnalysisManager_cc.so")
 #ROOT.gSystem.Load("VHbbAnalysis_cc.so")
@@ -10,12 +13,12 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=0
 
-def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
+def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
          print "samplesToRun is ", samplesToRun
-         print "fileToRun is ", fileToRun
+         print "filesToRun is ", filesToRun
 
     runSelectedSamples = False
     if (len(samplesToRun) > 0):
@@ -70,16 +73,16 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                     samplecon.procEff = sample["procEff"]
                 #print "Reading",sample["name"],"with",len(sample["files"]),"files"
                 for filename in sample["files"]:
-                    #print filename,fileToRun
-                    if sample["type"]==0 and fileToRun!="":
-                        if filename!=fileToRun:
+                    #print filename,filesToRun
+                    if sample["type"]==0 and len(filesToRun)!=0:
+                        if filename not in filesToRun:
                             continue
                         else:
                             print "Files match!",filename
                     
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
-                    if aminitialized == 0:
+                    if aminitialized == 0: 
                         print("Initializing with",filename)
                         am.Initialize(filename)
                         aminitialized=1
@@ -88,12 +91,13 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                             am.outputTreeName=settings["outputname"]
                     # if data and fileToRun is not empty then only run that file
                     try:
-                        samplecon.AddFile(filename)
+                        #print "adding file, isBatch",isBatch
+                        samplecon.AddFile(filename,isBatch)
                         addedAtLeastOneFile=True
                     except:
                         print "Can't add",filename
                 if addedAtLeastOneFile:
-                    print("Adding sample to sample container")
+                    print("Adding sample %s to sample container with %i events " % (samplecon.sampleName, samplecon.processedEvents))
                     am.AddSample(samplecon)
 
         else:
@@ -102,15 +106,15 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
         if settings.has_key("earlybranches"):
             branches=ReadTextFile(settings["earlybranches"], "branchlist",list())
             for branch in branches:
-                print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early")
+                print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
         else:
             print "There are no early branches in the config file."
 
         if settings.has_key("existingbranches"):
             branches=ReadTextFile(settings["existingbranches"], "branchlist",list())
             for branch in branches:
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "existing")
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "existing", branches[branch][4])
         else:
             print "There are no existing branches in the config file."
 
@@ -163,6 +167,24 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet2EnergyRegression(reg2) 
+        
+        if settings.has_key("systematics"):
+            systs = ReadTextFile(settings["systematics"], "systematics") 
+            for syst in systs:
+                print "add Systematic"
+                am.AddSystematic(syst)
+                am.SetupNewBranch("Pass_%s" % syst.name, 4)
+                print "added Systematic"
+ 
+        if settings.has_key("scalefactors"):
+            sfs = ReadTextFile(settings["scalefactors"], "scalefactors")
+            for sf in sfs:
+                print "add scale factor"
+                am.AddScaleFactor(sf)
+                am.SetupNewBranch(sf.branchname, 2)
+                am.SetupNewBranch(sf.branchname+"_err", 2)
+                print "added scale factor"   
+ 
         return am    
     elif filetype is "samplefile":
         samples=MakeSampleMap(filelines)
@@ -173,6 +195,12 @@ def ReadTextFile(filename, filetype, samplesToRun, fileToRun=""):
     elif filetype is "bdt":
         bdtInfo=SetupBDT(filelines)
         return bdtInfo
+    elif filetype is "systematics":
+        systContainers=SetupSyst(filelines)
+        return systContainers
+    elif filetype is "scalefactors":
+        sfContainers=SetupSF(filelines)
+        return sfContainers
     else:
         print "Unknown filetype ", filetype
 
@@ -232,13 +260,29 @@ def MakeSampleMap(lines):
             if name.find("file") is 0:
                 samplepaths.append(str(value))
             if name.find("dir") is 0:
-                from os import listdir
-                from os.path import isfile, join
-                onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
-                for rootfile in onlyfiles:
-                    #print rootfile
-                    if rootfile.find(".root") != -1:
-                        samplepaths.append(str(value)+"/"+str(rootfile))
+                if value.find(',') is not 0:
+                    for dirname in value.split(','):
+                        samplepaths.extend(findAllRootFiles(dirname))
+                else:
+                    samplepaths = findAllRootFiles(value)
+                #print value
+                #if value.find("/store") is 0:
+                #    import subprocess
+                #    onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", "root://cmseos.fnal.gov", "ls", value]).split('\n')
+                #    for filepath in onlyFiles:
+                #        #filepath = "root://xrootd-cms.infn.it/" + filepath
+                #        #filepath = "root://cmsxrootd.fnal.gov/" + filepath
+                #        filepath = "root://cmseos.fnal.gov/" + filepath
+                #        if filepath.find(".root") != -1:
+                #            samplepaths.append(filepath)
+                #else:
+                #    from os import listdir
+                #    from os.path import isfile, join
+                #    onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
+                #    for rootfile in onlyfiles:
+                #        #print rootfile
+                #        if rootfile.find(".root") != -1:
+                #            samplepaths.append(str(value)+"/"+str(rootfile))
             if name.find("type") is 0:
                 sample["type"]=int(value)
             if name.find("xsec") is 0:
@@ -272,6 +316,7 @@ def MakeBranchMap(lines):
         arraylength=-1
         val=-999
         onlyMC=0
+        lengthBranch=""
         
         for item in line.split():
             name,value = item.split("=")
@@ -285,8 +330,11 @@ def MakeBranchMap(lines):
                 val=float(value)
             if name.find("onlyMC") is 0:
                 onlyMC=int(value)
+            if name.find("lengthBranch") is 0:
+                print "FOUND LENGTH BRANCH",value
+                lengthBranch=str(value)
 
-        branches[branchname]= [branchtype,arraylength,val,onlyMC]
+        branches[branchname]= [branchtype,arraylength,val,onlyMC,lengthBranch]
 
     return branches            
 
@@ -345,3 +393,136 @@ def SetupBDT(lines):
             print "adding spectator variable %s (%s) existing: %i" % (name,lname, int(isExisting))
         bdt.AddVariable(name, lname, isExisting, isSpec)
     return bdt 
+
+
+def SetupSyst(lines):
+    systs=[]
+    for line in lines:
+        syst=ROOT.SystematicContainer()
+        for item in line.split():
+            key,value=item.split("=")
+            if key=="name":
+                syst.name=value
+            elif key=="branches":
+                for brnchName in value.split(","):
+                    syst.AddBranchName(brnchName)
+            elif key=="scales":
+                scales=[]
+                for scale in value.split(","):
+                    syst.AddScale(float(scale))
+            elif key=="smears":
+                smears=[]
+                for smear in value.split(","):
+                    syst.AddSmear(float(smear))
+            elif key=="scaleVar":
+                for scalevar in value.split(","):
+                    syst.AddScaleVar(scalevar)
+            else:
+                print "In systematics file, what is:",item
+
+            # FIXME need to add passing 2d histogram from filename
+
+        systs.append(syst)
+    return systs
+
+def SetupSF(lines):
+    SFs=[]
+    for line in lines:
+        print line
+        SF=ROOT.SFContainer()
+        for item in line.split():
+            key,value=item.split("=")
+            if key=="json":
+                SF.jsonFile=value
+            elif key=="branches":
+                for brnchName in value.split(","):
+                    SF.AddBranch(brnchName)
+            elif key=="name":
+                SF.name=value
+            elif key=="binning":
+                SF.binning=value
+            elif key=="branchname":
+                SF.branchname=value 
+            else:
+                print "In scale factor file, what is:",item
+        # now parse the json and build the scale factor map
+        f = open(SF.jsonFile, 'r')
+        results = json.load(f)
+        if SF.name not in results.keys():
+            print SF.name,": not found in json file: ",SF.jsonFile
+        f.close()
+        stripForEta = 5
+        res = results[SF.name]
+        if SF.binning not in res.keys():
+            print SF.binning," not in list of binnings: ",res.keys()
+        if "abseta" in SF.binning:
+            stripForEta = 8
+
+        etaBins = []
+        ptBins = []
+        nIter = 0
+        for etaKey, values in sorted(res[SF.binning].iteritems()):
+            etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+            etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+            etaBins.append(etaL)
+            etaBins.append(etaH)            
+ 
+            for ptKey, result in sorted(values.iteritems()):
+                ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+                ptBins.append(ptL)
+                ptBins.append(ptH)
+
+        etaBins = list(set(etaBins)) # get rid of duplicates
+        ptBins = list(set(ptBins))
+        etaBins = sorted(etaBins)
+        ptBins = sorted(ptBins)
+        
+        #print etaBins, ptBins
+        SF.scaleMap = TH2F(SF.name, SF.name, len(ptBins)-1, array(ptBins), len(etaBins)-1, array(etaBins))
+        #print array(ptBins), array(etaBins)
+
+        for etaKey, values in sorted(res[SF.binning].iteritems()):
+            etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+            etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+            binLow1 = SF.scaleMap.GetYaxis().FindBin(etaL)
+            binHigh1 = SF.scaleMap.GetYaxis().FindBin(etaH) - 1
+            for ptKey, result in sorted(values.iteritems()):
+                ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+                binLow2 = SF.scaleMap.GetXaxis().FindBin(ptL)
+                binHigh2 = SF.scaleMap.GetXaxis().FindBin(ptH) - 1
+                for ibin1 in range(binLow1,binHigh1+1):
+                    for ibin2 in range(binLow2,binHigh2+1):
+                        #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
+                        #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
+                        SF.scaleMap.SetBinContent(ibin2,ibin1, result["value"])
+                        SF.scaleMap.SetBinError(ibin2,ibin1, result["error"])
+                        #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
+        SFs.append(SF)
+    return SFs
+def findAllRootFiles(value):
+    samplepaths = []
+    if value.find("/store") is 0:
+        import subprocess
+        onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", "root://cmseos.fnal.gov", "ls", value]).split('\n')
+        for filepath in onlyFiles:
+            if (filepath == ""): continue
+            #filepath = "root://xrootd-cms.infn.it/" + filepath
+            #filepath = "root://cmsxrootd.fnal.gov/" + filepath
+            if filepath.find(".root") != -1:
+                filepath = "root://cmseos.fnal.gov/" + filepath
+                samplepaths.append(filepath)
+            else:
+                samplepaths.extend(findAllRootFiles(filepath))
+    else:
+        from os import listdir
+        from os.path import isfile, join
+        onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
+        for rootfile in onlyfiles:
+            #print rootfile
+            if rootfile.find(".root") != -1:
+                samplepaths.append(str(value)+"/"+str(rootfile))
+            else:
+                samplepaths.extend(findAllRootFiles(str(value)+"/"+str(rootfile)))
+    return samplepaths

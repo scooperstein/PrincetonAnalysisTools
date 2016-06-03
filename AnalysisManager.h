@@ -20,7 +20,9 @@
 #include "HelperClasses/BDTInfo.h"
 #include "HelperClasses/BranchInfo.h"
 #include "HelperClasses/InfoStructs.h"
+#include "HelperClasses/SystematicContainer.cc"
 #include "HelperClasses/SampleContainer.cc"
+#include "HelperClasses/SFContainer.cc"
 
 //#include "HelperClasses/BaseAnalysis.h"
 
@@ -67,6 +69,11 @@ public :
     std::vector<SampleContainer>    samples; 
     SampleContainer*                cursample; 
     void                            AddSample(SampleContainer sample);
+    std::vector<SystematicContainer>  systematics;
+    SystematicContainer*            cursyst; 
+    std::vector<SFContainer>        scaleFactors;
+    void                            AddSystematic(SystematicContainer syst);
+    void                            AddScaleFactor(SFContainer sf);
     void                            AddBDT(BDTInfo bdtInfo);
     void                            SetJet1EnergyRegression(BDTInfo reg1);
     void                            SetJet2EnergyRegression(BDTInfo reg2);
@@ -106,7 +113,7 @@ public :
     Long64_t        LoadTree(Long64_t entry);
     void            InitChain(std::string filename);
     
-    void            SetupBranch(std::string name, int type, int length=-1, int onlyMC=0, std::string prov="existing");
+    void            SetupBranch(std::string name, int type, int length=-1, int onlyMC=0, std::string prov="existing", std::string lengthBranch="");
     void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true, std::string treetype="output", float val=-999);
     void            SetNewBranches();
     void            ResetBranches();
@@ -116,7 +123,8 @@ public :
     std::vector<std::string>      ListSampleNames();
     void            PrintBDTInfoValues(BDTInfo bdt);
     
-    void            Loop(std::string sampleName="", std::string filename="", int fNum=1 );
+    //void            Loop(std::string sampleName="", std::string filename="", int fNum=1 );
+    void            Loop(std::string sampleName="", std::string filename="", std::string ofilename="" );
     //virtual void     WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring);
     //Value            RetrieveValue(std::string key);
     
@@ -134,6 +142,8 @@ public :
     double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1); 
     double          EvalDeltaPhi(double phi0, double phi1); 
     void            SetupBDT(BDTInfo bdtInfo);
+    void            SetupSystematicsBranches();
+    void            ApplySystematics(bool early=false);
 
 };
 

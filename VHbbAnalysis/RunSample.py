@@ -4,7 +4,7 @@ import ReadInput
 
 if (len(sys.argv) != 3 and len(sys.argv) != 5):
     print "Please give two arguments:  the cfg file and the sample name"
-    print "Or give four arguments: the cfg file, the sample name, an input file, and the input file number"
+    print "Or give four arguments: the cfg file, the sample name, a comma-separated list of input files, and the name of the output root file"
     sys.exit(0)
 
 # do stuff :)
@@ -13,11 +13,12 @@ ROOT.gSystem.Load("AnalysisDict.so")
 # reads samples, existing branches and new branches
 samplesToRun = []
 samplesToRun.append(sys.argv[2])
+filesToRun = []
 if len(sys.argv) == 5:
-    fileToRun=sys.argv[3]
-else:
-    fileToRun=""
-am=ReadInput.ReadTextFile(sys.argv[1], "cfg", samplesToRun, fileToRun)
+    for item in sys.argv[3].split(','):
+        filesToRun.append(item)
+
+am=ReadInput.ReadTextFile(sys.argv[1], "cfg", samplesToRun, filesToRun)
 am.debug=2
 
 print "Read in the input files, now let's run it!"
@@ -32,4 +33,4 @@ print "Done printing branches, now to loop"
 if (len(sys.argv) == 3):
     am.Loop(sys.argv[2])
 else:
-    am.Loop(sys.argv[2], sys.argv[3], int(sys.argv[4]))
+    am.Loop(sys.argv[2], sys.argv[3], sys.argv[4])

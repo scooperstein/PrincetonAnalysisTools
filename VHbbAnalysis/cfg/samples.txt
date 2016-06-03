@@ -1,47 +1,55 @@
-#name=Run2015C_25ns-05Oct2015-v1_Ele    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V15/SingleElectron/VHBB_HEPPY_V15_SingleElectron__Run2015C_25ns-05Oct2015-v1/151027_101041/0000  type=0   xsec=1
-#name=Run2015D-05Oct2015-v1_Ele         dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V15/SingleElectron/VHBB_HEPPY_V15_SingleElectron__Run2015D-05Oct2015-v1/151027_145709/0000       type=0   xsec=1
-#name=Run2015D-PromptReco-v4_Ele        dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V15/SingleElectron/VHBB_HEPPY_V15_SingleElectron__Run2015D-PromptReco-v4/151027_145744/0000      type=0   xsec=1
-#name=Run2015D-05Oct2015-v1_Mu      dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V15/SingleMuon/VHBB_HEPPY_V15_SingleMuon__Run2015D-05Oct2015-v1/151027_145808/0000               type=0   xsec=1
-#name=Run2015D-PromptReco-v4_Mu     dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V15/SingleMuon/VHBB_HEPPY_V15_SingleMuon__Run2015D-PromptReco-v4/151027_145845/0000              type=0   xsec=1
+#name=Run2015C-16Dec2015-v1_Ele     dir=/store/group/lpchbb/HeppyNtuples/V21/SingleElectron/VHBB_HEPPY_V21_SingleElectron__Run2015C_25ns-16Dec2015-v1/    type=0  xsec=1
+#name=Run2015D-16Dec2015-v1_Ele     dir=/store/group/lpchbb/HeppyNtuples/V21/SingleElectron/VHBB_HEPPY_V21_SingleElectron__Run2015D-16Dec2015-v1/          type=0  xsec=1
+#name=Run2015C-16Dec2015-v1_Mu      dir=/store/group/lpchbb/HeppyNtuples/V21/SingleMuon/VHBB_HEPPY_V21_SingleMuon__Run2015C_25ns-16Dec2015-v1/160318_133719              type=0  xsec=1
+#name=Run2015D-16Dec2015-v1_Mu      dir=/store/group/lpchbb/HeppyNtuples/V21/SingleMuon/VHBB_HEPPY_V21_SingleMuon__Run2015D-16Dec2015-v1/160317_132318                    type=0  xsec=1
 
-##name=Run2015C_Muons      dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/SingleMuon/VHBB_HEPPY_V13_SingleMuon__Run2015C-PromptReco-v1/151002_085004/0000/              type=0   xsec=1
-##name=Run2015C_Electrons  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V13/SingleElectron/VHBB_HEPPY_V13_SingleElectron__Run2015C-PromptReco-v1/151002_101048/0000/      type=0   xsec=1
-name=WH125    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/WH_HToBB_WToLNu_M125_13TeV_amcatnloFXFX_madspin_pythia8/VHBB_HEPPY_V14_WH_HToBB_WToLNu_M125_13TeV_amcatnloFXFX_madspin_pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_220043/0000/ type=-12501 xsec=0.261
-name=ZH125_powheg    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8/VHBB_HEPPY_V14_ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_161327/0000/  type=-12502  xsec=0.0535 
-###name=ZH125    dir=  type=-12502  xsec=0.0535 
-name=WJets       dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_220106/0000/     type=22  xsec=61526.7 doJetFlavorSplit=1
-name=WJets-HT100To200  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_220138/0000/   type=44 xsec=1345 kfac=1.21 doJetFlavorSplit=1 
-name=WJets-HT200To400   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_220559/0000/  type=45 xsec=359.7  kfac=1.21 doJetFlavorSplit=1
-name=WJets-HT400To600  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_084451/0000/   type=46  xsec=48.91 kfac=1.21 doJetFlavorSplit=1
-name=WJets-HT600ToInf  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151026_134002/0000/  type=47  xsec=18.77 kfac=1.21  doJetFlavorSplit=1 
-## there's no antitop, just top... name=TBarToLep_s  dir= type=10 xsec=4.16 procEff=0.1
-name=TBarToLep_t dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1/VHBB_HEPPY_V14_ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151026_070604/0000/ type=11 xsec=80.95
-##name=TT_powheg  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/TT_TuneCUETP8M1_13TeV-powheg-pythia8/VHBB_HEPPY_V14_TT_TuneCUETP8M1_13TeV-powheg-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_212301/0000/ type=13  xsec=831.76  procEff=0.1
-#name=TT  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/VHBB_HEPPY_V14_TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_084208/0000/  type=12  xsec=831.76
-name=TT_DiLep  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_084231/0000/ type=50 xsec=88.3
-name=TT_SingleLepFromT  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_212401/0000/ type=51 xsec=182.7
-name=TT_SingleLepFromTbar  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_084253/0000/  type=52 xsec=182.7
-#name=TTWJets  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/VHBB_HEPPY_V14_TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_213736/0000/ type=14  xsec=0.2043
-#name=TTZJets dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/VHBB_HEPPY_V14_TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_214445/0000/  type=15  xsec=0.5297
-name=TToLeptons_s   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/VHBB_HEPPY_V14_ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_185955/0000/  type=16 xsec=6.35 
-name=TToLeptons_t   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/VHBB_HEPPY_V14_ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151026_070751/0000/  type=17  xsec=136.02
-name=T_tW    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/VHBB_HEPPY_V14_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v2/151026_070728/0000/  type=20  xsec=35.6
-name=Tbar_tW   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/VHBB_HEPPY_V14_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151026_070704/0000/   type=21  xsec=35.6
-name=WZ  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/WZ_TuneCUETP8M1_13TeV-pythia8/VHBB_HEPPY_V14_WZ_TuneCUETP8M1_13TeV-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_084624/0000/  type=35  xsec=47.13
+#name=WH125    dir=/store/group/lpchbb/HeppyNtuples/V21/WH_HToBB_WToLNu_M125_13TeV_amcatnloFXFX_madspin_pythia8/ type=-12501 xsec=0.25942
+#name=WH125_powheg  dir=/store/group/lpchbb/HeppyNtuples/V21/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/VHBB_HEPPY_V21a_WminusH_HToBB_WToQQ_M125_13TeV_powheg_Py8__fall15MAv2-pu25ns15v1_76r2as_v12-v1/160324_170826/0000/    type=-125010  xsec=0.1305
+#name=WH125P_powheg  dir=/store/group/lpchbb/HeppyNtuples/V21/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/VHBB_HEPPY_V21a_WplusH_HToBB_WToQQ_M125_13TeV_powheg_Py8__fall15MAv2-pu25ns15v1_76r2as_v12-v1/160324_170759/0000/    type=-125011  xsec=0.1305
+#name=ZH125_powheg    dir=/store/group/lpchbb/HeppyNtuples/V21/ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8/  type=-12502  xsec=0.0535 
+#name=WJets       dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/     type=60  xsec=61526.7 doJetFlavorSplit=1
+#name=WJets_madgraph   dir=   type=22  xsec=61526.7  doJetFlavorSplit=1
+#name=WJets-HT100To200  dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/   type=44 xsec=1345 kfac=1.21 doJetFlavorSplit=1 
+#name=WJets-HT200To400   dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=45 xsec=359.7  kfac=1.21 doJetFlavorSplit=1
+#name=WJets-HT400To600  dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/   type=46  xsec=48.91 kfac=1.21 doJetFlavorSplit=1
+#name=WJets-HT600ToInf  dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=47  xsec=18.77 kfac=1.21  doJetFlavorSplit=1 
+#name=WBJets  dir=/store/group/lpchbb/HeppyNtuples/V21/WBJetsToLNu_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=48  xsec=34.2 kfac=1.21  doJetFlavorSplit=1
+#name=WJets_BGenFilter  dir=/store/group/lpchbb/HeppyNtuples/V21/WJetsToLNu_BGenFilter_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=49 xsec=201.8 kfac=1.21 doJetFlavorSplit=1
+name=TT_powheg  dir=/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-powheg-pythia8/VHBB_HEPPY_V21a_TT_TuneCUETP8M1_13TeV-powheg-Py8__fall15MAv2-pu25ns15v1_76r2as_v12_ext3-v1,/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-powheg-pythia8/VHBB_HEPPY_V21a_TT_TuneCUETP8M1_13TeV-powheg-Py8__fall15MAv2-pu25ns15v1_76r2as_v12_ext4-v1/ type=120  xsec=831.76 npro=284256622
+##name=TT_madgraph dir=  type=500  xsec=831.76
+#name=TT  dir=/store/group/lpchbb/HeppyNtuples/V21/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/  type=12  xsec=831.76
+#name=TT_DiLep  dir=/store/group/lpchbb/HeppyNtuples/V21/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/ type=50 xsec=88.3
+#name=TT_SingleLepFromT  dir=/store/group/lpchbb/HeppyNtuples/V21/TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/ type=51 xsec=182.7
+#name=TT_SingleLepFromTbar  dir=/store/group/lpchbb/HeppyNtuples/V21/TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=52 xsec=182.7
+#name=TTWJets  dir=/store/group/lpchbb/HeppyNtuples/V14/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8/ type=14  xsec=0.2043
+#name=TTZJets dir=/store/group/lpchbb/HeppyNtuples/V14/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/  type=15  xsec=0.5297
+#name=TToLeptons_s   dir=/store/group/lpchbb/HeppyNtuples/V21/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/  type=16 xsec=3.36
+#name=TToLeptons_t   dir=/store/group/lpchbb/HeppyNtuples/V21/ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/  type=17  xsec=70.69
+##name=TToLeptons_t_powheg  dir=  type=170  xsec=44.33
+#name=TBarToLeptons_t_powheg  dir=  type=171  xsec=26.38
+#name=T_tW    dir=/store/group/lpchbb/HeppyNtuples/V21/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/  type=20  xsec=35.6
+#name=Tbar_tW   dir=/store/group/lpchbb/HeppyNtuples/V21/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/   type=21  xsec=35.6
+#name=WZ  dir=/store/group/lpchbb/HeppyNtuples/V21/WZ_TuneCUETP8M1_13TeV-pythia8/  type=35  xsec=47.13
+#name=WW  dir=/store/group/lpchbb/HeppyNtuples/V21/WW_TuneCUETP8M1_13TeV-pythia8/   type=36  xsec=113.898
+#name=ZZ  dir=/store/group/lpchbb/HeppyNtuples/V21/ZZ_TuneCUETP8M1_13TeV-pythia8/   type=37  xsec=16.523
 
-#name=QCD_HT100to200    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_083609/0000/     type=24  xsec=2.785e7   
-#name=QCD_HT200to300    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_083635/0000/     type=25   xsec=1.717e6
-#name=QCD_HT300to500    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151026_081050/0000/     type=26  xsec=3.513e5
-#name=QCD_HT500to700    dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_181957/0000/     type=27  xsec=3.163e4
-#name=QCD_HT700to1000   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_083726/0000/   type=28  xsec=6.802e3
-#name=QCD_HT1000to1500  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_083753/0000/ type=29  xsec=1.206e3
-#name=QCD_HT1500to2000  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_093151/0000/ type=30  xsec=120.4
-#name=QCD_HT2000toInf   dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_184123/0000/   type=31  xsec=25.24
+#name=QCD_HT100to200    dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=24  xsec=2.785e7   
+#name=QCD_HT200to300    dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=25   xsec=1.717e6
+#name=QCD_HT300to500    dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=26  xsec=3.513e5
+#name=QCD_HT500to700    dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=27  xsec=3.163e4
+#name=QCD_HT700to1000   dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/   type=28  xsec=6.802e3
+#name=QCD_HT1000to1500  dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/ type=29  xsec=1.206e3
+#name=QCD_HT1500to2000  dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/ type=30  xsec=120.4
+#name=QCD_HT2000toInf   dir=/store/group/lpchbb/HeppyNtuples/V21/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/   type=31  xsec=25.24
 
 
 
-#name=DYToLL_madgraph       dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V14_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151025_092939/0000/    type=23  xsec=6024 doJetFlavorSplit=1
-name=DYToLL       dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V14/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/VHBB_HEPPY_V14_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8__RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151024_171732/0000/    type=23  xsec=6025.2 doJetFlavorSplit=1
+#name=DYToLL_madgraph       dir=/store/group/lpchbb/HeppyNtuples/V21/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=23  xsec=6025.2 doJetFlavorSplit=1
+name=DYToLL_HT100to200     dir=/store/group/lpchbb/HeppyNtuples/V21/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=61  xsec=147.40
+#name=DYToLL_HT200to400     dir=/store/group/lpchbb/HeppyNtuples/V21/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=62  xsec=40.99
+#name=DYToLL_HT400to600     dir=/store/group/lpchbb/HeppyNtuples/V21/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=63  xsec=5.678
+#name=DYToLL_HT600toInf     dir=/store/group/lpchbb/HeppyNtuples/V21/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/  type=64  xsec=2.198
+#name=DYToLL       dir=    type=230  xsec=6025.2 doJetFlavorSplit=1
 
 
 

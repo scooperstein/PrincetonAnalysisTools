@@ -87,6 +87,7 @@ dotitles=False
 #cattitles=["Electron Barrel (Eta < 0.8)","Electron Barrel (Eta > 0.8)","Electron Endcaps"]
 #cattitles=["|#eta| < 0.8","0.8 < |#eta| < 1.4442","|#eta| > 1.556"]
 cattitles = ["TT (W#mu#nu)","W+HF (W#mu#nu)","W+LF (W#mu#nu)","TT (We#nu)","W+HF (We#nu)", "W+LF (We#nu)"]
+cattitles=["W#mu#nu","We#nu"]
 dointegrals=False
 domean=False
 

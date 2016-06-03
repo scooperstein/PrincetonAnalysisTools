@@ -48,7 +48,6 @@ name=Z_bb_HT200To400     sampleIndex=6202   order=14  plot=1  leg=0    scale=1  
 name=Z_bb_HT400To600     sampleIndex=6302   order=15  plot=1  leg=0    scale=1      color=416      marker=0   displayName=Z+bb
 name=Z_bb_HT600ToInf     sampleIndex=6402   order=16  plot=1  leg=1    scale=1      color=400      marker=0   displayName=Z+bb
 
-
 name=W_udcsg                  sampleIndex=2200   order=17  plot=1  leg=0    scale=1.0      color=418    marker=0    displayName=Wudcsg
 name=W_udcsg_HT100To200       sampleIndex=4400   order=18  plot=1  leg=0    scale=1.0      color=418      marker=0   displayName=W+udcsg-HT100To200
 name=W_udcsg_HT200To400       sampleIndex=4500   order=19  plot=1  leg=0    scale=1.0      color=418      marker=0   displayName=W+udcsg-HT200To400
@@ -70,7 +69,6 @@ name=W_bb_HT400To600       sampleIndex=4602   order=34  plot=1  leg=0    scale=1
 name=W_bb_HT600ToInf       sampleIndex=4702   order=35  plot=1  leg=0    scale=1.0      color=416      marker=0   displayName=W+bb
 name=W_bb_WBJets           sampleIndex=4802   order=36  plot=1  leg=0    scale=1.0      color=616     marker=0    displayName=W+bb
 name=W_bb_BGenFilter       sampleIndex=4902   order=37  plot=1  leg=1    scale=1.0      color=416     marker=0    displayName=W+bb
-
 
 name=QCD_HT100To200     sampleIndex=24    order=46  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_100To200   
 name=QCD_HT200To300     sampleIndex=25    order=47  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_200To300   

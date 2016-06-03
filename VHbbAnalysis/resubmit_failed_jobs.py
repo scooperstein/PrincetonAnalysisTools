@@ -48,7 +48,7 @@ for subdir, dirs, files in os.walk(args.dir):
                 except AttributeError:
                     filesToResubmit.append(os.path.join(subdir, file) )
                 
-
+print "resubmitting %i failed jobs" % len(filesToResubmit)
 for failed_file in filesToResubmit:
     cmd = ["condor_submit", failed_file]
     if not args.check:

@@ -4,6 +4,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
 #include <TFile.h>
@@ -90,6 +91,14 @@ void AnalysisManager::AddSample(SampleContainer sample){
     samples.push_back(sample);
 }
 
+void AnalysisManager::AddSystematic(SystematicContainer syst){
+    systematics.push_back(syst);
+}
+
+void AnalysisManager::AddScaleFactor(SFContainer sf) {
+    scaleFactors.push_back(sf);
+}
+
 void AnalysisManager::AddBDT(BDTInfo bdt) {
     BDTisSet = true;
     bdtInfos.push_back(bdt);
@@ -159,6 +168,7 @@ void AnalysisManager::InitChain(std::string filename)
     //std::cout<<"opening "<<filename.c_str()<<std::endl;
     //TFile* tf = TFile::Open(filename.c_str());
     //std::cout<<"adding to chain"<<std::endl;
+    //fChain->Add(tf);
     fChain->Add(filename.c_str());
     fCurrent = -1;
     fChain->SetMakeClass(1);
@@ -173,10 +183,10 @@ void AnalysisManager::InitChain(std::string filename)
 }
 
 
-void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov){
+void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov, std::string lengthBranch){
     branches[name] = new TBranch;
     if(debug>10000) std::cout<<"new TBranch"<<std::endl;
-    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov); 
+    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov,-999.,lengthBranch); 
     if(debug>10000) std::cout<<"new BranchInfo"<<std::endl;
 
     // Only 0-9 are setup with types for the moment.
@@ -404,38 +414,50 @@ std::vector<std::string> AnalysisManager::ListSampleNames() {
 
 
 // Process all input samples and all events
-void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNum){
+void AnalysisManager::Loop(std::string sampleName, std::string filename, std::string ofilename){
     // Specify sample name if we want to run on only a particular sample, specify
-    // filename if we want to run only on a specific file from that sample.
+    // filenames if we want to run only on specific files from that sample.
+    std::vector<std::string> filenames;
+    if (!filename.empty()) {
+        std::stringstream ss(filename);
+        std::string file;
+        while (std::getline(ss, file, ','))
+        {
+            filenames.push_back(file);
+        }
+    }
     if(!sampleName.empty()){
         bool sampleFound=false;
         for(int i=0; i<(int)samples.size(); i++) {
             if(sampleName == samples[i].sampleName) {
                 sampleFound=true;
                 SampleContainer* onlySample = new SampleContainer(samples[i]);
-                if (!filename.empty()) {
+                if (filenames.size() > 0) {
                     // keep track of total number of processed events for the sample
                     // so we still get the weight right
                     int processedEvents = onlySample->processedEvents;
                     std::vector<std::string> sampleFiles = onlySample->files;
                     onlySample->files.clear();
                     onlySample->sampleChain = new TChain("tree");
-                    if (std::find(sampleFiles.begin(), sampleFiles.end(), filename) != sampleFiles.end() ) {
-                        onlySample->AddFile(filename.c_str());
-                    }
-                    else {
-                        std::cout<<"Analysis Manager tried to run on file "<<filename<<" in sample "<<sampleName<<", but this file is not in the sample's list of files. Skipping..."<<std::endl;
-                        std::cout<<"Let's print the full list of files for this sample..."<<std::endl;
-                        for (int k=0; k<(int)sampleFiles.size(); k++) {
-                            std::cout<<sampleFiles[k]<<std::endl;
+                    for (int j=0; j<(int)filenames.size(); j++) {
+                        if (std::find(sampleFiles.begin(), sampleFiles.end(), filenames[j]) != sampleFiles.end() ) {
+                            onlySample->AddFile(filenames[j].c_str());
+                        }
+                        else {
+                            std::cout<<"Analysis Manager tried to run on file "<<filenames[j]<<" in sample "<<sampleName<<", but this file is not in the sample's list of files. Skipping..."<<std::endl;
+                            std::cout<<"Let's print the full list of files for this sample..."<<std::endl;
+                            for (int k=0; k<(int)sampleFiles.size(); k++) {
+                                std::cout<<sampleFiles[k]<<std::endl;
+                            }
                         }
                     }
                     onlySample->processedEvents = processedEvents;
-                    ofile = new TFile(Form("%s_%s_%i.root",outputTreeName.c_str(),samples[0].sampleName.c_str(),fNum),"recreate");
+                    //ofile = new TFile(Form("%s_%s_%i.root",outputTreeName.c_str(),samples[0].sampleName.c_str(),fNum),"recreate");
                 }
                 else {
-                    ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
+                    //ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
                 }
+                ofile = new TFile(ofilename.c_str(), "recreate");
                 samples.clear();
                 samples.push_back(*onlySample);
                 break;
@@ -466,6 +488,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
     //}  
     // let's add some of our own branches
     SetNewBranches();
+    SetupSystematicsBranches();
     // FIXME add branches to settings regarding splitting
     //SetupNewBranch("jobNum", 3, -1, true, "settings", jobNum);
     settingsTree->Fill();
@@ -501,25 +524,69 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, int fNu
             int saved=0;
             // FIXME need a loop over systematics
             for (Long64_t jentry=0; jentry<nentries;jentry++) {
-            //for (Long64_t jentry=0; jentry<50001;jentry++) {
+            //for (Long64_t jentry=0; jentry<1001;jentry++) {
                 if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
+                
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
-                if(debug>100000) std::cout<<"checking preselection"<<std::endl;
-                bool presel = Preselection();
-                if(!presel) continue;
+
+                bool anyPassing=false;
+                for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                    cursyst=&(systematics[iSyst]);
+                    //ApplySystematics(true);
+
+                    if(debug>100000) std::cout<<"checking preselection"<<std::endl;
+                    bool presel = Preselection();
+                    if(presel) anyPassing=true;
+                }
+                
+                if(!anyPassing) continue;
+  
 
                 if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
                 Long64_t ientry = LoadTree(jentry);
                 if (ientry < 0) break;
-                nb = fChain->GetEntry(jentry);   nbytes += nb;
-  
-                if(debug>1000) std::cout<<"running analysis"<<std::endl;
-                bool select = Analyze();
-                if(select){
-                    if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                    FinishEvent();
-                    saved++;
+                //nb = fChain->GetEntry(jentry);   
+                //nbytes += nb;
+                
+                anyPassing=false;
+                for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                    nb = fChain->GetEntry(jentry);   
+                    nbytes += nb;
+                    
+                    cursyst=&(systematics[iSyst]);
+                    ApplySystematics();
+                    if(debug>1000) std::cout<<"running analysis"<<std::endl;
+                    bool select = Analyze();
+                    *b[Form("Pass_%s",cursyst->name.c_str())] = false;
+                    if(select) { 
+                        anyPassing=true;
+                        *b[Form("Pass_%s",cursyst->name.c_str())] = true;
+                    }
+                    if(select || (cursyst->name=="nominal" && anyPassing)){
+                        if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
+                        FinishEvent();
+                        for (int i=0; i < scaleFactors.size(); i++) {
+                            SFContainer sf = scaleFactors[i];
+                            float sf_err = 0.0;
+                            if (cursample->sampleNum != 0) {
+                                if (sf.binning.find("abs") == -1) {
+                                    *f[sf.branchname] = sf.getScaleFactor(*f[sf.branches[0]], *f[sf.branches[1]], sf_err);
+                                }
+                                else {
+                                    *f[sf.branchname] = sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err);
+                                     //std::cout<<*f[sf.branches[0]]<<": ,"<<*f[sf.branches[1]]<<": ,"<<std::cout<<sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err)<<std::endl;
+                                }
+                            }
+                            else {
+                                // data event, scale factor should just be 1.0
+                                *f[sf.branchname] = 1.0;
+                                sf_err = 1.0;
+                            }
+                            *f[Form("%s_err",sf.branchname.c_str())] = sf_err;
+                        }
+                        if(cursyst->name=="nominal") saved++;
+                    }
                 }
             } // end event loop
         } // end file loop
@@ -551,9 +618,12 @@ bool AnalysisManager::Analyze(){
             
 void AnalysisManager::FinishEvent(){
     //need to fill the tree, hist, or whatever here.
-   
-    ofile->cd();
-    outputTree->Fill();
+  
+    // FIXME nominal must be last!
+    if(cursyst->name=="nominal"){
+        ofile->cd();
+        outputTree->Fill();
+    }
     return;
 }
 
@@ -568,64 +638,128 @@ void AnalysisManager::TermAnalysis() {
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
 void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
-
-    // let's do 8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg as an example
-    //if(debug>100){
-    //    thereader = new TMVA::Reader( "!Color:!Silent" );
-    //} else {
-    //    thereader = new TMVA::Reader( "!Color:Silent" );
-    //}
-    /*int bdtType = 0;
-    if (bdtType == 0) {
-        thereader->AddVariable("H.massCorr",                &testMass); 
-        thereader->AddVariable("H.ptCorr",                  &H.ptCorr);
-        thereader->AddVariable("V.pt",                      &V.pt);
-        thereader->AddVariable("hJet_csvReshapedNew[0]",    &(f["hJet_csvReshapedNew"][0]) );
-        thereader->AddVariable("hJet_csvReshapedNew[1]",    &(f["hJet_csvReshapedNew"][1]) );
-        thereader->AddVariable("HVdPhi",                    f["HVdPhi"]);
-        thereader->AddVariable("H.dEta",                    &H.dEta);
-        thereader->AddVariable("Sum$(aJet_pt>20 && abs(aJet_eta)<4.5)", f["naJetsPassingCuts"]);
-        thereader->AddVariable("H.dR",                      &H.dR);
-        thereader->AddVariable("abs(deltaPullAngle)",       f["absDeltaPullAngle"]);
-        thereader->AddVariable("hJet_ptCorr[0]",            &(f["hJet_ptCorr"][0]) );
-        thereader->AddVariable("hJet_ptCorr[1]",            &(f["hJet_ptCorr"][1]) );
-        thereader->AddVariable("MaxIf$(aJet_csvReshapedNew,aJet_pt>20 && abs(aJet_eta)<2.5)", f["highestCSVaJet"]);
-        thereader->AddVariable("MinIf$(evalDeltaR(aJet_eta,aJet_phi,H.eta,H.phi),aJet_pt>20 && abs(aJet_eta)<4.5 && aJet_puJetIdL>0)", f["minDeltaRaJet"]);   
- 
-        thereader->AddSpectator("Vtype", f["Vtype_f"]);
-        thereader->AddSpectator("Sum$(aLepton_pt > 15 && abs(aLepton_eta) < 2.5 && (aLepton_pfCombRelIso < 0.15) )", f["naLeptonsPassingCuts"]);
-        thereader->AddSpectator("METtype1corr.et", &METtype1corr.et);
-
-        thereader->BookMVA("BDT method","aux/TMVA_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4_BDT.weights.xml");
-        //thereader->BookMVA("BDT method",bdtInfo.xmlFile);
-    }*/
-    //std::cout<<Form("Setting up variables for BDT %s", bdtInfo.bdtname)<<std::endl;
     TMVA::Reader *thereader = bdtInfo.reader;
     
-    /*for(unsigned int i=0; i<bdtInfo.inputNames.size(); i++) {
-        //std::cout<<Form("Adding variable to BDT: %s (localName = %s) ",bdtInfo.inputNames[i], bdtInfo.localVarNames[i])<<std::endl;
-        
-        bdtInfo.reader->AddVariable(bdtInfo.inputNames[i], f[bdtInfo.localVarNames[i]]);
-    }
-
-    for(unsigned int i=0; i<bdtInfo.inputSpectatorNames.size(); i++) {
-        //std::cout<<Form("Adding spectator variable to BDT: %s (localName = %s) ",bdtInfo.inputSpectatorNames[i], bdtInfo.localSpectatorVarNames[i])<<std::endl;
-        bdtInfo.reader->AddSpectator(bdtInfo.inputSpectatorNames[i], f[bdtInfo.localSpectatorVarNames[i]]);
-    }*/
-
     for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
         BDTVariable bdtvar = bdtInfo.bdtVars[i];
         if (!bdtvar.isSpec) {
             bdtInfo.reader->AddVariable(bdtvar.varName, f[bdtvar.localVarName]);
-        }
-        else {
+        } else {
             bdtInfo.reader->AddSpectator(bdtvar.varName, f[bdtvar.localVarName]);
         }
     }
 
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
     thereader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
+}
 
+
+void AnalysisManager::SetupSystematicsBranches(){
+    std::cout<<"loop through systematics "<<systematics.size()<<std::endl;
+    for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+        std::cout<<"syst name "<<systematics[iSyst].name<<std::endl;
+        for(int iBrnch=0; iBrnch<systematics[iSyst].branchesToEdit.size(); iBrnch++){
+            std::string newName(systematics[iSyst].branchesToEdit[iBrnch]);
+            newName.append("_");
+            newName.append(systematics[iSyst].name);
+            std::cout<<"\tbranch name "<<newName<<std::endl;
+            std::cout<<"\t\ttype, length,  "
+                <<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type<<", "
+                <<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length<<std::endl;
+                //<<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length<<" "
+            SetupNewBranch(newName, 
+                branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type,
+                branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length);
+        }
+        for(int iBDT=0; iBDT<bdtInfos.size(); iBDT++) {
+            std::string bdtname(bdtInfos[iBDT].bdtname);
+            if (systematics[iSyst].name != "nominal") {
+                bdtname.append("_");
+                bdtname.append(systematics[iSyst].name);
+                SetupNewBranch(bdtname, 2);
+            }
+        }
+        if (systematics[iSyst].name != "nominal") {
+            SetupNewBranch(Form("H_mass_%s", systematics[iSyst].name.c_str()), 2);
+        }
+    }
+}
+
+// applies scales to floats and doubles (and arrays)
+// smearing can be added; other types can be added.
+void AnalysisManager::ApplySystematics(bool early){
+    for(int iBrnch=0; iBrnch<cursyst->branchesToEdit.size(); iBrnch++){
+        //std::cout<<"iBrnch "<<iBrnch<<std::endl;
+        std::string oldBranchName(cursyst->branchesToEdit[iBrnch]);
+        BranchInfo* existingBranchInfo = branchInfos[oldBranchName.c_str()];
+        //std::cout<<"early? "<< branchInfos[cursyst->branchesToEdit[iBrnch]]->prov<<std::endl;
+        if(!early || (early && branchInfos[cursyst->branchesToEdit[iBrnch]]->prov == "early")){
+            std::string systBranchName(oldBranchName);
+            systBranchName.append("_");
+            systBranchName.append(cursyst->name);
+            //std::cout<<"new branch "<<systBranchName.c_str()<<std::endl;
+            int thisType=existingBranchInfo->type;
+            // just doing floats and doubles
+            // smearing can be added at any time
+            if(thisType==2){
+                // scale the current branch
+                if (cursyst->scaleVar[iBrnch] == "") {
+                    // flat scaling
+                    *f[oldBranchName.c_str()]=*f[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                }
+                else {
+                    // dynamic scaling
+                    *f[oldBranchName.c_str()]=*f[oldBranchName.c_str()] * *f[cursyst->scaleVar[iBrnch]];
+                }
+                // copy the value to the new branch
+                *f[systBranchName.c_str()]=*f[oldBranchName.c_str()];
+            } else if(thisType==3){
+                // scale the current branch
+                if (cursyst->scaleVar[iBrnch] == "") {
+                    // flat scaling
+                    *d[oldBranchName.c_str()]=*d[oldBranchName.c_str()] * cursyst->scales[iBrnch];
+                }
+                else {
+                    // dynamic scaling
+                    *d[oldBranchName.c_str()]=*d[oldBranchName.c_str()] * *d[cursyst->scaleVar[iBrnch]];
+                }
+                // copy the value to the new branch
+                *d[systBranchName.c_str()]=*d[oldBranchName.c_str()];
+            } else if(thisType==7){
+                //std::cout<<"length branch "<<existingBranchInfo->lengthBranch<<std::endl;
+                //std::cout<<"length "<<*in[existingBranchInfo->lengthBranch]<<std::endl;
+                for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
+                    //std::cout<<"old val "<<f[oldBranchName.c_str()][ind]<<std::endl;
+                    if (cursyst->scaleVar[iBrnch] == "") {
+                         // flat scaling
+                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    }
+                    else {
+                         //std::cout<<f[oldBranchName.c_str()][ind]<<" * "<<f[cursyst->scaleVar[iBrnch]][ind]<<std::endl;
+                         // dynamic scaling
+                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * f[cursyst->scaleVar[iBrnch]][ind];
+                    }
+                    //std::cout<<"new val "<<f[oldBranchName.c_str()][ind]<<std::endl;
+                    // copy the value to the new branch
+                    f[systBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind];
+                    //std::cout<<"new branch "<<f[systBranchName.c_str()][ind]<<std::endl;
+                }
+            } else if(thisType==8){
+                for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
+                    if (cursyst->scaleVar[iBrnch] == "") {
+                         // flat scaling
+                        d[oldBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    }
+                    else {
+                        // dynamic scaling
+                        d[oldBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind] * d[cursyst->scaleVar[iBrnch]][ind];
+                    }
+                    // copy the value to the new branch
+                    d[systBranchName.c_str()][ind]=d[oldBranchName.c_str()][ind];
+                }
+            }
+        }
+    }
 }
 
 

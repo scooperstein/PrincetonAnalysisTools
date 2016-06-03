@@ -40,19 +40,29 @@ inline SampleContainer::SampleContainer()
     procEff = 1.;
 }
 
-inline void SampleContainer::AddFile(const char* fname) {
-    sampleChain->Add(fname);
+inline void SampleContainer::AddFile(const char* fname,int isBatch) {
     files.push_back(fname);
+    std::cout<<"in SC "<<fname<<std::endl;
+    std::cout<<"isBatch "<<isBatch<<std::endl;
+    
+    if( isBatch==1 ) return;
+    
+    sampleChain->Add(fname);
     //std::cout<<nProFromFile<<std::endl; 
     if(nProFromFile) {
-        TFile file(fname);
+        TFile *file = TFile::Open(fname);
         //TH1F* counter = (TH1F*)file.Get("Count");
         //processedEvents+=counter->GetBinContent(1);
-        TH1F* counterPos = (TH1F*)file.Get("CountPosWeight");
-        TH1F* counterNeg = (TH1F*)file.Get("CountNegWeight");
+        TH1F* counterPos = (TH1F*)file->Get("CountPosWeight");
+        TH1F* counterNeg = (TH1F*)file->Get("CountNegWeight");
         int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
+        if(sampleNum==49) {
+            //special prescription for WJets_BGenFilter sample weighting
+            TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
+            nEffective = counterFullWeight->GetBinContent(1); 
+        }
         processedEvents += nEffective;
-        file.Close();
+        file->Close();
     }
     
 }

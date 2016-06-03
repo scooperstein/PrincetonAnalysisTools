@@ -1,89 +1,77 @@
-void makeBDTRockCurve(char* filename, char *treename, char* bdtname, bool tree1FromTMVA=false, char* filename2="", char* treename2="", char* bdtname2="", bool tree2FromTMVA=false) {
+void makeBDTRockCurve(char* filename, char *treename, std::vector<std::string> bdtnames=std::vector<std::string>(), int zoom=0) {
 
 TFile *ifile = new TFile(filename, "r");
 TTree *tree = (TTree*) ifile->Get(treename);
 
 //char* presel = "hJets_btagCSV_1>0.6";
 //char* presel = "hJets_btagCSV_0>0.85 && hJets_btagCSV_1>0.6 && abs(HVdPhi)>2.5 && abs(lepMetDPhi)<2 && nAddJet_f<2 && nAddLep_f<2";
-char* presel = "H_mass>90&&H_mass<150";
-
-TTree *tree2 = new TTree();
-
-if (filename2!="") {
-    TFile *ifile2 = new TFile(filename2, "r");
-    tree2 = (TTree*) ifile2->Get(treename2);    
-}
+char* presel = "H_mass>90&&H_mass<150&&V_pt>150";
 
 int nBins = 1000;
+int nBDTs = (int) bdtnames.size();
 
-TH1F *h_bdtSig = new TH1F("h_bdtSig","h_bdtSig",nBins,-1,1); 
-TH1F *h_bdtBkg = new TH1F("h_bdtBkg","h_bdtBkg",nBins,-1,1);
-
-TH1F *h2_bdtSig = new TH1F("h2_bdtSig","h2_bdtSig",nBins,-1,1); 
-TH1F *h2_bdtBkg = new TH1F("h2_bdtBkg","h2_bdtBkg",nBins,-1,1);
-
-if (tree1FromTMVA) {
-    tree->Draw(Form("%s>>h_bdtSig",bdtname),Form("(classID==0&&(%s))*weight",presel));
-    tree->Draw(Form("%s>>h_bdtBkg",bdtname),Form("(classID==1&&(%s))*weight",presel));
-}
-else {
-    tree->Draw(Form("%s>>h_bdtSig",bdtname),Form("(sampleIndex<0&&(%s))*weight",presel));
-    tree->Draw(Form("%s>>h_bdtBkg",bdtname),Form("(sampleIndex>0&&(%s))*weight",presel));
-}
-n2entries = tree2->GetEntries();
-if (n2entries > 0) {
-  if (tree2FromTMVA) {
-      tree2->Draw(Form("%s>>h2_bdtSig",bdtname2),Form("(classID==0&&(%s))*weight",presel));
-      tree2->Draw(Form("%s>>h2_bdtBkg",bdtname2),Form("(classID==1&&(%s))*weight",presel));
-  }
-  else {
-      tree2->Draw(Form("%s>>h2_bdtSig",bdtname2),Form("(sampleIndex<0&&(%s))*weight",presel));
-      tree2->Draw(Form("%s>>h2_bdtBkg",bdtname2),Form("(sampleIndex>0&&(%s))*weight",presel));
-  }
+std::vector<TH1F*> h_bdtSig_test;
+std::vector<TH1F*> h_bdtBkg_test;
+std::vector<TH1F*> h_bdtSig_train;
+std::vector<TH1F*> h_bdtBkg_train;
+std::vector<Double_t*> sig_test;
+std::vector<Double_t*> bkg_test;
+std::vector<Double_t*> sig_train;
+std::vector<Double_t*> bkg_train;
+for (int i=0; i<nBDTs; i++) {
+    h_bdtSig_test.push_back(new TH1F(Form("h_bdtSig_test_%s",bdtnames[i].c_str()),Form("h_bdtSig_test_%s",bdtnames[i].c_str()),nBins,-1,1)); 
+    h_bdtBkg_test.push_back(new TH1F(Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),nBins,-1,1));
+    h_bdtSig_train.push_back(new TH1F(Form("h_bdtSig_train_%s",bdtnames[i].c_str()),Form("h_bdtSig_train_%s",bdtnames[i].c_str()),nBins,-1,1)); 
+    h_bdtBkg_train.push_back(new TH1F(Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),nBins,-1,1));
+    tree->Draw(Form("%s>>h_bdtSig_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex<0&&evt%2==0&&(%s))*weight",presel));
+    tree->Draw(Form("%s>>h_bdtBkg_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==0&&(%s))*weight",presel));
+    tree->Draw(Form("%s>>h_bdtSig_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex<0&&evt%2==1&&(%s))*weight",presel));
+    tree->Draw(Form("%s>>h_bdtBkg_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==1&&(%s))*weight",presel));
+    sig_test.push_back(h_bdtSig_test[i]->GetIntegral());
+    bkg_test.push_back(h_bdtBkg_test[i]->GetIntegral());
+    sig_train.push_back(h_bdtSig_train[i]->GetIntegral());
+    bkg_train.push_back(h_bdtBkg_train[i]->GetIntegral());
 }
 
-Double_t *sig = h_bdtSig->GetIntegral();
-Double_t *bkg = h_bdtBkg->GetIntegral();
-
-Double_t *sig2 = h2_bdtSig->GetIntegral();
-Double_t *bkg2 = h2_bdtBkg->GetIntegral();
-
-Double_t sig_den = h_bdtSig->Integral();
-Double_t bkg_den = h_bdtBkg->Integral();
+Double_t sig_den = h_bdtSig_test[0]->Integral() + h_bdtSig_train[0]->Integral();
+Double_t bkg_den = h_bdtBkg_test[0]->Integral() + h_bdtBkg_test[0]->Integral();
 
 std::cout<<"sig_den = "<<sig_den<<std::endl;;
 std::cout<<"bkg_den = "<<bkg_den<<std::endl;;
 
-// we want to cut > BDT value, GetIntegral() assumes < 
-for (int i=0; i<nBins; i++) {
-    sig[i] = 1 - sig[i];
-    bkg[i] = 1 - bkg[i];
-    if (sig[i] > 0.01 && sig[i] < 1.) {
-        //std::cout<<"sig eff: "<<sig[i]<<", bkg eff: "<<bkg[i]<<std::endl;
-    }
-}
-
-if (n2entries > 0) {
-
-    // we want to cut > BDT value, GetIntegral() assumes < 
-    for (int i=0; i<nBins; i++) {
-        sig2[i] = 1 - sig2[i];
-        bkg2[i] = 1 - bkg2[i];
-        if (sig2[i] > 0.01 && sig2[i] < 1.) {
-            //std::cout<<"sig2 eff: "<<sig2[i]<<", bkg2 eff: "<<bkg2[i]<<std::endl;
-        }
+// we want to cut > BDT value, GetIntegral() assumes <
+for (int i=0; i<nBDTs; i++) { 
+    for (int j=0; j<nBins; j++) {
+        sig_test[i][j] = 1 - sig_test[i][j];
+        bkg_test[i][j] = 1 - bkg_test[i][j];
+        sig_train[i][j] = 1 - sig_train[i][j];
+        bkg_train[i][j] = 1 - bkg_train[i][j];
+        //if (sig[i][j] > 0.01 && sig[i][j] < 1.) {
+        //   //std::cout<<"sig eff: "<<sig[i]<<", bkg eff: "<<bkg[i]<<std::endl;
+        //}
     }
 }
 
 TMultiGraph *mg = new TMultiGraph();
 TLegend *leg = new TLegend(0.1,0.5,0.5,0.9);
-TGraph *gb = new TGraph(nBins, sig, bkg);
-gb->SetLineColor(kBlue);
-gb->SetMarkerColor(kMagenta);
-gb->SetMarkerStyle(0);
-gb->SetLineWidth(2);
-mg->Add(gb,"LP");
 
+//const TColor *colors = [kBlue, kRed, kGreen, kCyan, kViolet, kOrange, kMagenta, kYellow];
+const Int_t colors[8] = {880, 432, 600, 394, 418, 616, 808, 400};
+
+for (int i=0; i < nBDTs; i++) {
+    TGraph *gb_test = new TGraph(nBins, sig_test[i], bkg_test[i]);
+    TGraph *gb_train = new TGraph(nBins, sig_train[i], bkg_train[i]);
+    gb_test->SetLineColor(colors[i]);
+    gb_train->SetLineColor(colors[i]);
+    //gb->SetMarkerStyle(0);
+    gb_test->SetLineWidth(2);
+    gb_train->SetLineWidth(2);
+    gb_train->SetLineStyle(2);
+    mg->Add(gb_test,"LP");
+    mg->Add(gb_train,"LP");
+    leg->AddEntry(gb_test, Form("Test %s",bdtnames[i].c_str()));
+    leg->AddEntry(gb_train, Form("Train %s",bdtnames[i].c_str()));
+}
 // add some cut-based WP's
 TGraph *gwp = new TGraph();
 //gwp->SetPoint(0,0.00034,0.0072);
@@ -122,38 +110,37 @@ gwp->SetPoint(12,0.214/sig_den,1.853/bkg_den);
 
 gwp->SetMarkerStyle(29);
 gwp->SetMarkerSize(2);
-mg->Add(gwp,"LP");
+//mg->Add(gwp,"LP");
 
 //leg->AddEntry(gb,filename,"elp");
-leg->AddEntry(gb,"BDT","elp");
+//leg->AddEntry(gb,"BDT","elp");
 leg->AddEntry(gwp,"cut-based WP's", "p");
 
-if (n2entries > 0) {
-    TGraph *gb2 = new TGraph(nBins, sig2, bkg2);
-    gb2->SetLineColor(kRed);
-    gb2->SetMarkerColor(kGreen);
-    gb2->SetMarkerStyle(0);
-    gb2->SetLineWidth(2);
-    mg->Add(gb2,"LP");  
-    //leg->AddEntry(gb2,filename2,"elp");
-    //leg->AddEntry(gb2,"BDT no M_{jj}","elp");
-    leg->AddEntry(gb2,"BDT tighter presel.","elp");
-}
-
-//TCanvas *canv = new TCanvas();
+TCanvas *canv = new TCanvas();
 
 mg->SetTitle("");
-//mg->SetMinimum();
-mg->SetMaximum(0.01);
+mg->SetMinimum(0.0);
+if (zoom==1) {
+  mg->SetMaximum(0.01);
+}
+else if (zoom==2) {
+  mg->SetMaximum(0.1);
+}
 
 mg->Draw("ALP");
 
 mg->GetYaxis()->SetTitle("Bkg Efficiency");
 mg->GetXaxis()->SetTitle("Signal Efficiency");
-mg->GetXaxis()->SetLimits(0.0,0.1);
+if (zoom==1) {
+  mg->GetXaxis()->SetLimits(0.0,0.1);
+}
+else if (zoom==2) {
+  mg->GetXaxis()->SetLimits(0.0,0.3);
+}
 TGaxis::SetMaxDigits(3);
 //mg->GetXaxis()->SetRange(990,1000);
 leg->Draw("same");
 //canv->Update();
+canv->SaveAs(Form("%i.png",zoom));
 
 }
