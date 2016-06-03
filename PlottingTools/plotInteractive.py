@@ -83,7 +83,10 @@ domergecats=False
 StaticMin=False
 StaticMax=False
 dotitles=False
-cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
+#cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
+#cattitles=["Electron Barrel (Eta < 0.8)","Electron Barrel (Eta > 0.8)","Electron Endcaps"]
+#cattitles=["|#eta| < 0.8","0.8 < |#eta| < 1.4442","|#eta| > 1.556"]
+cattitles = ["TT (W#mu#nu)","W+HF (W#mu#nu)","W+LF (W#mu#nu)","TT (We#nu)","W+HF (We#nu)", "W+LF (We#nu)"]
 dointegrals=False
 domean=False
 
@@ -512,9 +515,9 @@ def PrintTableOfIntegrals(samples,grouped=False):
                 histname=str(cur_plot.plotvarname)+"_cat"+str(iCat)+"_"+str(samples[sampleIndex].inshortnames)
                 hist=ROOT.gROOT.FindObject(histname).Clone()
                 if grouped:
-                    table[samples[groupedSampleIndices[iGroup]].inshortnames][iCat]=table[samples[groupedSampleIndices[iGroup]].inshortnames][iCat]+hist.Integral()
+                    table[samples[groupedSampleIndices[iGroup]].inshortnames][iCat]=table[samples[groupedSampleIndices[iGroup]].inshortnames][iCat]+hist.Integral()*samples[sampleIndex].scale
                 else:
-                    table[samples[sampleIndex].inshortnames][iCat]=table[samples[sampleIndex].inshortnames][iCat]+hist.Integral()
+                    table[samples[sampleIndex].inshortnames][iCat]=table[samples[sampleIndex].inshortnames][iCat]+hist.Integral()*samples[sampleIndex].scale
             except:
                 print "Can't sum for sample",samples[sampleIndex].inshortnames,"in cat",iCat
         if sampleIndex==groupedSampleIndices[iGroup]:
@@ -533,7 +536,8 @@ def PrintTableOfIntegrals(samples,grouped=False):
             print repr(name).rjust(25),
         for iCat in range(len(table[name])):
             try:
-                print '{:.2e}'.format(table[name][iCat]),
+                #print '{:.2e}'.format(table[name][iCat]),
+                print '{:.5e}'.format(table[name][iCat]),
             except:
                 print '------  ',
     
@@ -741,7 +745,11 @@ def Plot(num,printsuffix="",printcat=-1):
     global cur_plot
     cur_plot=plotinfos[int(num)]
     print num, cur_plot.plotvarname
-    Ncol,Nrow=cur_plot.ColsRows()
+    if docats:
+        Ncol,Nrow=cur_plot.ColsRows()
+    else:
+        Ncol = 1
+        Nrow = 1
 
     can.Clear()
     can.SetWindowSize(xsize,ysize)
@@ -753,7 +761,7 @@ def Plot(num,printsuffix="",printcat=-1):
         can.cd().SetGridx(dogridx)
         can.cd().SetGridy(dogridy)
         
-    elif docats:
+    else:
         nCanvases = Ncol*Nrow
         if (not dodivide and not dosoverb and not dosoversqrtb):
             can.Divide(Ncol, Nrow)
@@ -761,7 +769,11 @@ def Plot(num,printsuffix="",printcat=-1):
                 can.cd(ican)
                 can.cd(ican).SetLogy(dolog)
                 can.cd(ican).SetGridx(dogridx)
-                can.cd(ican).SetGridy(dogridy)
+                can.cd(ican).SetGridy(dogridy) 
+                can.cd(ican).SetTopMargin(0.01)
+                can.cd(ican).SetBottomMargin(0.1)
+                can.cd(ican).SetRightMargin(0.01)
+                can.cd(ican).SetLeftMargin(0.07)
         else:
             global pads
             pads = []
@@ -787,7 +799,12 @@ def Plot(num,printsuffix="",printcat=-1):
                     if (x1 > x2):
                         continue
                     name = can.GetName()+"_"+str(ix+iy*nx)
-                    pads.append(ROOT.TPad(name, name, x1, y1, x2, y2, ROOT.kWhite))
+                    pad = ROOT.TPad(name, name, x1, y1, x2, y2, ROOT.kWhite)
+                    pad.SetTopMargin(0.07)
+                    pad.SetBottomMargin(0.1)
+                    pad.SetRightMargin(0.01)
+                    pad.SetLeftMargin(0.07) 
+                    pads.append(pad)
                     pads[-1].SetNumber(ix+iy*nx+1)
                     pads[-1].Draw()
 
@@ -797,12 +814,6 @@ def Plot(num,printsuffix="",printcat=-1):
                     can.cd(ican).SetLogy(dolog)
                     can.cd(ican).SetGridx(dogridx)
                     can.cd(ican).SetGridy(dogridy)
-    else:
-        can.cd().SetLogy(dolog)
-        can.cd().SetGridx(dogridx)
-        can.cd().SetGridy(dogridy)
-    
-            
                 
     stacks={}
     if doautogroup:
@@ -822,6 +833,12 @@ def Plot(num,printsuffix="",printcat=-1):
 
     first=1
     stackmaxima={}
+    if docats:
+        cats=xrange(cur_plot.ncat)
+    else:
+        cats=[]
+        cats.append(singlecat)
+    
     if domergecats:
         stackmaxima[0]=[]
         for stacktype in stacktypes:
@@ -834,7 +851,7 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks[stacktype+"lines"]=MakeMergeOverlayLines(stacktype)
             stackmaxima[0].append(stacks[stacktype].GetMaximum())          
     else:
-        for icat in xrange(cur_plot.ncat):
+        for icat in cats:
             stackmaxima[icat]=[]
             for stacktype in stacktypes:
                 stacks[stacktype+str(icat)]=MakeStack(stacktype,icat)
@@ -847,12 +864,6 @@ def Plot(num,printsuffix="",printcat=-1):
     if dotext:
         SetText()
 
-    if docats:
-        cats=xrange(cur_plot.ncat)
-    else:
-        cats=[]
-        cats.append(singlecat)
-    
     if dointegrals:
         stackintegrals={}
 
@@ -997,6 +1008,7 @@ def Plot(num,printsuffix="",printcat=-1):
         hist_1 = [""]*cur_plot.ncat
         dataTot = [""]*cur_plot.ncat
         mcTot = [""]*cur_plot.ncat
+        mcErrBand = [""]*cur_plot.ncat
         sigTot = [""]*cur_plot.ncat
         for icat in cats:
             stackmaxima[icat].sort()
@@ -1127,6 +1139,10 @@ def Plot(num,printsuffix="",printcat=-1):
                             if dosoversqrtb:
                                 for bin in range(0,mcTot[icat].GetNbinsX()+1):
                                     mcTot[icat].SetBinContent(bin,math.sqrt(mcTot[icat].GetBinContent(bin)))
+                # Draw MC statistical uncertainty 
+                mcTot[icat].SetFillStyle(3013)
+                mcTot[icat].SetFillColor(ROOT.kBlack)
+                mcTot[icat].Draw("E2 same")
                 if stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries() > 0:
                     error=math.sqrt(1/float(stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries()))*stacks["bkglines"+str(icat)][lineorder[0]].Integral() 
                     print "bkg int","%.2f"%stacks["bkglines"+str(icat)][lineorder[0]].Integral(),"+/-","%.2f"%error
@@ -1172,14 +1188,20 @@ def Plot(num,printsuffix="",printcat=-1):
                         print "data"+str(icat),stackintegrals["data"+str(icat)]
  
             if dodivide:
-                pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 + 1) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                if docats:
+                    pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 + 1) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                else:
+                    pad_id = 2
                 can.cd(pad_id)
                 can.GetPad(pad_id).SetGrid(True)
                 dataTot[icat].Sumw2()
                 mcTot[icat].Sumw2()
                 dataTot[icat].Divide(mcTot[icat])
                 dataTot[icat].SetMarkerColor(4)
-                dataTot[icat].SetMarkerSize(0.8)
+                if docats:
+                    dataTot[icat].SetMarkerSize(0.5)
+                else:
+                    dataTot[icat].SetMarkerSize(0.8)
                 dataTot[icat].SetMarkerStyle(20)
                 dataTot[icat].SetLineColor(4)
                 dataTot[icat].SetLineWidth(2)
@@ -1188,10 +1210,23 @@ def Plot(num,printsuffix="",printcat=-1):
                 dataTot[icat].GetYaxis().SetNdivisions(505)
                 dataTot[icat].SetTitle('')
                 dataTot[icat].GetYaxis().SetLabelSize(0.15)
+                dataTot[icat].GetYaxis().SetLabelOffset(0.015)
                 dataTot[icat].GetYaxis().SetTitle('')
                 # FIXME need to make the font larger... how?
                 #dataTot[icat].GetYaxis().SetTitle('Data/Bkg MC')
                 dataTot[icat].Draw('PE')
+
+                # draw MC statistical uncertainty band
+                mcErrBand[icat] = ROOT.TGraphErrors()
+                for ibin in range(mcTot[icat].GetNbinsX()):
+                    mcErrBand[icat].SetPoint(ibin,mcTot[icat].GetBinLowEdge(ibin),1.)
+                    e = 0.0
+                    if mcTot[icat].GetBinContent(ibin)>0:
+                        e = mcTot[icat].GetBinError(ibin) / mcTot[icat].GetBinContent(ibin)
+                    mcErrBand[icat].SetPointError(ibin,mcTot[icat].GetBinWidth(ibin)/2, e)
+                mcErrBand[icat].SetFillColor(ROOT.kBlack)
+                mcErrBand[icat].SetFillStyle(3013)
+                mcErrBand[icat].Draw("SAME2") 
 
             if dosoverb or dosoversqrtb:
                 pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 + 1) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
@@ -1201,7 +1236,10 @@ def Plot(num,printsuffix="",printcat=-1):
                 mcTot[icat].Sumw2()
                 sigTot[icat].Divide(mcTot[icat])
                 sigTot[icat].SetMarkerColor(4)
-                sigTot[icat].SetMarkerSize(0.8)
+                if docats:
+                    sigTot[icat].SetMarkerSize(0.5)
+                else:
+                    sigTot[icat].SetMarkerSize(0.8)
                 sigTot[icat].SetMarkerStyle(20)
                 sigTot[icat].SetLineColor(4)
                 sigTot[icat].SetLineWidth(2)
@@ -1220,20 +1258,28 @@ def Plot(num,printsuffix="",printcat=-1):
 
             if dolegend:
                 if dodivide or dosoverb or dosoversqrtb:
-                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
+                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol * 2
                     can.cd(cat)
+                    #pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 ) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
+                    #can.cd(pad_id)
                 legend.Draw()
  
             if dotext:
                 if dodivide or dosoverb or dosoversqrtb:
-                    cat = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol 
-                    can.cd(cat)
+                    if docats:
+                        cat = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol
+                        can.cd(cat) 
+                    else:
+                        can.cd(1)
                 plottext.Draw()
         
             if doline:
                 if dodivide or dosoverb or dosoversqrtb:
-                    cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
-                    can.cd(cat)
+                    if docats:
+                        cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
+                        can.cd(cat)
+                    else:
+                        can.cd(1)
                 cutline.SetLineWidth(4*plotscale)
                 cutline.SetLineColor(633)
                 cutline.DrawLine(linex,0.0,linex,stackmax/1.1);
@@ -1542,7 +1588,10 @@ def FormatHistFull(hist,sampleIndex,sampletype,stacktop):
             hist.SetFillColor(ROOT.kBlack)
             hist.SetFillStyle(0)
             hist.SetMarkerStyle(20)
-            hist.SetMarkerSize(1.1*plotscale)
+            if docats:
+                hist.SetMarkerSize(0.6*plotscale)
+            else:
+                hist.SetMarkerSize(1.1*plotscale)
     else:
         hist.SetLineWidth(0)   
         hist.SetFillStyle(0)
