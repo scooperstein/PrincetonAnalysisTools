@@ -1,13 +1,14 @@
 file=PlotFromTree/output.root
 
-dolegend=True  dolog=False
-dotitles=False 
+dolegend=False
+dolog=False
+dodivide=True
+dotitles=True 
 #legx1=0.4  legy1=0.3 legx2=0.9 legy2=0.73
 textx1=0.5  texty1=0.75 textx2=0.85 texty2=0.86
 #textx1=0.65  texty1=0.75 textx2=0.85 texty2=0.86
 
-linewidth=3
-dodata=False
+dodata=True
 dolog=True
 maxval=10000
 minval=0.01
@@ -16,53 +17,65 @@ xsize=1000 ysize=600
 
 text=CMS Preliminary 2015 \n#sqrt{s}=13 TeV
 
-name=Data         sampleIndex=0      order=1   plot=1  leg=1    scale=1     color=808   marker=1  displayName=Data_2015C
+name=Data         sampleIndex=0      order=1   plot=1  leg=1    scale=1     color=808   marker=1  displayName=Data
 
-name=WH25         sampleIndex=-12501 order=0   plot=1  leg=1    scale=100   color=880   marker=0  displayName=WH125x100
-name=ZH125        sampleIndex=-12502 order=1   plot=0  leg=1    scale=1000   color=808   marker=0  displayName=ZH125x1000
+name=WH125         sampleIndex=-12501 order=0   plot=1  leg=1    scale=100   color=880   marker=0  displayName=WH125x100
+name=ZH125        sampleIndex=-12502 order=1   plot=0  leg=0    scale=100   color=808   marker=0  displayName=ZH125x100
  
-name=TToLeptons_s sampleIndex=16      order=20   plot=1  leg=0    scale=1      color=300   marker=0  displayName=TToLeptons_s
-name=TToLeptons_t sampleIndex=17      order=21   plot=1  leg=0    scale=1      color=350   marker=0  displayName=TToLeptons_t
-name=TBarToLep_s   sampleIndex=10      order=22   plot=1  leg=0    scale=1      color=632   marker=0  displayName=TBarToLep_s
-name=TBarToLep_t    sampleIndex=11      order=23   plot=1  leg=0    scale=1      color=416   marker=0  displayName=TBarToLep_t
-name=T_tW         sampleIndex=20      order=24   plot=1  leg=0    scale=1      color=400   marker=0  displayName=T_tW
-name=Tbar_tW      sampleIndex=21      order=25  plot=1  leg=1    scale=1      color=432   marker=0  displayName=Top
+name=TToLeptons_s sampleIndex=16      order=38   plot=1  leg=0    scale=1      color=300   marker=0  displayName=TToLeptons_s
+name=TToLeptons_t sampleIndex=17      order=39   plot=1  leg=0    scale=1      color=350   marker=0  displayName=TToLeptons_t
+name=T_tW         sampleIndex=20      order=40   plot=1  leg=0    scale=1      color=400   marker=0  displayName=T_tW
+name=Tbar_tW      sampleIndex=21      order=41  plot=1  leg=1    scale=1      color=432   marker=0  displayName=Top
 
-name=TT_Tune4C    sampleIndex=12      order=26   plot=0  leg=0    scale=1      color=416   marker=0  displayName=t#bar{t}
-name=TTWJets      sampleIndex=14      order=27   plot=0  leg=0    scale=1      color=200   marker=0  displayName=TTWJets
-name=TTZJets      sampleIndex=15      order=28   plot=0  leg=1    scale=1      color=600  marker=0  displayName=t#bar{t}
-name=TT_DiLep     sampleIndex=50      order=29   plot=1  leg=0    scale=1     color=600  marker=0  displayName=t#bar{t}
-name=TT_SingleLepFromT sampleIndex=51 order=30   plot=1  leg=0    scale=1     color=600  marker=0  displayName=t#bar{t}
-name=TT_SingleLepFromTbar sampleIndex=52 order=31 plot=1 leg=1  scal=1       color=600 marker=0   displayName=t#bar{t}
+name=TT_powheg  sampleIndex=120      order=42   plot=1  leg=1    scale=1.0      color=600   marker=0  displayName=t#bar{t}@POWHEG
+name=TT_DiLep     sampleIndex=50      order=43   plot=0  leg=0    scale=1.0     color=600  marker=0  displayName=t#bar{t}
+name=TT_SingleLepFromT sampleIndex=51 order=44   plot=0  leg=0    scale=1.0     color=600  marker=0  displayName=t#bar{t}
+name=TT_SingleLepFromTbar sampleIndex=52 order=45 plot=0 leg=0  scale=1.0       color=600 marker=0   displayName=t#bar{t}@MADGRAPH
 
-name=DYToLL+udcsg sampleIndex=2300   order=2  plot=1  leg=1    scale=1      color=394      marker=0   displayName=Z+udcsg
-name=DYToLL+b     sampleIndex=2301   order=3  plot=1  leg=1    scale=1      color=398      marker=0   displayName=Z+b
-name=DYToLL+bb    sampleIndex=2302   order=4  plot=1  leg=1    scale=1      color=400      marker=0   displayName=Z+bb
+name=Z_udcsg            sampleIndex=2300   order=2  plot=1  leg=0    scale=1      color=394      marker=0   displayName=Z+udcsg
+name=Z_udcsg_HT100To200       sampleIndex=6100   order=3  plot=1  leg=0    scale=1      color=418      marker=0   displayName=Z+udcsg-HT100To200
+name=Z_udcsg_HT200To400       sampleIndex=6200   order=4  plot=1  leg=0    scale=1      color=418      marker=0   displayName=Z+udcsg-HT200To400
+name=Z_udcsg_HT400To600       sampleIndex=6300   order=5  plot=1  leg=0    scale=1      color=418      marker=0   displayName=Z+udcsg
+name=Z_udcsg_HT600ToInf       sampleIndex=6400   order=6  plot=1  leg=1    scale=1      color=394      marker=0   displayName=Z+udcsg
+name=Z_b                sampleIndex=2301   order=7  plot=1  leg=0    scale=1      color=398      marker=0   displayName=Z+b
+name=Z_b_HT100To200      sampleIndex=6101   order=8  plot=1  leg=0    scale=1      color=410      marker=0   displayName=Z+b-HT100To200
+name=Z_b_HT200To400      sampleIndex=6201   order=9  plot=1  leg=0    scale=1      color=410      marker=0   displayName=Z+b-HT200To400
+name=Z_b_HT400To600      sampleIndex=6301   order=10  plot=1  leg=0    scale=1      color=410      marker=0   displayName=Z+b
+name=Z_b_HT600ToInf      sampleIndex=6401   order=11  plot=1  leg=1    scale=1      color=398      marker=0   displayName=Z+b
+name=Z_bb               sampleIndex=2302   order=12  plot=1  leg=0    scale=1      color=400      marker=0   displayName=Z+bb
+name=Z_bb_HT100To200     sampleIndex=6102   order=13  plot=1  leg=0    scale=1      color=416      marker=0   displayName=Z+bb-HT100To200
+name=Z_bb_HT200To400     sampleIndex=6202   order=14  plot=1  leg=0    scale=1      color=416      marker=0   displayName=Z+bb-HT200To400
+name=Z_bb_HT400To600     sampleIndex=6302   order=15  plot=1  leg=0    scale=1      color=416      marker=0   displayName=Z+bb
+name=Z_bb_HT600ToInf     sampleIndex=6402   order=16  plot=1  leg=1    scale=1      color=400      marker=0   displayName=Z+bb
 
+name=W_udcsg                  sampleIndex=2200   order=17  plot=1  leg=0    scale=1.0      color=418    marker=0    displayName=Wudcsg
+name=W_udcsg_HT100To200       sampleIndex=4400   order=18  plot=1  leg=0    scale=1.0      color=418      marker=0   displayName=W+udcsg-HT100To200
+name=W_udcsg_HT200To400       sampleIndex=4500   order=19  plot=1  leg=0    scale=1.0      color=418      marker=0   displayName=W+udcsg-HT200To400
+name=W_udcsg_HT400To600       sampleIndex=4600   order=20  plot=1  leg=0    scale=1.0      color=418      marker=0   displayName=W+udcsg
+name=W_udcsg_HT600ToInf       sampleIndex=4700   order=21  plot=1  leg=0    scale=1.0      color=418      marker=0   displayName=W+udcsg
+name=W_udcsg_WBJets           sampleIndex=4800   order=22  plot=1  leg=0    scale=1.0      color=418     marker=0    displayName=W+udcsg
+name=W_udcsg_BGenFilter       sampleIndex=4900   order=23  plot=1  leg=1    scale=1.0      color=418     marker=0    displayName=W+udcsg
+name=W_b                      sampleIndex=2201   order=24  plot=1  leg=0    scale=1.0      color=410    marker=0    displayName=Wb
+name=W_b_HT100To200       sampleIndex=4401   order=25  plot=1  leg=0    scale=1.0      color=410      marker=0   displayName=W+b-HT100To200
+name=W_b_HT200To400       sampleIndex=4501   order=26  plot=1  leg=0    scale=1.0      color=410      marker=0   displayName=W+b-HT200To400
+name=W_b_HT400To600       sampleIndex=4601   order=27  plot=1  leg=0    scale=1.0      color=410      marker=0   displayName=W+b
+name=W_b_HT600ToInf       sampleIndex=4701   order=28  plot=1  leg=0    scale=1.0      color=410      marker=0   displayName=W+b
+name=W_b_WBJets           sampleIndex=4801   order=29  plot=1  leg=0    scale=1.0      color=410     marker=0    displayName=W+b
+name=W_b_BGenFilter       sampleIndex=4901   order=30  plot=1  leg=1    scale=1.0      color=410     marker=0    displayName=W+b
+name=W_bb                  sampleIndex=2202   order=31  plot=1  leg=0    scale=1.0      color=416    marker=0    displayName=Wbb
+name=W_bb_HT100To200       sampleIndex=4402   order=32  plot=1  leg=0    scale=1.0      color=416      marker=0   displayName=W+bb-HT100To200
+name=W_bb_HT200To400       sampleIndex=4502   order=33  plot=1  leg=0    scale=1.0      color=416      marker=0   displayName=W+bb-HT200To400
+name=W_bb_HT400To600       sampleIndex=4602   order=34  plot=1  leg=0    scale=1.0      color=416      marker=0   displayName=W+bb
+name=W_bb_HT600ToInf       sampleIndex=4702   order=35  plot=1  leg=0    scale=1.0      color=416      marker=0   displayName=W+bb
+name=W_bb_WBJets           sampleIndex=4802   order=36  plot=1  leg=0    scale=1.0      color=616     marker=0    displayName=W+bb
+name=W_bb_BGenFilter       sampleIndex=4902   order=37  plot=1  leg=1    scale=1.0      color=416     marker=0    displayName=W+bb
 
-name=Wudcsg                  sampleIndex=2200   order=5  plot=1  leg=0    scale=1      color=418    marker=0    displayName=Wudcsg
-name=Wudcsg-HT100To200       sampleIndex=4400   order=6  plot=1  leg=0    scale=1      color=418      marker=0   displayName=W+udcsg-HT100To200
-name=Wudcsg-HT200To400       sampleIndex=4500   order=7  plot=1  leg=0    scale=1      color=418      marker=0   displayName=W+udcsg-HT200To400
-name=Wudcsg-HT400To600       sampleIndex=4600   order=8  plot=1  leg=0    scale=1      color=418      marker=0   displayName=W+udcsg
-name=Wudcsg-HT600ToInf       sampleIndex=4700   order=9  plot=1  leg=1    scale=1      color=418      marker=0   displayName=W+udcsg
-name=Wb                      sampleIndex=2201   order=10  plot=1  leg=0    scale=1      color=410    marker=0    displayName=Wb
-name=Wb-HT100To200       sampleIndex=4401   order=11  plot=1  leg=0    scale=1      color=410      marker=0   displayName=W+b-HT100To200
-name=Wb-HT200To400       sampleIndex=4501   order=12  plot=1  leg=0    scale=1      color=410      marker=0   displayName=W+b-HT200To400
-name=Wb-HT400To600       sampleIndex=4601   order=13  plot=1  leg=0    scale=1      color=410      marker=0   displayName=W+b
-name=Wb-HT600ToInf       sampleIndex=4701   order=14  plot=1  leg=1    scale=1      color=410      marker=0   displayName=W+b
-name=Wbb                  sampleIndex=2202   order=15  plot=1  leg=0    scale=1      color=416    marker=0    displayName=Wbb
-name=Wbb-HT100To200       sampleIndex=4402   order=16  plot=1  leg=0    scale=1      color=416      marker=0   displayName=W+bb-HT100To200
-name=Wbb-HT200To400       sampleIndex=4502   order=17  plot=1  leg=0    scale=1      color=416      marker=0   displayName=W+bb-HT200To400
-name=Wbb-HT400To600       sampleIndex=4602   order=18  plot=1  leg=0    scale=1      color=416      marker=0   displayName=W+bb
-name=Wbb-HT600ToInf       sampleIndex=4702   order=19  plot=1  leg=1    scale=1      color=416      marker=0   displayName=W+bb
-
-
-name=QCD_HT100To200     sampleIndex=24    order=40  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_100To200   
-name=QCD_HT200To300     sampleIndex=25    order=41  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_200To300   
-name=QCD_HT300To500     sampleIndex=26    order=42  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_300To500   
-name=QCD_HT500To700     sampleIndex=27    order=43  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_500To700   
-name=QCD_HT700To1000    sampleIndex=28    order=44  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_700To1000  
-name=QCD_HT1000To1500   sampleIndex=29    order=45  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_1000To1500 
-name=QCD_HT1500To2000   sampleIndex=30    order=46  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_1500To2000 
-name=QCD_HT2000ToInf    sampleIndex=31    order=47  plot=1  leg=1    scale=1      color=616      marker=0   displayName=QCD
+name=QCD_HT100To200     sampleIndex=24    order=46  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_100To200   
+name=QCD_HT200To300     sampleIndex=25    order=47  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_200To300   
+name=QCD_HT300To500     sampleIndex=26    order=48  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_300To500   
+name=QCD_HT500To700     sampleIndex=27    order=49  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_500To700   
+name=QCD_HT700To1000    sampleIndex=28    order=50  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_700To1000  
+name=QCD_HT1000To1500   sampleIndex=29    order=51  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_1000To1500 
+name=QCD_HT1500To2000   sampleIndex=30    order=52  plot=1  leg=0    scale=1      color=616      marker=0   displayName=QCD_HT_1500To2000 
+name=QCD_HT2000ToInf    sampleIndex=31    order=53  plot=1  leg=1    scale=1      color=616      marker=0   displayName=QCD
 
