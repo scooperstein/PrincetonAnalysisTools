@@ -329,6 +329,8 @@ varstocut["nsa5jet"]    = [0,10,0,10,10,0,10]
 absCutVars=["HVdPhi","lepmetdphi","drjj","etalep"]
 
 passFlags = {}
+passInt = np.zeros(1, dtype=int)
+otree.Branch("WPInt",passInt,"WPInt/I")
 # assign a branch which keeps track of whether an event passes each given working point
 for wp in cutsets:
     passFlags[wp] = np.zeros(1, dtype=float)
@@ -338,6 +340,7 @@ nentries = tree.GetEntries()
 #nentries = 1000
 print "Total entries: %i" % nentries
 for ientry in range(nentries):
+    passInt[0] = 0
     if (ientry % 10000 == 0): print "processing entry: %i" % ientry
     tree.GetEntry(ientry)
     AssignVarsToMap()
@@ -356,7 +359,9 @@ for ientry in range(nentries):
                 if varValue > cutsets[wp][var][0]:
                     passWP=False
                     #print "failed %s" % var
-        if (passWP): passFlags[wp][0] = 1.0;
+        if (passWP):
+            passFlags[wp][0] = 1.0;
+            passInt[0] += 1
         else: passFlags[wp][0] = 0.;
     otree.Fill()
 

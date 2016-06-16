@@ -23,6 +23,9 @@ parser.add_argument('-xl','--xlow', type=float, default=-1.0, help="Lowest bin e
 parser.add_argument('-xh','--xhigh', type=float, default=1.0, help="Highest bin edge of fitted distribution")
 parser.add_argument('-bh','--binhigh',type=float,default=1.0, help="manually set low bin edge of most sensitive bin")
 parser.add_argument('-bl','--binlow',type=float,default=-1.0, help="manually set low bin edge of least sensitive bin")
+parser.add_argument('-o', '--ofilename',type=str,default="", help="output histogram file name (default hists_[cat].root)")
+parser.add_argument('-b', '--binstats', type=str, default="", help="Text file listing all the individual bin. stat. uncertainties to include")
+parser.add_argument('-n', '--nbins', type=int, default=20, help="number of bins in datacard shapes")
 args = parser.parse_args()
 print args
 
@@ -80,10 +83,10 @@ tree_mc = ifile.Get("tree")
 #bdtname = "CMS_vhbb_BDT_Wln_13TeV"
 bdtname = args.varname # not necessarily the bdt shape, can fit whatever shape is specified
 #nBins = 1000
-nBins = 20  # number of bins in final histogram after rebinning
+nBins = args.nbins  # number of bins in final histogram after rebinning
 nBinsFine = 100 # number of candidate bin edges to begin with
-#tolerance = 1.5 # dB/B tolerance for bin-by-bin stat. uncertainties
-tolerance = 0.5 # dB/B tolerance for bin-by-bin stat. uncertainties
+tolerance = 1.5 # dB/B tolerance for bin-by-bin stat. uncertainties
+#tolerance = 0.5 # dB/B tolerance for bin-by-bin stat. uncertainties
 
 sampleMap = {} # map sampleNames to list of sampleIndex's
 sampleMapAltModel = {} # alternate MC samples for model shape systematics
@@ -195,8 +198,14 @@ for i in range(2,nBins-1):
 #    binBoundaries[i] = binBoundaries[0] + (i)*((binBoundaries[nBins] - binBoundaries[0])/(nBins))
 hBkg = hBkg.Rebin(nBins, "", binBoundaries)
 print binBoundaries
-ofile = ROOT.TFile("hists_%s.root" % catName, "RECREATE")
-otextfile = open("binStats_%s.txt" % catName, "w")
+if args.ofilename == "":
+    ofile = ROOT.TFile("hists_%s.root" % catName, "RECREATE")
+else:
+    ofile = ROOT.TFile(args.ofilename, "RECREATE")
+if args.binstats == "":
+    otextfile = open("binStats_%s.txt" % catName, "w")
+else:
+    otextfile = open(args.binstats,"w")
 tree = ROOT.TTree("tree","tree")
 #hBkg.Write()
 for sample in sampleMap:
@@ -228,6 +237,12 @@ for sample in sampleMap:
         # make sure we don't weight actual data by puWeight, SF's, etc.
         tree_data.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString))  
         ifile_data.Close()
+    elif (sample == "data_obs"):
+        # fake data which is sum of all MC
+        #hBkg.Write(sample)
+        ofile.cd()
+        hBkg.Write("BDT_%s_%s" % (catName,sample))
+    #    continue
     #elif (sample == "TT" and args.ttbarTree != ""):
     #    print "got here"
     #    ifile_tt = ROOT.TFile(args.ttbarTree,"r")
@@ -311,9 +326,17 @@ for sample in sampleMap:
         hBDTSystUp.Write()
         hBDTSystDown.Write()
     ofile.cd()
-    hBDT.Write("BDT_%s_%s" % (catName,sample))
+    if (sample != "data_obs"):
+        print True
+    else:
+        print False
+    print args.doData
     print sample
-    print hBDT.Integral()
+    if (sample != "data_obs" or args.doData):
+        print "doing this"
+        hBDT.Write("BDT_%s_%s" % (catName,sample))
+        print hBDT.Integral()
+    else: print hBkg.Integral()
     print bdtname
     print "((%s)&&Pass_nominal)*bTagWeight*%s" % (cutString,weight_string)
     if (sample == "TT" and args.ttbarTree != ""): 

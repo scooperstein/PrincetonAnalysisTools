@@ -8,6 +8,7 @@ parser.add_argument('-i', '--ihistfile', type=str, default="hists.root", help="T
 parser.add_argument('-s', '--systematics', type=str, default="", help="The systematics config. file (default no systematics)")
 parser.add_argument('-b', '--binstats', type=str, default="", help="Text file listing all the individual bin. stat. uncertainties to include")
 parser.add_argument('-r', '--rateParams', type=str, default="", help="Comma-separated list of samples for which to include freely floating scale factors") 
+parser.add_argument('-o', '--outputfilename', type=str, default="", help="Name of the output datacard")
 args = parser.parse_args()
 
 
@@ -23,8 +24,8 @@ dc_string = "" # write datacard
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD"]
+samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
 #samples = ["WH","TT","s_Top"]
 #samples = ["WH","TT"]
@@ -43,9 +44,15 @@ samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD"]
 # up for multiple channels at a time if ever necessary.
 cats = []
 cat_labels = []
-cats.append(args.channelName)
-cat_labels.append(args.channelName)
+channelNames = args.channelName.split(',')
+print channelNames
+print args.channelName
+for channelName in channelNames:
+    cats.append(channelName)
+    cat_labels.append(channelName)
 
+print "cat_labels = "
+print cat_labels
 fake_obs_line = "observation  "
 
 cats_to_remove = [] # categories with zero yields for all samples, remove from datacard
@@ -53,10 +60,12 @@ for i in range(len(cats)):
     print "Calculating Yields for Category: %s: %s" % (cats[i],cat_labels[i])
     nBkgTot = 0.0;
     nSigTot = 0.0;
-    #ifile = ROOT.TFile("hists_%s.root" % cats[i])
-    ifile = ROOT.TFile(args.ihistfile, "r")
+    ifile = ROOT.TFile("hists_%s.root" % cats[i])
+    #ifile = ROOT.TFile(args.ihistfile, "r")
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
+    print "meow"
+    print cat_labels[i]
     nData = ifile.Get("BDT_%s_data_obs" % cat_labels[i]).Integral()
     cat_fake_obs_line = "   %.4f" % nData
     for sample in samples: 
@@ -145,8 +154,8 @@ if (args.systematics != ""):
 if (args.binstats != ""):
     for cat in cat_labels:
         try:
-            binStats_file = open(args.binstats, "r")
-            #binStats_file = open("binStats_%s.txt" % cat,"r")
+            #binStats_file = open(args.binstats, "r")
+            binStats_file = open("binStats_%s.txt" % cat,"r")
         except FileOpenError:
             print "Couldn't open binstats file %s" % args.binstats
             continue
@@ -172,7 +181,8 @@ dc_string += "jmax %i number of processes minus 1\n" % (len(samples) - 1)
 dc_string += "kmax %i number of nuisance parameters\n" % nSys
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 for i in range(len(cats)):
-    dc_string += "shapes *           %s    %s BDT_$CHANNEL_$PROCESS BDT_$CHANNEL_$PROCESS_$SYSTEMATIC\n" % (cat_labels[i],args.ihistfile)
+    dc_string += "shapes *           %s    hists_%s.root BDT_$CHANNEL_$PROCESS BDT_$CHANNEL_$PROCESS_$SYSTEMATIC\n" % (cat_labels[i],cat_labels[i])
+    #dc_string += "shapes *           %s    %s BDT_$CHANNEL_$PROCESS BDT_$CHANNEL_$PROCESS_$SYSTEMATIC\n" % (cat_labels[i],args.ihistfile)
 dc_string += "----------------------------------------------------------------------------------------------------------------------------------\n"
 dc_string += "bin          "
 for label in cat_labels:
@@ -215,7 +225,9 @@ dc_string += "\n"
 
 dc_string += systematics
 
-ofile = open("vhbb_%s_13TeV.txt" % args.channelName ,"write")
+if (args.outputfilename != ""):
+    ofile = open(args.outputfilename ,"write")
+else: ofile = open("vhbb_%s_13TeV.txt" % args.channelName ,"write")
 ofile.write(dc_string)
 ofile.close()
 print dc_string
