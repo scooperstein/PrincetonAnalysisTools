@@ -262,7 +262,7 @@ for sample in sampleMap:
     print "tree.Draw(\"%s>>%s\",\"((%s)&&Pass_nominal)*%s\"" % (bdtname,sample,cutString,weight_string) 
     #hBDT = hBDT.Rebin(nBins, "", binBoundaries)
     # Add bin-by-bin stat. uncertainties
-    if (sample not in ["data_obs"]):
+    if (sample not in ["data_obs"] and (tolerance <= 0.5 or sample not in ["QCD","VVLF","VVHF","WH","ZH"])): # assuming for SR the tolerance does not go above 0.50
     #if (sample not in ["QCD","VVLF","VVHF","WH","ZH","data_obs"]): # can exclude these when running on background to reduce the number of nuisances
         for ibin in range(1, hBDT.GetNbinsX()):
             B = hBDT.GetBinContent(ibin)
