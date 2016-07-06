@@ -43,6 +43,13 @@ type=2  name=bTagWeight_JESDown
 type=2  name=htJet30
 type=2  name=mhtJet30
 
+type=1  name=nLHE_weights_scale                                  onlyMC=1
+type=6  name=LHE_weights_scale_id                        max=10  onlyMC=1 lengthBranch=nLHE_weights_scale
+type=7  name=LHE_weights_scale_wgt                      max=10  onlyMC=1 lengthBranch=nLHE_weights_scale
+type=1  name=nLHE_weights_pdf                                    onlyMC=1
+type=6  name=LHE_weights_pdf_id                         max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
+type=7  name=LHE_weights_pdf_wgt                        max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
+
 type=2  name=VtypeSim                                   onlyMC=1
 type=1  name=nTrueInt                                   onlyMC=1
 type=2  name=genWeight                                  onlyMC=1

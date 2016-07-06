@@ -1,13 +1,24 @@
-void makeBDTRockCurve(char* filename, char *treename, std::vector<std::string> bdtnames=std::vector<std::string>(), int zoom=0) {
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TLegend.h"
+#include "TGraph.h"
+#include "TMultiGraph.h"
+#include "TCanvas.h"
+#include <iostream>
+#include "TGaxis.h"
+
+void makeBDTRockCurve(char* filename, char *treename, std::vector<std::string> bdtnames=std::vector<std::string>(), int zoom=0, char* savename="", bool dootrain=false) {
 
 TFile *ifile = new TFile(filename, "r");
 TTree *tree = (TTree*) ifile->Get(treename);
 
 //char* presel = "hJets_btagCSV_1>0.6";
 //char* presel = "hJets_btagCSV_0>0.85 && hJets_btagCSV_1>0.6 && abs(HVdPhi)>2.5 && abs(lepMetDPhi)<2 && nAddJet_f<2 && nAddLep_f<2";
-char* presel = "H_mass>90&&H_mass<150&&V_pt>150";
+char* presel = "H_mass>90&&H_mass<150";
+//char* presel = "H_mass>90&&H_mass<150&&isWenu&&V_pt>180";
 
-int nBins = 1000;
+int nBins = 300;
 int nBDTs = (int) bdtnames.size();
 
 std::vector<TH1F*> h_bdtSig_test;
@@ -18,15 +29,17 @@ std::vector<Double_t*> sig_test;
 std::vector<Double_t*> bkg_test;
 std::vector<Double_t*> sig_train;
 std::vector<Double_t*> bkg_train;
+//std::vector<Double_t*> sig_overtrain;
+//std::vector<Double_t*> bkg_overtrain;
 for (int i=0; i<nBDTs; i++) {
     h_bdtSig_test.push_back(new TH1F(Form("h_bdtSig_test_%s",bdtnames[i].c_str()),Form("h_bdtSig_test_%s",bdtnames[i].c_str()),nBins,-1,1)); 
     h_bdtBkg_test.push_back(new TH1F(Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),nBins,-1,1));
     h_bdtSig_train.push_back(new TH1F(Form("h_bdtSig_train_%s",bdtnames[i].c_str()),Form("h_bdtSig_train_%s",bdtnames[i].c_str()),nBins,-1,1)); 
     h_bdtBkg_train.push_back(new TH1F(Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),nBins,-1,1));
-    tree->Draw(Form("%s>>h_bdtSig_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex<0&&evt%2==0&&(%s))*weight",presel));
-    tree->Draw(Form("%s>>h_bdtBkg_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==0&&(%s))*weight",presel));
-    tree->Draw(Form("%s>>h_bdtSig_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex<0&&evt%2==1&&(%s))*weight",presel));
-    tree->Draw(Form("%s>>h_bdtBkg_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==1&&(%s))*weight",presel));
+    tree->Draw(Form("%s>>h_bdtSig_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==0&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
+    tree->Draw(Form("%s>>h_bdtBkg_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==0&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
+    tree->Draw(Form("%s>>h_bdtSig_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==1&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
+    tree->Draw(Form("%s>>h_bdtBkg_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==1&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
     sig_test.push_back(h_bdtSig_test[i]->GetIntegral());
     bkg_test.push_back(h_bdtBkg_test[i]->GetIntegral());
     sig_train.push_back(h_bdtSig_train[i]->GetIntegral());
@@ -40,12 +53,18 @@ std::cout<<"sig_den = "<<sig_den<<std::endl;;
 std::cout<<"bkg_den = "<<bkg_den<<std::endl;;
 
 // we want to cut > BDT value, GetIntegral() assumes <
-for (int i=0; i<nBDTs; i++) { 
+for (int i=0; i<nBDTs; i++) {
+    //Double_t *d1;
+    //Double_t *d2;
+    //sig_overtrain.push_back(d1); 
+    //bkg_overtrain.push_back(d2); 
     for (int j=0; j<nBins; j++) {
         sig_test[i][j] = 1 - sig_test[i][j];
         bkg_test[i][j] = 1 - bkg_test[i][j];
         sig_train[i][j] = 1 - sig_train[i][j];
         bkg_train[i][j] = 1 - bkg_train[i][j];
+        //sig_overtrain[i][j] = fabs(sig_test[i][j] - sig_train[i][j]) / sig_train[i][j] ; 
+        //bkg_overtrain[i][j] = fabs(bkg_test[i][j] - bkg_train[i][j]) / bkg_train[i][j] ; 
         //if (sig[i][j] > 0.01 && sig[i][j] < 1.) {
         //   //std::cout<<"sig eff: "<<sig[i]<<", bkg eff: "<<bkg[i]<<std::endl;
         //}
@@ -69,8 +88,8 @@ for (int i=0; i < nBDTs; i++) {
     gb_train->SetLineStyle(2);
     mg->Add(gb_test,"LP");
     mg->Add(gb_train,"LP");
-    leg->AddEntry(gb_test, Form("Test %s",bdtnames[i].c_str()));
-    leg->AddEntry(gb_train, Form("Train %s",bdtnames[i].c_str()));
+    leg->AddEntry(gb_test, Form("Test %s",bdtnames[i].c_str()),"L");
+    leg->AddEntry(gb_train, Form("Train %s",bdtnames[i].c_str()),"L");
 }
 // add some cut-based WP's
 TGraph *gwp = new TGraph();
@@ -114,7 +133,7 @@ gwp->SetMarkerSize(2);
 
 //leg->AddEntry(gb,filename,"elp");
 //leg->AddEntry(gb,"BDT","elp");
-leg->AddEntry(gwp,"cut-based WP's", "p");
+//leg->AddEntry(gwp,"cut-based WP's", "p");
 
 TCanvas *canv = new TCanvas();
 
@@ -141,6 +160,11 @@ TGaxis::SetMaxDigits(3);
 //mg->GetXaxis()->SetRange(990,1000);
 leg->Draw("same");
 //canv->Update();
-canv->SaveAs(Form("%i.png",zoom));
+canv->SaveAs(Form("%s_%i.pdf",savename,zoom));
+
+TFile *ofile = new TFile(Form("%s.root",savename),"RECREATE");
+mg->Write("multigraph");
+
+ifile->Close();
 
 }
