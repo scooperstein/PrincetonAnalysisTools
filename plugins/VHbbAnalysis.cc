@@ -172,6 +172,10 @@ bool VHbbAnalysis::Analyze(){
     HJ1.SetPtEtaPhiM(f["Jet_pt_reg"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]]);
     HJ2.SetPtEtaPhiM(f["Jet_pt_reg"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
     Hbb = HJ1 + HJ2;
+    TLorentzVector HJ1_noreg,HJ2_noreg,Hbb_noreg;
+    HJ1_noreg.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]]);
+    HJ2_noreg.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
+    Hbb_noreg = HJ1_noreg + HJ2_noreg;
 
     *f["H_pt"] = Hbb.Pt();
     if (*f["H_pt"] < *f["hptcut"]) sel=false;
@@ -310,13 +314,15 @@ bool VHbbAnalysis::Analyze(){
     *f["HVdEta_4MET"] = fabs(Hbb.Eta() - W_4MET.Eta());
     *f["JJEtaBal"] = ( fabs(f["Jet_eta"][*in["hJetInd1"]] + f["Jet_eta"][*in["hJetInd2"]]) ) / (fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]) ) ;
     *f["H_mass_step2"] = *f["H_mass"];
-        
+    *f["H_mass_noreg"] = Hbb_noreg.M();    
+ 
     //std::cout<<cursyst->name.c_str()<<": Hbb.M() = "<<Hbb.M()<<", Jet_pt_reg[jetInd1] = "<<f["Jet_pt_reg"][jetInd1]<<", Jet_pt_reg[jetInd2] = "<<f["Jet_pt_reg"][jetInd2]<<", "<<(f["Jet_corr_JECUp"][jetInd1] / f["Jet_corr"][jetInd1])<<", "<<(f["Jet_corr_JECDown"][jetInd1] / f["Jet_corr"][jetInd1])<<std::endl;
     *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
     if (cursyst->name != "nominal") {
         *f[Form("H_mass_%s",cursyst->name.c_str())] = Hbb.M();
     }
     //*f["H_pt"] = Hbb.Pt(); // we already do this
+    //std::cout<<"H_mass = "<<*f["H_mass"]<<", H_mass_noreg = "<<*f["H_mass_noreg"]<<", H_mass_step2 = "<<*f["H_mass_step2"]<<std::endl;
 
     // Compare gen kinematics for b jets for signal vs. ttbar
     if(*in["sampleIndex"]!=0) {
@@ -578,8 +584,11 @@ bool VHbbAnalysis::Analyze(){
         if (maxCSV > 0.935){ //ttbar or W+HF
             if(*in["nAddJets252p9_puid"]>1.5) { //ttbar
                 *in["controlSample"]=1;
-            } else if (*in["nAddJets252p9_puid"]<0.5 && *f["met_pt"]/ sqrt(*f["htJet30"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
-            //} else if (*in["nAddJets252p9_puid"]<1.5 && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            //} else if (*in["nAddJets252p9_puid"]<0.5 && *f["met_pt"]/ sqrt(*f["htJet30"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            //} else if (*in["nAddJets252p9_puid"]<0.5 && *f["met_pt"]/ sqrt(*f["htJet30"])> 2. && (*f["H_mass"]>120 || *f["H_mass"]<60) ){ //W+HF
+            //} else if (*in["nAddJets252p9_puid"]<0.5 && (*f["H_mass"]>150 || *f["H_mass"]<90) ){ //W+HF
+            //} else if (*in["nAddJets252p9_puid"]<0.5 ){ //W+HF // remove mass window so we can use the same ntuple for VV, just be careful that we always avoid overlap with SR
+            } else if (*in["nAddJets252p9_puid"]<0.5 && *f["met_pt"]/ sqrt(*f["htJet30"])> 2. && (*f["H_mass"]>150 || *f["H_mass"]<90)  ){ //W+HF
                 *in["controlSample"]=2;
             }
         } else if (maxCSV > 0.46 && maxCSV < 0.7 && *f["met_pt"]/ sqrt(*f["htJet30"]) > 2.){ //W+LF
@@ -609,6 +618,36 @@ void VHbbAnalysis::FinishEvent(){
     //} 
     // General use variables
     
+    *f["nProcEvents"] = cursample->processedEvents;
+    if (*in["sampleIndex"] != 0) {
+        for (int i=0; i<*in["nLHE_weights_scale"];i++) {
+            TH1F *CountWeightedLHEWeightScale = cursample->CountWeightedLHEWeightScale;
+            f["LHE_weights_scale_normwgt"][i] = *f["nProcEvents"] / CountWeightedLHEWeightScale->GetBinContent(CountWeightedLHEWeightScale->FindBin(i));
+            if (cursample->sampleNum != 49) {
+                f["LHE_weights_pdf_normwgt"][i] = *f["nProcEvents"] / CountWeightedLHEWeightScale->GetBinContent(CountWeightedLHEWeightScale->FindBin(i));
+            }
+            else {
+                f["LHE_weights_pdf_normwgt"][i] = cursample->CountWeighted->GetBinContent(1) / CountWeightedLHEWeightScale->GetBinContent(CountWeightedLHEWeightScale->FindBin(i));
+            }
+        }
+        for (int i=0; i<*in["nLHE_weights_pdf"];i++) {
+            TH1F *CountWeightedLHEWeightPdf = cursample->CountWeightedLHEWeightPdf;
+            if (CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i)) != 0) {
+                if (cursample->sampleNum != 49) {
+                    f["LHE_weights_pdf_normwgt"][i] = *f["nProcEvents"] / CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i));
+                }
+                else {
+                    f["LHE_weights_pdf_normwgt"][i] = cursample->CountWeighted->GetBinContent(1) / CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i)); 
+                }
+            }
+            else {
+                f["LHE_weights_pdf_normwgt"][i] = 1.0;
+            }
+            //cout<<f["LHE_weights_pdf_normwgt"][i]<<" = "<<*f["nProcEvents"]<<" / "<<CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i))<<endl;
+        }
+    }
+    //cout<<f["LHE_weights_pdf_normwgt"][5]<<endl;
+
     if(*in["sampleIndex"]!=0){
         if (*f["genWeight"] > 0) {
             *f["weight"] = cursample->intWeight;
@@ -629,8 +668,8 @@ void VHbbAnalysis::FinishEvent(){
     if(*in["sampleIndex"]!=0){
         //*f["weight_PU"]=ReWeightMC(*in["nTrueInt"]);
         *f["weight_PU"] = *f["puWeight"];
-        *f["weight_PUUp"] = *f["puWeightUp"];
-        *f["weight_PUDown"] = *f["puWeightDown"];
+        *f["weight_PUUp"] = *f["puWeightUp"] / *f["puWeight"];
+        *f["weight_PUDown"] = *f["puWeightDown"] / *f["puWeight"];
         if (*in["nGenTop"]==0 && *in["nGenVbosons"]>0) {
             // only apply to Z/W+jet samples
             *f["weight_ptQCD"]=ptWeightQCD(*in["nGenVbosons"], *f["lheHT"], in["GenVbosons_pdgId"][0]);
@@ -1006,11 +1045,33 @@ void VHbbAnalysis::FinishEvent(){
     if (*in["sampleIndex"]==2200 || *in["sampleIndex"]==4400 || *in["sampleIndex"]==4500 || *in["sampleIndex"]==4600 || *in["sampleIndex"]==4700 || *in["sampleIndex"]==4800 || *in["sampleIndex"]==4900) {
         *f["CS_SF"] = *f["SF_Wj0b"];
     }
-    else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901 || *in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902) {
+    /*else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901 || *in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902) {
         *f["CS_SF"] = *f["SF_WHF"];
+    }*/
+    else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901) {
+        *f["CS_SF"] = *f["SF_Wj1b"];
+    }
+    else if (*in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902) {
+        *f["CS_SF"] = *f["SF_Wj2b"];
     }
     else if (*in["sampleIndex"]==50 || *in["sampleIndex"]==51 || *in["sampleIndex"]==52 || *in["sampleIndex"]==12 || *in["sampleIndex"]==120 || *in["sampleIndex"]==500) {
         *f["CS_SF"] = *f["SF_TT"];
+    }
+
+    if (*in["sampleIndex"]!=0) {
+        if (*in["isWmunu"] == 1) {
+            *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdCutTight"][*in["lepInd"]] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd"]];
+            /*if (*in["run"] < 257933) {
+                *f["Lep_SF"] = *f["Lep_SF"] * f["selLeptons_SF_HLT_RunD4p2"][*in["lepInd"]];
+            }
+            else {
+                *f["Lep_SF"] = *f["Lep_SF"] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd"]];
+            }*/ 
+        }
+        else if (*in["isWenu"] == 1) {
+            *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdMVATight"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]]; 
+        }
+        *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"] * *f["Lep_SF"];
     }
 
     // FIXME nominal must be last

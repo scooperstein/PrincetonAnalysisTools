@@ -29,11 +29,15 @@ type=1  name=isWenu
 type=1  name=isWmunu
 type=1  name=cutFlow
 type=1  name=controlSample
+type=2  name=nProcEvents
 
 type=1  name=bMCFlavorSum
 type=1  name=bMCFlavorSumSelected
 type=1  name=bGenJetBSum
 type=1  name=bGenJetSum
+
+type=7  name=LHE_weights_scale_normwgt                      max=10  onlyMC=1 lengthBranch=nLHE_weights_scale
+type=7  name=LHE_weights_pdf_normwgt                        max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
 
 type=2  name=isWenu_f
 type=2  name=isWmunu_f
@@ -43,6 +47,7 @@ type=2  name=HVdEta
 type=2  name=HVdEta_4MET
 type=2  name=H_dEta
 type=2  name=JJEtaBal
+type=2  name=H_mass_noreg
 
 type=2  name=H_pt_highestPt
 type=2  name=H_pt_highestPtJJ
@@ -50,6 +55,7 @@ type=2  name=H_pt_bestCSV
 
 type=2  name=jjWPtBalance
 type=2  name=CS_SF
+type=2  name=Lep_SF
 
 type=1  name=nAddJets252p9_puid
 type=2  name=AddJets252p9_puid_leadJet_pt
