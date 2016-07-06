@@ -198,8 +198,6 @@ class SampleInfo:
         print "addtoleg",      self.addtoleg
         print "order",         self.order
         print "color",         self.color
-        print "scale",         self.scale
-        print "displayname",   self.displayname
         print "configline",    self.configline
         
 
@@ -1011,6 +1009,7 @@ def Plot(num,printsuffix="",printcat=-1):
         mcTot = [""]*cur_plot.ncat
         mcErrBand = [""]*cur_plot.ncat
         sigTot = [""]*cur_plot.ncat
+        chi2text = [""]*cur_plot.ncat
         for icat in cats:
             stackmaxima[icat].sort()
             if StaticMax:
@@ -1187,6 +1186,26 @@ def Plot(num,printsuffix="",printcat=-1):
                         print "stack integrals"
                         print "last lineorder",lineorder[-1]
                         print "data"+str(icat),stackintegrals["data"+str(icat)]
+       
+                chi2Score = dataTot[icat].Chi2Test( mcTot[icat] , "UWCHI2/NDF")
+                print chi2Score
+                chi2text[icat] = ROOT.TPaveText(0.15,0.82,0.25,0.92,"brNDC");
+                chi2text[icat].SetTextFont(62);
+                chi2text[icat].SetTextSize(0.04)
+                chi2text[icat].SetBorderSize(0)
+                chi2text[icat].SetLineColor(0)
+                chi2text[icat].SetLineStyle(0)
+                chi2text[icat].SetLineWidth(0)
+                chi2text[icat].SetFillColor(0)
+                chi2text[icat].SetFillStyle(0)
+                chi2text[icat].AddText("#chi^{2}_{ }#lower[0.1]{/^{}#it{dof} = %.2f}"%(chi2Score))
+                if dodivide or dosoverb or dosoversqrtb:
+                    if docats:
+                        cat = (icat%Ncol)+1+(icat/Ncol)*Ncol * 2
+                        can.cd(cat)
+                    else:
+                        can.cd(1)
+                chi2text[icat].Draw()
  
             if dodivide:
                 if docats:
@@ -1228,7 +1247,7 @@ def Plot(num,printsuffix="",printcat=-1):
                     mcErrBand[icat].SetPointError(ibin,mcTot[icat].GetBinWidth(ibin)/2, e)
                 mcErrBand[icat].SetFillColor(ROOT.kBlack)
                 mcErrBand[icat].SetFillStyle(3013)
-                mcErrBand[icat].Draw("SAME2") 
+                #mcErrBand[icat].Draw("SAME2") 
 
             if dosoverb or dosoversqrtb:
                 pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 + 1) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
@@ -1747,10 +1766,11 @@ option="START"
 ENDLIST=[".q","q","quit","end","exit"]
 
 while option not in ENDLIST:
-    try:
-        FindFunction(option)
-    except:
-        print "Option",option,"failed to run."
+    FindFunction(option)
+    #try:
+    #    FindFunction(option)
+    #except:
+    #    print "Option",option,"failed to run."
     option=str(raw_input("Enter option:  "))
 
 
