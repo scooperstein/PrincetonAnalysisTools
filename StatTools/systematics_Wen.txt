@@ -28,6 +28,8 @@ CMS_vhbb_bTagWeightLFStats2 shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj
 CMS_vhbb_bTagWeightcErr1  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_cErr1
 CMS_vhbb_bTagWeightcErr2  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeight_cErr2
 CMS_vhbb_puWeight         shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  weight_PU
+## in order to use the TTModel weight you need to first run the script addNAddJetWeights.py to calculate the weights and addNAddJetWeights.py to add
+## the weights
 CMS_vhbb_TTModel_Wln_13TeV  shape  1.0 TT   nAddJet_reweight
 CMS_vhbb_WHModel_Wln_13TeV  shape  1.0 WH   1.0
 #CMS_vhbb_Wj0bModel_Wln_13TeV shape 1.0 Wj0b 1.0
