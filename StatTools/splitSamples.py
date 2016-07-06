@@ -28,7 +28,7 @@ parser.add_argument('-o', '--ofilename',type=str,default="", help="output histog
 parser.add_argument('-b', '--binstats', type=str, default="", help="Text file listing all the individual bin. stat. uncertainties to include")
 parser.add_argument('-n', '--nbins', type=int, default=20, help="number of bins in datacard shapes")
 parser.add_argument('-r', '--doRebin',type=bool, default=True, help="If True then rebin histogram so that bins are sufficiently populated in background (default=True)")
-parser.add_argument(-'tol','--tolerance',type=float,default=0.5,help="Tolerance threshold on dB/sqrt(B) for inclusion of bin-by-bin stat. shape uncertainties (default=0.50)")
+parser.add_argument('-tol','--tolerance',type=float,default=0.5,help="Tolerance threshold on dB/sqrt(B) for inclusion of bin-by-bin stat. shape uncertainties (default=0.50)")
 args = parser.parse_args()
 print args
 
@@ -262,8 +262,8 @@ for sample in sampleMap:
     print "tree.Draw(\"%s>>%s\",\"((%s)&&Pass_nominal)*%s\"" % (bdtname,sample,cutString,weight_string) 
     #hBDT = hBDT.Rebin(nBins, "", binBoundaries)
     # Add bin-by-bin stat. uncertainties
-    #if (sample not in ["data_obs"]):
-    if (sample not in ["QCD","VVLF","VVHF","WH","ZH","data_obs"]):
+    if (sample not in ["data_obs"]):
+    #if (sample not in ["QCD","VVLF","VVHF","WH","ZH","data_obs"]): # can exclude these when running on background to reduce the number of nuisances
         for ibin in range(1, hBDT.GetNbinsX()):
             B = hBDT.GetBinContent(ibin)
             B_err = hBDT.GetBinError(ibin)
