@@ -64,7 +64,7 @@ plotscale=ysize/700
 
 cutline=ROOT.TLine()
 
-Debug=False
+Debug=True
 DebugNew=False
 
 dodivide=False
@@ -93,6 +93,7 @@ dochi2=True
 #cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
 #cattitles=["Electron Barrel (Eta < 0.8)","Electron Barrel (Eta > 0.8)","Electron Endcaps"]
 #cattitles=["|#eta| < 0.8","0.8 < |#eta| < 1.4442","|#eta| > 1.556"]
+#cattitles = ["TT CS (Wl#nu)","W+HF CS (Wl#nu)","W+LF CS (Wl#nu)"]
 cattitles = ["TT CS (W#mu#nu)","W+HF CS (W#mu#nu)","W+LF CS (W#mu#nu)","TT CS (We#nu)","W+HF CS (We#nu)", "W+LF CS (We#nu)"]
 #cattitles=["W#mu#nu","We#nu"]
 dointegrals=False
@@ -862,6 +863,7 @@ def Plot(num,printsuffix="",printcat=-1):
 
     first=1
     stackmaxima={}
+    plottexttitle = [""]*cur_plot.ncat
     if docats:
         cats=xrange(cur_plot.ncat)
     else:
@@ -893,9 +895,6 @@ def Plot(num,printsuffix="",printcat=-1):
 
     if dotext:
         SetText()
-        if dotitles:
-            plottext.AddText(cattitles[icat])
-
 
     if dointegrals:
         stackintegrals={}
@@ -1062,6 +1061,10 @@ def Plot(num,printsuffix="",printcat=-1):
 
         if dotext:
             plottext.Draw()
+            if dotitles:
+                plottexttitle[icat] = SetTextTitle() # have to refresh to get rid of old category title
+                plottexttitle[icat].AddText(cattitles[icat])
+                plottexttitle[icat].Draw()
     
         if doline:
             cutline.SetLineWidth(4*plotscale)
@@ -1409,6 +1412,10 @@ def Plot(num,printsuffix="",printcat=-1):
                     else:
                         can.cd(1)
                 plottext.Draw()
+                if dotitles:
+                    plottexttitle[icat] = SetTextTitle() # have to refresh to get rid of old category title
+                    plottexttitle[icat].AddText(cattitles[icat])
+                    plottexttitle[icat].Draw()
         
             if doline:
                 if dodivide or dosoverb or dosoversqrtb:
@@ -1817,6 +1824,17 @@ def SetText():
     else:
         plottext.AddText(text)
     
+def SetTextTitle():
+    plottexttitle = ROOT.TPaveText(textx1,texty1-0.1,textx2,texty1,"brNDC");
+    plottexttitle.SetTextFont(62);
+    plottexttitle.SetTextSize(0.0425)
+    plottexttitle.SetBorderSize(0)
+    plottexttitle.SetLineColor(0)
+    plottexttitle.SetLineStyle(0)
+    plottexttitle.SetLineWidth(0)
+    plottexttitle.SetFillColor(0)
+    plottexttitle.SetFillStyle(0)
+    return plottexttitle
 
 def MoveTextX(dx):
     global textx1,textx2
