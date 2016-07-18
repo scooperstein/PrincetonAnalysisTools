@@ -27,11 +27,14 @@ class SampleContainer {
     float xsec;
     float kFactor; 
     float scale;
-    int processedEvents;
+    float processedEvents;
     float intWeight;
     bool nProFromFile;
     bool doJetFlavorSplit; // split events by jet parton flavor
     float procEff; // process a fraction of the total sample events   
+    TH1F *CountWeightedLHEWeightScale;
+    TH1F *CountWeightedLHEWeightPdf;
+    TH1F *CountWeighted;
  
     void AddFile(const char* fname, int isBatch=0);
     void ComputeWeight(float);

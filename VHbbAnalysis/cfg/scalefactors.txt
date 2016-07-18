@@ -7,3 +7,4 @@
 #json=aux/CutBasedID_LooseWP.json  name=CutBasedID_LooseWP  binning=eta_pt_ratio branches=selLeptons_pt_0,selLeptons_eta_0  branchname=SF_ElIdLoose
 #json=aux/GsfElectronToRECO_passingTrigWP80.json  name=GsfElectronToRECO_passingTrigWP80  binning=eta_pt_ratio  branches=selLeptons_pt_0,selLeptons_eta_0  branchname=SF_ElIdMVATrigWP80
 #json=aux/CutBasedID_TightWP_76X_18Feb.json  name=CutBasedID_TightWP_76X_18Feb  binning=eta_pt_ratio  branches=selLeptons_pt_0,selLeptons_eta_0  branchname=SF_ElIdCutBasedTight
+json=aux/ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json  name=ScaleFactor_HLT_Ele23_WPLoose_Gsf_v binning=eta_pt_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_HLT_Ele23_WPLoose

@@ -33,11 +33,14 @@ inline SampleContainer::SampleContainer()
     kFactor= 1;
     scale = 1;
     files.clear();
-    processedEvents=0;
+    processedEvents=0.;
     intWeight=1;
     nProFromFile=false;
     doJetFlavorSplit = false;
     procEff = 1.;
+    CountWeightedLHEWeightScale = new TH1F("CountWeightedLHEWeightScale","CountWeightedLHEWeightScale",6,-0.5,5.5);
+    CountWeightedLHEWeightPdf = new TH1F("CountWeightedLHEWeightPdf","CountWeightedLHEWeightPdf",103,-0.5,102.5);
+    CountWeighted = new TH1F("CountWeighted","CountWeighted",1,0.,2.0);
 }
 
 inline void SampleContainer::AddFile(const char* fname,int isBatch) {
@@ -53,15 +56,26 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch) {
         TFile *file = TFile::Open(fname);
         //TH1F* counter = (TH1F*)file.Get("Count");
         //processedEvents+=counter->GetBinContent(1);
-        TH1F* counterPos = (TH1F*)file->Get("CountPosWeight");
-        TH1F* counterNeg = (TH1F*)file->Get("CountNegWeight");
-        int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
+        //TH1F* counterPos = (TH1F*)file->Get("CountPosWeight");
+        //TH1F* counterNeg = (TH1F*)file->Get("CountNegWeight");
+        TH1F* counter = (TH1F*)file->Get("CountWeighted");
+        //int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
+        float nEffective = counter->GetBinContent(1);
         if(sampleNum==49) {
             //special prescription for WJets_BGenFilter sample weighting
             TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
             nEffective = counterFullWeight->GetBinContent(1); 
         }
+        CountWeighted->Add(counter);
+        std::cout<<"pe = "<<processedEvents<<std::endl;
         processedEvents += nEffective;
+        std::cout<<"pe = "<<processedEvents<<std::endl;
+        TH1F* CountWeightedLHEWeightScale_thisfile = (TH1F*)file->Get("CountWeightedLHEWeightScale");
+        TH1F* CountWeightedLHEWeightPdf_thisfile = (TH1F*)file->Get("CountWeightedLHEWeightPdf");
+        std::cout<<"lhe = "<<CountWeightedLHEWeightPdf->GetBinContent(1)<<std::endl;
+        CountWeightedLHEWeightScale->Add(CountWeightedLHEWeightScale_thisfile);
+        CountWeightedLHEWeightPdf->Add(CountWeightedLHEWeightPdf_thisfile);
+        std::cout<<"lhe = "<<CountWeightedLHEWeightPdf->GetBinContent(1)<<std::endl;
         file->Close();
     }
     

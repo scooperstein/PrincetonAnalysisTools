@@ -435,13 +435,13 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 if (filenames.size() > 0) {
                     // keep track of total number of processed events for the sample
                     // so we still get the weight right
-                    int processedEvents = onlySample->processedEvents;
+                    //int processedEvents = onlySample->processedEvents;
                     std::vector<std::string> sampleFiles = onlySample->files;
                     onlySample->files.clear();
                     onlySample->sampleChain = new TChain("tree");
                     for (int j=0; j<(int)filenames.size(); j++) {
                         if (std::find(sampleFiles.begin(), sampleFiles.end(), filenames[j]) != sampleFiles.end() ) {
-                            onlySample->AddFile(filenames[j].c_str());
+                            onlySample->AddFile(filenames[j].c_str(),1);
                         }
                         else {
                             std::cout<<"Analysis Manager tried to run on file "<<filenames[j]<<" in sample "<<sampleName<<", but this file is not in the sample's list of files. Skipping..."<<std::endl;
@@ -451,7 +451,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                             }
                         }
                     }
-                    onlySample->processedEvents = processedEvents;
+                    //onlySample->processedEvents = processedEvents;
                     //ofile = new TFile(Form("%s_%s_%i.root",outputTreeName.c_str(),samples[0].sampleName.c_str(),fNum),"recreate");
                 }
                 else {
@@ -590,6 +590,9 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 }
             } // end event loop
         } // end file loop
+        ofile->cd();
+        //cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
+        //cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;
     
