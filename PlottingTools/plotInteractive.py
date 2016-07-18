@@ -64,7 +64,7 @@ plotscale=ysize/700
 
 cutline=ROOT.TLine()
 
-Debug=True
+Debug=False
 DebugNew=False
 
 dodivide=False
