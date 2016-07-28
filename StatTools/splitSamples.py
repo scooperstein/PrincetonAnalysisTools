@@ -72,7 +72,10 @@ set_of_weights = []
 if (args.weights != ""):
     set_of_weights = args.weights.split(',')
 print set_of_weights
-weight_string = "weight"
+#weight_string = "weight"
+weight_string = "weight*(puWeight/weight_PU)"
+#weight_string = "weight*(CS_SF_new2/CS_SF)*(puWeight/weight_PU)*(1 + (sampleIndex>=24&&sampleIndex<=31)*(-0.63)) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWmunu)*(-1 + 1./(0.0673 *SF_SMuTrig_Block1[lepInd] + 0.9327 * SF_SMuTrig_Block2[lepInd]))  ) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWenu)*(-1 + 1./(SF_HLT_Ele23_WPLoose[lepInd]))  )"
+#weight_string = "weight*(1./CS_SF)*(puWeight/weight_PU)*(1 + (sampleIndex>=24&&sampleIndex<=31)*(-0.63)) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWmunu)*(-1 + 1./(0.0673 *SF_SMuTrig_Block1[lepInd] + 0.9327 * SF_SMuTrig_Block2[lepInd]))  ) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWenu)*(-1 + 1./(SF_HLT_Ele23_WPLoose[lepInd]))  )"
 #weight_string = "weight*(CS_SF_new/CS_SF)"
 #weight_string = "weight*((sampleIndex!=50&&sampleIndex!=51&&sampleIndex!=52) + (sampleIndex==50||sampleIndex==51||sampleIndex==52)*(245.79/831.76))" ## FIXME: change it back!!!!!
 #weight_string = "weight*((sampleIndex!=50&&sampleIndex!=51&&sampleIndex!=52) + (sampleIndex==50||sampleIndex==51||sampleIndex==52)*(245.79/831.76)*1.956)" ## FIXME: change it back!!!!!
@@ -105,11 +108,11 @@ sampleMap["s_Top"] = [16,17,20,21]
 sampleMap["WH"] = [-12501]
 sampleMapAltModel["WH"] = [-125010, -125011]
 sampleMap["ZH"] = [-12502]
-sampleMap["Wj0b"] = [2200,4400,4500,4600,4700,4800,4900]
+sampleMap["Wj0b"] = [2200,4100,4200,4300,4400,4500,4600,4700,4800,4900]
 sampleMapAltModel["Wj0b"] = [6000]
-sampleMap["Wj1b"] = [2201,4401,4501,4601,4701,4801,4901]
+sampleMap["Wj1b"] = [2201,4101,4201,4301,4401,4501,4601,4701,4801,4901]
 sampleMapAltModel["Wj1b"] = [6001]
-sampleMap["Wj2b"] = [2202,4402,4502,4602,4702,4802,4902]
+sampleMap["Wj2b"] = [2202,4102,4202,4302,4402,4502,4602,4702,4802,4902]
 sampleMapAltModel["Wj2b"] = [6002]
 sampleMap["VVHF"] = [3501,3502,3601,3602,3701,3702]
 sampleMap["VVLF"] = [3500,3600,3700]
@@ -214,7 +217,7 @@ else:
 tree = ROOT.TTree("tree","tree")
 #hBkg.Write()
 for sample in sampleMap:
-    #if (sample != "TT"): continue
+    #if (sample != "WH"): continue
     #if (sample != "Bkg" and sample != "data_obs" and sample != "WH" and sample != "ZH"): continue
     if (sample == "TT" and args.ttbarTree != ""): 
         ifile_tt = ROOT.TFile(args.ttbarTree,"r")
@@ -222,6 +225,10 @@ for sample in sampleMap:
         tree = tree_tt
         #ofile.cd()
         #ifile_tt.Close()
+    elif (sample == "WH" or sample == "ZH"):
+        ifile_sig = ROOT.TFile(args.inputfile.replace("output_mc.root","output_signal.root"))
+        tree_sig = ifile_sig.Get("tree")
+        tree = tree_sig
     else:
         tree = tree_mc  
     #cutString = presel + "&&("
@@ -248,6 +255,7 @@ for sample in sampleMap:
         #hBkg.Write(sample)
         ofile.cd()
         hBkg.Write("BDT_%s_%s" % (catName,sample))
+         
     #    continue
     #elif (sample == "TT" and args.ttbarTree != ""):
     #    print "got here"

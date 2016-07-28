@@ -30,27 +30,6 @@ type=1  name=isWmunu
 type=1  name=cutFlow
 type=1  name=controlSample
 type=2  name=nProcEvents
-type=2  name=nPVs_f
-
-type=2  name=bTagWeight
-type=2  name=bTagWeight_HFUp
-type=2  name=bTagWeight_HFDown
-type=2  name=bTagWeight_LFUp
-type=2  name=bTagWeight_LFDown
-type=2  name=bTagWeight_LFStats1Up
-type=2  name=bTagWeight_LFStats1Down
-type=2  name=bTagWeight_HFStats1Up
-type=2  name=bTagWeight_HFStats1Down
-type=2  name=bTagWeight_LFStats2Up
-type=2  name=bTagWeight_LFStats2Down
-type=2  name=bTagWeight_HFStats2Up
-type=2  name=bTagWeight_HFStats2Down
-type=2  name=bTagWeight_cErr1Up
-type=2  name=bTagWeight_cErr1Down
-type=2  name=bTagWeight_cErr2Up
-type=2  name=bTagWeight_cErr2Down
-type=2  name=bTagWeight_JESUp
-type=2  name=bTagWeight_JESDown
 
 type=1  name=bMCFlavorSum
 type=1  name=bMCFlavorSumSelected

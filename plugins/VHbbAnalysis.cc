@@ -111,7 +111,27 @@ bool VHbbAnalysis::Analyze(){
         if (*f["HLT_BIT_HLT_Ele27_WP85_Gsf_v"]!=1 && *f["HLT_BIT_HLT_IsoMu20_v"]!=1 && *f["HLT_BIT_HLT_IsoTkMu20_v"]!=1) sel=false;
     }*/
     //if (*in["HLT_WenHbbLowLumi"]!=1 && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
-    if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_Ele27_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
+    
+    if (*f["do2015"] > 0) {
+        // for 2015 V21 ntuples
+        if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
+    }
+    else {
+        //for 2016 V22 ntuples there is no MC HLT simulation we can use, have to just apply the data trigger efficiency
+        if (*in["sampleIndex"] == 0) {
+            // regular triggers for 2016 data, but none applied to MC
+            if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
+        }
+        //else if (*in["sampleIndex"] < 0) {
+        //    // "re-HLT-ed" trigger bits for signal MC
+        //    if (*in["HLT2_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
+        //    
+        //}
+        // for the rest of the MC we just dont have the HLT in 2016, have to apply data efficiencies 
+    }
+
+    //if (*in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
+
     //if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
     if (*in["sampleIndex"]==0) {
         if (*f["json"]!=1) sel=false;
@@ -581,6 +601,7 @@ bool VHbbAnalysis::Analyze(){
     float maxCSV=std::max(f["Jet_btagCSV"][*in["hJetInd1"]],f["Jet_btagCSV"][*in["hJetInd2"]]);
     if(baseCSSelection){
         *in["controlSample"]=0;
+        //if (maxCSV > 0.60){ //ttbar or W+HF //FIXME: temporary definition change because of bTagWeight craziness
         if (maxCSV > 0.935){ //ttbar or W+HF
             if(*in["nAddJets252p9_puid"]>1.5) { //ttbar
                 *in["controlSample"]=1;
@@ -666,8 +687,8 @@ void VHbbAnalysis::FinishEvent(){
     *f["weight_ptQCD"] = 1.0;
     *f["weight_ptEWK"] = 1.0;
     if(*in["sampleIndex"]!=0){
-        //*f["weight_PU"]=ReWeightMC(*in["nTrueInt"]);
-        *f["weight_PU"] = *f["puWeight"];
+        *f["weight_PU"]=ReWeightMC(int(*f["nTrueInt"])+0.5); // it is now a float (continuous distribution?) so we round to the nearest int
+        //*f["weight_PU"] = *f["puWeight"];
         *f["weight_PUUp"] = *f["puWeightUp"] / *f["puWeight"];
         *f["weight_PUDown"] = *f["puWeightDown"] / *f["puWeight"];
         if (*in["nGenTop"]==0 && *in["nGenVbosons"]>0) {
@@ -685,6 +706,8 @@ void VHbbAnalysis::FinishEvent(){
     // From Silvio
     // https://github.com/silviodonato/Xbb/blob/V21/python/ZvvHbb13TeVconfig/samples_nosplit.ini
     // calculated here: https://github.com/silviodonato/Xbb/blob/V21/python/getWeights.py
+    
+    /*// weights for V21 ntuples (2015 analysis)
     float weightWBjetsHT100=	0.22;
     float weightWBjetsHT200=	0.34;
     float weightWBjetsHT400=	0.62;
@@ -693,11 +716,28 @@ void VHbbAnalysis::FinishEvent(){
     float weightWjetsBgenHT100=	0.24;
     float weightWjetsBgenHT200=	0.39;
     float weightWjetsBgenHT400=	0.69;
-    float weightWjetsBgenHT600=	0.80;
+    float weightWjetsBgenHT600=	0.80;*/
+
+    // weights for V22 ntuples (2016 analysis)
+    float weightWBjetsHT100=	0.42;
+    float weightWBjetsHT200=	0.67;
+    float weightWBjetsHT400=	0.62;
+    float weightWBjetsHT600=	0.94;
+    float weightWBjetsHT800=	0.99;
+    float weightWBjetsHT1200=	1.0;
+    float weightWBjetsHT2500=	1.0;
+
+    float weightWjetsBgenHT100=	0.51;
+    float weightWjetsBgenHT200=	0.75;
+    float weightWjetsBgenHT400=	0.71;
+    float weightWjetsBgenHT600=	0.95;
+    float weightWjetsBgenHT800=	0.99;
+    float weightWjetsBgenHT1200= 1.0;
+    float weightWjetsBgenHT2500= 1.0;
 
     // stitch together W b-enriched samples with HT-binned samples in order to maximize statistical power
     if (cursample->sampleNum==22 || cursample->sampleNum==44 || cursample->sampleNum==45 || cursample->sampleNum==46 || cursample->sampleNum==47
-        || cursample->sampleNum==48 || cursample->sampleNum==49) {
+        || cursample->sampleNum==48 || cursample->sampleNum==49 || cursample->sampleNum==41 || cursample->sampleNum==42 || cursample->sampleNum==43) {
         if (*f["lheHT"]>100 && *f["lheHT"]<200) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
@@ -752,7 +792,7 @@ void VHbbAnalysis::FinishEvent(){
                 }
             } 
         }
-        if (*f["lheHT"]>600) {
+        if (*f["lheHT"]>600 && *f["lheHT"]<800) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
                     *f["weight"] = *f["weight"] * (1 - weightWBjetsHT600);
@@ -767,6 +807,60 @@ void VHbbAnalysis::FinishEvent(){
                 }
                 else {
                     *f["weight"] = *f["weight"] * weightWjetsBgenHT600;
+                }
+            } 
+        }
+        if (*f["lheHT"]>800 && *f["lheHT"]<1200) {
+            if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
+                if (cursample->sampleNum == 48) {
+                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT800);
+                }
+                else {
+                    *f["weight"] = *f["weight"] * weightWBjetsHT800;
+                }
+            }
+            else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
+                if (cursample->sampleNum == 49) {
+                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT800);
+                }
+                else {
+                    *f["weight"] = *f["weight"] * weightWjetsBgenHT800;
+                }
+            } 
+        }
+        if (*f["lheHT"]>1200 && *f["lheHT"]<2500) {
+            if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
+                if (cursample->sampleNum == 48) {
+                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT1200);
+                }
+                else {
+                    *f["weight"] = *f["weight"] * weightWBjetsHT1200;
+                }
+            }
+            else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
+                if (cursample->sampleNum == 49) {
+                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT1200);
+                }
+                else {
+                    *f["weight"] = *f["weight"] * weightWjetsBgenHT1200;
+                }
+            } 
+        }
+        if (*f["lheHT"]>2500) {
+            if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
+                if (cursample->sampleNum == 48) {
+                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT2500);
+                }
+                else {
+                    *f["weight"] = *f["weight"] * weightWBjetsHT2500;
+                }
+            }
+            else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
+                if (cursample->sampleNum == 49) {
+                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT2500);
+                }
+                else {
+                    *f["weight"] = *f["weight"] * weightWjetsBgenHT2500;
                 }
             } 
         }
@@ -944,6 +1038,7 @@ void VHbbAnalysis::FinishEvent(){
     *f["isWenu_f"] = (float) *in["isWenu"];
     *f["isWmunu_f"] = (float) *in["isWmunu"];
     *f["softActivityVH_njets5_f"] = (float) *in["softActivityVH_njets5"];
+    *f["nPVs_f"] = (float) *in["nPVs"];
 
     if (BDTisSet) {
         if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
@@ -965,7 +1060,7 @@ void VHbbAnalysis::FinishEvent(){
 
     if(jet1EnergyRegressionIsSet && jet2EnergyRegressionIsSet) {
         *f["hJets_pt_0"] = float(f["Jet_pt"][*in["hJetInd1"]]);
-        *f["hJets_corr_0"] = f["Jet_corr"][*in["hJetInd1"]];
+        //*f["hJets_corr_0"] = f["Jet_corr"][*in["hJetInd1"]];
         //*f["hJets_rawPt_0"] = float(d["hJets_rawPt"][0]);
         *f["hJets_eta_0"] = float(f["Jet_eta"][*in["hJetInd1"]]);
         *f["hJets_mt_0"] = HJ1.Mt();
@@ -977,7 +1072,7 @@ void VHbbAnalysis::FinishEvent(){
         //*f["hJets_chHEF_0"] = float(f["Jet_chHEF"][*in["hJetInd1"]]);
         *f["hJets_neHEF_0"] = float(f["Jet_neHEF"][*in["hJetInd1"]]);
         *f["hJets_neEmEF_0"] = float(f["Jet_neEmEF"][*in["hJetInd1"]]);
-        *f["hJets_chMult_0"] = float(f["Jet_chMult"][*in["hJetInd1"]]);
+        //*f["hJets_chMult_0"] = float(f["Jet_chMult"][*in["hJetInd1"]]);
         //*f["hJets_puId_0"] = float(d["hJets_puId"][0]);
         *f["hJets_vtxMass_0"] = float(f["Jet_vtxMass"][*in["hJetInd1"]]);
         *f["hJets_vtxPt_0"] = float(f["Jet_vtxPt"][*in["hJetInd1"]]);
@@ -987,7 +1082,7 @@ void VHbbAnalysis::FinishEvent(){
         *f["hJets_vtx3deL_0"] = f["Jet_vtx3DSig"][*in["hJetInd1"]];
 
         *f["hJets_pt_1"] = float(f["Jet_pt"][*in["hJetInd2"]]);
-        *f["hJets_corr_1"] = f["Jet_corr"][*in["hJetInd2"]];
+        //*f["hJets_corr_1"] = f["Jet_corr"][*in["hJetInd2"]];
         //*f["hJets_rawPt_1"] = float(d["hJets_rawPt"][1]);
         *f["hJets_eta_1"] = float(f["Jet_eta"][*in["hJetInd2"]]);
         *f["hJets_mt_1"] = HJ2.Mt();
@@ -999,7 +1094,7 @@ void VHbbAnalysis::FinishEvent(){
         //*f["hJets_chHEF_1"] = float(f["Jet_chHEF"][*in["hJetInd2"]]);
         *f["hJets_neHEF_1"] = float(f["Jet_neHEF"][*in["hJetInd2"]]);
         *f["hJets_neEmEF_1"] = float(f["Jet_neEmEF"][*in["hJetInd2"]]);
-        *f["hJets_chMult_1"] = float(f["Jet_chMult"][*in["hJetInd2"]]);
+        //*f["hJets_chMult_1"] = float(f["Jet_chMult"][*in["hJetInd2"]]);
         //*f["hJets_puId_1"] = float(f["hJets_puId"][1]);
         *f["hJets_vtxMass_1"] = float(f["Jet_vtxMass"][*in["hJetInd2"]]);
         //*f["hJets_vtx3DVal_1"] = float(f["Jet_vtx3DVal"][*in["hJetInd2"]]); 
@@ -1042,16 +1137,16 @@ void VHbbAnalysis::FinishEvent(){
 
     // add control sample fitted scale factor (already computed)
     *f["CS_SF"] = 1.0;
-    if (*in["sampleIndex"]==2200 || *in["sampleIndex"]==4400 || *in["sampleIndex"]==4500 || *in["sampleIndex"]==4600 || *in["sampleIndex"]==4700 || *in["sampleIndex"]==4800 || *in["sampleIndex"]==4900) {
+    if (*in["sampleIndex"]==2200 || *in["sampleIndex"]==4400 || *in["sampleIndex"]==4500 || *in["sampleIndex"]==4600 || *in["sampleIndex"]==4700 || *in["sampleIndex"]==4800 || *in["sampleIndex"]==4900 || *in["sampleIndex"]==4100 || *in["sampleIndex"]==4200 || *in["sampleIndex"]==4300) {
         *f["CS_SF"] = *f["SF_Wj0b"];
     }
     /*else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901 || *in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902) {
         *f["CS_SF"] = *f["SF_WHF"];
     }*/
-    else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901) {
+    else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901 || *in["sampleIndex"]==4101 || *in["sampleIndex"]==4201 || *in["sampleIndex"]==4301) {
         *f["CS_SF"] = *f["SF_Wj1b"];
     }
-    else if (*in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902) {
+    else if (*in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902 || *in["sampleIndex"]==4102 || *in["sampleIndex"]==4202 || *in["sampleIndex"]==4302) {
         *f["CS_SF"] = *f["SF_Wj2b"];
     }
     else if (*in["sampleIndex"]==50 || *in["sampleIndex"]==51 || *in["sampleIndex"]==52 || *in["sampleIndex"]==12 || *in["sampleIndex"]==120 || *in["sampleIndex"]==500) {
@@ -1060,17 +1155,43 @@ void VHbbAnalysis::FinishEvent(){
 
     if (*in["sampleIndex"]!=0) {
         if (*in["isWmunu"] == 1) {
-            *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdCutTight"][*in["lepInd"]] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd"]];
-            /*if (*in["run"] < 257933) {
-                *f["Lep_SF"] = *f["Lep_SF"] * f["selLeptons_SF_HLT_RunD4p2"][*in["lepInd"]];
-            }
-            else {
-                *f["Lep_SF"] = *f["Lep_SF"] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd"]];
-            }*/ 
+            // used for 2015 analysis
+            //*f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdCutTight"][*in["lepInd"]] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd"]];
+            
+            // for 2016 analysis
+            *f["Lep_SF"] = f["SF_MuIDLoose"][*in["lepInd"]] * f["SF_MuIsoTight"][*in["lepInd"]] * (0.0673 * f["SF_SMuTrig_Block1"][*in["lepInd"]] + 0.9327 * f["SF_SMuTrig_Block2"][*in["lepInd"]] );
         }
         else if (*in["isWenu"] == 1) {
-            *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdMVATight"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]]; 
+            // used for 2015 analysis
+           // *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdMVATight"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]]; 
+        
+           // for 2016 analysis
+           *f["Lep_SF"] =   f["SF_ElIdMVATrigWP80"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]];
+ 
         }
+        // in V23 for 2016 they changed the names of all the btag weights x.x
+        if (*f["do2015"] <= 0) {
+            *f["bTagWeight"] = *f["btagWeightCSV"];
+            *f["bTagWeight_JESUp"] = *f["btagWeightCSV_up_jes"];
+            *f["bTagWeight_JESDown"] = *f["btagWeightCSV_down_jes"];
+            *f["bTagWeight_HFUp"] = *f["btagWeightCSV_up_hf"];
+            *f["bTagWeight_HFDown"] = *f["btagWeightCSV_down_hf"];
+            *f["bTagWeight_LFUp"] = *f["btagWeightCSV_up_lf"];
+            *f["bTagWeight_LFDown"] = *f["btagWeightCSV_down_lf"];
+            *f["bTagWeight_HFStats1Up"] = *f["btagWeightCSV_up_hfstats1"];
+            *f["bTagWeight_HFStats1Down"] = *f["btagWeightCSV_down_hfstats1"];
+            *f["bTagWeight_LFStats1Up"] = *f["btagWeightCSV_up_lfstats1"];
+            *f["bTagWeight_LFStats1Down"] = *f["btagWeightCSV_down_lfstats1"];
+            *f["bTagWeight_HFStats2Up"] = *f["btagWeightCSV_up_hfstats2"];
+            *f["bTagWeight_HFStats2Down"] = *f["btagWeightCSV_down_hfstats2"];
+            *f["bTagWeight_LFStats2Up"] = *f["btagWeightCSV_up_lfstats2"];
+            *f["bTagWeight_LFStats2Down"] = *f["btagWeightCSV_down_lfstats2"];
+            *f["bTagWeight_cErr1Up"] = *f["btagWeightCSV_up_cferr1"];
+            *f["bTagWeight_cErr1Down"] = *f["btagWeightCSV_down_cferr1"];
+            *f["bTagWeight_cErr2Up"] = *f["btagWeightCSV_up_cferr2"];
+            *f["bTagWeight_cErr2Down"] = *f["btagWeightCSV_down_cferr2"];
+        }
+
         *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"] * *f["Lep_SF"];
     }
 
@@ -1429,117 +1550,120 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
 
 float VHbbAnalysis::ReWeightMC(int nPU){
 
-double data2[52]={
-4.49873379421785E-005 ,
-0.0002734329  ,
-0.0002829032  ,
-0.0003713701  ,
-0.0005505258  ,
-0.0008813604  ,
-0.0026826432  ,
-0.0166379415  ,
-0.0618837545  ,
-0.1203749801  ,
-0.1715793027  ,
-0.1959297551  ,
-0.1788795228  ,
-0.1285242708  ,
-0.0723801445  ,
-0.0322818448  ,
-0.0116512156  ,
-0.0035181198  ,
-0.0009365339  ,
-0.0002378211  ,
-6.3484922942407E-005  ,
-1.9640165964275E-005  ,
-7.51884233725539E-006 ,
-3.47269001094576E-006 ,
-1.75552059572915E-006 ,
-8.94169705326947E-007 ,
-4.40644428362066E-007 ,
-0.000000207 ,
-9.23073857687134E-008 ,
-0.000000039 ,
-1.56317481250602E-008 ,
-5.93482507474814E-009 ,
-2.1353501155199E-009  ,
-7.28092380422255E-010 ,
-2.35266751336713E-010 ,
-7.20423931836899E-011 ,
-2.09059068601469E-011 ,
-5.74917354326211E-012 ,
-1.49829687744647E-012 ,
-3.70036607069327E-013 ,
-8.66064573134044E-014 ,
-1.92095530821743E-014 ,
-4.03783143396351E-015 ,
-8.04352330952033E-016 ,
-1.51850475885846E-016 ,
-2.71662388084133E-017 ,
-4.60882697565656E-018 ,
-7.37768210770165E-019 ,
-1.15691685161167E-019 ,
-1.71283468612116E-020 ,
-0 ,
-0 ,
+double data2[50]={
+3.72080752299e-07,
+1.47718953836e-05,
+5.79841527807e-05,
+0.000132465155152,
+0.000194029101597,
+0.000266928406893,
+0.000537390953436,
+0.00249222471316,
+0.00713605338046,
+0.0147893534623,
+0.0232230204065,
+0.0317807128657,
+0.0424387961713,
+0.0541178963448,
+0.0653538845508,
+0.0749520482888,
+0.0815302475861,
+0.0845985629121,
+0.0843143028301,
+0.0807132646267,
+0.0742418229119,
+0.0659244351143,
+0.0565195845436,
+0.046354924125,
+0.0359433811537,
+0.026208951089,
+0.0180189631761,
+0.0117407079361,
+0.00726631530962,
+0.0042685813811,
+0.00238135509614,
+0.00126624280575,
+0.000643957680542,
+0.000313312284132,
+0.000145563772599,
+6.45017277731e-05,
+2.73432971552e-05,
+1.1242475393e-05,
+4.66091032876e-06,
+2.12192702606e-06,
+1.19436640045e-06,
+8.7124597584e-07,
+7.62851560055e-07,
+7.27278616135e-07,
+7.15086085434e-07,
+7.09204930279e-07,
+7.0301548247e-07,
+6.93785503818e-07,
+6.80860353766e-07,
+6.63703072683e-07
 };
 
-double mc2[52]={4.8551E-07,
-		1.74806E-06,
-		3.30868E-06,
-		1.62972E-05,
-		4.95667E-05,
-		0.000606966,
-		0.003307249,
-		0.010340741,
-		0.022852296,
-		0.041948781,
-		0.058609363,
-		0.067475755,
-		0.072817826,
-		0.075931405,
-		0.076782504,
-		0.076202319,
-		0.074502547,
-		0.072355135,
-		0.069642102,
-		0.064920999,
-		0.05725576,
-		0.047289348,
-		0.036528446,
-		0.026376131,
-		0.017806872,
-		0.011249422,
-		0.006643385,
-		0.003662904,
-		0.001899681,
-		0.00095614,
-		0.00050028,
-		0.000297353,
-		0.000208717,
-		0.000165856,
-		0.000139974,
-		0.000120481,
-		0.000103826,
-		8.88868E-05,
-		7.53323E-05,
-		6.30863E-05,
-		5.21356E-05,
-		4.24754E-05,
-		3.40876E-05,
-		2.69282E-05,
-		2.09267E-05,
-		1.5989E-05,
-		4.8551E-06,
-		2.42755E-06,
-		4.8551E-07,
-		2.42755E-07,
-		1.21378E-07,
-		4.8551E-08};
+double mc2[50]={
+0.000829312892165,
+0.00124276115093,
+0.00339329172857,
+0.0040822471492,
+0.00383036583662,
+0.00659159291536,
+0.00816022697836,
+0.00943640805781,
+0.0137777375057,
+0.0170593913645,
+0.0213193036616,
+0.0247343182564,
+0.0280848778784,
+0.0323308482766,
+0.0370394326746,
+0.0456917732954,
+0.055876288563,
+0.0576956197619,
+0.0625325292349,
+0.059160374105,
+0.0656650811434,
+0.0678329020739,
+0.0625142157078,
+0.0548068434,
+0.0503893308342,
+0.0402098186314,
+0.0374446995556,
+0.0299661569297,
+0.027202475816,
+0.0219328403473,
+0.0179586578161,
+0.0142926732078,
+0.00839941669255,
+0.00522366398945,
+0.00224457983859,
+0.000779274967499,
+0.000197066590772,
+7.16031790944e-05,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0,
+0.0
+	};
 
-  if(nPU<0) return 1;
-  if(nPU>51) return 1;
-  return data2[nPU]/mc2[nPU];
+  if(nPU<=0) return 1;
+  if(nPU>50) return 1;
+  if (mc2[nPU+1]>0) {
+      return data2[nPU-1]/mc2[nPU-1];
+  }
+  else {
+      return 1;
+  }
 }
 
 // from https://twiki.cern.ch/twiki/bin/view/CMS/VHiggsBBCodeUtils#V_X_QCD_and_EWK_corrections
