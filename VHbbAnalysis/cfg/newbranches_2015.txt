@@ -30,6 +30,7 @@ type=1  name=isWmunu
 type=1  name=cutFlow
 type=1  name=controlSample
 type=2  name=nProcEvents
+type=2  name=nPVs_f
 
 type=1  name=bMCFlavorSum
 type=1  name=bMCFlavorSumSelected

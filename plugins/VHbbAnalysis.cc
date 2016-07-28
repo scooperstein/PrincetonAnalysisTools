@@ -111,8 +111,7 @@ bool VHbbAnalysis::Analyze(){
         if (*f["HLT_BIT_HLT_Ele27_WP85_Gsf_v"]!=1 && *f["HLT_BIT_HLT_IsoMu20_v"]!=1 && *f["HLT_BIT_HLT_IsoTkMu20_v"]!=1) sel=false;
     }*/
     //if (*in["HLT_WenHbbLowLumi"]!=1 && *in["HLT_WmnHbbLowLumi"]!=1) sel=false;
-    
-    if (*f["do2015"] > 0) {
+    if (*f["do2015"] == 1) {
         // for 2015 V21 ntuples
         if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
     }
@@ -687,8 +686,13 @@ void VHbbAnalysis::FinishEvent(){
     *f["weight_ptQCD"] = 1.0;
     *f["weight_ptEWK"] = 1.0;
     if(*in["sampleIndex"]!=0){
-        *f["weight_PU"]=ReWeightMC(int(*f["nTrueInt"])+0.5); // it is now a float (continuous distribution?) so we round to the nearest int
-        //*f["weight_PU"] = *f["puWeight"];
+        if (*f["do2015"] == 1) {
+            *f["weight_PU"] = *f["puWeight"];
+        }
+        else {
+            *f["weight_PU"] = *f["puWeight"];
+            //*f["weight_PU"]=ReWeightMC(int(*f["nTrueInt"])+0.5); // it is now a float (continuous distribution?) so we round to the nearest int
+        }
         *f["weight_PUUp"] = *f["puWeightUp"] / *f["puWeight"];
         *f["weight_PUDown"] = *f["puWeightDown"] / *f["puWeight"];
         if (*in["nGenTop"]==0 && *in["nGenVbosons"]>0) {
@@ -707,33 +711,41 @@ void VHbbAnalysis::FinishEvent(){
     // https://github.com/silviodonato/Xbb/blob/V21/python/ZvvHbb13TeVconfig/samples_nosplit.ini
     // calculated here: https://github.com/silviodonato/Xbb/blob/V21/python/getWeights.py
     
-    /*// weights for V21 ntuples (2015 analysis)
+    // weights for V21 ntuples (2015 analysis)
     float weightWBjetsHT100=	0.22;
     float weightWBjetsHT200=	0.34;
     float weightWBjetsHT400=	0.62;
     float weightWBjetsHT600=	0.73;
+    float weightWBjetsHT800=    0.73;
+    float weightWBjetsHT1200=   0.73;
+    float weightWBjetsHT2500=    0.73;
 
     float weightWjetsBgenHT100=	0.24;
     float weightWjetsBgenHT200=	0.39;
     float weightWjetsBgenHT400=	0.69;
-    float weightWjetsBgenHT600=	0.80;*/
+    float weightWjetsBgenHT600=	0.80;
+    float weightWjetsBgenHT800=	0.80;
+    float weightWjetsBgenHT1200=	0.80;
+    float weightWjetsBgenHT2500=	0.80;
 
-    // weights for V22 ntuples (2016 analysis)
-    float weightWBjetsHT100=	0.42;
-    float weightWBjetsHT200=	0.67;
-    float weightWBjetsHT400=	0.62;
-    float weightWBjetsHT600=	0.94;
-    float weightWBjetsHT800=	0.99;
-    float weightWBjetsHT1200=	1.0;
-    float weightWBjetsHT2500=	1.0;
+    if (*f["do2015"] != 1) {
+        // weights for V22 ntuples (2016 analysis)
+        weightWBjetsHT100=	0.42;
+        weightWBjetsHT200=	0.67;
+        weightWBjetsHT400=	0.62;
+        weightWBjetsHT600=	0.94;
+        weightWBjetsHT800=	0.99;
+        weightWBjetsHT1200=	1.0;
+        weightWBjetsHT2500=	1.0;
 
-    float weightWjetsBgenHT100=	0.51;
-    float weightWjetsBgenHT200=	0.75;
-    float weightWjetsBgenHT400=	0.71;
-    float weightWjetsBgenHT600=	0.95;
-    float weightWjetsBgenHT800=	0.99;
-    float weightWjetsBgenHT1200= 1.0;
-    float weightWjetsBgenHT2500= 1.0;
+        weightWjetsBgenHT100=	0.51;
+        weightWjetsBgenHT200=	0.75;
+        weightWjetsBgenHT400=	0.71;
+        weightWjetsBgenHT600=	0.95;
+        weightWjetsBgenHT800=	0.99;
+        weightWjetsBgenHT1200= 1.0;
+        weightWjetsBgenHT2500= 1.0;
+    }
 
     // stitch together W b-enriched samples with HT-binned samples in order to maximize statistical power
     if (cursample->sampleNum==22 || cursample->sampleNum==44 || cursample->sampleNum==45 || cursample->sampleNum==46 || cursample->sampleNum==47
@@ -1155,22 +1167,27 @@ void VHbbAnalysis::FinishEvent(){
 
     if (*in["sampleIndex"]!=0) {
         if (*in["isWmunu"] == 1) {
-            // used for 2015 analysis
-            //*f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdCutTight"][*in["lepInd"]] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd"]];
-            
-            // for 2016 analysis
-            *f["Lep_SF"] = f["SF_MuIDLoose"][*in["lepInd"]] * f["SF_MuIsoTight"][*in["lepInd"]] * (0.0673 * f["SF_SMuTrig_Block1"][*in["lepInd"]] + 0.9327 * f["SF_SMuTrig_Block2"][*in["lepInd"]] );
+            if (*f["do2015"] == 1) {
+                // used for 2015 analysis
+                *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdCutTight"][*in["lepInd"]] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd"]];
+            }
+            else {
+                // for 2016 analysis
+                *f["Lep_SF"] = f["SF_MuIDLoose"][*in["lepInd"]] * f["SF_MuIsoTight"][*in["lepInd"]] * (0.0673 * f["SF_SMuTrig_Block1"][*in["lepInd"]] + 0.9327 * f["SF_SMuTrig_Block2"][*in["lepInd"]] );
+            }
         }
         else if (*in["isWenu"] == 1) {
-            // used for 2015 analysis
-           // *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdMVATight"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]]; 
-        
-           // for 2016 analysis
-           *f["Lep_SF"] =   f["SF_ElIdMVATrigWP80"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]];
- 
+           if (*f["do2015"] == 1) { 
+               // used for 2015 analysis
+               // *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd"]] * f["selLeptons_SF_IdMVATight"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]]; 
+           } 
+           else {
+               // for 2016 analysis
+               *f["Lep_SF"] =   f["SF_ElIdMVATrigWP80"][*in["lepInd"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd"]];
+           }
         }
         // in V23 for 2016 they changed the names of all the btag weights x.x
-        if (*f["do2015"] <= 0) {
+        if (*f["do2015"] != 1) {
             *f["bTagWeight"] = *f["btagWeightCSV"];
             *f["bTagWeight_JESUp"] = *f["btagWeightCSV_up_jes"];
             *f["bTagWeight_JESDown"] = *f["btagWeightCSV_down_jes"];

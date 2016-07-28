@@ -6,16 +6,13 @@ type=1  name=lumi
 type=1  name=run
 #type=1  name=HLT_WenHbbLowLumi
 #type=1  name=HLT_WmnHbbLowLumi
-#type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
+type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
 #type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_IsoMu20_v
 type=1  name=HLT_BIT_HLT_IsoTkMu20_v
 #type=2  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 #type=2  name=HLT_BIT_HLT_Ele27_WP85_Gsf_v
-type=1  name=HLT2_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
-type=1  name=HLT2_BIT_HLT_IsoMu20_v
-type=1  name=HLT2_BIT_HLT_IsoTkMu20_v
 
 type=1  name=nPVs
 type=2  name=rho
@@ -23,7 +20,6 @@ type=2  name=puWeight                              onlyMC=1
 type=2  name=puWeightUp                            onlyMC=1
 type=2  name=puWeightDown                          onlyMC=1
 
-type=2  name=btagWeightCSV
 type=2  name=bTagWeight
 type=2  name=bTagWeight_HFUp
 type=2  name=bTagWeight_HFDown
@@ -55,7 +51,7 @@ type=6  name=LHE_weights_pdf_id                         max=110 onlyMC=1 lengthB
 type=7  name=LHE_weights_pdf_wgt                        max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
 
 type=2  name=VtypeSim                                   onlyMC=1
-type=1  name=nTrueInt                                   onlyMC=1
+type=2  name=nTrueInt                                   onlyMC=1
 type=2  name=genWeight                                  onlyMC=1
 type=1  name=nGenJet                                    onlyMC=1
 type=7  name=GenJet_pt                          max=20  onlyMC=1
