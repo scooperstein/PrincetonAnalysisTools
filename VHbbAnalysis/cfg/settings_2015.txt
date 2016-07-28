@@ -3,12 +3,12 @@
 
 # ONLY USE FLOATS
 type=2  name=vetolep            val=1
-type=2  name=intL               val=4340 # 1/pb
+type=2  name=intL               val=2320 # 1/pb
 type=2  name=doCutFlow          val=0
 type=2  name=doControlSamples   val=0
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
-type=2  name=do2015             val=0
+type=2  name=do2015             val=1
 
 type=2  name=j1ptCut            val=25
 type=2  name=j2ptCut            val=25
@@ -40,8 +40,8 @@ type=2  name=vptcut             val=100 # use eventClass variable instead
 type=2  name=nAddJetsCut        val=2
 type=2  name=nAddLeptonsCut     val=1
 
-type=2  name=SF_Wj0b            val=1.03
+type=2  name=SF_Wj0b            val=1.15
 #type=2  name=SF_WHF             val=1.65
-type=2  name=SF_Wj1b            val=1.62
-type=2  name=SF_Wj2b            val=1.03
-type=2  name=SF_TT              val=0.99
+type=2  name=SF_Wj1b            val=2.08
+type=2  name=SF_Wj2b            val=1.05
+type=2  name=SF_TT              val=1.01

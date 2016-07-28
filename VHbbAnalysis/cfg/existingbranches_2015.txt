@@ -6,16 +6,13 @@ type=1  name=lumi
 type=1  name=run
 #type=1  name=HLT_WenHbbLowLumi
 #type=1  name=HLT_WmnHbbLowLumi
-#type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
+type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
 #type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_IsoMu20_v
 type=1  name=HLT_BIT_HLT_IsoTkMu20_v
 #type=2  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 #type=2  name=HLT_BIT_HLT_Ele27_WP85_Gsf_v
-type=1  name=HLT2_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
-type=1  name=HLT2_BIT_HLT_IsoMu20_v
-type=1  name=HLT2_BIT_HLT_IsoTkMu20_v
 
 type=1  name=nPVs
 type=2  name=rho
@@ -23,25 +20,25 @@ type=2  name=puWeight                              onlyMC=1
 type=2  name=puWeightUp                            onlyMC=1
 type=2  name=puWeightDown                          onlyMC=1
 
-type=2  name=btagWeightCSV
-type=2  name=btagWeightCSV_up_jes
-type=2  name=btagWeightCSV_down_jes
-type=2  name=btagWeightCSV_up_lf
-type=2  name=btagWeightCSV_down_lf
-type=2  name=btagWeightCSV_up_hf
-type=2  name=btagWeightCSV_down_hf
-type=2  name=btagWeightCSV_up_hfstats1
-type=2  name=btagWeightCSV_down_hfstats1
-type=2  name=btagWeightCSV_up_hfstats2
-type=2  name=btagWeightCSV_down_hfstats2
-type=2  name=btagWeightCSV_up_lfstats1
-type=2  name=btagWeightCSV_down_lfstats1
-type=2  name=btagWeightCSV_up_lfstats2
-type=2  name=btagWeightCSV_down_lfstats2
-type=2  name=btagWeightCSV_up_cferr1
-type=2  name=btagWeightCSV_down_cferr1
-type=2  name=btagWeightCSV_up_cferr2
-type=2  name=btagWeightCSV_down_cferr2
+type=2  name=bTagWeight
+type=2  name=bTagWeight_HFUp
+type=2  name=bTagWeight_HFDown
+type=2  name=bTagWeight_LFUp
+type=2  name=bTagWeight_LFDown
+type=2  name=bTagWeight_LFStats1Up
+type=2  name=bTagWeight_LFStats1Down
+type=2  name=bTagWeight_HFStats1Up
+type=2  name=bTagWeight_HFStats1Down
+type=2  name=bTagWeight_LFStats2Up
+type=2  name=bTagWeight_LFStats2Down
+type=2  name=bTagWeight_HFStats2Up
+type=2  name=bTagWeight_HFStats2Down
+type=2  name=bTagWeight_cErr1Up
+type=2  name=bTagWeight_cErr1Down
+type=2  name=bTagWeight_cErr2Up
+type=2  name=bTagWeight_cErr2Down
+type=2  name=bTagWeight_JESUp
+type=2  name=bTagWeight_JESDown
 
 type=2  name=htJet30
 type=2  name=mhtJet30

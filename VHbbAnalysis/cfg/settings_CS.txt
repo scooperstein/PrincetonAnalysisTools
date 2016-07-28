@@ -3,11 +3,12 @@
 
 # ONLY USE FLOATS
 type=2  name=vetolep            val=1
-type=2  name=intL               val=2320 # 1/pb
+type=2  name=intL               val=4340 # 1/pb
 type=2  name=doCutFlow          val=0
 type=2  name=doControlSamples   val=1
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
+type=2  name=do2015             val=0
 
 type=2  name=j1ptCut            val=25
 type=2  name=j2ptCut            val=25
@@ -21,7 +22,7 @@ type=2  name=LepPtPresel        val=25
 
 type=2  name=eptcut             val=25
 type=2  name=muptcut            val=25
-type=2  name=eletacut           val=2.5
+type=2  name=eletacut           val=2.1
 type=2  name=muetacut           val=2.4
 type=2  name=metcut             val=0
 type=2  name=erelisocut         val=0.12

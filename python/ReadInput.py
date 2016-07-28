@@ -11,7 +11,7 @@ from ROOT import TH2F
 #ROOT.gSystem.Load("VHbbTrigger_h.so")
 ROOT.gSystem.Load("AnalysisDict.so")
 
-debug=0
+debug=1
 
 def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
     if debug > 100:
@@ -149,6 +149,19 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
             am.SetupNewBranch(bdtInfo.bdtname, 2)
             am.AddBDT(bdtInfo)
             print "added BDT to analysis manager"
+        if settings.has_key("bdtsettings_vv"):
+            print "Adding a VV BDT configuration..."
+            bdtInfo=ReadTextFile(settings["bdtsettings_vv"], "bdt",list())
+            print "read the VV BDT settings text file for BDT %s" % bdtInfo.bdtname
+            # now set up any of the branches if they don't exist yet (must be floats for BDT)
+            for bdtvar in bdtInfo.bdtVars:
+                if (bdtvar.isExisting):
+                    am.SetupBranch(bdtvar.localVarName, 2)
+                else:
+                    am.SetupNewBranch(bdtvar.localVarName, 2)
+            am.SetupNewBranch(bdtInfo.bdtname, 2)
+            am.AddBDT(bdtInfo)
+            print "added VV BDT to analysis manager"
         if settings.has_key("reg1settings"):
             print "Adding a Jet 1 Energy Regresion..."
             reg1 = ReadTextFile(settings["reg1settings"], "bdt",list()) 
@@ -456,22 +469,43 @@ def SetupSF(lines):
         if SF.binning not in res.keys():
             print SF.binning," not in list of binnings: ",res.keys()
         if "abseta" in SF.binning:
-            stripForEta = 8
+            stripForEta = 8 
 
         etaBins = []
         ptBins = []
         nIter = 0
-        for etaKey, values in sorted(res[SF.binning].iteritems()):
-            etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
-            etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
-            etaBins.append(etaL)
-            etaBins.append(etaH)            
+
+        if (SF.binning.find("pt") != 0 and SF.binning.find("DATA") == -1):
+            # categorized first by eta
+            for etaKey, values in sorted(res[SF.binning].iteritems()):
+                etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+                etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+                etaBins.append(etaL)
+                etaBins.append(etaH)            
  
-            for ptKey, result in sorted(values.iteritems()):
+                for ptKey, result in sorted(values.iteritems()):
+                    ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                    ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+                    ptBins.append(ptL)
+                    ptBins.append(ptH)
+        else:
+            print "got here"
+            # categorized first by pt
+            for ptKey, values in sorted(res[SF.binning].iteritems()):
+                print ptKey
+                print (ptKey[stripForEta:])
                 ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
                 ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
                 ptBins.append(ptL)
-                ptBins.append(ptH)
+                ptBins.append(ptH)            
+ 
+                for etaKey, result in sorted(values.iteritems()):
+                    #print etaKey
+                    #print (etaKey[4:]).rstrip(']').split(',')
+                    etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+                    etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+                    etaBins.append(etaL)
+                    etaBins.append(etaH)
 
         etaBins = list(set(etaBins)) # get rid of duplicates
         ptBins = list(set(ptBins))
@@ -482,23 +516,44 @@ def SetupSF(lines):
         SF.scaleMap = TH2F(SF.name, SF.name, len(ptBins)-1, array(ptBins), len(etaBins)-1, array(etaBins))
         #print array(ptBins), array(etaBins)
 
-        for etaKey, values in sorted(res[SF.binning].iteritems()):
-            etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
-            etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
-            binLow1 = SF.scaleMap.GetYaxis().FindBin(etaL)
-            binHigh1 = SF.scaleMap.GetYaxis().FindBin(etaH) - 1
-            for ptKey, result in sorted(values.iteritems()):
+        if (SF.binning.find("pt") != 0 and SF.binning.find("DATA") ==- 1):
+            # categorized first by eta
+            for etaKey, values in sorted(res[SF.binning].iteritems()):
+                etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+                etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+                binLow1 = SF.scaleMap.GetYaxis().FindBin(etaL)
+                binHigh1 = SF.scaleMap.GetYaxis().FindBin(etaH) - 1
+                for ptKey, result in sorted(values.iteritems()):
+                    ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
+                    ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
+                    binLow2 = SF.scaleMap.GetXaxis().FindBin(ptL)
+                    binHigh2 = SF.scaleMap.GetXaxis().FindBin(ptH) - 1
+                    for ibin1 in range(binLow1,binHigh1+1):
+                        for ibin2 in range(binLow2,binHigh2+1):
+                            #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
+                            #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
+                            SF.scaleMap.SetBinContent(ibin2,ibin1, result["value"])
+                            SF.scaleMap.SetBinError(ibin2,ibin1, result["error"])
+                            #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
+        else:
+            # categorized first by pt
+            for ptKey, values in sorted(res[SF.binning].iteritems()):
                 ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
                 ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
-                binLow2 = SF.scaleMap.GetXaxis().FindBin(ptL)
-                binHigh2 = SF.scaleMap.GetXaxis().FindBin(ptH) - 1
-                for ibin1 in range(binLow1,binHigh1+1):
-                    for ibin2 in range(binLow2,binHigh2+1):
-                        #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
-                        #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
-                        SF.scaleMap.SetBinContent(ibin2,ibin1, result["value"])
-                        SF.scaleMap.SetBinError(ibin2,ibin1, result["error"])
-                        #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
+                binLow1 = SF.scaleMap.GetXaxis().FindBin(ptL)
+                binHigh1 = SF.scaleMap.GetXaxis().FindBin(ptH) - 1
+                for etaKey, result in sorted(values.iteritems()):
+                    etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
+                    etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
+                    binLow2 = SF.scaleMap.GetYaxis().FindBin(etaL)
+                    binHigh2 = SF.scaleMap.GetYaxis().FindBin(etaH) - 1
+                    for ibin1 in range(binLow1,binHigh1+1):
+                        for ibin2 in range(binLow2,binHigh2+1):
+                            #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
+                            #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
+                            SF.scaleMap.SetBinContent(ibin1,ibin2, result["value"])
+                            SF.scaleMap.SetBinError(ibin1,ibin2, result["error"])
+                            #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
         SFs.append(SF)
     return SFs
 def findAllRootFiles(value):
