@@ -41,6 +41,7 @@ inline SampleContainer::SampleContainer()
     CountWeightedLHEWeightScale = new TH1F("CountWeightedLHEWeightScale","CountWeightedLHEWeightScale",6,-0.5,5.5);
     CountWeightedLHEWeightPdf = new TH1F("CountWeightedLHEWeightPdf","CountWeightedLHEWeightPdf",103,-0.5,102.5);
     CountWeighted = new TH1F("CountWeighted","CountWeighted",1,0.,2.0);
+    lepFlav = -1;
 }
 
 inline void SampleContainer::AddFile(const char* fname,int isBatch) {

@@ -7,6 +7,7 @@ type=1  name=nselLeptons
 type=1  name=naLeptons
 type=1  name=nJet    
 type=7  name=Jet_pt         max=100     lengthBranch=nJet
+type=7  name=Jet_pt_reg     max=100     lengthBranch=nJet
 type=7  name=selLeptons_pt  max=10
 type=7  name=aLeptons_pt    max=50
 type=2  name=lheHT  onlyMC=1
@@ -14,7 +15,14 @@ type=2  name=lheNb  onlyMC=1
 type=2  name=lheV_pt  onlyMC=1
 type=1  name=nGenStatus2bHad  onlyMC=1
 type=7  name=Jet_corr                         max=100     lengthBranch=nJet
-type=7  name=Jet_corr_JERUp                         max=100     lengthBranch=nJet
-type=7  name=Jet_corr_JERDown                         max=100     lengthBranch=nJet
+type=7  name=Jet_corr_JERUp                         max=100     lengthBranch=nJet onlyMC=1
+type=7  name=Jet_corr_JERDown                         max=100     lengthBranch=nJet onlyMC=1
 type=7  name=Jet_corr_JECUp                         max=100     lengthBranch=nJet
 type=7  name=Jet_corr_JECDown                         max=100     lengthBranch=nJet
+type=7  name=Jet_corr_JER                     max=100     lengthBranch=nJet  onlyMC=1
+type=7  name=Jet_pt_reg_corrJECUp             max=100     lengthBranch=nJet
+type=7  name=Jet_pt_reg_corrJECDown           max=100     lengthBranch=nJet
+type=7  name=Jet_pt_reg_corrJERUp             max=100     lengthBranch=nJet
+type=7  name=Jet_pt_reg_corrJERDown           max=100     lengthBranch=nJet
+type=2  name=met_pt
+type=2  name=met_phi

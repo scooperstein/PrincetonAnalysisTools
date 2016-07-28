@@ -20,6 +20,7 @@ if len(sys.argv) == 5:
 
 am=ReadInput.ReadTextFile(sys.argv[1], "cfg", samplesToRun, filesToRun)
 am.debug=2
+#am.debug=200000000
 
 print "Read in the input files, now let's run it!"
 if(am.debug>100):

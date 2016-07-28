@@ -1,0 +1,232 @@
+# bkg scale factor uncertainties 
+#
+# bkg modeling (powheg vs mcAtNlo shapes for example)
+#
+# uncertainty on jets and btag
+#
+# uncertainty on stat. templates
+#
+#CMS_vhbb_TTModel_Wln_13TeV  lnN  1.05 TT 
+lumi_13TeV                lnN 1.062 WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF
+CMS_vhbb_ST               lnN 1.15 s_Top
+CMS_vhbb_boost_EWK_13TeV  lnN 1.02 ZH,WH
+#CMS_vhbb_boost_QCD_13TeV  lnN 1.05 ZH,WH
+#CMS_vhbb_eff_e_13TeV      lnN 1.03 ZH,WH,s_Top,QCD,VVLF,VVHF
+CMS_vhbb_eff_m_13TeV      lnN 1.03  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF
+#QCDscale_VH               lnN 1.04 ZH,WH
+#QCDscale_VV               lnN 1.04 VVLF,VVHF
+#QCDscale_ttbar            lnN 1.06 s_Top
+#add UEPS shape
+pdf_gg                    lnN 1.01 s_Top,QCD
+pdf_qqbar                 lnN 1.01 ZH,WH,VVLF,VVHF
+#CMS_vhbb_scale_j_13TeV    shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_JES  JEC
+CMS_vhbb_scale_high_central_j_13TeV    shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_JESHighCentral  JECHighCentral
+CMS_vhbb_scale_low_central_j_13TeV    shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_JESLowCentral  JECLowCentral
+CMS_vhbb_scale_high_forward_j_13TeV    shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_JESHighForward  JECHighForward
+CMS_vhbb_scale_low_forward_j_13TeV    shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_JESLowForward  JECLowForward
+#CMS_vhbb_res_j_13TeV      shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  1.0  JER
+CMS_vhbb_res_high_central_j_13TeV      shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  1.0  JERHighCentral
+CMS_vhbb_res_low_central_j_13TeV      shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  1.0  JERLowCentral
+CMS_vhbb_res_high_forward_j_13TeV      shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  1.0  JERHighForward
+CMS_vhbb_res_low_forward_j_13TeV      shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  1.0  JERLowForward
+#CMS_vhbb_bTagWeightHF     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HF
+CMS_vhbb_bTagWeightHF_high_central     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFHighCentral
+CMS_vhbb_bTagWeightHF_low_central     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFLowCentral
+CMS_vhbb_bTagWeightHF_high_forward     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFHighForward
+CMS_vhbb_bTagWeightHF_low_forward     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFLowForward
+#CMS_vhbb_bTagWeightLF     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LF
+CMS_vhbb_bTagWeightLF_high_central     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFHighCentral
+CMS_vhbb_bTagWeightLF_low_central     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFLowCentral
+CMS_vhbb_bTagWeightLF_high_forward     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFHighForward
+CMS_vhbb_bTagWeightLF_low_forward     shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFLowForward
+#CMS_vhbb_bTagWeightHFStats1 shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats1
+CMS_vhbb_bTagWeightHFStats1_high_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats1HighCentral
+CMS_vhbb_bTagWeightHFStats1_low_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats1LowCentral
+CMS_vhbb_bTagWeightHFStats1_high_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats1HighForward
+CMS_vhbb_bTagWeightHFStats1_low_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats1LowForward
+#CMS_vhbb_bTagWeightLFStats1 shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats1
+CMS_vhbb_bTagWeightLFStats1_high_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats1HighCentral
+CMS_vhbb_bTagWeightLFStats1_low_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats1LowCentral
+CMS_vhbb_bTagWeightLFStats1_high_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats1HighForward
+CMS_vhbb_bTagWeightLFStats1_low_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats1LowForward
+#CMS_vhbb_bTagWeightHFStats2 shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats2
+CMS_vhbb_bTagWeightHFStats2_high_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats2HighCentral
+CMS_vhbb_bTagWeightHFStats2_low_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats2LowCentral
+CMS_vhbb_bTagWeightHFStats2_high_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats2HighForward
+CMS_vhbb_bTagWeightHFStats2_low_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_HFStats2LowForward
+#CMS_vhbb_bTagWeightLFStats2 shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats2
+CMS_vhbb_bTagWeightLFStats2_high_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats2HighCentral
+CMS_vhbb_bTagWeightLFStats2_low_central shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats2LowCentral
+CMS_vhbb_bTagWeightLFStats2_high_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats2HighForward
+CMS_vhbb_bTagWeightLFStats2_low_forward shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_LFStats2LowForward
+#CMS_vhbb_bTagWeightcErr1  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr1
+CMS_vhbb_bTagWeightcErr1_high_central  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr1HighCentral
+CMS_vhbb_bTagWeightcErr1_low_central  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr1LowCentral
+CMS_vhbb_bTagWeightcErr1_high_forward  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr1HighForward
+CMS_vhbb_bTagWeightcErr1_low_forward  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr1LowForward
+#CMS_vhbb_bTagWeightcErr2  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr2
+CMS_vhbb_bTagWeightcErr2_high_central  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr2HighCentral
+CMS_vhbb_bTagWeightcErr2_low_central  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr2LowCentral
+CMS_vhbb_bTagWeightcErr2_high_forward  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr2HighForward
+CMS_vhbb_bTagWeightcErr2_low_forward  shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  bTagWeightICHEP_cErr2LowForward
+#CMS_vhbb_puWeight         shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  puWeight
+CMS_vhbb_puWeight         shape 1.0  WH,ZH,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  weight_PU
+## in order to use the TTModel weight you need to first run the script addNAddJetWeights.py to calculate the weights and addNAddJetWeights.py to add
+## the weights
+#CMS_vhbb_TTModel_Wln_13TeV  shape  1.0 TT   nAddJet_reweight
+CMS_vhbb_WHModel_Wln_13TeV  shape  1.0 WH   1.0
+#CMS_vhbb_Wj0bModel_Wln_13TeV shape 1.0 Wj0b 1.0
+#CMS_vhbb_Wj1bModel_Wln_13TeV shape 1.0 Wj1b 1.0
+#CMS_vhbb_Wj2bModel_Wln_13TeV shape 1.0 Wj2b 1.0
+#CMS_vhbb_TT_SF           lnN 1.03 TT
+#CMS_vhbb_Wj0b_SF         lnN 1.04 Wj0b
+#CMS_vhbb_Wj1b_SF    lnN 1.25 Wj1b
+#CMS_vhbb_Wj2b_SF    lnN 1.29 Wj2b
+#CMS_vhbb_Wj1b_Wj2b_SF    lnN 1.08 Wj1b,Wj2b
+CMS_vhbb_LHE_weights_scale_muF_WH shape 1.0 WH LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_ZH shape 1.0 ZH LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_TT shape 1.0 TT LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Wj0b shape 1.0 Wj0b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Wj1b shape 1.0 Wj1b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Wj2b shape 1.0 Wj2b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_QCD shape 1.0 QCD LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Zj0b shape 1.0 Zj0b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Zj1b shape 1.0 Zj1b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Zj2b shape 1.0 Zj2b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_VVHF shape 1.0 VVHF LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_VVLF shape 1.0 VVLF LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muR_WH shape 1.0 WH LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_ZH shape 1.0 ZH LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_TT shape 1.0 TT LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Wj0b shape 1.0 Wj0b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Wj1b shape 1.0 Wj1b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Wj2b shape 1.0 Wj2b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_QCD shape 1.0 QCD LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Zj0b shape 1.0 Zj0b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Zj1b shape 1.0 Zj1b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Zj2b shape 1.0 Zj2b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_VVHF shape 1.0 VVHF LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_VVLF shape 1.0 VVLF LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+#CMS_vhbb_LHE_weights_pdf_ZH   shape 1.0 ZH LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_ZH 
+#CMS_vhbb_LHE_weights_pdf_WH   shape 1.0 WH LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_WH 
+#CMS_vhbb_LHE_weights_pdf_TT   shape 1.0 TT LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_TT 
+#CMS_vhbb_LHE_weights_pdf_Wj0b shape 1.0 Wj0b LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_Wj0b
+#CMS_vhbb_LHE_weights_pdf_Wj1b shape 1.0 Wj1b LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_Wj1b 
+#CMS_vhbb_LHE_weights_pdf_Wj2b shape 1.0 Wj2b LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_Wj2b 
+#CMS_vhbb_LHE_weights_pdf_Zj0b shape 1.0 Zj0b LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_Zj0b 
+#CMS_vhbb_LHE_weights_pdf_Zj1b shape 1.0 Zj1b LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_Zj1b 
+#CMS_vhbb_LHE_weights_pdf_Zj2b shape 1.0 Zj2b LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_Zj2b 
+#CMS_vhbb_LHE_weights_pdf_VVHF shape 1.0 VVHF LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_VVHF 
+#CMS_vhbb_LHE_weights_pdf_VVLF shape 1.0 VVLF LHEPDF_rms_over_mean.root:PDF_rms_over_mean_WmnHighPt2_VVLF 
+#CMS_vhbb_LHE_weights_pdf_ZH     lnN 1.01  ZH
+#CMS_vhbb_LHE_weights_pdf_WH     lnN 1.01  WH
+#CMS_vhbb_LHE_weights_pdf_TT     lnN 1.005  TT
+#CMS_vhbb_LHE_weights_pdf_Wj0b   lnN 1.05  Wj0b
+#CMS_vhbb_LHE_weights_pdf_Wj1b   lnN 1.03  Wj1b
+#CMS_vhbb_LHE_weights_pdf_Wj2b   lnN 1.02  Wj2b
+#CMS_vhbb_LHE_weights_pdf_Zj0b   lnN 1.05  Zj0b
+#CMS_vhbb_LHE_weights_pdf_Zj1b   lnN 1.03  Zj1b
+#CMS_vhbb_LHE_weights_pdf_Zj2b   lnN 1.02  Zj2b
+#CMS_vhbb_LHE_weights_pdf_VVHF   lnN 1.02  VVHF
+#CMS_vhbb_LHE_weights_pdf_VVLF   lnN 1.03  VVLF
+CMS_vhbb_LHE_weights_pdf_0 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[0],LHE_weights_pdf_wgt[0]
+CMS_vhbb_LHE_weights_pdf_1 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[1],LHE_weights_pdf_wgt[1]
+CMS_vhbb_LHE_weights_pdf_2 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[2],LHE_weights_pdf_wgt[2]
+CMS_vhbb_LHE_weights_pdf_3 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[3],LHE_weights_pdf_wgt[3]
+CMS_vhbb_LHE_weights_pdf_4 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[4],LHE_weights_pdf_wgt[4]
+CMS_vhbb_LHE_weights_pdf_5 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[5],LHE_weights_pdf_wgt[5]
+CMS_vhbb_LHE_weights_pdf_6 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[6],LHE_weights_pdf_wgt[6]
+CMS_vhbb_LHE_weights_pdf_7 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[7],LHE_weights_pdf_wgt[7]
+CMS_vhbb_LHE_weights_pdf_8 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[8],LHE_weights_pdf_wgt[8]
+CMS_vhbb_LHE_weights_pdf_9 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[9],LHE_weights_pdf_wgt[9]
+CMS_vhbb_LHE_weights_pdf_10 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[10],LHE_weights_pdf_wgt[10]
+CMS_vhbb_LHE_weights_pdf_11 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[11],LHE_weights_pdf_wgt[11]
+CMS_vhbb_LHE_weights_pdf_12 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[12],LHE_weights_pdf_wgt[12]
+CMS_vhbb_LHE_weights_pdf_13 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[13],LHE_weights_pdf_wgt[13]
+CMS_vhbb_LHE_weights_pdf_14 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[14],LHE_weights_pdf_wgt[14]
+CMS_vhbb_LHE_weights_pdf_15 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[15],LHE_weights_pdf_wgt[15]
+CMS_vhbb_LHE_weights_pdf_16 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[16],LHE_weights_pdf_wgt[16]
+CMS_vhbb_LHE_weights_pdf_17 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[17],LHE_weights_pdf_wgt[17]
+CMS_vhbb_LHE_weights_pdf_18 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[18],LHE_weights_pdf_wgt[18]
+CMS_vhbb_LHE_weights_pdf_19 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[19],LHE_weights_pdf_wgt[19]
+CMS_vhbb_LHE_weights_pdf_20 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[20],LHE_weights_pdf_wgt[20]
+CMS_vhbb_LHE_weights_pdf_21 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[21],LHE_weights_pdf_wgt[21]
+CMS_vhbb_LHE_weights_pdf_22 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[22],LHE_weights_pdf_wgt[22]
+CMS_vhbb_LHE_weights_pdf_23 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[23],LHE_weights_pdf_wgt[23]
+CMS_vhbb_LHE_weights_pdf_24 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[24],LHE_weights_pdf_wgt[24]
+CMS_vhbb_LHE_weights_pdf_25 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[25],LHE_weights_pdf_wgt[25]
+CMS_vhbb_LHE_weights_pdf_26 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[26],LHE_weights_pdf_wgt[26]
+CMS_vhbb_LHE_weights_pdf_27 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[27],LHE_weights_pdf_wgt[27]
+CMS_vhbb_LHE_weights_pdf_28 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[28],LHE_weights_pdf_wgt[28]
+CMS_vhbb_LHE_weights_pdf_29 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[29],LHE_weights_pdf_wgt[29]
+CMS_vhbb_LHE_weights_pdf_30 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[30],LHE_weights_pdf_wgt[30]
+CMS_vhbb_LHE_weights_pdf_31 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[31],LHE_weights_pdf_wgt[31]
+CMS_vhbb_LHE_weights_pdf_32 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[32],LHE_weights_pdf_wgt[32]
+CMS_vhbb_LHE_weights_pdf_33 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[33],LHE_weights_pdf_wgt[33]
+CMS_vhbb_LHE_weights_pdf_34 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[34],LHE_weights_pdf_wgt[34]
+CMS_vhbb_LHE_weights_pdf_35 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[35],LHE_weights_pdf_wgt[35]
+CMS_vhbb_LHE_weights_pdf_36 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[36],LHE_weights_pdf_wgt[36]
+CMS_vhbb_LHE_weights_pdf_37 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[37],LHE_weights_pdf_wgt[37]
+CMS_vhbb_LHE_weights_pdf_38 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[38],LHE_weights_pdf_wgt[38]
+CMS_vhbb_LHE_weights_pdf_39 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[39],LHE_weights_pdf_wgt[39]
+CMS_vhbb_LHE_weights_pdf_40 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[40],LHE_weights_pdf_wgt[40]
+CMS_vhbb_LHE_weights_pdf_41 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[41],LHE_weights_pdf_wgt[41]
+CMS_vhbb_LHE_weights_pdf_42 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[42],LHE_weights_pdf_wgt[42]
+CMS_vhbb_LHE_weights_pdf_43 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[43],LHE_weights_pdf_wgt[43]
+CMS_vhbb_LHE_weights_pdf_44 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[44],LHE_weights_pdf_wgt[44]
+CMS_vhbb_LHE_weights_pdf_45 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[45],LHE_weights_pdf_wgt[45]
+CMS_vhbb_LHE_weights_pdf_46 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[46],LHE_weights_pdf_wgt[46]
+CMS_vhbb_LHE_weights_pdf_47 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[47],LHE_weights_pdf_wgt[47]
+CMS_vhbb_LHE_weights_pdf_48 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[48],LHE_weights_pdf_wgt[48]
+CMS_vhbb_LHE_weights_pdf_49 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[49],LHE_weights_pdf_wgt[49]
+CMS_vhbb_LHE_weights_pdf_50 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[50],LHE_weights_pdf_wgt[50]
+CMS_vhbb_LHE_weights_pdf_51 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[51],LHE_weights_pdf_wgt[51]
+CMS_vhbb_LHE_weights_pdf_52 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[52],LHE_weights_pdf_wgt[52]
+CMS_vhbb_LHE_weights_pdf_53 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[53],LHE_weights_pdf_wgt[53]
+CMS_vhbb_LHE_weights_pdf_54 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[54],LHE_weights_pdf_wgt[54]
+CMS_vhbb_LHE_weights_pdf_55 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[55],LHE_weights_pdf_wgt[55]
+CMS_vhbb_LHE_weights_pdf_56 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[56],LHE_weights_pdf_wgt[56]
+CMS_vhbb_LHE_weights_pdf_57 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[57],LHE_weights_pdf_wgt[57]
+CMS_vhbb_LHE_weights_pdf_58 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[58],LHE_weights_pdf_wgt[58]
+CMS_vhbb_LHE_weights_pdf_59 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[59],LHE_weights_pdf_wgt[59]
+CMS_vhbb_LHE_weights_pdf_60 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[60],LHE_weights_pdf_wgt[60]
+CMS_vhbb_LHE_weights_pdf_61 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[61],LHE_weights_pdf_wgt[61]
+CMS_vhbb_LHE_weights_pdf_62 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[62],LHE_weights_pdf_wgt[62]
+CMS_vhbb_LHE_weights_pdf_63 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[63],LHE_weights_pdf_wgt[63]
+CMS_vhbb_LHE_weights_pdf_64 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[64],LHE_weights_pdf_wgt[64]
+CMS_vhbb_LHE_weights_pdf_65 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[65],LHE_weights_pdf_wgt[65]
+CMS_vhbb_LHE_weights_pdf_66 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[66],LHE_weights_pdf_wgt[66]
+CMS_vhbb_LHE_weights_pdf_67 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[67],LHE_weights_pdf_wgt[67]
+CMS_vhbb_LHE_weights_pdf_68 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[68],LHE_weights_pdf_wgt[68]
+CMS_vhbb_LHE_weights_pdf_69 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[69],LHE_weights_pdf_wgt[69]
+CMS_vhbb_LHE_weights_pdf_70 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[70],LHE_weights_pdf_wgt[70]
+CMS_vhbb_LHE_weights_pdf_71 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[71],LHE_weights_pdf_wgt[71]
+CMS_vhbb_LHE_weights_pdf_72 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[72],LHE_weights_pdf_wgt[72]
+CMS_vhbb_LHE_weights_pdf_73 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[73],LHE_weights_pdf_wgt[73]
+CMS_vhbb_LHE_weights_pdf_74 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[74],LHE_weights_pdf_wgt[74]
+CMS_vhbb_LHE_weights_pdf_75 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[75],LHE_weights_pdf_wgt[75]
+CMS_vhbb_LHE_weights_pdf_76 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[76],LHE_weights_pdf_wgt[76]
+CMS_vhbb_LHE_weights_pdf_77 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[77],LHE_weights_pdf_wgt[77]
+CMS_vhbb_LHE_weights_pdf_78 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[78],LHE_weights_pdf_wgt[78]
+CMS_vhbb_LHE_weights_pdf_79 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[79],LHE_weights_pdf_wgt[79]
+CMS_vhbb_LHE_weights_pdf_80 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[80],LHE_weights_pdf_wgt[80]
+CMS_vhbb_LHE_weights_pdf_81 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[81],LHE_weights_pdf_wgt[81]
+CMS_vhbb_LHE_weights_pdf_82 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[82],LHE_weights_pdf_wgt[82]
+CMS_vhbb_LHE_weights_pdf_83 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[83],LHE_weights_pdf_wgt[83]
+CMS_vhbb_LHE_weights_pdf_84 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[84],LHE_weights_pdf_wgt[84]
+CMS_vhbb_LHE_weights_pdf_85 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[85],LHE_weights_pdf_wgt[85]
+CMS_vhbb_LHE_weights_pdf_86 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[86],LHE_weights_pdf_wgt[86]
+CMS_vhbb_LHE_weights_pdf_87 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[87],LHE_weights_pdf_wgt[87]
+CMS_vhbb_LHE_weights_pdf_88 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[88],LHE_weights_pdf_wgt[88]
+CMS_vhbb_LHE_weights_pdf_89 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[89],LHE_weights_pdf_wgt[89]
+CMS_vhbb_LHE_weights_pdf_90 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[90],LHE_weights_pdf_wgt[90]
+CMS_vhbb_LHE_weights_pdf_91 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[91],LHE_weights_pdf_wgt[91]
+CMS_vhbb_LHE_weights_pdf_92 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[92],LHE_weights_pdf_wgt[92]
+CMS_vhbb_LHE_weights_pdf_93 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[93],LHE_weights_pdf_wgt[93]
+CMS_vhbb_LHE_weights_pdf_94 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[94],LHE_weights_pdf_wgt[94]
+CMS_vhbb_LHE_weights_pdf_95 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[95],LHE_weights_pdf_wgt[95]
+CMS_vhbb_LHE_weights_pdf_96 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[96],LHE_weights_pdf_wgt[96]
+CMS_vhbb_LHE_weights_pdf_97 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[97],LHE_weights_pdf_wgt[97]
+CMS_vhbb_LHE_weights_pdf_98 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[98],LHE_weights_pdf_wgt[98]
+CMS_vhbb_LHE_weights_pdf_99 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[99],LHE_weights_pdf_wgt[99]
+CMS_vhbb_LHE_weights_pdf_100 shape 1.0 WH,ZH,TT,Wj0b,Wj1b,Wj2b,Zj0b,Zj1b,Zj2b,VVLF,VVHF LHE_weights_pdf_wgt[100],LHE_weights_pdf_wgt[100]

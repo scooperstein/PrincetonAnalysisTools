@@ -9,6 +9,7 @@ parser.add_argument('-s', '--systematics', type=str, default="", help="The syste
 parser.add_argument('-b', '--binstats', type=str, default="", help="Text file listing all the individual bin. stat. uncertainties to include")
 parser.add_argument('-r', '--rateParams', type=str, default="", help="Comma-separated list of samples for which to include freely floating scale factors") 
 parser.add_argument('-o', '--outputfilename', type=str, default="", help="Name of the output datacard")
+parser.add_argument('-vv','--doVV', type=bool, default=False, help="If true do VV analysis (default False)")
 args = parser.parse_args()
 
 
@@ -24,7 +25,9 @@ dc_string = "" # write datacard
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
+#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+#samples = ["ZH","WH","Bkg"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
 #samples = ["WH","TT","s_Top"]
@@ -38,6 +41,10 @@ samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1
 #    cats = s.split(',')
 #    print cats
 #    cat_labels = list(cats)
+
+if args.doVV:
+    samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
+    #samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
 
 # It probably makes sense to just run this script once per channel and
 # then combine the datacards with combineDatacard.py, but the code is set
@@ -64,7 +71,6 @@ for i in range(len(cats)):
     #ifile = ROOT.TFile(args.ihistfile, "r")
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
-    print "meow"
     print cat_labels[i]
     nData = ifile.Get("BDT_%s_data_obs" % cat_labels[i]).Integral()
     cat_fake_obs_line = "   %.4f" % nData
@@ -105,7 +111,7 @@ scale_factors = args.rateParams.split(',')
 for scale_factor in scale_factors:
     for sample in samples:
         if (scale_factor.find(sample) != -1):
-            systematics += "SF_%s  rateParam  %s %s  1\n" % (scale_factor,cats[0], sample) 
+            systematics += "SF_%s  rateParam  %s %s  1 [0.2,5] \n" % (scale_factor,cats[0], sample) 
 
 nSys = 0
 
@@ -151,7 +157,8 @@ if (args.systematics != ""):
         sysLine += "\n"
         systematics += sysLine
 
-if (args.binstats != ""):
+#if (args.binstats != ""):
+if (True): # actually I think we always want to do this, should clean this up after HCP ;)
     for cat in cat_labels:
         try:
             #binStats_file = open(args.binstats, "r")
@@ -166,15 +173,18 @@ if (args.binstats != ""):
             for i in range(60 - len(line)):
                 sysLine += " "
             sysLine += "shape      "
-            nSys += 1
+            matchesSample = False
             for cat_i in cat_labels:
                 for sample in samples:
                     if (cat_i == cat and sysLine.find(sample) != -1):
                         sysLine += "1.0        "
+                        matchesSample = True
                     else:
                         sysLine += "-           "
             sysLine += "\n"
-            systematics += sysLine
+            if matchesSample:
+                nSys += 1
+                systematics += sysLine
 
 dc_string += "imax %i number of bins\n" % len(cats)
 dc_string += "jmax %i number of processes minus 1\n" % (len(samples) - 1)
@@ -197,7 +207,7 @@ dc_string += "bin                                                         "
 for label in cat_labels:
     for sample in samples:
         dc_string += label
-        for i in range(12 - len(label)):
+        for i in range(14 - len(label)):
             dc_string += " "
 dc_string += "\n"
 dc_string += "process                                                     "
@@ -210,7 +220,10 @@ dc_string += "\n"
 dc_string += "process                                                     "
 for label in cat_labels:
     for i in range(len(samples)):
-        dc_string += str(i-1)
+        if (args.doVV):
+            dc_string += str(i)
+        else:
+            dc_string += str(i-1)
         if (i < 10): dc_string += "           "
         else: dc_string += "          "
 dc_string += "\n"

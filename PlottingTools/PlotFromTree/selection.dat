@@ -1,4 +1,10 @@
-
+H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&run<=276811&&H_mass>60&&H_mass<160&&selLeptons_relIso_0<0.06&&cutFlow>=9&&Pass_nominal
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&run<=276811
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || BDT_V24_Oct19_500_4_VVSig < 0.5)&&run<=276811
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || BDT_V24_Oct17_500_4_VVSig < 0.5)&&run<=276811
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || CMS_vhbb_BDT_Wln_13TeV < 0.2)&&run<=276811
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || CMS_vhbb_BDT_Wln_13TeV < 0.2)
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || CMS_vhbb_BDT_Wln_13TeV < -0.2)&&run<=275125&&(isWenu || (isWmunu&&(HLT_BIT_HLT_IsoMu20_v==1||HLT_BIT_HLT_IsoTkMu20_v==1)))
 #(elPt>0 && notPassBaseline==1 && jetPt1>0 && (sampleIndex<0||passCurrentL1==0))
 #(elIsoPt>0  && (genHPt>-1  || sampleIndex>0) && jetPt1>0 && jetPt2>0 && elIsoPt<400000 && pfmet<800000)
 #(elIsoPt>0  && (genHPt>-1  || sampleIndex>0) && jetPt1>0 && jetPt2>0 && elIsoPt<40 && pfmet<80)

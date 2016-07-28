@@ -1,5 +1,6 @@
 import ROOT
 import sys,time,math
+import TdrStyles
 
 #
 #   This program takes a ROOT file containing
@@ -35,6 +36,9 @@ legx2=0.95
 legy1=0.6
 legy2=0.9
 legend = ROOT.TLegend(legx1,legy1,legx2,legy2)
+legend2= ROOT.TLegend(legx1,legy1,legx2,legy2)
+nLeg=1
+nLegEntries=0
 dolegend=True
 
 Normalize = False
@@ -51,7 +55,8 @@ Ncol=1
 Nrow=1
 
 stackmax=0
-stackmin=0
+stackmin=0.01
+stackminlog=0.01
 maxscaleup=1.1
 linewidth=2
 NReBin=1
@@ -83,10 +88,13 @@ domergecats=False
 StaticMin=False
 StaticMax=False
 dotitles=False
+dotdr=True
+dochi2=True
 #cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
 #cattitles=["Electron Barrel (Eta < 0.8)","Electron Barrel (Eta > 0.8)","Electron Endcaps"]
 #cattitles=["|#eta| < 0.8","0.8 < |#eta| < 1.4442","|#eta| > 1.556"]
-cattitles = ["TT (W#mu#nu)","W+HF (W#mu#nu)","W+LF (W#mu#nu)","TT (We#nu)","W+HF (We#nu)", "W+LF (We#nu)"]
+#cattitles = ["TT CS (Wl#nu)","W+HF CS (Wl#nu)","W+LF CS (Wl#nu)"]
+cattitles = ["TT CS (W#mu#nu)","W+HF CS (W#mu#nu)","W+LF CS (W#mu#nu)","TT CS (We#nu)","W+HF CS (We#nu)", "W+LF CS (We#nu)"]
 #cattitles=["W#mu#nu","We#nu"]
 dointegrals=False
 domean=False
@@ -230,9 +238,9 @@ class SampleInfo:
    
 
 
-NEWVALS=["datasampleIndex","linex","stackmax","stackmin","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2"]
+NEWVALS=["datasampleIndex","linex","stackmax","stackmin","stackminlog","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2","setminlog"]
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "dosoverb", "dosoversqrtb", "Normalize" ,"Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","dotdr","dochi2","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "dosoverb", "dosoversqrtb", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -579,6 +587,13 @@ def Startup(configfilename):
     #if DoFileSave:
     #    SetupSaveFile(outfilename)
 
+def CountSamplesInLegend():
+    global nLegEntries
+    nLegEntries=0
+    for sampleIndex in samples:
+        if samples[sampleIndex].plotsample==1 and samples[sampleIndex].addtoleg==1:
+            nLegEntries=nLegEntries+1
+    
 
 def AssociateConfigToSample(configlines):
     for line in configlines:
@@ -754,6 +769,9 @@ def Plot(num,printsuffix="",printcat=-1):
     can.SetWindowSize(xsize,ysize)
     can.SetCanvasSize(xsize-4,ysize-28)
     
+    if dotdr:
+        TdrStyles.tdrStyle()   
+ 
     if domergecats:
         can.cd()
         can.cd().SetLogy(dolog)
@@ -779,12 +797,12 @@ def Plot(num,printsuffix="",printcat=-1):
             nCanvases = Ncol*Nrow*2
             nx = Ncol
             ny = Nrow*2
-            xmargin=0.01
-            ymargin=0.01
+            xmargin=0.0
+            ymargin=0.0 
             dy = 1./float(Nrow)
             dx = 1./float(nx)
-            dy_odd  = dy*.2
-            dy_even = dy*.8
+            dy_odd  = dy*.3
+            dy_even = dy*.7
             for iy in range(ny):
                 if iy%2==0:
                     y1 = 1 - (iy/2)*dy - ymargin
@@ -799,10 +817,23 @@ def Plot(num,printsuffix="",printcat=-1):
                         continue
                     name = can.GetName()+"_"+str(ix+iy*nx)
                     pad = ROOT.TPad(name, name, x1, y1, x2, y2, ROOT.kWhite)
-                    pad.SetTopMargin(0.07)
-                    pad.SetBottomMargin(0.1)
-                    pad.SetRightMargin(0.01)
-                    pad.SetLeftMargin(0.07) 
+                    #pad.SetTopMargin(0.07)
+                    #pad.SetBottomMargin(0.1)
+                    #pad.SetRightMargin(0.01)
+                    #pad.SetLeftMargin(0.07) 
+                    pad.SetFrameBorderMode(0)
+                    if iy%2==0:
+                        pad.SetTopMargin(0.05);
+                        pad.SetBottomMargin(0.0)
+                    else:
+                        pad.SetTopMargin(0.00)
+                        pad.SetBottomMargin(0.3)
+                    pad.SetRightMargin(0.05)
+                    pad.SetLeftMargin(0.12) 
+                    pad.SetFillStyle(4000)
+                    pad.SetFrameFillStyle(1000)
+                    #pad.SetRightMargin(0.0)
+                    #pad.SetLeftMargin(0.0) 
                     pads.append(pad)
                     pads[-1].SetNumber(ix+iy*nx+1)
                     pads[-1].Draw()
@@ -832,6 +863,7 @@ def Plot(num,printsuffix="",printcat=-1):
 
     first=1
     stackmaxima={}
+    plottexttitle = [""]*cur_plot.ncat
     if docats:
         cats=xrange(cur_plot.ncat)
     else:
@@ -858,6 +890,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 stackmaxima[icat].append(stacks[stacktype+str(icat)].GetMaximum())
             
     if dolegend:
+        CountSamplesInLegend()
         SetLegend()
 
     if dotext:
@@ -873,7 +906,12 @@ def Plot(num,printsuffix="",printcat=-1):
         if StaticMax:
             global stackmax
         else:
-            stackmax=stackmaxima[0][-1]*maxscaleup
+            if dolog is True:
+                logmax=math.log10(stackmaxima[0][-1])
+                logmin=math.log10(stackminlog)
+                stackmax=math.pow(10,maxscaleup*logmax - (maxscaleup-1)*logmin)
+            else:
+                stackmax=stackmaxima[0][-1]*maxscaleup
         if DebugNew:
             print "mergecats stackmaxima",stackmaxima
             print "mergecats stackmax",stackmax
@@ -898,8 +936,13 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkg"].GetYaxis().SetTitle("")
             
         
-        stacks["bkg"].GetXaxis().SetTitleSize(0.04)
-        stacks["bkg"].GetYaxis().SetTitleSize(0.06)
+        iLeg=0.0
+        if dodivide:
+            stacks["bkg"].GetXaxis().SetTitleSize(0.0)
+            stacks["bkg"].GetXaxis().SetTitleOffset(999)
+        else:
+            stacks["bkg"].GetXaxis().SetTitleSize(0.04)
+        stacks["bkg"].GetYaxis().SetTitleSize(0.13)
         stacks["bkg"].GetYaxis().SetTitleOffset(0.8)
         stacks["bkg"].SetTitle("All Categories")
 
@@ -915,8 +958,14 @@ def Plot(num,printsuffix="",printcat=-1):
                 print "lineorder",lineorder
             for index in lineorder:
                 sampleIndex=index[1]
-                if dolegend:
+                if dolegend and nLeg==1:
                     legend.AddEntry(stacks["datalines"][index],str(samples[sampleIndex].displayname),"ep"); 
+                elif dolegend and nLeg==2:
+                    if iLeg/float(nLegEntries) <0.5:
+                        legend.AddEntry(stacks["datalines"][index],str(samples[sampleIndex].displayname),"ep"); 
+                    else:
+                        legend2.AddEntry(stacks["datalines"][index],str(samples[sampleIndex].displayname),"ep"); 
+                    iLeg=iLeg+1.0
             #dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
             print dataIntegral
         if DebugNew:
@@ -927,8 +976,14 @@ def Plot(num,printsuffix="",printcat=-1):
         lineorder.reverse()
         for index in lineorder:
             sampleIndex=index[1]
-            if dolegend:
+            if dolegend and nLeg==1:
                 legend.AddEntry(stacks["siglines"][index],str(samples[sampleIndex].displayname),"l"); 
+            elif dolegend and nLeg==2:
+                if iLeg/float(nLegEntries) <0.5:
+                    legend.AddEntry(stacks["siglines"][index],str(samples[sampleIndex].displayname),"l"); 
+                else:
+                    legend2.AddEntry(stacks["siglines"][index],str(samples[sampleIndex].displayname),"l"); 
+                iLeg=iLeg+1.0
             #sigIntegral = stacks["siglines"+str(icat)][index].Integral()
             #print sigIntegral
         
@@ -957,8 +1012,14 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].SetFillColor(int(samples[sampleIndex].color))
             stacks["bkglines"][index].Scale(toscale)
             stacks["bkglines"][index].Draw("histsame")
-            if dolegend:
+            if dolegend and nLeg==1:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[sampleIndex].displayname),"f"); 
+            elif dolegend and nLeg==2:
+                if iLeg/float(nLegEntries) <0.5:
+                    legend.AddEntry(stacks["bkglines"][index],str(samples[sampleIndex].displayname),"f"); 
+                else:
+                    legend2.AddEntry(stacks["bkglines"][index],str(samples[sampleIndex].displayname),"f"); 
+                iLeg=iLeg+1.0
         #print "bkg integral",stacks["bkglines"+str(icat)][lineorder[0]].Integral()
         
         if dointegrals:
@@ -992,10 +1053,18 @@ def Plot(num,printsuffix="",printcat=-1):
                 stackintegrals["data"]=stacks["datalines"][lineorder[0]].Integral(0,oflowbin)
         
         if dolegend:
-            legend.Draw()
+            if nLeg==1:
+                legend.Draw()
+            elif nLeg==2:
+                legend.Draw()
+                legend2.Draw()
 
         if dotext:
             plottext.Draw()
+            if dotitles:
+                plottexttitle[icat] = SetTextTitle() # have to refresh to get rid of old category title
+                plottexttitle[icat].AddText(cattitles[icat])
+                plottexttitle[icat].Draw()
     
         if doline:
             cutline.SetLineWidth(4*plotscale)
@@ -1015,7 +1084,12 @@ def Plot(num,printsuffix="",printcat=-1):
             if StaticMax:
                 global stackmax
             else:
-                stackmax=stackmaxima[icat][-1]*maxscaleup
+                if dolog is True:
+                    logmax=math.log10(stackmaxima[icat][-1])
+                    logmin=math.log10(stackminlog)
+                    stackmax=math.pow(10,maxscaleup*logmax - (maxscaleup-1)*logmin)
+                else:
+                    stackmax=stackmaxima[icat][-1]*maxscaleup
                 if stackmax==0:
                     stackmax = 1
             if DebugNew:
@@ -1030,8 +1104,6 @@ def Plot(num,printsuffix="",printcat=-1):
                 else:
                     pad_id = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
                     print "icat, pad_id,",icat, pad_id
-                    if DebugNew:
-                        print "divide"
                     can.cd(pad_id)
        
             # Matteo no stack is plotted to allow normalization (and stats are not plot as well)
@@ -1052,6 +1124,9 @@ def Plot(num,printsuffix="",printcat=-1):
             if StaticMin:
                 stacks[initalstack+str(icat)].SetMinimum(stackmin)
 
+            if dolog==True:
+                stacks[initalstack+str(icat)].SetMinimum(stackminlog)
+
             if doxtitle==True:
                 stacks[initalstack+str(icat)].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
             else:
@@ -1061,9 +1136,14 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks[initalstack+str(icat)].GetYaxis().SetTitle(str(cur_plot.yaxislabel))
             else:
                 stacks[initalstack+str(icat)].GetYaxis().SetTitle("")
-                          
-            stacks[initalstack+str(icat)].GetXaxis().SetTitleSize(0.045)
-            stacks[initalstack+str(icat)].GetYaxis().SetTitleSize(0.06)
+            
+            if not dodivide:              
+                stacks[initalstack+str(icat)].GetXaxis().SetTitleSize(0.045)
+            else:
+                stacks[initalstack+str(icat)].GetXaxis().SetTitleSize(0.0)
+                stacks[initalstack+str(icat)].GetXaxis().SetTitleOffset(999)
+
+            stacks[initalstack+str(icat)].GetYaxis().SetTitleSize(0.13)
             stacks[initalstack+str(icat)].GetYaxis().SetTitleOffset(0.8)
             
             if dotitles:
@@ -1077,6 +1157,7 @@ def Plot(num,printsuffix="",printcat=-1):
             if DebugNew:
                 print "initial stack done"
 
+            iLeg=0
             dataIntegral = -1
             if dodata: 
                 lineorder = stacks["datalines"+str(icat)].keys()
@@ -1084,8 +1165,15 @@ def Plot(num,printsuffix="",printcat=-1):
                 lineorder.reverse()
                 for index in lineorder:
                     sampleIndex=index[1]
-                    if dolegend and icat==cats[0]:
-                        legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[sampleIndex].displayname),"ep"); 
+                    if icat==cats[0]:
+                        if dolegend and nLeg==1:
+                            legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[sampleIndex].displayname),"ep"); 
+                        elif dolegend and nLeg==2:
+                            if iLeg/float(nLegEntries) <0.5:
+                                legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[sampleIndex].displayname),"ep"); 
+                            else:
+                                legend2.AddEntry(stacks["datalines"+str(icat)][index],str(samples[sampleIndex].displayname),"ep"); 
+                        iLeg=iLeg+1.0
                 dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
                 print "data int ", dataIntegral
                 if domean:
@@ -1098,8 +1186,15 @@ def Plot(num,printsuffix="",printcat=-1):
             lineorder.reverse()
             for index in lineorder:
                 sampleIndex=index[1]
-                if dolegend and icat==cats[0]:
-                    legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[sampleIndex].displayname),"l"); 
+                if icat==cats[0]:
+                    if dolegend and nLeg==1:
+                        legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[sampleIndex].displayname),"l"); 
+                    elif dolegend and nLeg==2:
+                        if iLeg/float(nLegEntries) <0.5:
+                            legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[sampleIndex].displayname),"l"); 
+                        else:
+                            legend2.AddEntry(stacks["siglines"+str(icat)][index],str(samples[sampleIndex].displayname),"l"); 
+                        iLeg=iLeg+1.0
                 sigIntegral = stacks["siglines"+str(icat)][index].Integral()
                 print "sig int ", sigIntegral
                 if dosoverb or dosoversqrtb:
@@ -1131,8 +1226,15 @@ def Plot(num,printsuffix="",printcat=-1):
                     stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[sampleIndex].color))
                     stacks["bkglines"+str(icat)][index].Scale(toscale)
                     stacks["bkglines"+str(icat)][index].Draw("histsame")
-                    if dolegend and icat==cats[0]:
-                        legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[sampleIndex].displayname),"f"); 
+                    if icat==cats[0]:
+                        if dolegend and nLeg==1:
+                            legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[sampleIndex].displayname),"f"); 
+                        elif dolegend and nLeg==2:
+                            if iLeg/float(nLegEntries) <0.5:
+                                legend.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[sampleIndex].displayname),"f"); 
+                            else:
+                                legend2.AddEntry(stacks["bkglines"+str(icat)][index],str(samples[sampleIndex].displayname),"f"); 
+                            iLeg=iLeg+1.0
                     if dodivide or dosoverb or dosoversqrtb:
                         if (index == lineorder[0]):
                             mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
@@ -1187,25 +1289,28 @@ def Plot(num,printsuffix="",printcat=-1):
                         print "last lineorder",lineorder[-1]
                         print "data"+str(icat),stackintegrals["data"+str(icat)]
        
-                chi2Score = dataTot[icat].Chi2Test( mcTot[icat] , "UWCHI2/NDF")
-                print chi2Score
-                chi2text[icat] = ROOT.TPaveText(0.15,0.82,0.25,0.92,"brNDC");
-                chi2text[icat].SetTextFont(62);
-                chi2text[icat].SetTextSize(0.04)
-                chi2text[icat].SetBorderSize(0)
-                chi2text[icat].SetLineColor(0)
-                chi2text[icat].SetLineStyle(0)
-                chi2text[icat].SetLineWidth(0)
-                chi2text[icat].SetFillColor(0)
-                chi2text[icat].SetFillStyle(0)
-                chi2text[icat].AddText("#chi^{2}_{ }#lower[0.1]{/^{}#it{dof} = %.2f}"%(chi2Score))
-                if dodivide or dosoverb or dosoversqrtb:
-                    if docats:
-                        cat = (icat%Ncol)+1+(icat/Ncol)*Ncol * 2
-                        can.cd(cat)
-                    else:
-                        can.cd(1)
-                chi2text[icat].Draw()
+                if dochi2:
+                    chi2Score = dataTot[icat].Chi2Test( mcTot[icat] , "UWCHI2/NDF")
+                    print chi2Score
+                    chi2text[icat] = ROOT.TPaveText(textx1,0.8,textx1+0.2,0.9,"brNDC");
+                    chi2text[icat].SetTextFont(62);
+                    chi2text[icat].SetTextSize(0.12)
+                    chi2text[icat].SetBorderSize(0)
+                    chi2text[icat].SetLineColor(0)
+                    chi2text[icat].SetLineStyle(0)
+                    chi2text[icat].SetLineWidth(0)
+                    chi2text[icat].SetFillColor(0)
+                    chi2text[icat].SetFillStyle(0)
+                    chi2text[icat].AddText("#chi^{2}_{ }#lower[0.1]{/^{}#it{dof} = %.2f}"%(chi2Score))
+                    if dodivide or dosoverb or dosoversqrtb:
+                        if docats:
+                            #    position in row  +  positions in prev rows
+                            print "position in row, prev prositions",(icat%Ncol)+1,(icat/Ncol)*Ncol * 2 + Ncol
+                            iPad = (icat%Ncol)+1  +  (icat/Ncol)*Ncol * 2 + Ncol
+                            can.cd(iPad)
+                        else:
+                            can.cd(2)
+                    chi2text[icat].Draw()
  
             if dodivide:
                 if docats:
@@ -1214,26 +1319,33 @@ def Plot(num,printsuffix="",printcat=-1):
                     pad_id = 2
                 can.cd(pad_id)
                 can.GetPad(pad_id).SetGrid(True)
+                can.GetPad(pad_id).SetGrid(True)
                 dataTot[icat].Sumw2()
                 mcTot[icat].Sumw2()
                 dataTot[icat].Divide(mcTot[icat])
-                dataTot[icat].SetMarkerColor(4)
+                dataTot[icat].SetMarkerColor(1)
                 if docats:
                     dataTot[icat].SetMarkerSize(0.5)
                 else:
                     dataTot[icat].SetMarkerSize(0.8)
                 dataTot[icat].SetMarkerStyle(20)
-                dataTot[icat].SetLineColor(4)
+                dataTot[icat].SetLineColor(1)
                 dataTot[icat].SetLineWidth(2)
-                dataTot[icat].SetMaximum(1.4)
-                dataTot[icat].SetMinimum(0.6)
+                dataTot[icat].SetMaximum(1.57)
+                dataTot[icat].SetMinimum(0.5)
                 dataTot[icat].GetYaxis().SetNdivisions(505)
                 dataTot[icat].SetTitle('')
-                dataTot[icat].GetYaxis().SetLabelSize(0.15)
-                dataTot[icat].GetYaxis().SetLabelOffset(0.015)
-                dataTot[icat].GetYaxis().SetTitle('')
+                dataTot[icat].GetXaxis().SetTitleOffset(1.)
+                dataTot[icat].GetXaxis().SetTitleSize(0.13)
+                dataTot[icat].GetXaxis().SetLabelOffset(0.014)
+                dataTot[icat].GetXaxis().SetLabelSize(0.13)
+                dataTot[icat].GetYaxis().SetTitleOffset(0.3)
+                dataTot[icat].GetYaxis().SetTitleSize(0.13)
+                dataTot[icat].GetYaxis().SetLabelOffset(0.005)
+                dataTot[icat].GetYaxis().SetLabelSize(0.13)
+                #dataTot[icat].GetYaxis().SetTitle('Data/MC')
                 # FIXME need to make the font larger... how?
-                #dataTot[icat].GetYaxis().SetTitle('Data/Bkg MC')
+                dataTot[icat].GetYaxis().SetTitle('Data/MC')
                 dataTot[icat].Draw('PE')
 
                 # draw MC statistical uncertainty band
@@ -1247,7 +1359,9 @@ def Plot(num,printsuffix="",printcat=-1):
                     mcErrBand[icat].SetPointError(ibin,mcTot[icat].GetBinWidth(ibin)/2, e)
                 mcErrBand[icat].SetFillColor(ROOT.kBlack)
                 mcErrBand[icat].SetFillStyle(3013)
-                #mcErrBand[icat].Draw("SAME2") 
+                mcErrBand[icat].Draw("SAME2") 
+                if dochi2:    
+                    chi2text[icat].Draw()
 
             if dosoverb or dosoversqrtb:
                 pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 + 1) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
@@ -1280,28 +1394,34 @@ def Plot(num,printsuffix="",printcat=-1):
             if dolegend:
                 if dodivide or dosoverb or dosoversqrtb:
                     if docats:
-                        cat = (icat%Ncol)+1+(icat/Ncol)*Ncol * 2
-                        can.cd(cat)
+                        iPad = (icat%Ncol)+1+(icat/Ncol)*Ncol * 2
+                        can.cd(iPad)
                     else:
                         can.cd(1)
                     #pad_id = icat%Ncol + 1 + (((icat)/Ncol) * 2 ) * Ncol # (icat%Ncol)+1 + ((icat/Ncol)+1)*Ncol
                     #can.cd(pad_id)
                 legend.Draw()
+                if nLeg==2:
+                    legend2.Draw()
  
             if dotext:
                 if dodivide or dosoverb or dosoversqrtb:
                     if docats:
-                        cat = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol
-                        can.cd(cat) 
+                        iPad = icat%Ncol + 1 + ((icat)/Ncol) * 2 * Ncol
+                        can.cd(iPad) 
                     else:
                         can.cd(1)
                 plottext.Draw()
+                if dotitles:
+                    plottexttitle[icat] = SetTextTitle() # have to refresh to get rid of old category title
+                    plottexttitle[icat].AddText(cattitles[icat])
+                    plottexttitle[icat].Draw()
         
             if doline:
                 if dodivide or dosoverb or dosoversqrtb:
                     if docats:
-                        cat = (icat%Ncol)+1+(icat/Ncol)*Ncol
-                        can.cd(cat)
+                        iPad = (icat%Ncol)+1+(icat/Ncol)*Ncol
+                        can.cd(iPad)
                     else:
                         can.cd(1)
                 cutline.SetLineWidth(4*plotscale)
@@ -1630,7 +1750,13 @@ def FormatHistFull(hist,sampleIndex,sampletype,stacktop):
 def SetLegend():
     global legend
 
-    legend = ROOT.TLegend(legx1,legy1,legx2,legy2)
+    if nLeg==1:
+        legend = ROOT.TLegend(legx1,legy1,legx2,legy2)
+    elif nLeg==2:
+        legend = ROOT.TLegend(legx1,legy1,(legx2+legx1)/2.,legy2)
+        global legend2
+        legend2 = ROOT.TLegend((legx1+legx2)/2,legy1,legx2,legy2)
+   
     legend.SetBorderSize(0)
     legend.SetTextFont(62)
     legend.SetLineColor(0)
@@ -1638,6 +1764,14 @@ def SetLegend():
     legend.SetLineWidth(linewidth*plotscale)
     legend.SetFillColor(ROOT.kWhite)
     legend.SetFillStyle(0)
+    if nLeg==2:
+        legend2.SetBorderSize(0)
+        legend2.SetTextFont(62)
+        legend2.SetLineColor(0)
+        legend2.SetLineStyle(1)
+        legend2.SetLineWidth(linewidth*plotscale)
+        legend2.SetFillColor(ROOT.kWhite)
+        legend2.SetFillStyle(0)
 
 
 def SetLine(newx):
@@ -1689,7 +1823,18 @@ def SetText():
             plottext.AddText(str(line))
     else:
         plottext.AddText(text)
-
+    
+def SetTextTitle():
+    plottexttitle = ROOT.TPaveText(textx1,texty1-0.1,textx2,texty1,"brNDC");
+    plottexttitle.SetTextFont(62);
+    plottexttitle.SetTextSize(0.0425)
+    plottexttitle.SetBorderSize(0)
+    plottexttitle.SetLineColor(0)
+    plottexttitle.SetLineStyle(0)
+    plottexttitle.SetLineWidth(0)
+    plottexttitle.SetFillColor(0)
+    plottexttitle.SetFillStyle(0)
+    return plottexttitle
 
 def MoveTextX(dx):
     global textx1,textx2

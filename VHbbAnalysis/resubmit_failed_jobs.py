@@ -29,7 +29,8 @@ filesToResubmit = []
 for subdir, dirs, files in os.walk(args.dir):
     for file in files:
         if (".submit" in file):
-            sample = subdir.split('/')[1]
+            dirpaths = subdir.split('/')
+            sample = dirpaths[len(dirpaths)-1]
             jobNum=file.replace(".submit",".root").replace("job","")
             rootfilename = "output_%s_%s" % (sample, jobNum ) 
             if (rootfilename not in files):
@@ -43,7 +44,10 @@ for subdir, dirs, files in os.walk(args.dir):
                     rootfile = ROOT.TFile("%s/%s" % (subdir, rootfilename), "r")
                     otree = rootfile.Get("tree")
                     # make sure the proper output ntuple exists in the output root file
-                    otree.GetEntries()
+                    nentries = otree.GetEntries()
+                    #if (nentries == 0):
+                    #    print rootfilename + " has 0 entries!"
+                    #    filesToResubmit.append(os.path.join(subdir, file) )
                     rootfile.Close()
                 except AttributeError:
                     filesToResubmit.append(os.path.join(subdir, file) )

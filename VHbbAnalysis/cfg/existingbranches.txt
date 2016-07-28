@@ -4,15 +4,20 @@
 type=2  name=json
 type=1  name=lumi
 type=1  name=run
-type=1  name=HLT_WenHbbLowLumi
-type=1  name=HLT_WmnHbbLowLumi
-type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
-type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
+#type=1  name=HLT_WenHbbLowLumi
+#type=1  name=HLT_WmnHbbLowLumi
+#type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
+#type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_IsoMu20_v
 type=1  name=HLT_BIT_HLT_IsoTkMu20_v
+type=1  name=HLT_BIT_HLT_IsoMu22_v
+type=1  name=HLT_BIT_HLT_IsoTkMu22_v
 #type=2  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 #type=2  name=HLT_BIT_HLT_Ele27_WP85_Gsf_v
+type=1  name=HLT2_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
+type=1  name=HLT2_BIT_HLT_IsoMu20_v
+type=1  name=HLT2_BIT_HLT_IsoTkMu20_v
 
 type=1  name=nPVs
 type=2  name=rho
@@ -20,25 +25,25 @@ type=2  name=puWeight                              onlyMC=1
 type=2  name=puWeightUp                            onlyMC=1
 type=2  name=puWeightDown                          onlyMC=1
 
-type=2  name=bTagWeight
-type=2  name=bTagWeight_HFUp
-type=2  name=bTagWeight_HFDown
-type=2  name=bTagWeight_LFUp
-type=2  name=bTagWeight_LFDown
-type=2  name=bTagWeight_LFStats1Up
-type=2  name=bTagWeight_LFStats1Down
-type=2  name=bTagWeight_HFStats1Up
-type=2  name=bTagWeight_HFStats1Down
-type=2  name=bTagWeight_LFStats2Up
-type=2  name=bTagWeight_LFStats2Down
-type=2  name=bTagWeight_HFStats2Up
-type=2  name=bTagWeight_HFStats2Down
-type=2  name=bTagWeight_cErr1Up
-type=2  name=bTagWeight_cErr1Down
-type=2  name=bTagWeight_cErr2Up
-type=2  name=bTagWeight_cErr2Down
-type=2  name=bTagWeight_JESUp
-type=2  name=bTagWeight_JESDown
+type=2  name=btagWeightCSV
+type=2  name=btagWeightCSV_up_jes
+type=2  name=btagWeightCSV_down_jes
+type=2  name=btagWeightCSV_up_lf
+type=2  name=btagWeightCSV_down_lf
+type=2  name=btagWeightCSV_up_hf
+type=2  name=btagWeightCSV_down_hf
+type=2  name=btagWeightCSV_up_hfstats1
+type=2  name=btagWeightCSV_down_hfstats1
+type=2  name=btagWeightCSV_up_hfstats2
+type=2  name=btagWeightCSV_down_hfstats2
+type=2  name=btagWeightCSV_up_lfstats1
+type=2  name=btagWeightCSV_down_lfstats1
+type=2  name=btagWeightCSV_up_lfstats2
+type=2  name=btagWeightCSV_down_lfstats2
+type=2  name=btagWeightCSV_up_cferr1
+type=2  name=btagWeightCSV_down_cferr1
+type=2  name=btagWeightCSV_up_cferr2
+type=2  name=btagWeightCSV_down_cferr2
 
 type=2  name=htJet30
 type=2  name=mhtJet30
@@ -51,7 +56,7 @@ type=6  name=LHE_weights_pdf_id                         max=110 onlyMC=1 lengthB
 type=7  name=LHE_weights_pdf_wgt                        max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
 
 type=2  name=VtypeSim                                   onlyMC=1
-type=1  name=nTrueInt                                   onlyMC=1
+type=2  name=nTrueInt                                   onlyMC=1
 type=2  name=genWeight                                  onlyMC=1
 type=1  name=nGenJet                                    onlyMC=1
 type=7  name=GenJet_pt                          max=20  onlyMC=1
@@ -114,7 +119,8 @@ type=7  name=selLeptons_SF_HLT_RunD4p2          max=20
 type=7  name=selLeptons_SFerr_HLT_RunD4p2       max=20
 type=7  name=selLeptons_SF_HLT_RunC             max=20
 type=7  name=selLeptons_SFerr_HLT_RunC          max=20
-
+type=7  name=selLeptons_SF_trk_eta              max=20
+type=7  name=selLeptons_SFerr_trk_eta           max=20
 
 type=1  name=nvLeptons 
 type=7  name=vLeptons_pt                     max=20
@@ -152,10 +158,10 @@ type=6  name=vLeptons_eleMVAIdSpring15NonTrig     max=20
 
 type=2  name=H_mass                            
 type=2  name=H_pt
+type=2  name=HCSV_reg_mass
+type=2  name=HCSV_reg_pt
 type=2  name=V_pt
 type=2  name=HVdPhi
-type=2  name=met_pt
-type=2  name=met_phi
 type=2  name=met_sumEt
 type=2  name=met_shifted_JetEnUp_pt
 type=2  name=met_shifted_JetEnDown_pt
@@ -186,8 +192,9 @@ type=7  name=GenWZQuark_pt                      max=10  onlyMC=1
 type=7  name=GenWZQuark_eta                     max=10  onlyMC=1
 type=7  name=GenWZQuark_phi                     max=10  onlyMC=1
 type=7  name=GenWZQuark_mass                    max=10  onlyMC=1
+type=6  name=GenWZQuark_pdgId                   max=10  onlyMC=1
 
-type=7  name=Jet_pt_reg                       max=100     lengthBranch=nJet
+#type=7  name=Jet_pt_reg                       max=100     lengthBranch=nJet
 type=6  name=Jet_id                           max=100     lengthBranch=nJet
 type=6  name=Jet_puId                         max=100     lengthBranch=nJet
 type=7  name=Jet_btagCSV                      max=100     lengthBranch=nJet
@@ -215,16 +222,6 @@ type=7  name=Jet_btagCSVV0                    max=100     lengthBranch=nJet
 type=7  name=Jet_btagnew                      max=100     lengthBranch=nJet
 type=7  name=Jet_btagCMVA                     max=100     lengthBranch=nJet
 type=6  name=Jet_mcMatchId                    max=100     lengthBranch=nJet  onlyMC=1 
-type=7  name=Jet_corr                         max=100     lengthBranch=nJet
-type=7  name=Jet_corr_JECUp                   max=100     lengthBranch=nJet
-type=7  name=Jet_corr_JECDown                 max=100     lengthBranch=nJet
-type=7  name=Jet_corr_JERUp                   max=100     lengthBranch=nJet
-type=7  name=Jet_corr_JERDown                 max=100     lengthBranch=nJet
-type=7  name=Jet_corr_JER                     max=100     lengthBranch=nJet
-type=7  name=Jet_pt_reg_corrJECUp             max=100     lengthBranch=nJet
-type=7  name=Jet_pt_reg_corrJECDown           max=100     lengthBranch=nJet
-type=7  name=Jet_pt_reg_corrJERUp             max=100     lengthBranch=nJet
-type=7  name=Jet_pt_reg_corrJERDown           max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightHFUp               max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightHFDown             max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightLFUp               max=100     lengthBranch=nJet

@@ -529,10 +529,10 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 
                 
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
-
                 bool anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
                     cursyst=&(systematics[iSyst]);
+                    if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
                     //ApplySystematics(true);
 
                     if(debug>100000) std::cout<<"checking preselection"<<std::endl;
@@ -555,6 +555,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     nbytes += nb;
                     
                     cursyst=&(systematics[iSyst]);
+                    if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
                     ApplySystematics();
                     if(debug>1000) std::cout<<"running analysis"<<std::endl;
                     bool select = Analyze();
@@ -565,7 +566,6 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     }
                     if(select || (cursyst->name=="nominal" && anyPassing)){
                         if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                        FinishEvent();
                         for (int i=0; i < scaleFactors.size(); i++) {
                             SFContainer sf = scaleFactors[i];
                             float sf_err = 0.0;
@@ -585,14 +585,15 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                             }
                             *f[Form("%s_err",sf.branchname.c_str())] = sf_err;
                         }
+                        FinishEvent();
                         if(cursyst->name=="nominal") saved++;
                     }
                 }
             } // end event loop
         } // end file loop
         ofile->cd();
-        //cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
-        //cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
+        cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
+        cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;
     
@@ -641,7 +642,7 @@ void AnalysisManager::TermAnalysis() {
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
 void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
-    TMVA::Reader *thereader = bdtInfo.reader;
+    //TMVA::Reader *thereader = bdtInfo.reader;
     
     for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
         BDTVariable bdtvar = bdtInfo.bdtVars[i];
@@ -653,7 +654,7 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     }
 
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
-    thereader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
+    bdtInfo.reader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
 }
 
 
@@ -684,6 +685,8 @@ void AnalysisManager::SetupSystematicsBranches(){
         }
         if (systematics[iSyst].name != "nominal") {
             SetupNewBranch(Form("H_mass_%s", systematics[iSyst].name.c_str()), 2);
+            SetupNewBranch(Form("Jet_btagCSV_%s", systematics[iSyst].name.c_str()), 7, 100);
+            SetupNewBranch(Form("nAddJets252p9_puid_%s", systematics[iSyst].name.c_str()), 1);
         }
     }
 }
@@ -704,6 +707,16 @@ void AnalysisManager::ApplySystematics(bool early){
             int thisType=existingBranchInfo->type;
             // just doing floats and doubles
             // smearing can be added at any time
+            float jetPtSplit = 100.; // classify high/low jets by this pT threshold
+            float jetEtaSplit = 1.4; // classify central/forward jets by this eta threshold
+            int ptSplit = 0; // if 0 don't split, if 1 split low, if 2 splight high
+            int etaSplit = 0; // if 0 don't split, if 1 split low, if 2 splight high
+            if (cursyst->name.find("High")!=std::string::npos) { ptSplit = 2; }
+            if (cursyst->name.find("Low")!=std::string::npos) { ptSplit = 1; }
+            if (cursyst->name.find("Forward")!=std::string::npos) { etaSplit = 2; }
+            if (cursyst->name.find("Central")!=std::string::npos) { etaSplit = 1; }
+            //std::cout<<cursyst->name<<std::endl;
+            //std::cout<<ptSplit<<", "<<etaSplit<<std::endl;
             if(thisType==2){
                 // scale the current branch
                 if (cursyst->scaleVar[iBrnch] == "") {
@@ -732,20 +745,27 @@ void AnalysisManager::ApplySystematics(bool early){
                 //std::cout<<"length branch "<<existingBranchInfo->lengthBranch<<std::endl;
                 //std::cout<<"length "<<*in[existingBranchInfo->lengthBranch]<<std::endl;
                 for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
+                    //std::cout<<"Jet pt, eta: "<<f["Jet_pt_reg"][ind]<<", "<<f["Jet_eta"][ind]<<std::endl;
                     //std::cout<<"old val "<<f[oldBranchName.c_str()][ind]<<std::endl;
-                    if (cursyst->scaleVar[iBrnch] == "") {
-                         // flat scaling
-                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    // FIXME: we are assuming that the only array variables we scale are jet variables, we should in principle make this more generic
+                    if (ptSplit==0 || (ptSplit==1 && f["Jet_pt_reg"][ind]<jetPtSplit) || (ptSplit==2 && f["Jet_pt_reg"][ind]>jetPtSplit)) { 
+                        if (etaSplit==0 || (etaSplit==1 && fabs(f["Jet_eta"][ind])<jetEtaSplit) || (etaSplit==2 && fabs(f["Jet_eta"][ind])>jetEtaSplit)) { 
+                            //std::cout<<"got through"<<std::endl;
+                            if (cursyst->scaleVar[iBrnch] == "") {
+                                // flat scaling
+                                f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                            }
+                            else {
+                                //std::cout<<f[oldBranchName.c_str()][ind]<<" * "<<f[cursyst->scaleVar[iBrnch]][ind]<<std::endl;
+                                // dynamic scaling
+                                f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * f[cursyst->scaleVar[iBrnch]][ind];
+                            }
+                            //std::cout<<"new val "<<f[oldBranchName.c_str()][ind]<<std::endl;
+                            // copy the value to the new branch
+                            f[systBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind];
+                            //std::cout<<"new branch "<<f[systBranchName.c_str()][ind]<<std::endl;
+                        }
                     }
-                    else {
-                         //std::cout<<f[oldBranchName.c_str()][ind]<<" * "<<f[cursyst->scaleVar[iBrnch]][ind]<<std::endl;
-                         // dynamic scaling
-                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * f[cursyst->scaleVar[iBrnch]][ind];
-                    }
-                    //std::cout<<"new val "<<f[oldBranchName.c_str()][ind]<<std::endl;
-                    // copy the value to the new branch
-                    f[systBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind];
-                    //std::cout<<"new branch "<<f[systBranchName.c_str()][ind]<<std::endl;
                 }
             } else if(thisType==8){
                 for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch

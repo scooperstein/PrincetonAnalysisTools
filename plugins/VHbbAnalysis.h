@@ -27,6 +27,9 @@ class VHbbAnalysis : public AnalysisManager {
     bool ElectronSelection();
     bool MuonSelection();
     float ReWeightMC(int nPU=0);
+    float puWeight_ichep(int i=0);
+    float puWeight_ichep_up(int i=0);
+    float puWeight_ichep_down(int i=0);
     std::pair<int,int> HighestPtBJets();
     std::pair<int,int> HighestCSVBJets();
     std::pair<int,int> HighestPtJJBJets();

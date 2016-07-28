@@ -15,6 +15,7 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
                   help="Specify label for condor jobs. Only to be used when running batch jobs"
 )
 parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=10, type=int, help="Number of input files per batch job")
+parser.add_option("-s","--sample", dest="sample", default="", type=str, help="Run on only a specific sample (can be comma-separated list)")
 (options, args) = parser.parse_args()
 
 ROOT.gSystem.Load("AnalysisDict.so")
@@ -23,6 +24,9 @@ ROOT.gSystem.Load("AnalysisDict.so")
 samplesToRun = [] # if empty run on all samples
 am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun,"",options.runBatch)
 am.debug=2
+
+if (options.sample != ""):
+    samplesToSubmit = options.sample.split(',')
 
 if (options.runBatch == False):
     print "Running locally over all samples"
@@ -48,6 +52,9 @@ else:
     #for sampleName in am.ListSampleNames():
     nFilesPerJob = options.nFilesPerJob 
     for sample in am.samples:
+        if (options.sample != ""):
+            #if (sample.sampleName != options.sample): continue
+            if (sample.sampleName not in samplesToSubmit): continue
         sampleName = sample.sampleName
         print sampleName
         os.system("mkdir -p %s/%s" % (jobName,sampleName))
@@ -81,7 +88,7 @@ else:
             content += "WhenToTransferOutput=On_Exit\n"
             #content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../aux/MuonIso_Z_RunCD_Reco74X_Dec1.json,../../aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json,../../aux/MuonID_Z_RunCD_Reco74X_Dec1.json,../../aux/CutBasedID_TightWP.json,../../aux/CutBasedID_LooseWP.json,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt,../../cfg/scalefactors.txt\n" % options.configFile
             content += "Queue  1\n"
-            print content
+            #print content
             submitFile.write(content)
             submitFile.close()
             submitFiles.append(fname)

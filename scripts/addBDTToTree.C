@@ -10,8 +10,8 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
   std::vector<TMVA::Reader*>  tmvaReader_BDTs; 
 
   //Float_t   H_mass, H_pt, V_pt, hJets_btagCSV_0, hJets_btagCSV_1, HVdPhi, nAddJet_f, nAddLep_f, hJets_pt_0, hJets_pt_1, met_pt, Top1_mass_fromLepton, lepMetDPhi, selLeptons_pt_0, selLeptons_eta_0, selLeptons_relIso03_0, isWenu_f, isWmunu_f;
-  Float_t   H_mass,HJ1_HJ2_dR,H_pt,V_pt,hJets_btagCSV_1,Top1_mass_fromLepton_regPT_w4MET,HVdPhi,nAddJet_f,lepMetDPhi,hJets_pt_0,hJets_pt_1,selLeptons_pt_0,selLeptons_relIso_0,hJets_btagCSV_0,selLeptons_eta_0,hJets_eta_0,hJets_eta_1,jjWPtBalance,AddJets252p9_puid_leadJet_btagCSV,AddJets252p9_puid_leadJet_pt,V_mt,met_pt,softActivityVH_njets5_f,HVdEta,HVdEta_4MET,JJEtaBal;
-  Int_t     hJetInd1,hJetInd2,lepInd,softActivityVH_njets5;
+  Float_t   H_mass,HJ1_HJ2_dR,H_pt,V_pt,hJets_btagCSV_1,Top1_mass_fromLepton_regPT_w4MET,HVdPhi,nAddJet_f,lepMetDPhi,hJets_pt_0,hJets_pt_1,selLeptons_pt_0,selLeptons_relIso_0,hJets_btagCSV_0,selLeptons_eta_0,hJets_eta_0,hJets_eta_1,jjWPtBalance,AddJets252p9_puid_leadJet_btagCSV,AddJets252p9_puid_leadJet_pt,V_mt,met_pt,softActivityVH_njets5_f,HVdEta,HVdEta_4MET,JJEtaBal,H_pt_over_H_mass,V_pt_over_H_mass,TopMass_over_H_mass,HVdPhi_over_H_mass,met_pt_over_H_mass;
+  Int_t     hJetInd1,hJetInd2,lepInd,softActivityVH_njets5,nAddJets252p9_puid;
   //Float_t  *Jet_btagCSV,*Jet_pt_reg,*selLeptons_pt,*selLeptons_eta,*Jet_eta;
   Float_t Jet_btagCSV[100],Jet_pt_reg[100],selLeptons_pt[10],selLeptons_eta[10],Jet_eta[100];
 
@@ -57,18 +57,21 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
       }
       if (Nm1Var!=6) {
         tmvaReader_BDTs[i]->AddVariable("Top1_mass_fromLepton_regPT_w4MET", &Top1_mass_fromLepton_regPT_w4MET);
+        //tmvaReader_BDTs[i]->AddVariable("Top1_mass_fromLepton_regPT_w4MET", &Top1_mass_fromLepton_regPT_w4MET);
         //tmvaReader_BDTs[i]->AddVariable("Top1_mass_fromLepton_regPT_w4MET"", &Top1_mass_fromLepton_regPT_w4MET");
       }
       if (Nm1Var!=7) {
         tmvaReader_BDTs[i]->AddVariable("HVdPhi", &HVdPhi);
       }
       if (Nm1Var!=8) {
-        tmvaReader_BDTs[i]->AddVariable("nAddJet_f", &nAddJet_f);
+        //tmvaReader_BDTs[i]->AddVariable("nAddJet_f", &nAddJet_f);
+        tmvaReader_BDTs[i]->AddVariable("nAddJets252p9_puid", &nAddJet_f);
       }
       if (Nm1Var!=9) {
         tmvaReader_BDTs[i]->AddVariable("lepMetDPhi", &lepMetDPhi);
       }
       if (Nm1Var!=10) {
+        //tmvaReader_BDTs[i]->AddVariable("softActivityVH_njets5", &softActivityVH_njets5);
         tmvaReader_BDTs[i]->AddVariable("softActivityVH_njets5", &softActivityVH_njets5_f);
       }
       //if (Nm1Var!=11) {
@@ -175,7 +178,12 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
     selLeptons_pt_0 = selLeptons_pt[lepInd];
     selLeptons_eta_0 = selLeptons_eta[lepInd];
     softActivityVH_njets5_f = (float) softActivityVH_njets5;
-    
+    H_pt_over_H_mass = H_pt / H_mass;   
+    V_pt_over_H_mass = V_pt / H_mass;
+    TopMass_over_H_mass = Top1_mass_fromLepton_regPT_w4MET / H_mass;
+    HVdPhi_over_H_mass = HVdPhi / H_mass;
+    met_pt_over_H_mass = met_pt / H_mass;
+
     //BDT  = tmvaReader_BDT->EvaluateMVA("Gradient");
     for (int i=0; i<nBDTs; i++) {       
         BDT[i]  = tmvaReader_BDTs[i]->EvaluateMVA("BDT");       

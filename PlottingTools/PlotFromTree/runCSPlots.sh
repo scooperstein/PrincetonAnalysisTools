@@ -1,0 +1,13 @@
+#python plotFromTree.py -i ../../VHbbAnalysis/V23_Wlnu_CR_July1.0/output_data.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlydata.dat -o output_data.root
+#python plotFromTree.py -i ../../VHbbAnalysis/V23_Wlnu_CR_July1.0/output_mc.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -o output_mc.root -w 'weight*(1.0/1.0)*(12.89/12.89)**(2.28/9.24)'
+#python plotFromTree.py -i ../../VHbbAnalysis/V23_Wlnu_CR_July1.0/output_ttpowheg.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlyttpowheg.dat -o output_ttpow.root -w 'weight*(1.0/1.0)*(12.89/12.89)**(2.28/9.24)'
+python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_CR_Nov29/output_data.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlydata.dat -o output_data.root
+python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_CR_Nov29/output_mc.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -o output_mc.root -w 'weight*(12.89/12.89)*(bTagWeightICHEP/bTagWeight)*WJetNLOWeight*(1./CS_SF)'
+python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_CR_Nov29/output_ttpowheg.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlyttpowheg.dat -o output_ttpow.root -w 'weight*(12.89/12.89)*(bTagWeightICHEP/bTagWeight)*WJetNLOWeight*(1./CS_SF)'
+python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_CR_Nov29/output_signal.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlysignal.dat -o output_signal.root -w 'weight*(12.89/12.89)*(bTagWeightICHEP/bTagWeight)*WJetNLOWeight*(1./CS_SF)'
+hadd -f output.root output_mc.root output_data.root output_ttpow.root output_signal.root
+#python plotFromTree.py -i ../../V24_Wln_CR_Oct13_v2/output_data.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlydata.dat -o output_data.root
+#python plotFromTree.py -i ../../V24_Wln_CR_Oct13_v2/output_mc.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -o output_mc.root 
+#python plotFromTree.py -i ../../V24_Wln_CR_Oct13_v2/output_ttpowheg.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlyttpowheg.dat -o output_ttpow.root 
+#python plotFromTree.py -i ../../V24_Wln_CR_Oct13_v2/output_signal.root -P plotvariables_CS.dat -C categories_CS.dat -S selection_CS.dat -I inputfiles_onlysignal.dat -o output_signal.root
+#hadd -f output.root output_mc.root output_data.root output_ttpow.root output_signal.root
