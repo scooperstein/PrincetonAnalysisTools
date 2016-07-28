@@ -1,21 +1,20 @@
-file=PlotFromTree/output.root
+file=hists_WlnCRs_June20.root
 
-dolegend=False
-dolog=False
+dolegend=True
+nLeg=2
 dodivide=True
 dotitles=True 
-#legx1=0.4  legy1=0.3 legx2=0.9 legy2=0.73
-textx1=0.5  texty1=0.75 textx2=0.85 texty2=0.86
-#textx1=0.65  texty1=0.75 textx2=0.85 texty2=0.86
+legx1=0.45  legy1=0.6 legx2=0.95 legy2=0.92
+textx1=0.17  texty1=0.70 textx2=0.43 texty2=0.92
 
+maxscaleup=1.8
+stackminlog=10
 dodata=True
-dolog=True
-maxval=10000
-minval=0.01
+dolog=False
 
-xsize=1000 ysize=600
+xsize=600 ysize=600
 
-text=CMS Preliminary 2015 \n#sqrt{s}=13 TeV
+text=CMS Preliminary 2015 \n#sqrt{s} = 13 TeV, L = 2.3 fb^{-1}
 
 name=Data         sampleIndex=0      order=1   plot=1  leg=1    scale=1     color=808   marker=1  displayName=Data
 
