@@ -1,7 +1,7 @@
 #catName=sel     catDef:(V_pt>500&&(Vtype==2||Vtype==3))
 #catName=sel     catDef:V_pt>100&&H_pt>100&&Vtype==3&&isWenu
-#catName=sel     catDef:isWmunu&&cutFlow>=9&&Pass_nominal,isWenu&&cutFlow>=9&&Pass_nominal
-catName=sel     catDef:isWmunu&&Vtype==2&&cutFlow>=9&&Pass_nominal&&H_mass>90&&H_mass<150,isWenu&&Vtype==3&&cutFlow>=9&&Pass_nominal&&H_mass>90&&H_mass<150
+catName=sel     catDef:H_mass>90&&H_mass<150&&selLeptons_relIso_0<0.06&&isWmunu&&cutFlow>=9&&Pass_nominal,H_mass>90&&H_mass<150&&isWenu&&cutFlow>=9&&Pass_nominal
+#catName=sel     catDef:isWmunu&&Vtype==2&&cutFlow>=9&&Pass_nominal&&H_mass>90&&H_mass<150,isWenu&&Vtype==3&&cutFlow>=9&&Pass_nominal&&H_mass>90&&H_mass<150
 #catName=sel     catDef:V_pt>100&cutFlow>=9&&isWmunu&&Vtype==2&&selLeptons_relIso04[lepInd]<0.04,V_pt>100&&cutFlow>=9&&isWenu&&Vtype==3
 catName=mueta   catDef:muEta<1.4,muEta>=1.4
 catName=eleta   catDef:elEta>1.566,elEta<1.442

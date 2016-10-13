@@ -1,4 +1,11 @@
-H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)
+met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || (run<=276811))
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || (run>276811&&run<=278808))&&V_pt<150
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || ((run==279694&&lumi>=168&&lumi<=2236)||(run==279667&&lumi>=68&&lumi<=1034)||(run==279691&&lumi>=71&&lumi<=125)||(run==277069&&lumi>=135&&lumi<=395)||(run==280192&&lumi>=1&&lumi<=10)||(run==279116&&lumi>=44&&lumi<=486)||(run==280363&&lumi>=1&&lumi<=368)||(run==279115&&lumi>=118&&lumi<=525)||(run==279794&&lumi>=91&&lumi<=1101)||(run==277217&&lumi>=33&&lumi<=48)||(run==279760&&lumi>=78&&lumi<=807)||(run==279767&&lumi>=1&&lumi<=777)||(run==279766&&lumi>=1&&lumi<=1695)))
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&run<=276811
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&run<=275125
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&run<=274421
+#H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&((isWenu)||(HLT_BIT_HLT_IsoMu20_v==1||HLT_BIT_HLT_IsoTkMu20_v==1))
 #(controlSample>-1 && (met_pt/sqrt(met_sumEt))>2 )
 #(controlSample>-1)
 #(elPt>0 && notPassBaseline==1 && jetPt1>0 && (sampleIndex<0||passCurrentL1==0))
