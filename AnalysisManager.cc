@@ -529,10 +529,10 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 
                 
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
-
                 bool anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
                     cursyst=&(systematics[iSyst]);
+                    if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
                     //ApplySystematics(true);
 
                     if(debug>100000) std::cout<<"checking preselection"<<std::endl;
@@ -555,6 +555,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     nbytes += nb;
                     
                     cursyst=&(systematics[iSyst]);
+                    if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
                     ApplySystematics();
                     if(debug>1000) std::cout<<"running analysis"<<std::endl;
                     bool select = Analyze();
@@ -591,8 +592,8 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
             } // end event loop
         } // end file loop
         ofile->cd();
-        //cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
-        //cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
+        cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
+        cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;
     
@@ -684,6 +685,7 @@ void AnalysisManager::SetupSystematicsBranches(){
         }
         if (systematics[iSyst].name != "nominal") {
             SetupNewBranch(Form("H_mass_%s", systematics[iSyst].name.c_str()), 2);
+            SetupNewBranch(Form("Jet_btagCSV_%s", systematics[iSyst].name.c_str()), 7, 100);
         }
     }
 }
