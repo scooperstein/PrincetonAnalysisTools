@@ -25,8 +25,8 @@ dc_string = "" # write datacard
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
+#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
 #samples = ["ZH","WH","Bkg"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF"]
 #samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
@@ -43,7 +43,8 @@ samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1
 #    cat_labels = list(cats)
 
 if args.doVV:
-    samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
+    samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
+    #samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
 
 # It probably makes sense to just run this script once per channel and
 # then combine the datacards with combineDatacard.py, but the code is set
@@ -156,7 +157,8 @@ if (args.systematics != ""):
         sysLine += "\n"
         systematics += sysLine
 
-if (args.binstats != ""):
+#if (args.binstats != ""):
+if (True): # actually I think we always want to do this, should clean this up after HCP ;)
     for cat in cat_labels:
         try:
             #binStats_file = open(args.binstats, "r")
@@ -205,7 +207,7 @@ dc_string += "bin                                                         "
 for label in cat_labels:
     for sample in samples:
         dc_string += label
-        for i in range(12 - len(label)):
+        for i in range(14 - len(label)):
             dc_string += " "
 dc_string += "\n"
 dc_string += "process                                                     "

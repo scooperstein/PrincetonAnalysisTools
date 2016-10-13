@@ -8,10 +8,11 @@ import os
 #ifile = ROOT.TFile("TMVA_13TeV_Dec4_H125Sig_0b1b2bWjetsTTbarBkg_Mjj.root")
 #ifile = ROOT.TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/PrincetonAnalysisTools/PlottingTools/Nm1Cuts/Dec4_McForOpt/output_allsamples_wBDTS.root")
 if (len(sys.argv) != 4 and len(sys.argv) != 5):
-    print "Usage: python scanOptCategories.py [ifilename] [nCat] [ofilename] [doWPs=False]"
+    print "Usage: python scanOptCategories.py [ifilename] [nCat] [ofilename] [procStep] [doWPs=False]"
     sys.exit(1)
 
 ROOT.gROOT.SetBatch(True)
+ROOT.gStyle.SetOptStat(0)
 
 ifilename = sys.argv[1]
 ifile = ROOT.TFile(ifilename)
@@ -26,13 +27,14 @@ bdtname = "V_pt"
 presel = "Pass_nominal==1&&V_pt>100&&(Vtype==2||Vtype==3)"
 #presel = "H_mass>0"
 xlow = 100
-xhigh = 500
+xhigh = 1000
 #xlow = -1.
 #xhigh = 1.
 
 #bdtname_f = "H_mass"
 #bdtname_f = "BDT_May30_350_5"
-bdtname_f = "CMS_vhbb_BDT_Wln_13TeV"
+#bdtname_f = "CMS_vhbb_BDT_Wln_13TeV"
+bdtname_f = "BDT_V24_Sep20_fullTTStats_500_4"
 xlow_f = -1
 xhigh_f = 1
 #xlow_f = 50
@@ -54,6 +56,8 @@ otree.Branch("B",B_arr,"B[nCat]/D")
 otree.Branch("Sig",Sig,"Sig/D")
 otree.Branch("Boundaries",bound_arr,"Boundaries[%i]/D" % (nCat + 1))
 
+procStep = int(sys.argv[4])
+
 # split different sig. eff. ranges by specified bin sizes of sig. eff.
 # stepSize, sigEffMax
 #binSplitting = [(1./50,0.0,0.1),(1./50,0.1,0.75),(1./100,0.75,0.95),(1./200,0.95,1.0)]
@@ -62,9 +66,9 @@ otree.Branch("Boundaries",bound_arr,"Boundaries[%i]/D" % (nCat + 1))
 binSplitting = [(1./15,0.0,1.0)]
 #binSplitting = [(1./50,0.0,1.0)]
 doWPs = False
-if (len(sys.argv) > 4):
-    if (sys.argv[4] ==  "True"): doWPs = True
-    print sys.argv[4]
+if (len(sys.argv) > 5):
+    if (sys.argv[5] ==  "True"): doWPs = True
+    print sys.argv[5]
     print doWPs
 
 nbins = 1000
@@ -249,7 +253,7 @@ for bset in bsets:
                 #cardnbin = 40
                 #if (i == 2): cardnbin = 20
                 #if (i == 3): cardnbin = 15
-                cardnbin = 20
+                cardnbin = 15
                 cwd = os.getcwd()
                 script_text = '''export ORIG_DIR=$PWD
 cd %s
@@ -257,13 +261,15 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 ''' % cwd
                 #script_text += "python ../../../splitSamples.py -i ../../%s -c WmnCat%i -p 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)&&evt%%2==0' -s ../../../systematics_Wmn.txt -w '2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WmnCat%i.root -b $ORIG_DIR/binStats_WmnCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
-                script_text += "python ../../../splitSamples.py -i ../../%s -c WmnCat%i -p 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)&&(H_pt>=%f)&&(H_pt<%f)&&evt%%2==0' -s ../../../systematics_Wmn.txt -w '2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WmnCat%i.root -b $ORIG_DIR/binStats_WmnCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],bset[i],bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
+                script_text += "python ../../../splitSamples.py -i ../../%s -c WmnCat%i -p 'run<=276811&&isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)&&(evt%%2==0||sampleIndex==0)&&Vtype==2&&H_mass>90&&H_mass<150&&selLeptons_relIso_0[lepInd]<0.06' -s ../../../systematics_Wmn_CS.txt -w '2.0' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WmnCat%i.root -b $ORIG_DIR/binStats_WmnCat%i.txt -n %i -d 1" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
+#                script_text += "python ../../../splitSamples.py -i ../../%s -c WmnCat%i -p 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)&&(H_pt>=%f)&&(H_pt<%f)&&evt%%2==0' -s ../../../systematics_Wmn_CS.txt -w '2.0' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WmnCat%i.root -b $ORIG_DIR/binStats_WmnCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],bset[i],bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
                 #script_text += "python ../../../splitSamples.py -i ../../%s -c WmnCat%i -p 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)&&(H_pt>=%f)&&(H_pt<%f)&&evt%%2==0' -s ../../../systematics_Wmn.txt -w 'selLeptons_SF_IdCutTight[lepInd],selLeptons_SF_IsoTight[lepInd],weight_PU,weight_ptEWK,weight_ptQCD,CS_SF,2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WmnCat%i.root -b $ORIG_DIR/binStats_WmnCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],bset[i],bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
                 #script_text += "python ../../../splitSamples.py -i ../../%s -c WmnCat%i -p 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)&&evt%%2==0' -s ../../../systematics_Wmn.txt -w 'selLeptons_SF_IdCutTight[lepInd],selLeptons_SF_IsoTight[lepInd],weight_PU,weight_ptEWK,weight_ptQCD,CS_SF,2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WmnCat%i.root -b $ORIG_DIR/binStats_WmnCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
                 script_text += "\n"
                 #os.system("python ../../../splitSamples.py -i ../../%s -c WmnCat%i -p 'isWmunu&&(%s)&&(%s>=%f)&&(%s<%f)&&evt%%2==0' -s ../../../systematics_Wmn.txt -w 'selLeptons_SF_IdCutTight[lepInd],selLeptons_SF_IsoTight[lepInd],weight_PU,weight_ptEWK,weight_ptQCD,CS_SF,2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f-o $ORIG_DIR/hists_WmnCat%i.root" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i))
 		#script_text +=  "python ../../../splitSamples.py -i ../../%s -c WenCat%i -p 'isWenu&&(%s)&&(%s>=%f)&&(%s<%f)&&evt%%2==0' -s ../../../systematics_Wen.txt -w '2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WenCat%i.root -b $ORIG_DIR/binStats_WenCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
-		script_text +=  "python ../../../splitSamples.py -i ../../%s -c WenCat%i -p 'isWenu&&(%s)&&(%s>=%f)&&(%s<%f)&&(H_pt>=%f)&&(H_pt<%f)&&evt%%2==0' -s ../../../systematics_Wen.txt -w '2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WenCat%i.root -b $ORIG_DIR/binStats_WenCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],bset[i],bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
+		script_text +=  "python ../../../splitSamples.py -i ../../%s -c WenCat%i -p 'run<=276811&&isWenu&&(%s)&&(%s>=%f)&&(%s<%f)&&(evt%%2==0||sampleIndex==0)&&Vtype==3&&H_mass>90&&H_mass<150' -s ../../../systematics_Wen_CS.txt -w '2.0' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WenCat%i.root -b $ORIG_DIR/binStats_WenCat%i.txt -n %i -d 1" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
+#		script_text +=  "python ../../../splitSamples.py -i ../../%s -c WenCat%i -p 'isWenu&&(%s)&&(%s>=%f)&&(%s<%f)&&(H_pt>=%f)&&(H_pt<%f)&&evt%%2==0' -s ../../../systematics_Wen_CS.txt -w '2.0' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WenCat%i.root -b $ORIG_DIR/binStats_WenCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],bset[i],bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
 		#script_text +=  "python ../../../splitSamples.py -i ../../%s -c WenCat%i -p 'isWenu&&(%s)&&(%s>=%f)&&(%s<%f)&&(H_pt>=%f)&&(H_pt<%f)&&evt%%2==0' -s ../../../systematics_Wen.txt -w 'selLeptons_SF_IdMVATight[lepInd],weight_PU,weight_ptEWK,weight_ptQCD,CS_SF,2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WenCat%i.root -b $ORIG_DIR/binStats_WenCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],bset[i],bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
 		#script_text +=  "python ../../../splitSamples.py -i ../../%s -c WenCat%i -p 'isWenu&&(%s)&&(%s>=%f)&&(%s<%f)&&evt%%2==0' -s ../../../systematics_Wen.txt -w 'selLeptons_SF_IdMVATight[lepInd],weight_PU,weight_ptEWK,weight_ptQCD,CS_SF,2.0,8.26' -t ../../%s -tt ../../%s -v %s -xl %f -xh %f -o $ORIG_DIR/hists_WenCat%i.root -b $ORIG_DIR/binStats_WenCat%i.txt -n %i" % (ifilename,i,presel,bdtname,bset[i],bdtname,bset[i+1],ifilename.replace("output_mc.root","output_data.root"),ifilename.replace("output_mc.root","output_ttpowheg.root"),bdtname_f,xlow_f,xhigh_f,i,i,cardnbin)
                 script_text += "\n"
@@ -283,7 +289,8 @@ Queue  1
                 submitfile = open("submit_%i.txt" % i,"w")
                 submitfile.write(submit_text)
                 submitfile.close()
-                #os.system("condor_submit submit_%i.txt" % i)
+                if (procStep == 0):
+                    os.system("condor_submit submit_%i.txt" % i)
     combSens = sqrt(combSens)
     if (useCombine):
         cat_labels_Wmn = ""
@@ -304,14 +311,19 @@ eval `scramv1 runtime -sh`
 cd %s
 ''' % os.getcwd()
         script_text_cards += "\n"
-        script_text_cards += "python ../../../printYields.py -o $ORIG_DIR/dc_Wmn.txt -c %s -s ../../../systematics_Wmn.txt\n" % cat_labels_Wmn
-        script_text_cards += "python ../../../printYields.py -o $ORIG_DIR/dc_Wen.txt -c %s -s ../../../systematics_Wen.txt\n" % cat_labels_Wen
+        combineCards_text = ""
+        for i in range(len(cat_labels_Wmn.split(','))):
+            script_text_cards += "python ../../../printYields.py -o $ORIG_DIR/dc_WmnCat%i.txt -c WmnCat%i -s ../../../systematics_Wmn_CS.txt -r TT_Wln,Wj0b_Wln,Wj1b_Wln,Wj2b_Wln\n" % (i,i)
+            script_text_cards += "python ../../../printYields.py -o $ORIG_DIR/dc_WenCat%i.txt -c WenCat%i -s ../../../systematics_Wen_CS.txt -r TT_Wln,Wj0b_Wln,Wj1b_Wln,Wj2b_Wln\n" % (i,i)
+            combineCards_text += " WmnCat%i=dc_WmnCat%i.txt" % (i,i)
+            combineCards_text += " WenCat%i=dc_WenCat%i.txt" % (i,i)
         script_text_cards += "cp hists_*.root $ORIG_DIR\n"
         script_text_cards += "cd $ORIG_DIR\n"
-        script_text_cards += "cp /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/StatTools/Jan21/May30_CR_20fb/vhbb*.txt $ORIG_DIR\n"
-        script_text_cards += "cp /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/StatTools/Jan21/May30_CR_20fb/hists*.root $ORIG_DIR\n"
+        script_text_cards += "cp /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/StatTools/Jan21/V24_CR_12p9fb/vhbb*.txt $ORIG_DIR\n"
+        script_text_cards += "cp /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/StatTools/Jan21/V24_CR_12p9fb/hists*.root $ORIG_DIR\n"
         #script_text_cards += "combineCards.py Wmn=dc_Wmn.txt Wen=dc_Wen.txt > dc.txt\n"
-        script_text_cards += "combineCards.py ttWmn=vhbb_ttWmn_13TeV.txt ttWen=vhbb_ttWen_13TeV.txt whfWmn=vhbb_whfWmn_13TeV.txt whfWen=vhbb_whfWen_13TeV.txt wlfWmn=vhbb_wlfWmn_13TeV.txt wlfWen=vhbb_wlfWen_13TeV.txt Wmn=dc_Wmn.txt Wen=dc_Wen.txt > dc.txt\n"
+        #script_text_cards += "combineCards.py ttWmn=vhbb_ttWmn_13TeV.txt ttWen=vhbb_ttWen_13TeV.txt whfWmn=vhbb_whfWmn_13TeV.txt whfWen=vhbb_whfWen_13TeV.txt wlfWmn=vhbb_wlfWmn_13TeV.txt wlfWen=vhbb_wlfWen_13TeV.txt WmnCat0=dc_WmnCat0.txt WmnCat1=dc_WmnCat1.txt WenCat0=dc_WenCat0.txt WenCat1=dc_WenCat1.txt > dc.txt\n"
+        script_text_cards += "combineCards.py ttWmn=vhbb_ttWmn_13TeV.txt ttWen=vhbb_ttWen_13TeV.txt whfWmn=vhbb_whfWmn_13TeV.txt whfWen=vhbb_whfWen_13TeV.txt wlfWmn=vhbb_wlfWmn_13TeV.txt wlfWen=vhbb_wlfWen_13TeV.txt %s > dc.txt\n" % combineCards_text
         script_text_cards += "combine -M ProfileLikelihood --significance dc.txt -t -1 --expectSignal=1 > combine_output.txt\n"
         condor_runscript_cards = open("condor_runscript_cards.sh","w")
         condor_runscript_cards.write(script_text_cards)
@@ -329,12 +341,14 @@ Queue  1
         submitfile_cards = open("submit_cards.txt","w")
         submitfile_cards.write(submit_text_cards)
         submitfile_cards.close()
-        #os.system("condor_submit submit_cards.txt")
-        combOut = open("combine_output.txt","r")
-        for line in combOut:
-             if (line.find("Significance") != -1):
-                 combSens = float(line.split()[1])
-                 print combSens
+        if (procStep == 1):
+            os.system("condor_submit submit_cards.txt")
+        if (procStep == 2):
+            combOut = open("combine_output.txt","r")
+            for line in combOut:
+                 if (line.find("Significance") != -1):
+                     combSens = float(line.split()[1])
+                     print combSens
         os.chdir("../..")
        
     Sig[0] = float(combSens)
@@ -393,19 +407,24 @@ if (nCat == 2 or nCat == 3):
         hSig.SetTitle("")
         if (doWPs):
             hSig.GetXaxis().SetTitle("WP Split Point")
-        else: hSig.GetXaxis().SetTitle("BDT Score Split Point")
+        else: hSig.GetXaxis().SetTitle("V pT Split Point")
         hSig.GetYaxis().SetTitle("Combined Significance")
+        hSig.Fill(100,0.734816) 
+        hSig.GetXaxis().SetRangeUser(100,300)
+        hSig.GetYaxis().SetRangeUser(0.5,0.8)
         hSig.Draw("hist")
+        #hSig.Draw("pc")
     if (nCat == 3):
         hSig2.SetTitle("")
         if (doWPs):
             hSig2.GetXaxis().SetTitle("WP Split Point 1")
             hSig2.GetXaxis().SetTitle("WP Split Point 2")
         else: 
-            hSig2.GetXaxis().SetTitle("BDT Score Split Point 1")
-            hSig2.GetXaxis().SetTitle("BDT Score Split Point 2")
-        hSig2.Draw("colZ")
+            hSig2.GetXaxis().SetTitle("V pT Split Point 1")
+            hSig2.GetXaxis().SetTitle("V pT Split Point 2")
+        hSig2.Draw("text")
     #raw_input()
+    c1.SaveAs(sys.argv[3].replace(".root",".pdf"))
 ofile.cd()
 otree.Write()
 ofile.Close()
