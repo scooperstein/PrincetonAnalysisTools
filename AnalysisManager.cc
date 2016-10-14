@@ -566,7 +566,6 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     }
                     if(select || (cursyst->name=="nominal" && anyPassing)){
                         if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                        FinishEvent();
                         for (int i=0; i < scaleFactors.size(); i++) {
                             SFContainer sf = scaleFactors[i];
                             float sf_err = 0.0;
@@ -586,6 +585,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                             }
                             *f[Form("%s_err",sf.branchname.c_str())] = sf_err;
                         }
+                        FinishEvent();
                         if(cursyst->name=="nominal") saved++;
                     }
                 }

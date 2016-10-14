@@ -227,6 +227,8 @@ bool VHbbAnalysis::Analyze(){
     if (*in["isWmunu"] == 0 && *in["isWenu"] == 0) sel = false;
     if (sel) *in["cutFlow"] += 1; // lepton selection
     
+    *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
+    *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
     
     if (*in["lepInd"] == -1) {
         // not Wenu or Wmunu, use preselected lepton
@@ -998,8 +1000,8 @@ void VHbbAnalysis::FinishEvent(){
 
     //*f["Vtype_f"] = (float) *f["Vtype"];
     //*f["absDeltaPullAngle"] = fabs(*f["deltaPullAngle"]);
-    *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
-    *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
+    //*f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
+    //*f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
     //*f["selLeptons_phi_0"] = f["selLeptons_phi"][*in["lepInd"]];
     //*in["selLeptons_pdgId_0"] = in["selLeptons_pdgId"][*in["lepInd"]];    
     //*in["selLeptons_eleCutIdCSA14_25ns_v1_0"] = in["selLeptons_eleCutIdCSA14_25ns_v1"][*in["lepInd"]];
