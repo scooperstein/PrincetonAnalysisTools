@@ -71,6 +71,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
                     samplecon.doJetFlavorSplit  = bool(sample["doJetFlavorSplit"])
                 if sample.has_key("procEff"):
                     samplecon.procEff = sample["procEff"]
+                if sample.has_key("lepFlav"):
+                    samplecon.lepFlav = sample["lepFlav"]
                 #print "Reading",sample["name"],"with",len(sample["files"]),"files"
                 for filename in sample["files"]:
                     #print filename,filesToRun
@@ -85,6 +87,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
                     if aminitialized == 0: 
                         print("Initializing with",filename)
                         am.Initialize(filename)
+                        if (am.fChain.GetEntries() == 0):
+                            continue
                         aminitialized=1
                         # FIXME can this go elsewhere?
                         if settings.has_key("outputname"):
@@ -309,7 +313,9 @@ def MakeSampleMap(lines):
             if name.find("doJetFlavorSplit") is 0:
                 sample["doJetFlavorSplit"]=bool(value)
             if name.find("procEff") is 0:
-                sample["procEff"]=float(value)      
+                sample["procEff"]=float(value) 
+            if name.find("lepFlav") is 0:
+                sample["lepFlav"]=int(value)     
  
         sample["files"]=samplepaths 
         if sample.has_key("name"):

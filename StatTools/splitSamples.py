@@ -16,7 +16,7 @@ parser.add_argument('-c', '--catName', type=str, default="Cat", help="The catego
 parser.add_argument('-p', '--preselection', type=str, default="", help="The category selection cuts on top of ntuple")
 parser.add_argument('-s', '--systematics', type=str, default="", help="The systematics config file")
 parser.add_argument('-w', '--weights', type=str, default="", help="Comma-separated list of weights to apply on top of nominal 'weight'")
-parser.add_argument('-d', '--doData', type=bool, default=False, help="If true run on real data, if false compute data as sum of background pdf's")
+parser.add_argument('-d', '--doData', type=int, default=0, help="If non-zero run on real data, if 0 compute data as sum of background pdf's (default 0)")
 parser.add_argument('-t', '--dataTree', type=str, default="", help="If doData is true, you specify here the ntuple with the real data events")
 parser.add_argument('-tt', '--ttbarTree', type=str, default="", help="Specify separate file with ttbar powheg so it only takes forever when running tt")
 parser.add_argument('-v', '--varname', type=str, default="CMS_vhbb_BDT_Wln_13TeV", help="The name of the variable shape which goes into the histograms and will be fitted")
@@ -27,7 +27,7 @@ parser.add_argument('-bl','--binlow',type=float,default=-1.0, help="manually set
 parser.add_argument('-o', '--ofilename',type=str,default="", help="output histogram file name (default hists_[cat].root)")
 parser.add_argument('-b', '--binstats', type=str, default="", help="Text file listing all the individual bin. stat. uncertainties to include")
 parser.add_argument('-n', '--nbins', type=int, default=20, help="number of bins in datacard shapes")
-parser.add_argument('-r', '--doRebin',type=bool, default=True, help="If True then rebin histogram so that bins are sufficiently populated in background (default=True)")
+parser.add_argument('-r', '--doRebin',type=int, default=1, help="If not 0 then rebin histogram so that bins are sufficiently populated in background (default=1)")
 parser.add_argument('-tol','--tolerance',type=float,default=0.5,help="Tolerance threshold on dB/sqrt(B) for inclusion of bin-by-bin stat. shape uncertainties (default=0.50)")
 args = parser.parse_args()
 print args
@@ -73,8 +73,12 @@ if (args.weights != ""):
     set_of_weights = args.weights.split(',')
 print set_of_weights
 #weight_string = "weight"
-weight_string = "weight*(puWeight/weight_PU)"
-#weight_string = "weight*(CS_SF_new2/CS_SF)*(puWeight/weight_PU)*(1 + (sampleIndex>=24&&sampleIndex<=31)*(-0.63)) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWmunu)*(-1 + 1./(0.0673 *SF_SMuTrig_Block1[lepInd] + 0.9327 * SF_SMuTrig_Block2[lepInd]))  ) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWenu)*(-1 + 1./(SF_HLT_Ele23_WPLoose[lepInd]))  )"
+#weight_string = "weight*(bTagWeightEF/bTagWeight)*(1+isWenu*(-1+(SF_HLT_Ele23_WPLoose[lepInd]/EffHLT_Ele27_WPLoose_Eta2p1[lepInd])))"
+weight_string = "(1./CS_SF)*weight*(1+isWenu*(-1+(SF_HLT_Ele23_WPLoose[lepInd]/EffHLT_Ele27_WPLoose_Eta2p1[lepInd])))"
+#weight_string = "weight*(1+isWenu*(-1+(1./SF_egammaEffi_tracker[lepInd])))*(1+isWenu*(-1+(SF_HLT_Ele23_WPLoose[lepInd]/EffHLT_Ele27_WPLoose_Eta2p1[lepInd])))"
+#weight_string = "weight*(1./SF_egammaEffi_tracker[lepInd])*(1+isWenu*(-1+(SF_HLT_Ele23_WPLoose[lepInd]/EffHLT_Ele27_WPLoose_Eta2p1[lepInd])))"
+#weight_string = "weight*(puWeight/weight_PU)*(1./CS_SF)"
+#weight_string = "weight*(1./CS_SF)*(puWeight/weight_PU)*(1 + (sampleIndex>=24&&sampleIndex<=31)*(-0.63)) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWmunu)*(-1 + 1./(0.0673 *SF_SMuTrig_Block1[lepInd] + 0.9327 * SF_SMuTrig_Block2[lepInd]))  ) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWenu)*(-1 + 1./(SF_HLT_Ele23_WPLoose[lepInd]))  )"
 #weight_string = "weight*(1./CS_SF)*(puWeight/weight_PU)*(1 + (sampleIndex>=24&&sampleIndex<=31)*(-0.63)) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWmunu)*(-1 + 1./(0.0673 *SF_SMuTrig_Block1[lepInd] + 0.9327 * SF_SMuTrig_Block2[lepInd]))  ) * ( 1 + (sampleIndex>=24&&sampleIndex<=31&&isWenu)*(-1 + 1./(SF_HLT_Ele23_WPLoose[lepInd]))  )"
 #weight_string = "weight*(CS_SF_new/CS_SF)"
 #weight_string = "weight*((sampleIndex!=50&&sampleIndex!=51&&sampleIndex!=52) + (sampleIndex==50||sampleIndex==51||sampleIndex==52)*(245.79/831.76))" ## FIXME: change it back!!!!!
@@ -201,6 +205,7 @@ for ibin in range(2,nBinsFine):
 for i in range(2,nBins-1):
     binBoundaries[i] = binBoundaries[1] + (i-1)*((binBoundaries[nBins-1] - binBoundaries[1])/(nBins-2)) 
 
+#if True:
 if not args.doRebin:
     for i in range(1,nBins):
         binBoundaries[i] = binBoundaries[0] + (i)*((binBoundaries[nBins] - binBoundaries[0])/(nBins))
@@ -217,7 +222,7 @@ else:
 tree = ROOT.TTree("tree","tree")
 #hBkg.Write()
 for sample in sampleMap:
-    #if (sample != "WH"): continue
+    #if (sample != "data_obs"): continue
     #if (sample != "Bkg" and sample != "data_obs" and sample != "WH" and sample != "ZH"): continue
     if (sample == "TT" and args.ttbarTree != ""): 
         ifile_tt = ROOT.TFile(args.ttbarTree,"r")
@@ -226,7 +231,7 @@ for sample in sampleMap:
         #ofile.cd()
         #ifile_tt.Close()
     elif (sample == "WH" or sample == "ZH"):
-        ifile_sig = ROOT.TFile(args.inputfile.replace("output_mc.root","output_signal.root"))
+        ifile_sig = ROOT.TFile(args.inputfile.replace("output_mc","output_signal"))
         tree_sig = ifile_sig.Get("tree")
         tree = tree_sig
     else:
@@ -248,7 +253,7 @@ for sample in sampleMap:
         tree_data = ifile_data.Get("tree")
         ofile.cd()
         # make sure we don't weight actual data by puWeight, SF's, etc.
-        tree_data.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString))  
+        tree_data.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString)) 
         ifile_data.Close()
     elif (sample == "data_obs"):
         # fake data which is sum of all MC
@@ -304,20 +309,30 @@ for sample in sampleMap:
     for syst in systematics:
         sysWeight, sysName, sysSamples = systematics[syst]
         if sample not in sysSamples: continue
+        ofile.cd()
         hBDTSystUp = ROOT.TH1F("BDT_%s_%s_%sUp" % (catName,sample,syst), "%s_%sUp" % (sample,syst),nBins,binBoundaries)
         hBDTSystDown = ROOT.TH1F("BDT_%s_%s_%sDown" % (catName,sample,syst), "%s_%sDown" % (sample,syst),nBins,binBoundaries)
         sysBDTNameUp = bdtname
         sysBDTNameDown = bdtname
         passSys = "Pass_nominal"
         if (sysName != ""):
-            sysBDTNameUp += "_%sUp" % sysName
-            sysBDTNameDown += "_%sDown" % sysName
+            if (bdtname.find('[') != -1):
+                # drawing an array variable
+                sysBDTNameUp = bdtname[:bdtname.find('[')] + "_" + sysName + "Up" + bdtname[bdtname.find('['):] 
+            else:
+                sysBDTNameUp += "_%sUp" % sysName
+                sysBDTNameDown += "_%sDown" % sysName
             pasSys = "Pass_%s" % sysName
         if (sysWeight != "1.0" and sysWeight.find(".root") == -1):
             if (sysWeight.find(',') == -1):
                 if (sysWeight.find("bTagWeight") != -1):
-                    tree.Draw("%s>>BDT_%s_%s_%sUp" % (sysBDTNameUp, catName,sample, syst),"((%s)&&%s)*(1./bTagWeight)*%s*(%sUp)" % (cutString,passSys,weight_string,sysWeight))   
-                    tree.Draw("%s>>BDT_%s_%s_%sDown" % (sysBDTNameDown, catName, sample, syst),"((%s)&&%s)*(1./bTagWeight)*%s*(%sDown)" % (cutString,passSys,weight_string,sysWeight))   
+                    bTagWeightNom = sysWeight[:sysWeight.find('_')]
+                    print "bTagWeightNom = "+bTagWeightNom
+                    tree.Draw("%s>>BDT_%s_%s_%sUp" % (sysBDTNameUp, catName,sample, syst),"((%s)&&%s)*(1./%s)*%s*(%sUp)" % (cutString,passSys,bTagWeightNom,weight_string,sysWeight))   
+                    tree.Draw("%s>>BDT_%s_%s_%sDown" % (sysBDTNameDown, catName, sample, syst),"((%s)&&%s)*(1./%s)*%s*(%sDown)" % (cutString,passSys,bTagWeightNom,weight_string,sysWeight))   
+                elif (sysWeight.find("puWeight") != -1):
+                    tree.Draw("%s>>BDT_%s_%s_%sUp" % (sysBDTNameUp, catName,sample, syst),"((%s)&&%s)*(1./puWeight)*%s*(%sUp)" % (cutString,passSys,weight_string,sysWeight))   
+                    tree.Draw("%s>>BDT_%s_%s_%sDown" % (sysBDTNameDown, catName, sample, syst),"((%s)&&%s)*(1./puWeight)*%s*(%sDown)" % (cutString,passSys,weight_string,sysWeight))   
                 else:
                     tree.Draw("%s>>BDT_%s_%s_%sUp" % (sysBDTNameUp, catName,sample, syst),"((%s)&&%s)*%s*(%sUp)" % (cutString,passSys,weight_string,sysWeight))   
                     tree.Draw("%s>>BDT_%s_%s_%sDown" % (sysBDTNameDown, catName, sample, syst),"((%s)&&%s)*%s*(%sDown)" % (cutString,passSys,weight_string,sysWeight))  
@@ -332,7 +347,7 @@ for sample in sampleMap:
                         sysWeightDown += "*LHE_weights_scale_normwgt[%s]" % re.findall('\d+', sysWeightDown)[0]
                     else:
                         # have to do something special here since we didn't hadd everything on the ttbar jobs so that it doesn't take 100 million years to run the jobs
-                        ifile_ttpowhegcounts = ROOT.TFile(args.inputfile.replace("output_mc.root","ttpowheg_counts.root"))
+                        ifile_ttpowhegcounts = ROOT.TFile(args.inputfile.replace("output_mc","ttpowheg_counts"))
                         CountWeightedLHEWeightScale_TT_powheg = ifile_ttpowhegcounts.Get("CountWeightedLHEWeightScale_TT_powheg")
                         normweightUp = CountWeightedLHEWeightScale_TT_powheg.GetBinContent(CountWeightedLHEWeightScale_TT_powheg.FindBin(int(re.findall('\d+', sysWeightUp)[0])))
                         normweightDown = CountWeightedLHEWeightScale_TT_powheg.GetBinContent(CountWeightedLHEWeightScale_TT_powheg.FindBin(int(re.findall('\d+', sysWeightDown)[0])))
@@ -346,7 +361,7 @@ for sample in sampleMap:
                         sysWeightDown += "*LHE_weights_pdf_normwgt[%s]" % re.findall('\d+', sysWeightDown)[0]
                     else:
                         # have to do something special here since we didn't hadd everything on the ttbar jobs so that it doesn't take 100 million years to run the jobs
-                        ifile_ttpowhegcounts = ROOT.TFile(args.inputfile.replace("output_mc.root","ttpowheg_counts.root"))
+                        ifile_ttpowhegcounts = ROOT.TFile(args.inputfile.replace("output_mc","ttpowheg_counts"))
                         CountWeightedLHEWeightPdf_TT_powheg = ifile_ttpowhegcounts.Get("CountWeightedLHEWeightPdf_TT_powheg")
                         normweightUp = CountWeightedLHEWeightPdf_TT_powheg.GetBinContent(CountWeightedLHEWeightPdf_TT_powheg.FindBin(int(re.findall('\d+', sysWeightUp)[0])))
                         normweightDown = CountWeightedLHEWeightPdf_TT_powheg.GetBinContent(CountWeightedLHEWeightPdf_TT_powheg.FindBin(int(re.findall('\d+', sysWeightDown)[0])))
@@ -357,8 +372,10 @@ for sample in sampleMap:
                 print sysWeightUp,sysWeightDown 
                       
                 print "tree.Draw(\"%s>>BDT_%s_%s_%sUp\",\"((%s)&&%s)*%s*(%s)\")" % (sysBDTNameUp, catName,sample, syst,cutString,passSys,weight_string,sysWeightUp)
-                tree.Draw("%s>>BDT_%s_%s_%sUp" % (sysBDTNameUp, catName,sample, syst),"((%s)&&%s)*%s*(%s)" % (cutString,passSys,weight_string,sysWeightUp))   
+                tree.Draw("%s>>BDT_%s_%s_%sUp" % (sysBDTNameUp, catName,sample, syst),"((%s)&&%s)*%s*(%s)" % (cutString,passSys,weight_string,sysWeightUp)) 
+                print hBDTSystUp.Integral() 
                 tree.Draw("%s>>BDT_%s_%s_%sDown" % (sysBDTNameDown, catName, sample, syst),"((%s)&&%s)*%s*(%s)" % (cutString,passSys,weight_string,sysWeightDown))  
+                print hBDTSystDown.Integral()
         elif (sysWeight != "1.0"):
             print "made it here"
             # read in up/down weights from a root file
@@ -403,12 +420,23 @@ for sample in sampleMap:
                         B_Down_Err = hBDTSystDown.GetBinError(ibin)
                         hBDTSystDown.SetBinContent(ibin, 0.0)
                         hBDTSystDown.SetBinError(ibin, B_Down + B_Down_Err)
+        # Combine cannot handle shapes with negative norms
+        if (hBDT.Integral() < 0):
+            hBDT.Scale(-0.00001) ## if it was just 0.0 we would lose the shape
+        if (hBDTSystUp.Integral() < 0):
+            hBDTSystUp.Scale(-0.00001) ## if it was just 0.0 we would lose the shape
+        if (hBDTSystDown.Integral() < 0):
+            hBDTSystDown.Scale(-0.00001) ## if it was just 0.0 we would lose the shape
+
         ofile.cd()
         hBDTSystUp.Write()
         hBDTSystDown.Write()
         print syst
+        print sysWeight
         print hBDT.Integral()
         print hBDTSystUp.Integral(),hBDTSystDown.Integral()
+        hBDTSystUp.Delete()
+        hBDTSystDown.Delete()
     ofile.cd()
     if (sample != "data_obs"):
         print True

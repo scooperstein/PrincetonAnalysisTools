@@ -127,13 +127,14 @@ RooWorkspace w("w","workspace");
 	//TFile *file_down =  new TFile("/afs/cern.ch/work/n/nchernya/Hbb/SysUnc/JECR/Mbb/VBFHToBB_M-125_analysis"+type+"_trignom_v21_v21_123jets1_2csv_bdt_trigWt.root");
         //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/output_mc.root");
         //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June28_CR-v2/output_allmc.root");
-        TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June29_SR_justSignal/output_mc.root");
+        //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June29_SR_justSignal/output_mc.root");
+        TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V24_Wln_SR_Oct3_forPreapproval_v2/output_signal.root");
         TTree *tree = (TTree*) file_down->Get("tree");
         TH1F *hist_mbb_reg = new TH1F("hist_mbb_reg","hist_mbb_reg",100,0,250);
         TH1F *hist_mbb = new TH1F("hist_mbb","hist_mbb",100,0,250);
 	
-        tree->Draw("H_mass>>hist_mbb_reg","(sampleIndex==-12501&&Pass_nominal==1&&(Vtype==2||Vtype==3))*weight"); 
-        tree->Draw("H_mass_noreg>>hist_mbb","(sampleIndex==-12501&&Pass_nominal==1&&(Vtype==2||Vtype==3))*weight");    
+        tree->Draw("H_mass>>hist_mbb_reg","(sampleIndex==-12501&&Pass_nominal==1&&(Vtype==2||Vtype==3)&&Jet_btagCSV[hJetInd1]>0.935)*weight"); 
+        tree->Draw("H_mass_noreg>>hist_mbb","(sampleIndex==-12501&&Pass_nominal==1&&(Vtype==2||Vtype==3)&&Jet_btagCSV[hJetInd1]>0.935)*weight");    
         
         //TH1F *hist_mbb_reg = new TH1F("hist_mbb_reg","hist_mbb_reg",100,0,250);
         //TH1F *hist_mbb = new TH1F("hist_mbb","hist_mbb",100,0,250);
@@ -251,8 +252,8 @@ char nVar2[50], xVar2[50];
 	hScale.plotOn(frame_roo,DrawOption("Psame"),LineWidth(2),LineColor(kBlue+1),FillColor(kBlue-9),MarkerColor(kBlue+1), FillStyle(1001)) ;
 	model.plotOn(frame_roo);
 	frame_roo->GetXaxis()->SetNdivisions(505);
-	//frame_roo->GetXaxis()->SetTitle("M_{bb} (GeV)");
-	frame_roo->GetXaxis()->SetTitle("Top Mass (GeV)");
+	frame_roo->GetXaxis()->SetTitle("M_{bb} (GeV)");
+	//frame_roo->GetXaxis()->SetTitle("Top Mass (GeV)");
 	//frame_roo->GetYaxis()->SetTitle("1/N #times dN/dM_{bb}");
 	frame_roo->GetYaxis()->SetTitle("Events / 2.5 GeV");
   	frame_roo->Draw() ;
@@ -396,7 +397,7 @@ char nVar2[50], xVar2[50];
 	pCMS12.Draw("same");
 	pCMS2.Draw("same");
 
-	c_roo->Print("mbb_reg_v21.pdf");
+	c_roo->Print("mbb_reg_v24.pdf");
 
 
 

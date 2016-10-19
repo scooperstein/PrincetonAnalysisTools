@@ -15,6 +15,7 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
                   help="Specify label for condor jobs. Only to be used when running batch jobs"
 )
 parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=10, type=int, help="Number of input files per batch job")
+parser.add_option("-s","--sample", dest="sample", default="", type=str, help="Run on only a specific sample")
 (options, args) = parser.parse_args()
 
 ROOT.gSystem.Load("AnalysisDict.so")
@@ -48,6 +49,8 @@ else:
     #for sampleName in am.ListSampleNames():
     nFilesPerJob = options.nFilesPerJob 
     for sample in am.samples:
+        if (options.sample != ""):
+            if (sample.sampleName != options.sample): continue
         sampleName = sample.sampleName
         print sampleName
         os.system("mkdir -p %s/%s" % (jobName,sampleName))
