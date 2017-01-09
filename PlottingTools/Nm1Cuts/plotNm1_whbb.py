@@ -4,6 +4,7 @@ import numpy,array
 import math
 
 ROOT.gROOT.SetBatch(True)
+ROOT.gStyle.SetOptStat(0)
 
 filename=sys.argv[1]
 tfile=ROOT.TFile(filename)
@@ -11,7 +12,7 @@ tfile=ROOT.TFile(filename)
 treename="tree"
 tree=tfile.Get(treename)
 
-outDir="variablePlots_WHbb_April11_5Em2"
+outDir="variablePlots_WHbb_Nov28_VH_vs_VV_presel"
 suffix="analysis"
 
 if not os.path.exists(outDir):
@@ -58,17 +59,17 @@ cutsets["presel"]["jet1csv"]       =   [0.935, 0.935]
 cutsets["presel"]["jet2csv"]       =   [0.46, 0.46]
 cutsets["presel"]["jet1pt"]        =   [25, 25]
 cutsets["presel"]["jet2pt"]        =   [25, 25]
-cutsets["presel"]["ptjj"]          =   [100, 100]
-cutsets["presel"]["ptW"]           =   [100, 100]
+cutsets["presel"]["ptjj"]          =   [0, 0]
+cutsets["presel"]["ptW"]           =   [0, 0]
 cutsets["presel"]["met"]           =   [0, 0]
-cutsets["presel"]["HVdPhi"]        =   [2.5, 2.5]
-cutsets["presel"]["lepmetdphi"]    =   [2.0, 2.0]
+cutsets["presel"]["HVdPhi"]        =   [0, 0]
+cutsets["presel"]["lepmetdphi"]    =   [3.2, 3.2]
 #cutsets["presel"]["naddlep"]       =   [1, 1]
-cutsets["presel"]["naddjet"]       =   [2, 2]
-cutsets["presel"]["topmass"] =   [100, 100]
-cutsets["presel"]["ptlep"]         =   [25, 25]
+cutsets["presel"]["naddjet"]       =   [10, 10]
+cutsets["presel"]["topmass"] =   [0, 0]
+cutsets["presel"]["ptlep"]         =   [25, 30]
 cutsets["presel"]["etalep"]       =   [2.5,2.5]
-cutsets["presel"]["relisolep"]    =   [0.15, 0.12]
+cutsets["presel"]["relisolep"]    =   [0.4, 0.4]
 cutsets["presel"]["drjj"]         =   [3.5, 3.5]
 #cutsets["presel"]["hwptbal"]      =   [3,3]
 cutsets["presel"]["ptaddjet"]      =   [20,20]
@@ -376,7 +377,7 @@ varstocut["ptaddjet"]   = [1,nBins,cutsets["presel"]["ptaddjet"][0],300,nBins,cu
 varstocut["mtW"]        = [0,nBins,0.,cutsets["presel"]["mtW"][0],nBins,0.,cutsets["presel"]["mtW"][1] ]
 varstocut["nsa5jet"]    = [0,10,0,10,10,0,10]
 
-nCats=2
+nCats=1
 
 def deltaPhi(phi1,phi2):
     dphi=math.fabs(phi1-phi2)
@@ -439,6 +440,7 @@ def passAnyNminus1(index,wp):
 
 
 def category(nCats,index):
+    return 0
     isWmunu = varsmap["isWmunu"]
     isWenu  = varsmap["isWenu"]
     
@@ -450,8 +452,9 @@ def category(nCats,index):
     return -1
 
 catMap={}
-catMap[0]="isWmunu"
-catMap[1]="isWenu"
+catMap[0] = "Wlnu"
+#catMap[0]="isWmunu"
+#catMap[1]="isWenu"
 
 
 
@@ -460,7 +463,8 @@ hists={}
 kinplots={}
 
 tree.SetBranchStatus("*", 1)
-      
+
+#nev = 1000      
 nev = tree.GetEntries()
 print "loop over ",nev
 
@@ -468,8 +472,9 @@ print "loop over ",nev
 #mccolors=[632,633,634,417,402]
 
 #mctypes =["DY","TTReal","TTFake","GJet"]
-mctypes = ["VH","Bkg"]
-mccolors=[880,416]
+mctypes = ["WH(bb) Powheg","WZ(bb) amc@NLO","WZ(bb) Pythia"]
+#mctypes = ["VH","Bkg"]
+mccolors=[880,632, 417]
 #mctypes =["DY","TTFake"]
 #mccolors=[633,417]
 bkgType=mctypes[1]
@@ -479,7 +484,7 @@ sigType=mctypes[0]
 requireHLT=False
 etaRestriction=False
 matchL1=False
-doSoB=True
+doSoB=False
 doCutScan=False # only works if doSoB is True
 makeTree=False
 
@@ -487,12 +492,13 @@ makeTree=False
 #b_eleHoE_PassNm1=tree.Branch( 'eleHoE_PassNm1', eleHoE_PassNm1, 'eleHoE_PassNm1/I' )
 
 #wps=["preselglobal","Veto","Loose","Medium"]
-wps=["Analysis4Em2"]
+#wps=["Analysis4Em2"]
+wps=["presel"]
 
-boundaryWP = "Analysis4Em2" # don't let any of the cuts get looser than this wp
+boundaryWP = "presel" # don't let any of the cuts get looser than this wp
 potentialCuts={}  #wp,cat,var
 
-numIterations=5
+numIterations=1
 
 # set boundaries so that cuts can never be looser than initial working point
 boundaries = {}
@@ -535,7 +541,7 @@ for wp in wps:
          
         for iev in range(0,nev):
         #for iev in range(0,300):
-            if iev%100000==0:
+            if iev%10000==0:
                 print "event",iev
             tree.GetEntry(iev)
             if flatTree:
@@ -546,17 +552,21 @@ for wp in wps:
             hltindex=0
             hltptpassing=0
             
-
             if varsmap["type"]==-12501:
-                mctype="VH"
-            elif varsmap["type"]>0 and varsmap["type"]!=12:
-                mctype="Bkg"
+                mctype="WH(bb) Powheg"
+            elif varsmap["type"]==3502:
+                mctype="WZ(bb) amc@NLO" 
+            elif varsmap["type"]==35002:
+                mctype="WZ(bb) Pythia"
+            #elif varsmap["type"]>0 and varsmap["type"]!=12:
+            #    mctype="Bkg"
             else:
                 continue
                 print "sampleIndex",varsmap["type"]
                 print "I don't want to live in a world of unknowns!!"
             # add by hand a mass window
-            if (varsmap["Mjj"] < 90 or varsmap["Mjj"] > 150):
+            #if (varsmap["Mjj"] < 90 or varsmap["Mjj"] > 150):
+            if (varsmap["Mjj"] < 60 or varsmap["Mjj"] > 160):
                 continue
             if (tree.Vtype!=2 and tree.Vtype!=3):
                 continue
@@ -602,11 +612,11 @@ for wp in wps:
                 if flatTree:
                     for var in varstocut:
                         if var in absCutVars:
-                            hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+var+"_nm1_"+wp].Fill(math.fabs(varsmap[var]),tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
+                            hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+var+"_nm1_"+wp].Fill(math.fabs(varsmap[var]),tree.weight)
                         else:
-                            hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+var+"_nm1_"+wp].Fill(varsmap[var],tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
-                    kinplots[mctype+"_type_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['type'],tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
-                    kinplots[mctype+"_Mjj_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['Mjj'],tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
+                            hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+var+"_nm1_"+wp].Fill(varsmap[var],tree.weight)
+                    kinplots[mctype+"_type_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['type'],tree.weight)
+                    kinplots[mctype+"_Mjj_"+catMap[category(nCats,hltindex)]+"_"+wp].Fill(varsmap['Mjj'],tree.weight)
                 #else:
                 #    for var in varstocut:
                 #        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+var+"_nm1_"+wp].Fill(varsmap[var][hltindex],tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu))
@@ -617,14 +627,14 @@ for wp in wps:
             if len(cutsFailed)==1:
                 if flatTree:
                     if (cutsFailed[0] in absCutVars):
-                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(math.fabs(varsmap[cutsFailed[0]]),tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
+                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(math.fabs(varsmap[cutsFailed[0]]),tree.weight)
                     else:
-                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(varsmap[cutsFailed[0]],tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
+                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(varsmap[cutsFailed[0]],tree.weight)
                 else:
                     if (cutsFailed[0] in absCutVars):
-                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(math.fabs(varsmap[cutsFailed[0]][hltindex]),tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
+                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(math.fabs(varsmap[cutsFailed[0]][hltindex]),tree.weight)
                     else:
-                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(varsmap[cutsFailed[0]][hltindex],tree.weight*tree.weight_PU*tree.bTagWeight*tree.selLeptons_SF_IsoTight[tree.lepInd]*(tree.selLeptons_SF_IdCutTight[tree.lepInd]*tree.isWmunu + tree.selLeptons_SF_IdMVATight[tree.lepInd]*tree.isWenu)*tree.CS_SF)
+                        hists[mctype+"_"+catMap[category(nCats,hltindex)]+"_"+cutsFailed[0]+"_nm1_"+wp].Fill(varsmap[cutsFailed[0]][hltindex],tree.weight)
                     
             #if makeTree:
             #    npass=0
@@ -693,7 +703,7 @@ for wp in wps:
                 leg.SetHeader(catMap[icat])
                 for mctype in mctypes:
                     if first is True:    
-                        hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].GetMaximum(maxval)
+                        hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetMaximum(maxval)
                         hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].SetTitle(";"+var+" "+catMap[icat]+" "+wp)
                         hists[mctype+"_"+catMap[icat]+"_"+var+"_nm1_"+wp].Draw()
                         first=False

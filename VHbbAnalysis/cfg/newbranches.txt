@@ -31,6 +31,7 @@ type=1  name=cutFlow
 type=1  name=controlSample
 type=2  name=nProcEvents
 type=2  name=nPVs_f
+type=2  name=WJetStitchWeight
 
 type=2  name=bTagWeight
 type=2  name=bTagWeight_HFUp

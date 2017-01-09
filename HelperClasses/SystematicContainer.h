@@ -23,6 +23,8 @@ class SystematicContainer {
     std::vector<float> scales;  // scale value by
     std::vector<float> smears;  // smear value (after scaling)
     std::vector<std::string> scaleVar; // dynamic scaling, JER's for example
+    std::map<std::string,float> gtcuts; // only apply systematic effect if branchname > cutvalue
+    std::map<std::string,float> ltcuts; // only apply systematic effect if branchname < cutvalue
 
     // anticipating tables of eta/pt
     TH2F scaleTable;

@@ -642,7 +642,7 @@ void AnalysisManager::TermAnalysis() {
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
 void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
-    TMVA::Reader *thereader = bdtInfo.reader;
+    //TMVA::Reader *thereader = bdtInfo.reader;
     
     for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
         BDTVariable bdtvar = bdtInfo.bdtVars[i];
@@ -654,7 +654,7 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     }
 
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
-    thereader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
+    bdtInfo.reader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
 }
 
 
