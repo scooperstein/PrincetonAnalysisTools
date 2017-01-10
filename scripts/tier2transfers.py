@@ -14,9 +14,11 @@ tier2transfer.py [options]
 --checkmode, -c                    check if all files are transferred, default off
 """
 
-pisapre='srm://stormfe1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/'
-cernpre='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/'
-fnalpre='srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/'
+#pisapre="srm://t3se01.psi.ch:8443/srm/managerv2?SFN=/pnfs/psi.ch/cms/trivcat/store/"
+pisapre="srm://stormgf1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/"
+#pisapre="srm://stormfe1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/"
+cernpre="srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/"
+fnalpre="srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/"
 
 sourcepre=''
 destpre=''
@@ -166,7 +168,7 @@ def SetMaxThreads():
     return cores
 
 
-MaxThreads=SetMaxThreads()
+MaxThreads=SetMaxThreads()/10
 
 #inputDir='/cms/store/user/arizzi/VHBBHeppyTest/DYJetsToLL_M-50_HT-600toInf_Tune4C_13TeV-madgraph-tauola/'
 
@@ -211,6 +213,8 @@ while ifile!=len(files):
             #print "File does not exist", outpath
             if checkmode is True:
                 untransfiles.append(outpath) 
+                LCG_CP_WRAP(inpath, outpath)
+                newsleep=1
             else:
                 LCG_CP_WRAP(inpath, outpath)
                 newsleep=1

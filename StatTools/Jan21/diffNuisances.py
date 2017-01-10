@@ -291,9 +291,10 @@ if options.plotfile:
             dtheta = hist_fit_b.GetBinError(ibin)
             label = hist_fit_b.GetXaxis().GetBinLabel(ibin)
             #if (label.find("_bin") != -1): continue
-            print "label = "+label
-            if (label.find("_res_j") == -1 and label.find("_scale_j") == -1): continue
-            print "passed"
+            if (label.find("bTagWeight") == -1): continue
+            #print "label = "+label
+            #if (label.find("vhbb_res") == -1 and label.find("vhbb_scale") == -1): continue
+            #print "passed"
             #if ( (abs(theta/dtheta) > threshold)):
             if ( (abs(theta/dtheta) > threshold) or (dtheta < (1-threshold))):
                 nNuisCleaned += 1
@@ -306,7 +307,8 @@ if options.plotfile:
             dtheta_b = hist_fit_b.GetBinError(ibin)
             label_b = hist_fit_b.GetXaxis().GetBinLabel(ibin)
             #if (label_b.find("_bin") != -1): continue
-	    if (label_b.find("_res_j") == -1 and label_b.find("_scale_j") == -1): continue
+            if (label_b.find("_bTagWeight") == -1): continue
+	    #if (label_b.find("vhbb_res") == -1 and label_b.find("vhbb_scale") == -1): continue
             theta_s = hist_fit_s.GetBinContent(ibin)
             dtheta_s = hist_fit_s.GetBinError(ibin)
             label_s = hist_fit_s.GetXaxis().GetBinLabel(ibin)

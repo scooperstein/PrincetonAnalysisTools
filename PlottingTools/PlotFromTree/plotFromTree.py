@@ -321,7 +321,8 @@ if __name__ == "__main__":
 
     print "Looping over samples and histograms"
     for ns, s in enumerate(samples):
-        if(debug): print "Processing sample: ", s[1]
+        #if(debug): print "Processing sample: ", s[1]
+        print "Processing sample: ", s[1]
         for nv, v in enumerate(allHistos.vars):
             if(deepDebug): print v
             temp_hist = ""

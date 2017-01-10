@@ -57,7 +57,7 @@ cutsets["presel"]["topmass"] =   [100, 100]
 cutsets["presel"]["ptlep"]         =   [25, 25]
 cutsets["presel"]["etalep"]       =   [2.5,2.5]
 cutsets["presel"]["relisolep"]    =   [0.15, 0.12]
-cutsets["presel"]["drjj"]         =   [3.5, 3.5]
+#cutsets["presel"]["drjj"]         =   [3.5, 3.5]
 #cutsets["presel"]["hwptbal"]      =   [3,3]
 cutsets["presel"]["ptaddjet"]      =   [20,20]
 cutsets["presel"]["mtW"]          = [200,200]
@@ -80,7 +80,7 @@ cutsets["Analysis3Em3"]["ptaddjet"]=[ 20,  20]
 cutsets["Analysis3Em3"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis3Em3"]["ptjj"]=[ 110,  110]
 cutsets["Analysis3Em3"]["ptlep"]=[ 25,  25]
-cutsets["Analysis3Em3"]["drjj"]=[ 3.5,  3.5]
+#cutsets["Analysis3Em3"]["drjj"]=[ 3.5,  3.5]
 cutsets["Analysis3Em3"]["nsa5jet"]=[ 10.0000,  10.0000]
 
 cutsets["Analysis3Em3p5"]={}
@@ -100,7 +100,7 @@ cutsets["Analysis3Em3p5"]["ptaddjet"]=[ 20.0000,  20.0000]
 cutsets["Analysis3Em3p5"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis3Em3p5"]["ptjj"]=[ 115,  115]
 cutsets["Analysis3Em3p5"]["ptlep"]=[ 25,  25.0000]
-cutsets["Analysis3Em3p5"]["drjj"]=[ 3.5,  3.5]
+#cutsets["Analysis3Em3p5"]["drjj"]=[ 3.5,  3.5]
 cutsets["Analysis3Em3p5"]["nsa5jet"]=[ 10.0000,  10.0000]
 
 cutsets["Analysis4Em3"]={}
@@ -120,7 +120,7 @@ cutsets["Analysis4Em3"]["ptaddjet"]=[ 20.0000,  20.0000]
 cutsets["Analysis4Em3"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis4Em3"]["ptjj"]=[ 117,  117]
 cutsets["Analysis4Em3"]["ptlep"]=[ 25,  25.0000]
-cutsets["Analysis4Em3"]["drjj"]=[ 2.9,  2.9]
+#cutsets["Analysis4Em3"]["drjj"]=[ 2.9,  2.9]
 cutsets["Analysis4Em3"]["nsa5jet"]=[ 10,  10]
 
 cutsets["Analysis5Em3"]={}
@@ -140,7 +140,7 @@ cutsets["Analysis5Em3"]["ptaddjet"]=[ 20.0000,  20.0000]
 cutsets["Analysis5Em3"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis5Em3"]["ptjj"]=[ 125,  125]
 cutsets["Analysis5Em3"]["ptlep"]=[ 25.0000,  25.0000]
-cutsets["Analysis5Em3"]["drjj"]=[ 2.9,  2.9]
+#cutsets["Analysis5Em3"]["drjj"]=[ 2.9,  2.9]
 cutsets["Analysis5Em3"]["nsa5jet"]=[ 10.0000,  10.0000]
 
 cutsets["Analysis6Em3"]={}
@@ -160,7 +160,7 @@ cutsets["Analysis6Em3"]["ptaddjet"]=[ 20.0000,  20.0000]
 cutsets["Analysis6Em3"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis6Em3"]["ptjj"]=[ 138,  138]
 cutsets["Analysis6Em3"]["ptlep"]=[ 25.0000,  25]
-cutsets["Analysis6Em3"]["drjj"]=[ 2.3,  2.3]
+#cutsets["Analysis6Em3"]["drjj"]=[ 2.3,  2.3]
 cutsets["Analysis6Em3"]["nsa5jet"]=[ 9.0000,  9.0000]
 
 cutsets["Analysis8Em3"]={}
@@ -180,7 +180,7 @@ cutsets["Analysis8Em3"]["ptaddjet"]=[ 20,  20]
 cutsets["Analysis8Em3"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis8Em3"]["ptjj"]=[ 141,  141]
 cutsets["Analysis8Em3"]["ptlep"]=[ 25,  25.0000]
-cutsets["Analysis8Em3"]["drjj"]=[ 1.52,  1.52]
+#cutsets["Analysis8Em3"]["drjj"]=[ 1.52,  1.52]
 cutsets["Analysis8Em3"]["nsa5jet"]=[ 4.0000,  4.0000]
 
 cutsets["Analysis1Em2"]={}
@@ -200,7 +200,7 @@ cutsets["Analysis1Em2"]["ptaddjet"]=[ 20.0000,  20.0000]
 cutsets["Analysis1Em2"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis1Em2"]["ptjj"]=[ 145,  145]
 cutsets["Analysis1Em2"]["ptlep"]=[ 25.0000,  25.0000]
-cutsets["Analysis1Em2"]["drjj"]=[ 1.52,  1.52]
+#cutsets["Analysis1Em2"]["drjj"]=[ 1.52,  1.52]
 cutsets["Analysis1Em2"]["nsa5jet"]=[ 3.0000,  3.0000]
 
 cutsets["Analysis1p5Em2"]={}
@@ -220,7 +220,7 @@ cutsets["Analysis1p5Em2"]["ptaddjet"]=[ 20.0000,  20.0000]
 cutsets["Analysis1p5Em2"]["naddjet"]=[ 2.0000,  2.0000]
 cutsets["Analysis1p5Em2"]["ptjj"]=[ 145,  145.0000]
 cutsets["Analysis1p5Em2"]["ptlep"]=[ 25,  25.0000]
-cutsets["Analysis1p5Em2"]["drjj"]=[ 1.49,  1.49]
+#cutsets["Analysis1p5Em2"]["drjj"]=[ 1.49,  1.49]
 cutsets["Analysis1p5Em2"]["nsa5jet"]=[ 3.0000,  3.0000]
 
 cutsets["Analysis2Em2"]={}
@@ -240,7 +240,7 @@ cutsets["Analysis2Em2"]["ptaddjet"]=[ 20,  20.0000]
 cutsets["Analysis2Em2"]["naddjet"]=[ 1.0000,  1.0000]
 cutsets["Analysis2Em2"]["ptjj"]=[ 146,  146]
 cutsets["Analysis2Em2"]["ptlep"]=[ 25,  25.0000]
-cutsets["Analysis2Em2"]["drjj"]=[ 1.49,  1.49]
+#cutsets["Analysis2Em2"]["drjj"]=[ 1.49,  1.49]
 cutsets["Analysis2Em2"]["nsa5jet"]=[ 3.0000,  3.0000]
 
 cutsets["Analysis3Em2"]={}
@@ -260,7 +260,7 @@ cutsets["Analysis3Em2"]["ptaddjet"]=[ 20.0000,  20.0000]
 cutsets["Analysis3Em2"]["naddjet"]=[ 1.0000,  1.0000]
 cutsets["Analysis3Em2"]["ptjj"]=[ 150,  150]
 cutsets["Analysis3Em2"]["ptlep"]=[ 25,  25.0000]
-cutsets["Analysis3Em2"]["drjj"]=[ 1.49,  1.49]
+#cutsets["Analysis3Em2"]["drjj"]=[ 1.49,  1.49]
 cutsets["Analysis3Em2"]["nsa5jet"]=[ 2.0000,  2.0000]
 
 cutsets["Analysis4Em2"]={}
@@ -280,7 +280,7 @@ cutsets["Analysis4Em2"]["ptaddjet"]=[ 20,  20.0000]
 cutsets["Analysis4Em2"]["naddjet"]=[ 1.0000,  1.0000]
 cutsets["Analysis4Em2"]["ptjj"]=[ 150.0000,  150.0000]
 cutsets["Analysis4Em2"]["ptlep"]=[ 25,  25.0000]
-cutsets["Analysis4Em2"]["drjj"]=[ 1.33,  1.33]
+#cutsets["Analysis4Em2"]["drjj"]=[ 1.33,  1.33]
 cutsets["Analysis4Em2"]["nsa5jet"]=[ 2.0000,  2.0000]
 
 cutsets["Analysis5Em2"]={}
@@ -300,8 +300,23 @@ cutsets["Analysis5Em2"]["ptaddjet"]=[ 20,  20.0000]
 cutsets["Analysis5Em2"]["naddjet"]=[ 1.0000,  1.0000]
 cutsets["Analysis5Em2"]["ptjj"]=[ 150,  150]
 cutsets["Analysis5Em2"]["ptlep"]=[ 25,  25]
-cutsets["Analysis5Em2"]["drjj"]=[ 1.33,  1.33]
+#cutsets["Analysis5Em2"]["drjj"]=[ 1.33,  1.33]
 cutsets["Analysis5Em2"]["nsa5jet"]=[ 2.0000,  2.0000]
+
+wpOrderMap = {}
+wpOrderMap[0] = "presel"
+wpOrderMap[1] = "Analysis3Em3"
+wpOrderMap[2] = "Analysis3Em3p5"
+wpOrderMap[3] = "Analysis4Em3"
+wpOrderMap[4] = "Analysis5Em3"
+wpOrderMap[5] = "Analysis6Em3"
+wpOrderMap[6] = "Analysis8Em3"
+wpOrderMap[7] = "Analysis1Em2"
+wpOrderMap[8] = "Analysis1p5Em2"
+wpOrderMap[9] = "Analysis2Em2"
+wpOrderMap[10] = "Analysis3Em2"
+wpOrderMap[11] = "Analysis4Em2"
+wpOrderMap[12] = "Analysis5Em2"
 
 nBins=40
 varstocut={}  # 0 keep less than, 1 keept greater than
@@ -320,7 +335,7 @@ varstocut["jet1pt"]       = [1,15,cutsets["presel"]["jet1pt"][0], 100, 15, cutse
 varstocut["jet2pt"]       = [1,15,cutsets["presel"]["jet2pt"][0], 100, 15, cutsets["presel"]["jet2pt"][1], 100 ]
 varstocut["etalep"]     = [0,nBins,0.,2.5,nBins,0.,2.5]
 varstocut["relisolep"]  = [0,nBins,0.,cutsets["presel"]["relisolep"][0],nBins,0.,cutsets["presel"]["relisolep"][1] ]
-varstocut["drjj"]     =  [0,nBins,0.,cutsets["presel"]["drjj"][0],nBins,0.,cutsets["presel"]["drjj"][1] ]
+#varstocut["drjj"]     =  [0,nBins,0.,cutsets["presel"]["drjj"][0],nBins,0.,cutsets["presel"]["drjj"][1] ]
 #varstocut["hwptbal"]    = [0,nBins,0.,cutsets["presel"]["hwptbal"][0],nBins,0.,cutsets["presel"]["hwptbal"][1] ]
 varstocut["ptaddjet"]   = [1,nBins,cutsets["presel"]["ptaddjet"][0],300,nBins,cutsets["presel"]["ptaddjet"][1],300 ]
 varstocut["mtW"]        = [0,nBins,0.,cutsets["presel"]["mtW"][0],nBins,0.,cutsets["presel"]["mtW"][1] ]
@@ -344,7 +359,9 @@ for ientry in range(nentries):
     if (ientry % 10000 == 0): print "processing entry: %i" % ientry
     tree.GetEntry(ientry)
     AssignVarsToMap()
-    for wp in cutsets:
+    #for wp in cutsets:
+    for index in wpOrderMap.keys():
+        wp = wpOrderMap[index]
         passWP = True
         for var in cutsets[wp]:
             if var in absCutVars: varValue=abs(varsmap[var])
@@ -360,9 +377,9 @@ for ientry in range(nentries):
                     passWP=False
                     #print "failed %s" % var
         if (passWP):
-            passFlags[wp][0] = 1.0;
+            passFlags[wp][0] = 1.0
             passInt[0] += 1
-        else: passFlags[wp][0] = 0.;
+        else: passFlags[wp][0] = 0.
     otree.Fill()
 
 ofile.cd()

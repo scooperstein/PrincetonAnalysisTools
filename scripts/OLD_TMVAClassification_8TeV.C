@@ -51,7 +51,7 @@
 #include "TMVA/Tools.h"
 #endif
 
-void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeSize = 0.05, int maxDepth = 5, float adaboostbeta = 0.1, int iteration = 0, TString myMethodList = "")
+void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeSize = 0.05, int maxDepth = 4, float adaboostbeta = 0.1, int iteration = 0, TString myMethodList = "")
 {
 
   std::cout<<"\n--------------------------------------------------\n"
@@ -180,7 +180,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeS
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    char outfileName[80];
-   if(iteration==0) sprintf(outfileName,"test_TMVA_13TeV_June17_%i_%i_%sSig_%s%s%sBkg_%s%s.root",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_V24_Dec5_%i_%i_%sSig_%s%s%sBkg_%s%s.root",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(outfileName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
@@ -195,7 +195,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeS
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    char factoryName[80];
-   if(iteration==0) sprintf(factoryName,"test_TMVA_13TeV_June17_%i_%i_%sSig_%s%s%sBkg_%s%s",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_V24_Dec5_%i_%i_%sSig_%s%s%sBkg_%s%s",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(factoryName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TMVA::Factory *factory = new TMVA::Factory( factoryName, outputFile,
                                                "!V:!Silent:Color:DrawProgressBar:Transformations=I:AnalysisType=Classification" );
@@ -217,7 +217,8 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeS
    factory->AddVariable("Jet_btagCSV[hJetInd2]", 'F');
    factory->AddVariable("Top1_mass_fromLepton_regPT_w4MET", 'F');
    factory->AddVariable("HVdPhi", 'F');
-   factory->AddVariable("nAddJet_f", 'F');
+   factory->AddVariable("nAddJets252p9_puid", 'I');
+   //factory->AddVariable("nAddJet_f", 'F');
    factory->AddVariable("lepMetDPhi", 'F');
    factory->AddVariable("softActivityVH_njets5", 'I');
    //factory->AddVariable("Jet_pt_reg[hJetInd1]", 'F');
@@ -594,16 +595,16 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeS
    bkg_testing_chain->Add(Form("%s/TBarToLep_t/*.root", testing_dir.c_str()));
    */
    if (doVV != 1) {
-   bkg_training_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_odd_bkg.root");
-   sig_training_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_odd_sig.root");
-   bkg_testing_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_even_bkg.root");
-   sig_testing_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_even_sig.root");
+   bkg_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_odd_bkg.root");
+   sig_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_odd_sig.root");
+   bkg_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_even_bkg.root");
+   sig_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_even_sig.root");
    }
    else {
-   bkg_training_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_odd_bkgvv.root");
-   sig_training_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_odd_vv.root");
-   bkg_testing_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_even_bkgvv.root");
-   sig_testing_chain->Add("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/ofile_even_vv.root");
+   bkg_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_odd_bkgvv.root");
+   sig_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_odd_vv.root");
+   bkg_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_even_bkgvv.root");
+   sig_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_even_vv.root");
    }
    TTree *sig_training_tree = (TTree*) sig_training_chain;
    TTree *bkg_training_tree = (TTree*) bkg_training_chain;
@@ -614,7 +615,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeS
    //factory->SetWeightExpression("(1+(sampleIndex==2200||sampleIndex==4400||sampleIndex==4500||sampleIndex==4600||sampleIndex==4700)*0.29 + (sampleIndex==2201||sampleIndex==4401||sampleIndex==4501||sampleIndex==4601||sampleIndex==4701||sampleIndex==2202||sampleIndex==4402||sampleIndex==4502||sampleIndex==4602||sampleIndex==4702)*1.39 + (sampleIndex==50||sampleIndex==51||sampleIndex==52)*-0.06)*weight*weight_PU*bTagWeight*weight_ptQCD*weight_ptEWK*selLeptons_SF_IsoTight[lepInd]*(selLeptons_SF_IdCutTight[lepInd]*isWmunu + selLeptons_SF_IdMVATight[lepInd]*isWenu)"); // include CR-fitted scale factors
    //factory->SetWeightExpression("weight*weight_PU*bTagWeight*CS_SF*weight_ptQCD*weight_ptEWK*selLeptons_SF_IsoTight[lepInd]*(selLeptons_SF_IdCutTight[lepInd]*isWmunu + selLeptons_SF_IdMVATight[lepInd]*isWenu)");
    //factory->SetWeightExpression("weight*(1 + isWmunu*((1.0/selLeptons_SF_HLT_RunD4p2[lepInd])-1)) * (1 + isWmunu*(selLeptons_SF_HLT_RunD4p3[lepInd]-1)) * (1 + (isWenu*((1./SF_HLT_Ele23_WPLoose[lepInd]) - 1    )) )");
-   //factory->SetWeightExpression("weight*(CS_SF_new/CS_SF)");
+   //factory->SetWeightExpression("weight*(CS_SF_new2/CS_SF)");
    factory->SetWeightExpression("weight");
    factory->AddSignalTree(sig_training_tree,1.0,TMVA::Types::kTraining);
    factory->AddBackgroundTree(bkg_training_tree,1.0,TMVA::Types::kTraining);
@@ -629,12 +630,13 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeS
 //factory->PrepareTrainingAndTestTree(mycutsSig,mycutsBkg,"NormMode=None:!V");
   //TCut mycutsSig = "sampleIndex<0&&hJets_btagCSV_0>0.95&&hJets_btagCSV_1>0.82&&H_pt>84&&V_pt>100&&abs(HVdPhi)>2.92&&abs(lepMetDPhi)<1.4&&nAddLep_f<1&&nAddJet_f<1&&H_mass>90&&H_mass<150";
   //TCut mycutsBkg = "sampleIndex>0&&hJets_btagCSV_0>0.95&&hJets_btagCSV_1>0.82&&H_pt>84&&V_pt>100&&abs(HVdPhi)>2.92&&abs(lepMetDPhi)<1.4&&nAddLep_f<1&&nAddJet_f<1&&H_mass>90&&H_mass<150";
-  TCut mycutsSig = "sampleIndex==-12501&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100";
-  TCut mycutsBkg = "Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&((sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==3500)||(sampleIndex==3600)||(sampleIndex==3700)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==24)||(sampleIndex==25)||(sampleIndex==26)||(sampleIndex==27)||(sampleIndex==28)||(sampleIndex==29)||(sampleIndex==30)||(sampleIndex==31)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3701)||(sampleIndex==3702))";
+  TCut mycutsSig = "H_mass>90&&H_mass<150&&sampleIndex==-12501&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46";
+  TCut mycutsBkg = "H_mass>90&&H_mass<150&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46&&((sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==3500)||(sampleIndex==3600)||(sampleIndex==3700)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3701)||(sampleIndex==3702))";
   if (doVV == 1) {
-      mycutsSig = "(sampleIndex==3500||sampleIndex==3501||sampleIndex==3502||sampleIndex==3600||sampleIndex==3601||sampleIndex==3602||sampleIndex==3700||sampleIndex==3701||sampleIndex==3702)&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100";
-      mycutsBkg = "Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&((sampleIndex==-12501)||(sampleIndex==-12502)||(sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==24)||(sampleIndex==25)||(sampleIndex==26)||(sampleIndex==27)||(sampleIndex==28)||(sampleIndex==29)||(sampleIndex==30)||(sampleIndex==31)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402))"; 
+      mycutsSig = "Sum$(abs(GenWZQuark_pdgId)==5)>=2&&((sampleIndex==3500)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&H_mass>60&&H_mass<160&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46";
+      mycutsBkg = "H_mass>60&&H_mass<160&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46&&((((sampleIndex==3502)||(sampleIndex==3500)||(sampleIndex==3501)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Sum$(abs(GenWZQuark_pdgId)==5)<2)||(((sampleIndex==-12501)||(sampleIndex==-12502)||(sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402))))"; 
   }
+
   factory->PrepareTrainingAndTestTree(mycutsSig,mycutsBkg,"!V");
   //factory->PrepareTrainingAndTestTree("sampleIndex==-12501","sampleIndex>0","!V");
    // To also specify the number of testing events, use:
@@ -801,7 +803,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeS
 
    char parString[150];
    //sprintf(parString,"!H:!V:NTrees=%i:MinNodeSize=%i:MaxDepth=%i:BoostType=AdaBoost:AdaBoostBeta=%.2f:SeparationType=MisClassificationError:nCuts=-1:PruneMethod=NoPruning",nTrees,MinNodeSize,maxDepth,adaboostbeta);
-   sprintf(parString,"!H:!V:NTrees=%i:MinNodeSize=%.2f:MaxDepth=%i:BoostType=AdaBoost:AdaBoostBeta=%.2f:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning",nTrees,MinNodeSize,maxDepth,adaboostbeta);
+   sprintf(parString,"!H:!V:NTrees=%i:MinNodeSize=%.2f:MaxDepth=%i:BoostType=AdaBoost:AdaBoostBeta=%.2f:SeparationType=GiniIndex:PruneMethod=NoPruning",nTrees,MinNodeSize,maxDepth,adaboostbeta);
    if (Use["BDT"])  // Adaptive Boost
       factory->BookMethod( TMVA::Types::kBDT, "BDT", parString );
 
