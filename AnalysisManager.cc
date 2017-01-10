@@ -642,7 +642,7 @@ void AnalysisManager::TermAnalysis() {
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
 void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
-    TMVA::Reader *thereader = bdtInfo.reader;
+    //TMVA::Reader *thereader = bdtInfo.reader;
     
     for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
         BDTVariable bdtvar = bdtInfo.bdtVars[i];
@@ -654,7 +654,7 @@ void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     }
 
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
-    thereader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
+    bdtInfo.reader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
 }
 
 
@@ -686,6 +686,7 @@ void AnalysisManager::SetupSystematicsBranches(){
         if (systematics[iSyst].name != "nominal") {
             SetupNewBranch(Form("H_mass_%s", systematics[iSyst].name.c_str()), 2);
             SetupNewBranch(Form("Jet_btagCSV_%s", systematics[iSyst].name.c_str()), 7, 100);
+            SetupNewBranch(Form("nAddJets252p9_puid_%s", systematics[iSyst].name.c_str()), 1);
         }
     }
 }
@@ -706,6 +707,16 @@ void AnalysisManager::ApplySystematics(bool early){
             int thisType=existingBranchInfo->type;
             // just doing floats and doubles
             // smearing can be added at any time
+            float jetPtSplit = 100.; // classify high/low jets by this pT threshold
+            float jetEtaSplit = 1.4; // classify central/forward jets by this eta threshold
+            int ptSplit = 0; // if 0 don't split, if 1 split low, if 2 splight high
+            int etaSplit = 0; // if 0 don't split, if 1 split low, if 2 splight high
+            if (cursyst->name.find("High")!=std::string::npos) { ptSplit = 2; }
+            if (cursyst->name.find("Low")!=std::string::npos) { ptSplit = 1; }
+            if (cursyst->name.find("Forward")!=std::string::npos) { etaSplit = 2; }
+            if (cursyst->name.find("Central")!=std::string::npos) { etaSplit = 1; }
+            //std::cout<<cursyst->name<<std::endl;
+            //std::cout<<ptSplit<<", "<<etaSplit<<std::endl;
             if(thisType==2){
                 // scale the current branch
                 if (cursyst->scaleVar[iBrnch] == "") {
@@ -734,20 +745,27 @@ void AnalysisManager::ApplySystematics(bool early){
                 //std::cout<<"length branch "<<existingBranchInfo->lengthBranch<<std::endl;
                 //std::cout<<"length "<<*in[existingBranchInfo->lengthBranch]<<std::endl;
                 for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch
+                    //std::cout<<"Jet pt, eta: "<<f["Jet_pt_reg"][ind]<<", "<<f["Jet_eta"][ind]<<std::endl;
                     //std::cout<<"old val "<<f[oldBranchName.c_str()][ind]<<std::endl;
-                    if (cursyst->scaleVar[iBrnch] == "") {
-                         // flat scaling
-                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                    // FIXME: we are assuming that the only array variables we scale are jet variables, we should in principle make this more generic
+                    if (ptSplit==0 || (ptSplit==1 && f["Jet_pt_reg"][ind]<jetPtSplit) || (ptSplit==2 && f["Jet_pt_reg"][ind]>jetPtSplit)) { 
+                        if (etaSplit==0 || (etaSplit==1 && fabs(f["Jet_eta"][ind])<jetEtaSplit) || (etaSplit==2 && fabs(f["Jet_eta"][ind])>jetEtaSplit)) { 
+                            //std::cout<<"got through"<<std::endl;
+                            if (cursyst->scaleVar[iBrnch] == "") {
+                                // flat scaling
+                                f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * cursyst->scales[iBrnch];
+                            }
+                            else {
+                                //std::cout<<f[oldBranchName.c_str()][ind]<<" * "<<f[cursyst->scaleVar[iBrnch]][ind]<<std::endl;
+                                // dynamic scaling
+                                f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * f[cursyst->scaleVar[iBrnch]][ind];
+                            }
+                            //std::cout<<"new val "<<f[oldBranchName.c_str()][ind]<<std::endl;
+                            // copy the value to the new branch
+                            f[systBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind];
+                            //std::cout<<"new branch "<<f[systBranchName.c_str()][ind]<<std::endl;
+                        }
                     }
-                    else {
-                         //std::cout<<f[oldBranchName.c_str()][ind]<<" * "<<f[cursyst->scaleVar[iBrnch]][ind]<<std::endl;
-                         // dynamic scaling
-                         f[oldBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind] * f[cursyst->scaleVar[iBrnch]][ind];
-                    }
-                    //std::cout<<"new val "<<f[oldBranchName.c_str()][ind]<<std::endl;
-                    // copy the value to the new branch
-                    f[systBranchName.c_str()][ind]=f[oldBranchName.c_str()][ind];
-                    //std::cout<<"new branch "<<f[systBranchName.c_str()][ind]<<std::endl;
                 }
             } else if(thisType==8){
                 for(int ind=0; ind<*in[existingBranchInfo->lengthBranch]; ind++){// scale the current branch

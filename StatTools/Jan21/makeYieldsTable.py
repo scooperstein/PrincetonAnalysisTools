@@ -49,15 +49,15 @@ for sample in ["Zj0b","Zj1b","Zj2b","Wj0b","Wj1b","Wj2b","TT","s_Top","VVLF","VV
     h_Wen = ifile_wen.Get("BDT_WenHighPt_%s" % sample)
     print sample
     #print "%.2f +/= %.2f" % (h_Wmn.Integral(),h_Wmn.Integral()*1./sqrt(h_Wmn.GetEffectiveEntries()))
-    print "%.2f +/= %.2f" % (h_Wen.Integral(),h_Wen.Integral()*1./sqrt(h_Wen.GetEffectiveEntries()))
+    #print "%.2f +/= %.2f" % (h_Wen.Integral(),h_Wen.Integral()*1./sqrt(h_Wen.GetEffectiveEntries()))
     nBins = h_Wmn.GetNbinsX()
     totErr = 0.
     totSum = 0.
-    for i in range(nBins-3,nBins+1):
+    for i in range(nBins-4,nBins+1):
         #print i
         totSum += h_Wmn.GetBinContent(i)
         totSum += h_Wen.GetBinContent(i)
         totErr += pow(h_Wmn.GetBinError(i),2)
     totErr = sqrt(totErr)
-    #print "%.2f +/= %.2f" % (totSum, totErr)
+    print "%.2f +/= %.2f" % (totSum, totErr)
 #print "Total Background        & $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $ \\\\" % (mcTot_0,sqrt(mcTotEnt_0),mcTot_1,sqrt(mcTotEnt_1),mcTot_2,sqrt(mcTotEnt_2),mcTot_3,sqrt(mcTotEnt_3),mcTot_4,sqrt(mcTotEnt_4),mcTot_5,sqrt(mcTotEnt_5))

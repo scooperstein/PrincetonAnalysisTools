@@ -64,6 +64,14 @@ bool VHbbAnalysis::Preselection(){
     // Heppy jet corrections for JER/JEC are full correction, it's easier to just use the
     // correction on top of the nominal
     for (int i=0; i<*in["nJet"]; i++) {
+        if (int(*f["doReg"]) == 0) {
+            // don't apply the regression. The easiest way to do this is to just reset the value of
+            // the regressed jet pt to the nominal jet pt, since we build everything later from the 
+            // jet pt's.
+            f["Jet_pt_reg"][i] = f["Jet_pt"][i];
+        }
+
+        //std::cout<<*in["nJet"]<<": "<<f["Jet_pt_reg_corrJECUp"][i]<<" / "<<f["Jet_pt_reg"][i]<<std::endl;
         f["Jet_corr_JERUp_ratio"][i] = f["Jet_corr_JERUp"][i] / f["Jet_corr_JER"][i] ; 
         f["Jet_corr_JERDown_ratio"][i] = f["Jet_corr_JERDown"][i] / f["Jet_corr_JER"][i] ; 
         f["Jet_corr_JECUp_ratio"][i] = f["Jet_corr_JECUp"][i] / f["Jet_corr"][i] ; 
@@ -103,6 +111,15 @@ bool VHbbAnalysis::Analyze(){
     bool sel=true;
     bool doCutFlow = bool(*f["doCutFlow"]);
     *in["cutFlow"] = 0;
+
+    for (int i=0; i<*in["nJet"]; i++) {
+        if (int(*f["doReg"]) == 0) {
+            // don't apply the regression. The easiest way to do this is to just reset the value of
+            // the regressed jet pt to the nominal jet pt, since we build everything later from the 
+            // jet pt's.
+            f["Jet_pt_reg"][i] = f["Jet_pt"][i];
+        }
+    }
 
     if(debug>1000) {
          std::cout<<"Imposing trigger and json requirements"<<std::endl;
@@ -346,6 +363,7 @@ bool VHbbAnalysis::Analyze(){
     *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
     if (cursyst->name != "nominal") {
         *f[Form("H_mass_%s",cursyst->name.c_str())] = Hbb.M();
+        *in[Form("nAddJets252p9_puid_%s",cursyst->name.c_str())] = *in["nAddJets252p9_puid"];
     }
     //*f["H_pt"] = Hbb.Pt(); // we already do this
     //std::cout<<"H_mass = "<<*f["H_mass"]<<", H_mass_noreg = "<<*f["H_mass_noreg"]<<", H_mass_step2 = "<<*f["H_mass_step2"]<<std::endl;
@@ -639,7 +657,7 @@ bool VHbbAnalysis::Analyze(){
     }
 
     //if (doCutFlow) return true; // keep all preselected events for cutflow
-    if (doCutFlow && *in["cutFlow"]>=5) return true; // keep all preselected events for cutflow
+    if (doCutFlow && *in["cutFlow"]>=2) return true; // keep all preselected events for cutflow
     else return sel;
 }
 
@@ -651,28 +669,22 @@ void VHbbAnalysis::FinishEvent(){
     //    return;
     //} 
     // General use variables
-    
-    *f["nProcEvents"] = cursample->processedEvents;
+   
+    if (cursample->sampleNum == 49) {
+        *f["nProcEvents"] = cursample->CountWeighted->GetBinContent(1);
+    }
+    else { 
+        *f["nProcEvents"] = cursample->processedEvents;
+    }
     if (*in["sampleIndex"] != 0) {
         for (int i=0; i<*in["nLHE_weights_scale"];i++) {
             TH1F *CountWeightedLHEWeightScale = cursample->CountWeightedLHEWeightScale;
             f["LHE_weights_scale_normwgt"][i] = *f["nProcEvents"] / CountWeightedLHEWeightScale->GetBinContent(CountWeightedLHEWeightScale->FindBin(i));
-            if (cursample->sampleNum != 49) {
-                f["LHE_weights_pdf_normwgt"][i] = *f["nProcEvents"] / CountWeightedLHEWeightScale->GetBinContent(CountWeightedLHEWeightScale->FindBin(i));
-            }
-            else {
-                f["LHE_weights_pdf_normwgt"][i] = cursample->CountWeighted->GetBinContent(1) / CountWeightedLHEWeightScale->GetBinContent(CountWeightedLHEWeightScale->FindBin(i));
-            }
         }
         for (int i=0; i<*in["nLHE_weights_pdf"];i++) {
             TH1F *CountWeightedLHEWeightPdf = cursample->CountWeightedLHEWeightPdf;
             if (CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i)) != 0) {
-                if (cursample->sampleNum != 49) {
-                    f["LHE_weights_pdf_normwgt"][i] = *f["nProcEvents"] / CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i));
-                }
-                else {
-                    f["LHE_weights_pdf_normwgt"][i] = cursample->CountWeighted->GetBinContent(1) / CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i)); 
-                }
+                f["LHE_weights_pdf_normwgt"][i] = *f["nProcEvents"] / CountWeightedLHEWeightPdf->GetBinContent(CountWeightedLHEWeightPdf->FindBin(i));
             }
             else {
                 f["LHE_weights_pdf_normwgt"][i] = 1.0;
@@ -702,13 +714,16 @@ void VHbbAnalysis::FinishEvent(){
     if(*in["sampleIndex"]!=0){
         if (*f["do2015"] == 1) {
             *f["weight_PU"] = *f["puWeight"];
+            *f["weight_PUUp"] = *f["puWeightUp"] / *f["puWeight"];
+            *f["weight_PUDown"] = *f["puWeightDown"] / *f["puWeight"];
         }
         else {
-            *f["weight_PU"] = *f["puWeight"];
+            //*f["weight_PU"] = *f["puWeight"];
             //*f["weight_PU"]=ReWeightMC(int(*f["nTrueInt"])+0.5); // it is now a float (continuous distribution?) so we round to the nearest int
+            *f["weight_PU"]=puWeight_ichep(int(*f["nTrueInt"])); // it is now a float (continuous distribution?) so we round to the nearest int
+            *f["weight_PUUp"]=(puWeight_ichep_up(int(*f["nTrueInt"]))) / *f["weight_PU"]; // it is now a float (continuous distribution?) so we round to the nearest int
+            *f["weight_PUDown"]=(puWeight_ichep_down(int(*f["nTrueInt"]))) / *f["weight_PU"]; // it is now a float (continuous distribution?) so we round to the nearest int
         }
-        *f["weight_PUUp"] = *f["puWeightUp"] / *f["puWeight"];
-        *f["weight_PUDown"] = *f["puWeightDown"] / *f["puWeight"];
         if (*in["nGenTop"]==0 && *in["nGenVbosons"]>0) {
             // only apply to Z/W+jet samples
             *f["weight_ptQCD"]=ptWeightQCD(*in["nGenVbosons"], *f["lheHT"], in["GenVbosons_pdgId"][0]);
@@ -779,135 +794,138 @@ void VHbbAnalysis::FinishEvent(){
     }
 
     // stitch together W b-enriched samples with HT-binned samples in order to maximize statistical power
+    float WJetStitchWeight = 1.0;
     if (cursample->sampleNum==22 || cursample->sampleNum==44 || cursample->sampleNum==45 || cursample->sampleNum==46 || cursample->sampleNum==47
         || cursample->sampleNum==48 || cursample->sampleNum==49 || cursample->sampleNum==41 || cursample->sampleNum==42 || cursample->sampleNum==43) {
         if (*f["lheHT"]>100 && *f["lheHT"]<200) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
-                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT100);
+                    WJetStitchWeight = (1 - weightWBjetsHT100);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWBjetsHT100;
+                    WJetStitchWeight = weightWBjetsHT100;
                 }
             }
             else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
                 if (cursample->sampleNum == 49) {
-                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT100);
+                    WJetStitchWeight = (1 - weightWjetsBgenHT100);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWjetsBgenHT100;
+                    WJetStitchWeight = weightWjetsBgenHT100;
                 }
             } 
         }
         if (*f["lheHT"]>200 && *f["lheHT"]<400) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
-                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT200);
+                    WJetStitchWeight = (1 - weightWBjetsHT200);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWBjetsHT200;
+                    WJetStitchWeight = weightWBjetsHT200;
                 }
             }
             else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
                 if (cursample->sampleNum == 49) {
-                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT200);
+                    WJetStitchWeight = (1 - weightWjetsBgenHT200);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWjetsBgenHT200;
+                    WJetStitchWeight = weightWjetsBgenHT200;
                 }
             } 
         }
         if (*f["lheHT"]>400 && *f["lheHT"]<600) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
-                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT400);
+                    WJetStitchWeight = (1 - weightWBjetsHT400);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWBjetsHT400;
+                    WJetStitchWeight = weightWBjetsHT400;
                 }
             }
             else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
                 if (cursample->sampleNum == 49) {
-                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT400);
+                    WJetStitchWeight = (1 - weightWjetsBgenHT400);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWjetsBgenHT400;
+                    WJetStitchWeight = weightWjetsBgenHT400;
                 }
             } 
         }
         if (*f["lheHT"]>600 && *f["lheHT"]<800) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
-                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT600);
+                    WJetStitchWeight = (1 - weightWBjetsHT600);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWBjetsHT600;
+                    WJetStitchWeight = weightWBjetsHT600;
                 }
             }
             else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
                 if (cursample->sampleNum == 49) {
-                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT600);
+                    WJetStitchWeight = (1 - weightWjetsBgenHT600);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWjetsBgenHT600;
+                    WJetStitchWeight = weightWjetsBgenHT600;
                 }
             } 
         }
         if (*f["lheHT"]>800 && *f["lheHT"]<1200) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
-                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT800);
+                    WJetStitchWeight = (1 - weightWBjetsHT800);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWBjetsHT800;
+                    WJetStitchWeight = weightWBjetsHT800;
                 }
             }
             else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
                 if (cursample->sampleNum == 49) {
-                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT800);
+                    WJetStitchWeight = (1 - weightWjetsBgenHT800);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWjetsBgenHT800;
+                    WJetStitchWeight = weightWjetsBgenHT800;
                 }
             } 
         }
         if (*f["lheHT"]>1200 && *f["lheHT"]<2500) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
-                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT1200);
+                    WJetStitchWeight = (1 - weightWBjetsHT1200);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWBjetsHT1200;
+                    WJetStitchWeight = weightWBjetsHT1200;
                 }
             }
             else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
                 if (cursample->sampleNum == 49) {
-                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT1200);
+                    WJetStitchWeight = (1 - weightWjetsBgenHT1200);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWjetsBgenHT1200;
+                    WJetStitchWeight = weightWjetsBgenHT1200;
                 }
             } 
         }
         if (*f["lheHT"]>2500) {
             if (*f["lheV_pt"] > 40 && *f["lheNb"] > 0) {
                 if (cursample->sampleNum == 48) {
-                    *f["weight"] = *f["weight"] * (1 - weightWBjetsHT2500);
+                    WJetStitchWeight = (1 - weightWBjetsHT2500);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWBjetsHT2500;
+                    WJetStitchWeight = weightWBjetsHT2500;
                 }
             }
             else if (*f["lheV_pt"] > 40 && *in["nGenStatus2bHad"] > 0) {
                 if (cursample->sampleNum == 49) {
-                    *f["weight"] = *f["weight"] * (1 - weightWjetsBgenHT2500);
+                    WJetStitchWeight = (1 - weightWjetsBgenHT2500);
                 }
                 else {
-                    *f["weight"] = *f["weight"] * weightWjetsBgenHT2500;
+                    WJetStitchWeight = weightWjetsBgenHT2500;
                 }
             } 
         }
+        *f["weight"] = *f["weight"] * WJetStitchWeight;
     }
+    *f["WJetStitchWeight"] = WJetStitchWeight;
 
     //*f["weight"]= *f["weight"] * *f["weight_PU"];
 
@@ -1246,7 +1264,13 @@ void VHbbAnalysis::FinishEvent(){
             *f["bTagWeight_cErr2Down"] = *f["btagWeightCSV_down_cferr2"];
         }
 
-        *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"] * *f["Lep_SF"];
+        if (*f["doCutFlow"]>0 && *in["cutFlow"]<5) {
+            // lepton scale factor calculation will break for some events in the cutflow before lepton selection
+            *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"];
+        }
+        else {
+            *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"] * *f["Lep_SF"];
+        }
     }
 
     // FIXME nominal must be last
@@ -1719,6 +1743,155 @@ double mc2[50]={
   else {
       return 1;
   }
+}
+
+// puWeight reweighting functions taken from https://github.com/GLP90/Xbb/blob/merge_silvio/interface/VHbbNameSpace.h
+float VHbbAnalysis::puWeight_ichep(int i){
+
+double puw[38]={0.00026954692859,
+                0.00834201570744,
+                0.0146551644559,
+                0.0267593718187,
+                0.045546866213,
+                0.0351739785649,
+                0.0389242914756,
+                0.131305445658,
+                0.337172065156,
+                0.645651266938,
+                0.908493559723,
+                1.09739459449,
+                1.26533979742,
+                1.41586705341,
+                1.53524109717,
+                1.49032150282,
+                1.39123249386,
+                1.45737145535,
+                1.38588035333,
+                1.4464676134,
+                1.23282560995,
+                1.08387439504,
+                1.02663484504,
+                0.97464906611,
+                0.829692105572,
+                0.758597838706,
+                0.554540190093,
+                0.442016886186,
+                0.291492210196,
+                0.203297812168,
+                0.131804681706,
+                0.0834846669777,
+                0.0680713812995,
+                0.0497105409204,
+                0.0496692836227,
+                0.0581182475108,
+                0.089209326104,
+                0.0941178579122,
+               };
+//i = i - 1;
+if (i < 0) return 1.;
+if (i > 37) return puw[37];
+
+return puw[i];
+
+}
+
+float VHbbAnalysis::puWeight_ichep_up(int i){
+
+double puw[38]={0.000168728884,
+                0.006518139648,
+                0.012767671099,
+                0.021849922433,
+                0.041129948359,
+                0.031318966078,
+                0.031506395408,
+                0.069139953987,
+                0.201682923142,
+                0.431573069513,
+                0.676688315382,
+                0.885061147726,
+                1.02772732515,
+                1.1496216224,
+                1.26358384716,
+                1.24734104964,
+                1.19950685946,
+                1.30515668683,
+                1.28849179873,
+                1.39604961327,
+                1.24030942651,
+                1.13881318563,
+                1.12938083469,
+                1.13608683795,
+                1.04512825001,
+                1.04965380671,
+                0.848278572582,
+                0.748408550686,
+                0.548182746816,
+                0.426699751655,
+                0.308798449343,
+                0.217654143858,
+                0.197782762841,
+                0.16222993513 ,
+                0.183774325453,
+                0.245159931575,
+                0.426559360962,
+                0.491832630157,
+               };
+//i = i - 1;
+if (i < 0) return 1.;
+if (i > 37) return puw[37];
+
+return puw[i];
+
+}
+
+float VHbbAnalysis::puWeight_ichep_down(int i){
+
+double puw[38]={0.000394948025924,
+                0.010589291412,
+                0.0168294422346,
+                0.0324871095383,
+                0.0512240404177,
+                0.0392771251619,
+                0.0585204632322,
+                0.252037472998,
+                0.543974217454,
+                0.93479398165,
+                1.17260170322,
+                1.36170067318,
+                1.5793616475,
+                1.74509976454,
+                1.86131835195,
+                1.75449370357,
+                1.57204882742,
+                1.57954789714,
+                1.44148253688,
+                1.43725104611,
+                1.16760012792,
+                0.975000220575,
+                0.8640144709,
+                0.750072693636,
+                0.574219048746,
+                0.469714734739,
+                0.306667353503,
+                0.217186088114,
+                0.126764763282,
+                0.0784330110012,
+                0.0451854756945,
+                0.0252751549695,
+                0.0180049218223,
+                0.0113901195301,
+                0.00987729209672,
+                0.0103547199185,
+                0.0158597867448,
+                0.0210296659761,
+               };
+
+//i = i - 1;
+if (i < 0) return 1.;
+if (i > 37) return puw[37];
+
+return puw[i];
+
 }
 
 // from https://twiki.cern.ch/twiki/bin/view/CMS/VHiggsBBCodeUtils#V_X_QCD_and_EWK_corrections

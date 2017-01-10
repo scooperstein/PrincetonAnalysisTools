@@ -111,7 +111,7 @@ scale_factors = args.rateParams.split(',')
 for scale_factor in scale_factors:
     for sample in samples:
         if (scale_factor.find(sample) != -1):
-            systematics += "SF_%s  rateParam  %s %s  1\n" % (scale_factor,cats[0], sample) 
+            systematics += "SF_%s  rateParam  %s %s  1 [0.2,5] \n" % (scale_factor,cats[0], sample) 
 
 nSys = 0
 
@@ -220,7 +220,10 @@ dc_string += "\n"
 dc_string += "process                                                     "
 for label in cat_labels:
     for i in range(len(samples)):
-        dc_string += str(i-1)
+        if (args.doVV):
+            dc_string += str(i)
+        else:
+            dc_string += str(i-1)
         if (i < 10): dc_string += "           "
         else: dc_string += "          "
 dc_string += "\n"

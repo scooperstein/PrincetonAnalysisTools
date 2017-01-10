@@ -561,6 +561,15 @@ def SetupSF(lines):
                             SF.scaleMap.SetBinError(ibin1,ibin2, result["error"])
                             #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
         SFs.append(SF)
+    for SF in SFs:
+        print "debugging scalefactor ",SF.name
+        sfmap = SF.scaleMap
+        nX = sfmap.GetNbinsX()
+        nY = sfmap.GetNbinsY()
+        for i in range(1,nX+1):
+            print "pt: ",sfmap.GetXaxis().GetBinLowEdge(i)
+            for j in range(1, nY+1):
+                print "eta: ",sfmap.GetYaxis().GetBinLowEdge(j),": ",sfmap.GetBinContent(i,j)
     return SFs
 def findAllRootFiles(value):
     samplepaths = []

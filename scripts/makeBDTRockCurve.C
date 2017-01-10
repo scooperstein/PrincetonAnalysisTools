@@ -8,13 +8,18 @@
 #include <iostream>
 #include "TGaxis.h"
 
-void makeBDTRockCurve(char* filename, char *treename, std::vector<std::string> bdtnames=std::vector<std::string>(), int zoom=0, char* savename="", bool dootrain=false) {
+void makeBDTRockCurve(char* filename, char *treename, std::vector<std::string> bdtnames=std::vector<std::string>(), int zoom=0, char* savename="", std::vector<std::string> tmvafiles=std::vector<std::string>()) {
 
-TFile *ifile = new TFile(filename, "r");
-TTree *tree = (TTree*) ifile->Get(treename);
+//TFile *ifile = new TFile(filename, "r");
+//TTree *tree = (TTree*) ifile->Get(treename);
+TChain *tree = new TChain("tree");
+tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_mc.root");
+tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_ttpowheg.root");
+tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_signal.root");
 
 //char* presel = "hJets_btagCSV_1>0.6";
 //char* presel = "hJets_btagCSV_0>0.85 && hJets_btagCSV_1>0.6 && abs(HVdPhi)>2.5 && abs(lepMetDPhi)<2 && nAddJet_f<2 && nAddLep_f<2";
+//char* presel = "H_mass>60&&H_mass<160";
 char* presel = "H_mass>90&&H_mass<150";
 //char* presel = "H_mass>90&&H_mass<150&&isWenu&&V_pt>180";
 
@@ -32,14 +37,23 @@ std::vector<Double_t*> bkg_train;
 //std::vector<Double_t*> sig_overtrain;
 //std::vector<Double_t*> bkg_overtrain;
 for (int i=0; i<nBDTs; i++) {
-    h_bdtSig_test.push_back(new TH1F(Form("h_bdtSig_test_%s",bdtnames[i].c_str()),Form("h_bdtSig_test_%s",bdtnames[i].c_str()),nBins,-1,1)); 
-    h_bdtBkg_test.push_back(new TH1F(Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),nBins,-1,1));
-    h_bdtSig_train.push_back(new TH1F(Form("h_bdtSig_train_%s",bdtnames[i].c_str()),Form("h_bdtSig_train_%s",bdtnames[i].c_str()),nBins,-1,1)); 
-    h_bdtBkg_train.push_back(new TH1F(Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),nBins,-1,1));
-    tree->Draw(Form("%s>>h_bdtSig_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==0&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
-    tree->Draw(Form("%s>>h_bdtBkg_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==0&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
-    tree->Draw(Form("%s>>h_bdtSig_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==1&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
-    tree->Draw(Form("%s>>h_bdtBkg_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&evt%2==1&&(%s))*weight*weight_PU*bTagWeight*CS_SF",presel));
+    if (tmvafiles.size()==0) {
+        h_bdtSig_test.push_back(new TH1F(Form("h_bdtSig_test_%s",bdtnames[i].c_str()),Form("h_bdtSig_test_%s",bdtnames[i].c_str()),nBins,-1,1)); 
+        h_bdtBkg_test.push_back(new TH1F(Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),nBins,-1,1));
+        h_bdtSig_train.push_back(new TH1F(Form("h_bdtSig_train_%s",bdtnames[i].c_str()),Form("h_bdtSig_train_%s",bdtnames[i].c_str()),nBins,-1,1)); 
+        h_bdtBkg_train.push_back(new TH1F(Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),nBins,-1,1));
+        tree->Draw(Form("%s>>h_bdtSig_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==0&&(%s))*weight",presel));
+        tree->Draw(Form("%s>>h_bdtBkg_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&(sampleIndex<24||sampleIndex>31)&&evt%2==0&&(%s))*weight",presel));
+        tree->Draw(Form("%s>>h_bdtSig_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==1&&(%s))*weight",presel));
+        tree->Draw(Form("%s>>h_bdtBkg_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&(sampleIndex<24||sampleIndex>31)&&evt%2==1&&(%s))*weight",presel));
+    }
+    else {
+        TFile *ifile_tmp = new TFile(Form("MVA_%s.root",bdtnames[i].c_str()));
+        h_bdtSig_train.push_back((TH1F*)ifile_tmp->Get(Form("Method_BDT/%s/MVA_%s_effS",bdtnames[i].c_str(),bdtnames[i].c_str())));
+        h_bdtSig_train.push_back((TH1F*)ifile_tmp->Get(Form("Method_BDT/%s/MVA_%s_trainingEffS",bdtnames[i].c_str(),bdtnames[i].c_str())));
+        h_bdtBkg_train.push_back((TH1F*)ifile_tmp->Get(Form("Method_BDT/%s/MVA_%s_effB",bdtnames[i].c_str(),bdtnames[i].c_str())));
+        h_bdtBkg_train.push_back((TH1F*)ifile_tmp->Get(Form("Method_BDT/%s/MVA_%s_trainingEffB",bdtnames[i].c_str(),bdtnames[i].c_str())));
+    }
     sig_test.push_back(h_bdtSig_test[i]->GetIntegral());
     bkg_test.push_back(h_bdtBkg_test[i]->GetIntegral());
     sig_train.push_back(h_bdtSig_train[i]->GetIntegral());
@@ -72,7 +86,8 @@ for (int i=0; i<nBDTs; i++) {
 }
 
 TMultiGraph *mg = new TMultiGraph();
-TLegend *leg = new TLegend(0.1,0.5,0.5,0.9);
+TLegend *leg = new TLegend(0.3,0.5,0.6,0.9);
+//TLegend *leg = new TLegend(0.6,0.5,0.9,0.9);
 
 //const TColor *colors = [kBlue, kRed, kGreen, kCyan, kViolet, kOrange, kMagenta, kYellow];
 const Int_t colors[8] = {880, 432, 600, 394, 418, 616, 808, 400};
@@ -80,8 +95,8 @@ const Int_t colors[8] = {880, 432, 600, 394, 418, 616, 808, 400};
 for (int i=0; i < nBDTs; i++) {
     TGraph *gb_test = new TGraph(nBins, sig_test[i], bkg_test[i]);
     TGraph *gb_train = new TGraph(nBins, sig_train[i], bkg_train[i]);
-    gb_test->SetLineColor(colors[i]);
-    gb_train->SetLineColor(colors[i]);
+    gb_test->SetLineColor(colors[i%8]+4*(i%8));
+    gb_train->SetLineColor(colors[i%8]+4*(i%8));
     //gb->SetMarkerStyle(0);
     gb_test->SetLineWidth(2);
     gb_train->SetLineWidth(2);
@@ -165,6 +180,6 @@ canv->SaveAs(Form("%s_%i.pdf",savename,zoom));
 TFile *ofile = new TFile(Form("%s.root",savename),"RECREATE");
 mg->Write("multigraph");
 
-ifile->Close();
+//ifile->Close();
 
 }

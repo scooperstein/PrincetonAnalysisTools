@@ -9,6 +9,7 @@ type=2  name=doControlSamples   val=0
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
 type=2  name=do2015             val=0
+type=2  name=doReg              val=1
 
 type=2  name=j1ptCut            val=25
 type=2  name=j2ptCut            val=25
@@ -22,11 +23,11 @@ type=2  name=LepPtPresel        val=20
 
 type=2  name=eptcut             val=30
 type=2  name=muptcut            val=25
-type=2  name=eletacut           val=2.1
+type=2  name=eletacut           val=2.17
 type=2  name=muetacut           val=2.4
 type=2  name=metcut             val=0
 type=2  name=erelisocut         val=0.15
-type=2  name=murelisocut        val=0.12
+type=2  name=murelisocut        val=0.06
 type=2  name=elMetDPhiCut       val=2.0
 type=2  name=muMetDPhiCut       val=2.0
 type=2  name=elidcut            val=2
