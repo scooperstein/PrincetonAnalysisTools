@@ -352,7 +352,7 @@ bool VHbbAnalysis::Analyze(){
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *f["HVdPhi"] = Hbb.DeltaPhi(W);
     *f["HVdEta"] = fabs(Hbb.Eta() - W.Eta());
-    TLorentzVector neutrino = getNu4Momentum(Lep, MET); 
+    TLorentzVector neutrino = getNu4Momentum(Lep, MET);
     TLorentzVector W_4MET = neutrino + Lep;
     *f["HVdEta_4MET"] = fabs(Hbb.Eta() - W_4MET.Eta());
     *f["JJEtaBal"] = ( fabs(f["Jet_eta"][*in["hJetInd1"]] + f["Jet_eta"][*in["hJetInd2"]]) ) / (fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]) ) ;
@@ -1271,6 +1271,28 @@ void VHbbAnalysis::FinishEvent(){
         else {
             *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"] * *f["Lep_SF"];
         }
+
+        // Add NLO to LO W+jet re-weighting from Z(ll)H(bb)
+        float deta_bb = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
+        int sampleIndex = *in["sampleIndex"];
+        float WJetNLOWeight = 1.0;
+        float weight_ptQCD = *f["weight_ptQCD"];
+        if (sampleIndex<4100 || sampleIndex>4902) { WJetNLOWeight = 1.0; }
+        else if (sampleIndex==4100 || sampleIndex==4200 || sampleIndex==4300 || sampleIndex==4400 || sampleIndex==4500 || sampleIndex==4600 || sampleIndex==4700 || sampleIndex==4800 || sampleIndex==4900) {
+            WJetNLOWeight = LOtoNLOWeightBjetSplitEtabb(deta_bb, 0);
+            WJetNLOWeight = (WJetNLOWeight/weight_ptQCD)*1.21;
+        }
+        else if (sampleIndex==4101 || sampleIndex==4201 || sampleIndex==4301 || sampleIndex==4401 || sampleIndex==4501 || sampleIndex==4601 || sampleIndex==4701 || sampleIndex==4801 || sampleIndex==4901) {
+            WJetNLOWeight = LOtoNLOWeightBjetSplitEtabb(deta_bb, 1);
+            WJetNLOWeight = (WJetNLOWeight/weight_ptQCD)*1.21;
+        }
+        else if (sampleIndex==4102 || sampleIndex==4202 || sampleIndex==4302 || sampleIndex==4402 || sampleIndex==4502 || sampleIndex==4602 || sampleIndex==4702 || sampleIndex==4802 || sampleIndex==4902) {
+            WJetNLOWeight = LOtoNLOWeightBjetSplitEtabb(deta_bb, 2);
+            WJetNLOWeight = (WJetNLOWeight/weight_ptQCD)*1.21;
+        }
+        *f["weight"] = *f["weight"] * WJetNLOWeight;
+        *f["WJetNLOWeight"] = WJetNLOWeight;
+        
     }
 
     // FIXME nominal must be last
@@ -2081,3 +2103,22 @@ TLorentzVector VHbbAnalysis::getNu4Momentum(const TLorentzVector& TLepton, const
   }
   return result.front();
 }
+
+// W-jet NLO to LO re-weighting function from Z(ll)H(bb)
+double VHbbAnalysis::LOtoNLOWeightBjetSplitEtabb(double etabb, int njets){
+
+    double SF = 1.;
+    if(etabb < 5){
+        if(njets < 1){
+            SF =   0.935422 + 0.0403162*etabb -0.0089026*etabb*etabb +0.0064324*etabb*etabb*etabb -0.000212443*etabb*etabb*etabb*etabb;
+        }else if(njets == 1){
+            SF =   0.962415 +0.0329463*etabb -0.0414479*etabb*etabb +0.0240993*etabb*etabb*etabb -0.00278271*etabb*etabb*etabb*etabb;
+        }else if(njets >=2){
+            SF =   (0.721265 -0.105643*etabb -0.0206835*etabb*etabb +0.00558626*etabb*etabb*etabb)*TMath::Exp(0.450244*etabb);
+        }
+    }
+
+    return SF;
+
+}
+

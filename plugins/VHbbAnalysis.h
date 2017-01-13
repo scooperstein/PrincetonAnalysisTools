@@ -37,5 +37,6 @@ class VHbbAnalysis : public AnalysisManager {
     float ptWeightQCD(int nGenVbosons=0, float lheHT=0., int GenVbosons_pdgId=0);
     float ptWeightEWK(int nGenVbosons=0,float GenVbosons_pt=0.,int VtypeSim=0,int GenVbosons_pdgId=0);
     TLorentzVector getNu4Momentum(const TLorentzVector& TLepton, const TLorentzVector& TMET);
+    double LOtoNLOWeightBjetSplitEtabb(double etabb=10., int njets=0);
 };
 
