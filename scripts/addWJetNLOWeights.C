@@ -59,7 +59,7 @@ for (i=0; i<nentries; i++) {
         WJetNLOWeight = (WJetNLOWeight/weight_ptQCD)*1.21;
     }
     else if (sampleIndex==4102 || sampleIndex==4202 || sampleIndex==4302 || sampleIndex==4402 || sampleIndex==4502 || sampleIndex==4602 || sampleIndex==4702 || sampleIndex==4802 || sampleIndex==4902) {
-        WJetNLOWeight = LOtoNLOWeightBjetSplitEtabb(deta_bb, 0);
+        WJetNLOWeight = LOtoNLOWeightBjetSplitEtabb(deta_bb, 2);
         WJetNLOWeight = (WJetNLOWeight/weight_ptQCD)*1.21;
     }
     else {

@@ -78,6 +78,7 @@ type=2  name=H_pt_bestCSV
 type=2  name=jjWPtBalance
 type=2  name=CS_SF
 type=2  name=Lep_SF
+type=2  name=WJetNLOWeight
 
 type=1  name=nAddJets252p9_puid
 type=2  name=AddJets252p9_puid_leadJet_pt
