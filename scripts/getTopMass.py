@@ -41,8 +41,12 @@ def EquationSolve(a, b, c, d):
       s = complex(sqrt(-q)*cos(theta/3.0),sqrt(-q)*sin(theta/3.0))
       t = complex(sqrt(-q)*cos(-theta/3.0),sqrt(-q)*sin(-theta/3.0))
     
-    if(Delta>0): 
-      s = complex(pow((r+sqrt(Delta)),(1./3)),0)
+    if(Delta>0):
+      #print r, sqrt(Delta)
+      if (r+sqrt(Delta) > 0): 
+          s = complex(pow((r+sqrt(Delta)),(1./3)),0)
+      else:
+          s = complex(-pow(abs((r+sqrt(Delta))),(1./3)),0)
       if (r-sqrt(Delta) > 0):
           t = complex(pow((r-sqrt(Delta)),(1./3)),0)
       else:
@@ -58,7 +62,7 @@ def EquationSolve(a, b, c, d):
     if(abs(x2.imag)<0.0001): result.append(x2.real)
     if(abs(x3.imag)<0.0001): result.append(x3.real)
 
-    print x1,x2,x3
+    #print x1,x2,x3
     return result
   else:
       return result
@@ -81,7 +85,7 @@ def getNu4Momentum(TLepton, TMET):
   mu = (mW*mW)/2 + MET.Px()*Lepton.Px() + MET.Py()*Lepton.Py();
   a  = (mu*Lepton.Pz())/(Lepton.Energy()*Lepton.Energy() - Lepton.Pz()*Lepton.Pz());
   a2 = pow(a,2);
-  b  = (pow(Lepton.Energy(),2.)*(MisET2) - pow(mu,2.))/(pow(Lepton.Energy(),2) - pow(Lepton.Pz(),2));
+  b  = -10*(pow(Lepton.Energy(),2.)*(MisET2) - pow(mu,2.))/(pow(Lepton.Energy(),2) - pow(Lepton.Pz(),2));
   pz1 = 0.
   pz2 = 0.
   pznu = 0.
@@ -94,7 +98,8 @@ def getNu4Momentum(TLepton, TMET):
   p4lep_rec = TLorentzVector()
 
   p4lep_rec.SetPxPyPzE(Lepton.Px(),Lepton.Py(),Lepton.Pz(),Lepton.Energy());
-  
+ 
+  #print a2,b 
   if(a2-b > 0 ):
     root = sqrt(a2-b);
     pz1 = a + root;
@@ -188,24 +193,41 @@ def computeTopMass(lep, met, jets):
 
 
 # just some basic tests
-lep = TLorentzVector()
-met = TLorentzVector()
 
-lep.SetPtEtaPhiM(86.575485, -0.370986, -1.694283, 0.1057000)
-met.SetPtEtaPhiM(39.530349, 0., -2.810159, 0.0)
-neutrino = getNu4Momentum(lep,met)
-print neutrino.Px(),neutrino.Py(),neutrino.Pz()
+import random
 
-bjet1 = TLorentzVector()
-bjet2 = TLorentzVector()
-bjet1.SetPtEtaPhiM(156.64633, 0.6337512, -1.150040, 19.657625)
-bjet2.SetPtEtaPhiM(257.87811, -1.495820, 1.5050827, 39.884072)
-hbb = bjet1 + bjet2
-print hbb.M()
-W = lep + neutrino
-deta = abs(hbb.Eta() - W.Eta())
-print deta
-print W.M()
-jets = [bjet1, bjet2]
-print computeTopMass(lep,met,jets)
+nIter = 1000000
+for i in range(nIter):
+    if (i % 10000 == 0):
+        print "processing entry: %i" % i
+
+    random.seed(i)
+    rand1 = random.uniform(-2,2)
+    random.seed(i+nIter)
+    rand2 = random.uniform(-2,2)
+    random.seed(i+2*nIter)
+    rand3 = random.uniform(-2,2)
+    random.seed(i+3*nIter)
+    rand4 = random.uniform(-2,2)
+    
+    lep = TLorentzVector()
+    met = TLorentzVector()
+    lep.SetPtEtaPhiM(rand1*86.575485, rand1*-0.370986, rand1*-1.694283, rand1*0.1057000)
+    met.SetPtEtaPhiM(rand2*39.530349, 0., rand2*-2.810159, 0.0)
+    #neutrino = getNu4Momentum(lep,met)
+    #print neutrino.Px(),neutrino.Py(),neutrino.Pz()
+
+    bjet1 = TLorentzVector()
+    bjet2 = TLorentzVector()
+    bjet1.SetPtEtaPhiM(rand3*156.64633, rand3*0.6337512, rand3*-1.150040, rand3*19.657625)
+    bjet2.SetPtEtaPhiM(rand4*257.87811, rand4*-1.495820, rand4*.5050827,  rand4*39.884072)
+    #hbb = bjet1 + bjet2
+    #print hbb.M()
+    #W = lep + neutrino
+    #deta = abs(hbb.Eta() - W.Eta())
+    #print deta
+    #print W.M()
+    jets = [bjet1, bjet2]
+    tmp = computeTopMass(lep,met,jets)
+    #print computeTopMass(lep,met,jets)
 

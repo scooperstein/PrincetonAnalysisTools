@@ -9,21 +9,25 @@ type=1  name=run
 #type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
 #type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
+type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v
 type=1  name=HLT_BIT_HLT_IsoMu20_v
 type=1  name=HLT_BIT_HLT_IsoTkMu20_v
 type=1  name=HLT_BIT_HLT_IsoMu22_v
 type=1  name=HLT_BIT_HLT_IsoTkMu22_v
+type=1  name=HLT_BIT_HLT_IsoMu24_v
+type=1  name=HLT_BIT_HLT_IsoTkMu24_v
 #type=2  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 #type=2  name=HLT_BIT_HLT_Ele27_WP85_Gsf_v
 type=1  name=HLT2_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
 type=1  name=HLT2_BIT_HLT_IsoMu20_v
 type=1  name=HLT2_BIT_HLT_IsoTkMu20_v
 
-type=1  name=nPVs
+#type=1  name=nPVs
 type=2  name=rho
 type=2  name=puWeight                              onlyMC=1
 type=2  name=puWeightUp                            onlyMC=1
 type=2  name=puWeightDown                          onlyMC=1
+type=1  name=EX_MUON   
 
 type=2  name=btagWeightCSV
 type=2  name=btagWeightCSV_up_jes
@@ -45,6 +49,26 @@ type=2  name=btagWeightCSV_down_cferr1
 type=2  name=btagWeightCSV_up_cferr2
 type=2  name=btagWeightCSV_down_cferr2
 
+type=2  name=btagWeightCMVAV2
+type=2  name=btagWeightCMVAV2_up_jes
+type=2  name=btagWeightCMVAV2_down_jes
+type=2  name=btagWeightCMVAV2_up_lf
+type=2  name=btagWeightCMVAV2_down_lf
+type=2  name=btagWeightCMVAV2_up_hf
+type=2  name=btagWeightCMVAV2_down_hf
+type=2  name=btagWeightCMVAV2_up_hfstats1
+type=2  name=btagWeightCMVAV2_down_hfstats1
+type=2  name=btagWeightCMVAV2_up_hfstats2
+type=2  name=btagWeightCMVAV2_down_hfstats2
+type=2  name=btagWeightCMVAV2_up_lfstats1
+type=2  name=btagWeightCMVAV2_down_lfstats1
+type=2  name=btagWeightCMVAV2_up_lfstats2
+type=2  name=btagWeightCMVAV2_down_lfstats2
+type=2  name=btagWeightCMVAV2_up_cferr1
+type=2  name=btagWeightCMVAV2_down_cferr1
+type=2  name=btagWeightCMVAV2_up_cferr2
+type=2  name=btagWeightCMVAV2_down_cferr2
+
 type=2  name=htJet30
 type=2  name=mhtJet30
 
@@ -54,6 +78,8 @@ type=7  name=LHE_weights_scale_wgt                      max=10  onlyMC=1 lengthB
 type=1  name=nLHE_weights_pdf                                    onlyMC=1
 type=6  name=LHE_weights_pdf_id                         max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
 type=7  name=LHE_weights_pdf_wgt                        max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
+type=6  name=nLHE_weights_pdf_eigen                             onlyMC=1
+type=7  name=LHE_weights_pdf_eigen                      max=70  onlyMC=1 lengthBranch=nLHE_weights_pdf_eigen
 
 type=2  name=VtypeSim                                   onlyMC=1
 type=2  name=nTrueInt                                   onlyMC=1
@@ -67,7 +93,19 @@ type=6  name=GenJet_pdgId                       max=20  onlyMC=1
 type=6  name=GenJet_numBHadrons                 max=20  onlyMC=1
 type=6  name=GenJet_numCHadrons                 max=20  onlyMC=1
 
+type=1  name=nGenTop                                    onlyMC=1
+type=7  name=GenTop_mass                        max=10  onlyMC=1 lengthBranch=nGenTop
+type=7  name=GenTop_pt                          max=10  onlyMC=1 lengthBranch=nGenTop
+type=7  name=GenTop_eta                         max=10  onlyMC=1 lengthBranch=nGenTop
+type=7  name=GenTop_phi                         max=10  onlyMC=1 lengthBranch=nGenTop
+type=6  name=GenTop_decayMode                   max=10  onlyMC=1 lengthBranch=nGenTop
 type=2  name=lheNc  onlyMC=1
+
+type=1  name=nGenHiggsBoson                             onlyMC=1
+type=7  name=GenHiggsBoson_pt                   max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
+type=7  name=GenHiggsBoson_eta                  max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
+type=7  name=GenHiggsBoson_phi                  max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
+type=7  name=GenHiggsBoson_mass                 max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
 
 type=1  name=nselLeptons 
 type=7  name=selLeptons_eta                     max=20
@@ -101,6 +139,7 @@ type=6  name=selLeptons_eleMVArawSpring15Trig   max=20
 type=6  name=selLeptons_eleMVAIdSpring15Trig      max=20
 type=6  name=selLeptons_eleMVArawSpring15NonTrig  max=20
 type=6  name=selLeptons_eleMVAIdSpring15NonTrig     max=20
+type=6  name=selLeptons_eleMVAIdSppring16GenPurp max=20
 type=7  name=selLeptons_SF_IsoLoose             max=20
 type=7  name=selLeptons_SFerr_IsoLoose          max=20
 type=7  name=selLeptons_SF_IsoTight             max=20
@@ -197,35 +236,40 @@ type=6  name=GenWZQuark_pdgId                   max=10  onlyMC=1
 #type=7  name=Jet_pt_reg                       max=100     lengthBranch=nJet
 type=6  name=Jet_id                           max=100     lengthBranch=nJet
 type=6  name=Jet_puId                         max=100     lengthBranch=nJet
-type=7  name=Jet_btagCSV                      max=100     lengthBranch=nJet
 type=7  name=Jet_rawPt                        max=100     lengthBranch=nJet
-type=7  name=Jet_eta                          max=100     lengthBranch=nJet
-type=7  name=Jet_mass                         max=100     lengthBranch=nJet
-type=7  name=Jet_leadTrackPt                  max=100     lengthBranch=nJet
-type=7  name=Jet_leptonPtRel                  max=100     lengthBranch=nJet
-type=7  name=Jet_leptonPt                     max=100     lengthBranch=nJet
-type=7  name=Jet_leptonDeltaR                 max=100     lengthBranch=nJet
+#type=7  name=Jet_eta                          max=100     lengthBranch=nJet
+#type=7  name=Jet_mass                         max=100     lengthBranch=nJet
+#type=7  name=Jet_leadTrackPt                  max=100     lengthBranch=nJet
+#type=7  name=Jet_leptonPtRel                  max=100     lengthBranch=nJet
+#type=7  name=Jet_leptonPt                     max=100     lengthBranch=nJet
+#type=7  name=Jet_leptonDeltaR                 max=100     lengthBranch=nJet
 type=7  name=Jet_chEmEF                       max=100     lengthBranch=nJet
 type=7  name=Jet_chHEF                        max=100     lengthBranch=nJet
-type=7  name=Jet_neHEF                        max=100     lengthBranch=nJet
-type=7  name=Jet_neEmEF                       max=100     lengthBranch=nJet
+#type=7  name=Jet_neHEF                        max=100     lengthBranch=nJet
+#type=7  name=Jet_neEmEF                       max=100     lengthBranch=nJet
 type=7  name=Jet_chMult                       max=100     lengthBranch=nJet
-type=7  name=Jet_vtxMass                      max=100     lengthBranch=nJet
-type=7  name=Jet_vtx3DVal                     max=100     lengthBranch=nJet
-type=7  name=Jet_vtx3DSig                     max=100     lengthBranch=nJet
-type=7  name=Jet_vtxNtracks                   max=100     lengthBranch=nJet
-type=7  name=Jet_vtxPt                        max=100     lengthBranch=nJet
-type=7  name=Jet_phi                          max=100     lengthBranch=nJet
+#type=7  name=Jet_vtxMass                      max=100     lengthBranch=nJet
+#type=7  name=Jet_vtx3DVal                     max=100     lengthBranch=nJet
+#type=7  name=Jet_vtx3DSig                     max=100     lengthBranch=nJet
+#type=7  name=Jet_vtxNtracks                   max=100     lengthBranch=nJet
+#type=7  name=Jet_vtxPt                        max=100     lengthBranch=nJet
+#type=7  name=Jet_phi                          max=100     lengthBranch=nJet
 type=6  name=Jet_mcFlavour                    max=100     lengthBranch=nJet  onlyMC=1 
 type=6  name=Jet_hadronFlavour                max=100     lengthBranch=nJet  onlyMC=1 
 type=7  name=Jet_btagCSVV0                    max=100     lengthBranch=nJet
 type=7  name=Jet_btagnew                      max=100     lengthBranch=nJet
-type=7  name=Jet_btagCMVA                     max=100     lengthBranch=nJet
 type=6  name=Jet_mcMatchId                    max=100     lengthBranch=nJet  onlyMC=1 
 type=7  name=Jet_bTagWeightHFUp               max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightHFDown             max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightLFUp               max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightLFDown             max=100     lengthBranch=nJet
+
+type=1  name=nFatjetAK08ungroomed             onlyMC=1
+type=7  name=FatjetAK08ungroomed_bbtag        max=10  onlyMC=1
+type=7  name=FatjetAK08ungroomed_pt           max=10  onlyMC=1
+type=7  name=FatjetAK08ungroomed_eta          max=10  onlyMC=1
+type=7  name=FatjetAK08ungroomed_phi          max=10  onlyMC=1
+type=7  name=FatjetAK08ungroomed_mass        max=10  onlyMC=1
 
 type=1  name=nGenBQuarkFromH                  onlyMC=1
 type=7  name=GenBQuarkFromH_pt        max=10  onlyMC=1
@@ -247,7 +291,6 @@ type=7  name=GenVbosons_phi                   max=10  onlyMC=1
 type=7  name=GenVbosons_mass                  max=10  onlyMC=1
 type=6  name=GenVbosons_pdgId                 max=10  onlyMC=1
 
-type=1  name=nGenTop                                  onlyMC=1
 
 ## variables needed for the jet energy regression, maybe we can find a way to
 ## not save these?

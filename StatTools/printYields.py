@@ -22,16 +22,17 @@ dc_string = "" # write datacard
 #cats = ["WenLowPt_0","WenLowPt_1","WenHighPt_0","WenHighPt_1","WmnLowPt_0","WmnLowPt_1","WmnMidPt_0","WmnMidPt_1","WmnHighPt_0","WmnHighPt_1"]
 #cat_labels = ["ch1_Wenu","ch1_Wenu3","ch2_Wmunu","ch2_Wmunu2","ch2_Wmunu3"]
 #cat_labels = ["ch1_WenuL","ch1_WenuH","ch1_Wenu3L","ch1_Wenu3H","ch2_WmunuL","ch2_WmunuH","ch2_Wmunu2L","ch2_Wmunu2H","ch2_Wmunu3L","ch2_Wmunu3H"]
-#samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
-#samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
-#samples = ["ZH","WH","Bkg"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
-#samples = ["WH","TT","s_Top"]
-#samples = ["WH","TT"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
+samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+#samples = ["ZH_hbb","WH_hbb","Bkg"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b"]
+#samples = ["WH_hbb","TT","s_Top"]
+#samples = ["WH_hbb","TT"]
 #cats = ["WmnLowPt","WmnMidPt", "WmnHighPt"]
 #cat_labels = ["ch2_Wmunu", "ch2_Wmunu2","ch2_Wmunu3"]
 #cats = ["WenLowPt", "WenHighPt"]
@@ -43,8 +44,8 @@ samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1
 #    cat_labels = list(cats)
 
 if args.doVV:
-    samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
-    #samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
+    samples = ["VVHF","VVLF","ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
+    #samples = ["VVHF","VVLF","ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
 
 # It probably makes sense to just run this script once per channel and
 # then combine the datacards with combineDatacard.py, but the code is set
@@ -80,7 +81,7 @@ for i in range(len(cats)):
         nyield = ifile.Get("BDT_%s_%s" % (cat_labels[i],sample)).Integral()
         if (nyield > 0): zeroYield = False
         print "%s = %.4f" % (sample, nyield )
-        if (sample != "WH" and sample != "ZH"): nBkgTot += nyield
+        if (sample != "WH_hbb" and sample != "ZH_hbb"): nBkgTot += nyield
         else: nSigTot += nyield
         # for readable aligment
         if (nyield < 10):
@@ -120,7 +121,7 @@ if (args.systematics != ""):
     for line in sys_file:
         if (line[0] == '#'): continue
         line = line.strip()
-        #print line
+        print line
         params = line.split(' ')
         # remove extra spaces, there's probably a smarter way to do this
         paramsToKeep = []

@@ -55,6 +55,7 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch) {
     //std::cout<<nProFromFile<<std::endl; 
     if(nProFromFile) {
         TFile *file = TFile::Open(fname);
+        if (file->IsZombie()) return;
         //TH1F* counter = (TH1F*)file.Get("Count");
         //processedEvents+=counter->GetBinContent(1);
         //TH1F* counterPos = (TH1F*)file->Get("CountPosWeight");
@@ -62,7 +63,7 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch) {
         TH1F* counter = (TH1F*)file->Get("CountWeighted");
         //int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
         float nEffective = counter->GetBinContent(1);
-        if(sampleNum==49) {
+        if(sampleNum==49 or sampleNum==491) {
             //special prescription for WJets_BGenFilter sample weighting
             TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
             nEffective = counterFullWeight->GetBinContent(1); 

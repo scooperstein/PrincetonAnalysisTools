@@ -91,7 +91,8 @@ for i in range(fpf_s.getSize()):
 	if not sigma_p > 0: sigma_p = (nuis_p.getMax()-nuis_p.getMin())/2
         if options.abs: row += [ "%.6f +/- %.6f" % (nuis_p.getVal(), nuis_p.getError()) ]
 
-    for fit_name, nuis_x in [('b', nuis_b), ('s',nuis_s)]:
+    #for fit_name, nuis_x in [('b', nuis_b), ('s',nuis_s)]:
+    for fit_name, nuis_x in [('s',nuis_s)]:
         if nuis_x == None:
             row += [ " n/a " ]
         else:
@@ -134,8 +135,8 @@ for i in range(fpf_s.getSize()):
                 else:
                     row[-1] = " %+4.2f, %4.2f" % (valShift, sigShift)
 
-                if (abs(valShift) > options.vtol2 or abs(sigShift-1) > options.stol2):
-
+                #if (abs(valShift) > options.vtol2 or abs(sigShift-1) > options.stol2):
+                if ((abs(valShift) > options.vtol2 or abs(sigShift-1) > options.stol2) and name.find("_bin")==-1):
                     # severely report this nuisance:
                     # 
                     # the best fit moved by more than 2.0 sigma or the uncertainty (sigma)
@@ -145,7 +146,8 @@ for i in range(fpf_s.getSize()):
 
                     flag = True
 
-                elif (abs(valShift) > options.vtol  or abs(sigShift-1) > options.stol):
+                #elif (abs(valShift) > options.vtol  or abs(sigShift-1) > options.stol):
+                elif ((abs(valShift) > options.vtol  or abs(sigShift-1) > options.stol) and name.find("_bin")==-1):
 
                     # report this nuisance:
                     # 
@@ -170,7 +172,8 @@ for i in range(fpf_s.getSize()):
 # print the results
 #----------
 
-fmtstring = "%-40s     %15s    %15s  %10s"
+fmtstring = "%-40s     %15s    %10s"
+#fmtstring = "%-40s     %15s    %15s  %10s"
 highlight = "*%s*"
 morelight = "!%s!"
 pmsub, sigsub = None, None
@@ -179,7 +182,8 @@ if options.format == 'text':
         fmtstring = "%-40s     %15s    %30s    %30s  %10s"
         print fmtstring % ('name', 'pre fit', 'b-only fit', 's+b fit', 'rho')
     else:
-        print fmtstring % ('name', 'b-only fit', 's+b fit', 'rho')
+        print fmtstring % ('name', 's+b fit', 'rho')
+        #print fmtstring % ('name', 'b-only fit', 's+b fit', 'rho')
 elif options.format == 'latex':
     pmsub  = (r"(\S+) \+/- (\S+)", r"$\1 \\pm \2$")
     sigsub = ("sig", r"$\\sigma$")
@@ -226,9 +230,13 @@ elif options.format == 'html':
         print "<tr><th>nuisance</th><th>pre fit</th><th>background fit </th><th>signal fit</th><th>correlation</th></tr>"
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-30s </td><td> %-30s </td><td> %-15s </td></tr>"
     else:
+        #what = "&Delta;x/&sigma;<sub>in</sub>, &sigma;<sub>out</sub>/&sigma;<sub>in</sub>";
         what = "&Delta;x/&sigma;<sub>in</sub>, &sigma;<sub>out</sub>/&sigma;<sub>in</sub>";
-        print "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)</tr>" % (what,what)
-        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td><td> %-15s </td></tr>"
+        #print "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)</tr>" % (what,what)
+        print "<tr><th>nuisance</th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)</tr>" % (what)
+        #fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td></tr>"
+        #fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td><td> %-15s </td></tr>"
+        fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td></tr>"
 
 names = table.keys()
 names.sort()
@@ -243,7 +251,8 @@ for n in names:
     if options.abs:
        print fmtstring % (n, v[0], v[1], v[2], v[3])
     else:
-       print fmtstring % (n, v[0], v[1], v[2])
+       #print fmtstring % (n, v[0], v[1], v[2])
+       print fmtstring % (n, v[0], v[1])
 
 if options.format == "latex":
     print " \\hline\n\end{tabular}"
@@ -290,8 +299,8 @@ if options.plotfile:
             theta = hist_fit_b.GetBinContent(ibin)
             dtheta = hist_fit_b.GetBinError(ibin)
             label = hist_fit_b.GetXaxis().GetBinLabel(ibin)
-            #if (label.find("_bin") != -1): continue
-            if (label.find("bTagWeight") == -1): continue
+            if (label.find("_bin") != -1): continue
+            #if (label.find("bTagWeight") == -1): continue
             #print "label = "+label
             #if (label.find("vhbb_res") == -1 and label.find("vhbb_scale") == -1): continue
             #print "passed"
@@ -306,8 +315,8 @@ if options.plotfile:
             theta_b = hist_fit_b.GetBinContent(ibin)
             dtheta_b = hist_fit_b.GetBinError(ibin)
             label_b = hist_fit_b.GetXaxis().GetBinLabel(ibin)
-            #if (label_b.find("_bin") != -1): continue
-            if (label_b.find("_bTagWeight") == -1): continue
+            if (label_b.find("_bin") != -1): continue
+            #if (label_b.find("_bTagWeight") == -1): continue
 	    #if (label_b.find("vhbb_res") == -1 and label_b.find("vhbb_scale") == -1): continue
             theta_s = hist_fit_s.GetBinContent(ibin)
             dtheta_s = hist_fit_s.GetBinError(ibin)

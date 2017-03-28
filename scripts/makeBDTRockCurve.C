@@ -13,14 +13,20 @@ void makeBDTRockCurve(char* filename, char *treename, std::vector<std::string> b
 //TFile *ifile = new TFile(filename, "r");
 //TTree *tree = (TTree*) ifile->Get(treename);
 TChain *tree = new TChain("tree");
-tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_mc.root");
-tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_ttpowheg.root");
-tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_signal.root");
+tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining/output_mc_2.root");
+tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining/output_ttpowheg_2.root");
+tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining/output_signal_2.root");
+
+TChain *tree2 = new TChain("tree");
+tree2->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining/output_mc_2.root");
+tree2->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining/output_ttpowheg_2.root");
+tree2->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining/output_signal_2.root");
 
 //char* presel = "hJets_btagCSV_1>0.6";
 //char* presel = "hJets_btagCSV_0>0.85 && hJets_btagCSV_1>0.6 && abs(HVdPhi)>2.5 && abs(lepMetDPhi)<2 && nAddJet_f<2 && nAddLep_f<2";
 //char* presel = "H_mass>60&&H_mass<160";
-char* presel = "H_mass>90&&H_mass<150";
+char* presel = "H_mass>90&&H_mass<150&&Pass_nominal";
+//char* presel = "H_mass>90&&H_mass<150&&nAddJet_f==1";
 //char* presel = "H_mass>90&&H_mass<150&&isWenu&&V_pt>180";
 
 int nBins = 300;
@@ -38,13 +44,14 @@ std::vector<Double_t*> bkg_train;
 //std::vector<Double_t*> bkg_overtrain;
 for (int i=0; i<nBDTs; i++) {
     if (tmvafiles.size()==0) {
+        //if (i==1) { tree = tree2; }
         h_bdtSig_test.push_back(new TH1F(Form("h_bdtSig_test_%s",bdtnames[i].c_str()),Form("h_bdtSig_test_%s",bdtnames[i].c_str()),nBins,-1,1)); 
         h_bdtBkg_test.push_back(new TH1F(Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),Form("h_bdtBkg_test_%s",bdtnames[i].c_str()),nBins,-1,1));
         h_bdtSig_train.push_back(new TH1F(Form("h_bdtSig_train_%s",bdtnames[i].c_str()),Form("h_bdtSig_train_%s",bdtnames[i].c_str()),nBins,-1,1)); 
         h_bdtBkg_train.push_back(new TH1F(Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),Form("h_bdtBkg_train_%s",bdtnames[i].c_str()),nBins,-1,1));
-        tree->Draw(Form("%s>>h_bdtSig_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==0&&(%s))*weight",presel));
+        tree->Draw(Form("%s>>h_bdtSig_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("((sampleIndex==-12501||sampleIndex==-12500)&&evt%2==0&&(%s))*weight",presel));
         tree->Draw(Form("%s>>h_bdtBkg_test_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&(sampleIndex<24||sampleIndex>31)&&evt%2==0&&(%s))*weight",presel));
-        tree->Draw(Form("%s>>h_bdtSig_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex==-12501&&evt%2==1&&(%s))*weight",presel));
+        tree->Draw(Form("%s>>h_bdtSig_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("((sampleIndex==-12501||sampleIndex==-12500)&&evt%2==1&&(%s))*weight",presel));
         tree->Draw(Form("%s>>h_bdtBkg_train_%s",bdtnames[i].c_str(),bdtnames[i].c_str()),Form("(sampleIndex>0&&(sampleIndex<24||sampleIndex>31)&&evt%2==1&&(%s))*weight",presel));
     }
     else {

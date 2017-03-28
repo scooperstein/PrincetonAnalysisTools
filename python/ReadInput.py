@@ -86,6 +86,14 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
                     # with one file at the beginning
                     if aminitialized == 0: 
                         print("Initializing with",filename)
+                        try:
+                            ifile = ROOT.TFile.Open(filename)
+                            tree = ifile.Get("tree")
+                            print tree.GetEntry()
+                            print tree.GetEntries()
+                        except:
+                            print "File: %s : no good, trying with another..." % filename
+                            continue
                         am.Initialize(filename)
                         if (am.fChain.GetEntries() == 0):
                             continue
@@ -96,6 +104,10 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
                     # if data and fileToRun is not empty then only run that file
                     try:
                         #print "adding file, isBatch",isBatch
+                        #if not isBatch:
+                        #    testfile = ROOT.TFile.Open(filename)
+                        #    testfile.Recover()
+                        #if (testfile.isZombie()): continue
                         samplecon.AddFile(filename,isBatch)
                         addedAtLeastOneFile=True
                     except:
@@ -171,7 +183,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
             reg1 = ReadTextFile(settings["reg1settings"], "bdt",list()) 
             for bdtvar in reg1.bdtVars:
                 if (bdtvar.isExisting):
-                    am.SetupBranch(bdtvar.localVarName, 2)
+                    am.SetupBranch(bdtvar.localVarName, 2, -1, 0, "early")
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet1EnergyRegression(reg1)
@@ -180,7 +192,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
             reg2 = ReadTextFile(settings["reg2settings"], "bdt",list()) 
             for bdtvar in reg2.bdtVars:
                 if (bdtvar.isExisting):
-                    am.SetupBranch(bdtvar.localVarName, 2)
+                    am.SetupBranch(bdtvar.localVarName, 2, -1 ,0, "early")
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet2EnergyRegression(reg2) 
@@ -205,6 +217,12 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
         return am    
     elif filetype is "samplefile":
         samples=MakeSampleMap(filelines)
+        #print "writing samples to pickle file"
+        #import pickle
+        #with open('samples.pickle', 'wb') as fp:
+        #    pickle.dump(samples, fp)
+        #with open ('samples2.pickle', 'rb') as fp:
+        #    samples = pickle.load(fp)
         return samples
     elif filetype is "branchlist":
         branches=MakeBranchMap(filelines)
@@ -277,11 +295,15 @@ def MakeSampleMap(lines):
             if name.find("file") is 0:
                 samplepaths.append(str(value))
             if name.find("dir") is 0:
+                site = "FNAL"
+                if value.find("CERN") is 0:
+                    site = "CERN"
+                    value = value.replace("CERN:","")
                 if value.find(',') is not 0:
                     for dirname in value.split(','):
-                        samplepaths.extend(findAllRootFiles(dirname))
+                        samplepaths.extend(findAllRootFiles(dirname,site))
                 else:
-                    samplepaths = findAllRootFiles(value)
+                    samplepaths = findAllRootFiles(value,site)
                 #print value
                 #if value.find("/store") is 0:
                 #    import subprocess
@@ -571,28 +593,32 @@ def SetupSF(lines):
             for j in range(1, nY+1):
                 print "eta: ",sfmap.GetYaxis().GetBinLowEdge(j),": ",sfmap.GetBinContent(i,j)
     return SFs
-def findAllRootFiles(value):
+def findAllRootFiles(value, site):
     samplepaths = []
     if value.find("/store") is 0:
         import subprocess
-        onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", "root://cmseos.fnal.gov", "ls", value]).split('\n')
+        siteIP = "root://cmseos.fnal.gov"
+        if (site == "CERN"): 
+            siteIP = "root://188.184.38.46:1094"
+        onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", siteIP, "ls", value]).split('\n')
         for filepath in onlyFiles:
             if (filepath == ""): continue
             #filepath = "root://xrootd-cms.infn.it/" + filepath
             #filepath = "root://cmsxrootd.fnal.gov/" + filepath
             if filepath.find(".root") != -1:
-                filepath = "root://cmseos.fnal.gov/" + filepath
+                filepath = siteIP + "/" + filepath
                 samplepaths.append(filepath)
-            else:
-                samplepaths.extend(findAllRootFiles(filepath))
+            elif filepath.find("/log/")==-1:
+                samplepaths.extend(findAllRootFiles(filepath,site))
     else:
         from os import listdir
         from os.path import isfile, join
+        print "here"
         onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
         for rootfile in onlyfiles:
-            #print rootfile
+            print rootfile
             if rootfile.find(".root") != -1:
                 samplepaths.append(str(value)+"/"+str(rootfile))
             else:
-                samplepaths.extend(findAllRootFiles(str(value)+"/"+str(rootfile)))
+                samplepaths.extend(findAllRootFiles(str(value)+"/"+str(rootfile)),site)
     return samplepaths

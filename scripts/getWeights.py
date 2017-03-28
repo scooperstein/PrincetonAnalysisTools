@@ -3,7 +3,7 @@
 
 from ROOT import *
 
-prefix = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/"
+//prefix = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/"
 prefix = ""
 
 presel = "(Vtype==2 || Vtype==3)"
@@ -27,17 +27,20 @@ def getWeight(fileInc, fileB, region):
     print countB
     tree2.Reset()
 
-    weight = countInc/(countB+countInc)
+    if countInc == 0:
+        weight = 0.
+    else:
+        weight = countInc/(countB+countInc)
     print weight
     return weight
 
-WjetsHT100       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v3/160909_064734/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0_ext1-v1/160909_064429/0000/"
-WjetsHT200       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160909_065117/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0_ext1-v1/160909_064547/0000/"
-WjetsHT400       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160909_065727/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0_ext1-v1/160909_065035/0000/"
-WjetsHT600       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160909_065309/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0_ext1-v1/160909_064625/0000/"
-WjetsHT800       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v2/160909_065919/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0_ext1-v1/160909_064920/0000"
-WjetsHT1200      = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160909_070357/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0_ext1-v1/160909_064812/0000/" 
-WjetsHT2500      = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160909_070316/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0_ext1-v1/160909_065501/0000/"  
+WjetsHT100       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170128_122742/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext1-v1/170128_122829/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext2-v1/170128_125240/0000/"
+WjetsHT200       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170128_125327/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext1-v1/170128_123055/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext2-v1/170128_123142/0000"
+WjetsHT400       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170128_123406/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext1-v1/170128_123458/0000/"
+WjetsHT600       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170128_123558/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext1-v1/170206_171038/0000/"
+WjetsHT800       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext1-v1/170128_123824/0000/"
+WjetsHT1200      = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170128_122917/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext1-v1/170128_123006/0000/"
+WjetsHT2500      = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170128_123231/0000/,/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6_ext1-v1/170128_123317/0000/"
 
 ZjetsHT100       = "ZJetsToNuNu_HT-100To200_13TeV-madgraph"
 ZjetsHT200       = "ZJetsToNuNu_HT-200To400_13TeV-madgraph"
@@ -54,15 +57,16 @@ ZLLBjets        = "DYBJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 
 ZBjets          = "DYBJetsToNuNu_Zpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"
 
-WBjets          = "WBJetsToLNu_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24s_WBJetsToLNu_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160630_140300/0000/"
-WBjets          = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WBJetsToLNu_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WBJetsToLNu_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160909_073735/0000/"
-WjetsBgen       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V24/WJetsToLNu_BGenFilter_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V24_WJetsToLNu_BGenFilter_Wpt-40toInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__spr16MAv2-puspr16_80r2as_2016_MAv2_v0-v1/160909_065158/0000/" 
+WBjets          = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WBJetsToLNu_Wpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WBJetsToLNu_Wpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170130_121737/0000/"
+WjetsBgen       = "/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_BGenFilter_Wpt-200toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/VHBB_HEPPY_V25_WJetsToLNu_BGenFilter_Wpt-200toInf_TuneCUETP8M1_13TeV-madgraphMLM-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/170128_122607/0000/"
 
 DYBJets             = "(lheNb>0 && lheV_pt>40)"
 DYLightJets         = "!(lheNb>0 && lheV_pt>40)"
 
-WBJets             = " (lheNb>0  && lheV_pt>40)"
-WJetsBGen           = " (lheNb==0 && nGenStatus2bHad>0  && lheV_pt>40)"
+#WBJets             = " (lheNb>0  && lheV_pt>40)"
+WBJets             = " (lheNb>0  && lheV_pt>100 && lheV_pt<200)"
+#WJetsBGen           = " (lheNb==0 && nGenStatus2bHad>0  && lheV_pt>40)"
+WJetsBGen           = " (lheNb==0 && nGenStatus2bHad>0  && lheV_pt>200)"
 WLightJets          = "((lheNb==0 && nGenStatus2bHad==0 && lheV_pt>40) || (lheV_pt<40))"
 
 HT0            = "(lheHT<100)"

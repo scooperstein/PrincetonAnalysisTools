@@ -9,6 +9,8 @@ type=2  name=doControlSamples   val=1
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
 type=2  name=do2015             val=1
+type=2  name=doBoost            val=0
+type=2  name=doCMVA             val=0
 
 type=2  name=j1ptCut            val=25
 type=2  name=j2ptCut            val=25

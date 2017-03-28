@@ -54,7 +54,9 @@ else:
     for sample in am.samples:
         if (options.sample != ""):
             #if (sample.sampleName != options.sample): continue
-            if (sample.sampleName not in samplesToSubmit): continue
+            if (sample.sampleName not in samplesToSubmit):
+                print "sample: ",sample.sampleName," not list list, skipping..."
+                continue
         sampleName = sample.sampleName
         print sampleName
         os.system("mkdir -p %s/%s" % (jobName,sampleName))

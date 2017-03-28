@@ -524,8 +524,8 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
             int saved=0;
             // FIXME need a loop over systematics
             for (Long64_t jentry=0; jentry<nentries;jentry++) {
-            //for (Long64_t jentry=0; jentry<1001;jentry++) {
-                if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
+                if((jentry%1000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
+                //if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
                 
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
@@ -575,7 +575,6 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                                 }
                                 else {
                                     *f[sf.branchname] = sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err);
-                                     //std::cout<<*f[sf.branches[0]]<<": ,"<<*f[sf.branches[1]]<<": ,"<<std::cout<<sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err)<<std::endl;
                                 }
                             }
                             else {
@@ -685,6 +684,7 @@ void AnalysisManager::SetupSystematicsBranches(){
         }
         if (systematics[iSyst].name != "nominal") {
             SetupNewBranch(Form("H_mass_%s", systematics[iSyst].name.c_str()), 2);
+            SetupNewBranch(Form("H_pt_%s", systematics[iSyst].name.c_str()), 2);
             SetupNewBranch(Form("Jet_btagCSV_%s", systematics[iSyst].name.c_str()), 7, 100);
             SetupNewBranch(Form("nAddJets252p9_puid_%s", systematics[iSyst].name.c_str()), 1);
         }
