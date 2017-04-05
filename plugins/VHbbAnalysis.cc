@@ -1287,7 +1287,7 @@ void VHbbAnalysis::FinishEvent(){
     }   
 
     if(jet1EnergyRegressionIsSet && jet2EnergyRegressionIsSet) {
-        *f["hJets_pt_0"] = float(f["Jet_pt"][*in["hJetInd1"]]);
+        /**f["hJets_pt_0"] = float(f["Jet_pt"][*in["hJetInd1"]]);
         //*f["hJets_corr_0"] = f["Jet_corr"][*in["hJetInd1"]];
         //*f["hJets_rawPt_0"] = float(d["hJets_rawPt"][0]);
         *f["hJets_eta_0"] = float(f["Jet_eta"][*in["hJetInd1"]]);
@@ -1329,15 +1329,17 @@ void VHbbAnalysis::FinishEvent(){
         *f["hJets_vtx3dL_1"] = f["Jet_vtx3DVal"][*in["hJetInd2"]];
         *f["hJets_vtxPt_1"] = float(f["Jet_vtxPt"][1]);
         *f["hJets_vtxNtracks_1"] = float(f["Jet_vtxNtracks"][*in["hJetInd2"]]);
-        *f["hJets_vtx3deL_1"] = f["Jet_vtx3DSig"][*in["hJetInd2"]];
+        *f["hJets_vtx3deL_1"] = f["Jet_vtx3DSig"][*in["hJetInd2"]];*/
         
         if(debug>10000) {
             std::cout<<"Evaluating the Jet Energy Regression..."<<std::endl;
             PrintBDTInfoValues(jet1EnergyRegression);
             PrintBDTInfoValues(jet2EnergyRegression);
         }
-        double r1Pt = jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtmethod)[0];
-        double r2Pt = jet2EnergyRegression.reader->EvaluateRegression(jet2EnergyRegression.bdtmethod)[0];
+        //double r1Pt = jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtmethod)[0];
+        //double r2Pt = jet2EnergyRegression.reader->EvaluateRegression(jet2EnergyRegression.bdtmethod)[0];
+        double r1Pt = evaluateRegression(*in["hJetInd1"]);
+        double r2Pt = evaluateRegression(*in["hJetInd2"]);
 
         *f["Jet1_regWeight"] = r1Pt/(*f["hJets_pt_0"]);
         *f["Jet2_regWeight"] = r2Pt/(*f["hJets_pt_1"]);
@@ -1539,7 +1541,8 @@ bool VHbbAnalysis::ElectronSelection(){
             && f["selLeptons_relIso03"][i]< *f["erelisocut"]
             //&& in["selLeptons_eleCutIdSpring15_25ns_v1"][i] >= *f["elidcut"]
             //&& in["selLeptons_tightId"][i] >= *f["elidcut"]
-            && in["selLeptons_eleMVAIdSpring15Trig"][i] >= *f["elidcut"]
+            //&& in["selLeptons_eleMVAIdSpring15Trig"][i] >= *f["elidcut"]
+            && in["selLeptons_eleMVAIdSppring16GenPurp"][i] >= *f["elidcut"]
             ){
             if (f["selLeptons_pt"][i] > elMaxPt) {
                 elMaxPt = f["selLeptons_pt"][i];
@@ -2427,11 +2430,11 @@ for (int j=0; j < *in["nJet"]; j++) {
     float scaleShift = Jet_corr_var / corr_nominal;
     f["Jet_corr_"+variation+"_ratio"][j] = scaleShift;
     float Jet_pt_nom = f["Jet_pt"][j]; 
-    float Jet_pt_reg_nom = f["Jet_pt_reg"][j];
-    //float Jet_pt_reg_nom = evaluateRegression(j); // probably safer to re-evaluate the nominal in case there is any residual bias in re-implementating of reg.
+    //float Jet_pt_reg_nom = f["Jet_pt_reg"][j];
+    float Jet_pt_reg_nom = evaluateRegression(j); // probably safer to re-evaluate the nominal in case there is any residual bias in re-implementating of reg.
     f["Jet_pt"][j] = f["Jet_pt"][j] * scaleShift; 
-    //float Jet_pt_reg_var = evaluateRegression(j); // re-evaluate regression on top of variation
-    float Jet_pt_reg_var = Jet_pt_reg_nom * scaleShift;
+    float Jet_pt_reg_var = evaluateRegression(j); // re-evaluate regression on top of variation
+    //float Jet_pt_reg_var = Jet_pt_reg_nom * scaleShift;
     f["Jet_pt"][j] = Jet_pt_nom;
     f["Jet_pt_reg_corr"+variation+"_ratio"][j] = Jet_pt_reg_var / Jet_pt_reg_nom;
     //std::cout<<"Jet_corr_var = "<<Jet_corr_var<<", corr_nominal = "<<corr_nominal<<", scaleShift = "<<scaleShift<<std::endl;
