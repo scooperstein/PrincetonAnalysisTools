@@ -124,7 +124,7 @@ public :
     void            PrintBDTInfoValues(BDTInfo bdt);
     
     //void            Loop(std::string sampleName="", std::string filename="", int fNum=1 );
-    void            Loop(std::string sampleName="", std::string filename="", std::string ofilename="" );
+    void            Loop(std::string sampleName="", std::string filename="", std::string ofilename="", bool doSkim=false );
     //virtual void     WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring);
     //Value            RetrieveValue(std::string key);
     

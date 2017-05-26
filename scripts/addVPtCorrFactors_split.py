@@ -21,7 +21,7 @@ def getCorrFactorWHFUp(V_pt):
 def getCorrFactorWHFDown(V_pt):
     return (1.259 - 0.00154*V_pt)
 
-ifile = ROOT.TFile(sys.argv[1])
+ifile = ROOT.TFile.Open(sys.argv[1])
 ofile = ROOT.TFile(sys.argv[2],"RECREATE")
 
 tree = ifile.Get("tree")

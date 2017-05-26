@@ -1,13 +1,14 @@
-json=aux/Tight27AfterIDISO_out.json name=Tight27AfterIDISO binning=eta_pt_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_SingleElTrigger
-#json=aux/WP80PlusIso_BCD.json  name=WP80PlusIso_BCD  binning=eta_pt_ratio  branches=selLeptons_pt_0,selLeptons_eta_0  branchname=SF_ElIdMVATrigWP80
-json=aux/ScaleFactor_etracker_80x.json name=ScaleFactor_tracker_80x binning=eta_pt_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_egammaEffi_tracker
-#json=aux/ScaleFactor_MVAIDWP80_80x.json name=ScaleFactor_MVAIDWP80_80x binning=eta_pt_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_ElIdMVATrigWP80
-json=aux/EIDISO_WH_out.json name=EIDISO_WH binning=eta_pt_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_ElIdIso
-json=aux/MuID_EfficienciesAndSF_BCDEF.json  name=MC_NUM_TightID_DEN_genTracks_PAR_pt_eta binning=pt_abseta_ratio  branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_MuIDTightBCDEF
-json=aux/MuID_EfficienciesAndSF_GH.json  name=MC_NUM_TightID_DEN_genTracks_PAR_pt_eta binning=pt_abseta_ratio  branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_MuIDTightGH
-json=aux/MuISO_SFs_BCDEF.json   name=TightISO_TightID_pt_eta  binning=pt_abseta_ratio  branches=selLeptons_pt_0,selLeptons_eta_0  branchname=SF_MuIsoTightBCDEF
-json=aux/MuISO_SFs_GH.json   name=TightISO_TightID_pt_eta  binning=pt_abseta_ratio  branches=selLeptons_pt_0,selLeptons_eta_0  branchname=SF_MuIsoTightGH
-json=aux/MuTrigger_SFs_BCDEF.json name=IsoMu24_OR_IsoTkMu24_PtEtaBins binning=pt_abseta_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_MuTriggerBCDEF
-json=aux/MuTrigger_SFs_GH.json name=IsoMu24_OR_IsoTkMu24_PtEtaBins binning=pt_abseta_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_MuTriggerGH
-json=aux/trk_SF_RunBCDEF.json name=Graph binning=pt_eta_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_MuTrackerBCDEF
-json=aux/trk_SF_RunGH.json name=Graph binning=pt_eta_ratio branches=selLeptons_pt_0,selLeptons_eta_0 branchname=SF_MuTrackerGH
+json=aux/Tight27AfterIDISO_out.json name=Tight27AfterIDISO binning=eta_pt_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_SingleElTrigger length=nselLeptons
+#json=aux/WP80PlusIso_BCD.json  name=WP80PlusIso_BCD  binning=eta_pt_ratio  branches=selLeptons_pt,selLeptons_eta  branchname=SF_ElIdMVATrigWP80 length=nselLeptons
+json=aux/ScaleFactor_etracker_80x.json name=ScaleFactor_tracker_80x binning=eta_pt_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_egammaEffi_tracker length=nselLeptons
+#json=aux/ScaleFactor_MVAIDWP80_80x.json name=ScaleFactor_MVAIDWP80_80x binning=eta_pt_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_ElIdMVATrigWP80 length=nselLeptons
+json=aux/EIDISO_WH_out.json name=EIDISO_WH binning=eta_pt_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_ElIdIso length=nselLeptons
+json=aux/MuID_EfficienciesAndSF_BCDEF.json  name=MC_NUM_TightID_DEN_genTracks_PAR_pt_eta binning=pt_abseta_ratio  branches=selLeptons_pt,selLeptons_eta branchname=SF_MuIDTightBCDEF length=nselLeptons
+json=aux/MuID_EfficienciesAndSF_GH.json  name=MC_NUM_TightID_DEN_genTracks_PAR_pt_eta binning=pt_abseta_ratio  branches=selLeptons_pt,selLeptons_eta branchname=SF_MuIDTightGH length=nselLeptons
+json=aux/MuISO_SFs_BCDEF.json   name=TightISO_TightID_pt_eta  binning=pt_abseta_ratio  branches=selLeptons_pt,selLeptons_eta  branchname=SF_MuIsoTightBCDEF length=nselLeptons
+json=aux/MuISO_SFs_GH.json   name=TightISO_TightID_pt_eta  binning=pt_abseta_ratio  branches=selLeptons_pt,selLeptons_eta  branchname=SF_MuIsoTightGH length=nselLeptons
+json=aux/MuTrigger_SFs_BCDEF.json name=IsoMu24_OR_IsoTkMu24_PtEtaBins binning=pt_abseta_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_MuTriggerBCDEF length=nselLeptons
+json=aux/MuTrigger_SFs_GH.json name=IsoMu24_OR_IsoTkMu24_PtEtaBins binning=pt_abseta_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_MuTriggerGH length=nselLeptons
+json=aux/trk_SF_RunBCDEF.json name=Graph binning=pt_eta_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_MuTrackerBCDEF length=nselLeptons
+json=aux/trk_SF_RunGH.json name=Graph binning=pt_eta_ratio branches=selLeptons_pt,selLeptons_eta branchname=SF_MuTrackerGH length=nselLeptons
+json=aux/failingVeto_out.json  name=failingVeto_WH binning=eta_pt_ratio branches=selLeptons_pt,selLeptons_eta  branchname=SF_EleVeto length=nselLeptons

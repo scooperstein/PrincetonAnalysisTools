@@ -1,0 +1,65 @@
+name=Run2016BToG_Ele_ReMiniAOD                    dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9_data/Run2016BToG_Ele_ReMiniAOD/  type=0 xsec=1 lepFlav=1
+name=Run2016BToG_Mu_ReMiniAOD                     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9_data/Run2016BToG_Mu_ReMiniAOD/  type=0 xsec=1 lepFlav=0
+
+name=EWKWJets  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/EWKWJets/  type=-100  xsec=20.44 npro=1696263 
+
+#name=WJets       dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/       type=70  xsec=61526.7 doJetFlavorSplit=1
+#name=WJets-Pt100To250       dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/,/store/group/lpchbb/HeppyNtuples/V25b/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/       type=71  xsec=628.3 doJetFlavorSplit=1
+#name=WJets-Pt250To400       dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_Pt-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/,/store/group/lpchbb/HeppyNtuples/V25b/WJetsToLNu_Pt-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/        type=72  xsec=22.37 doJetFlavorSplit=1
+#name=WJets-Pt400To600       dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_Pt-400To600_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/        type=73  xsec=2.67 doJetFlavorSplit=1
+#name=WJets-Pt600ToInf       dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_Pt-600ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/       type=74  xsec=61526.7 doJetFlavorSplit=1
+name=WJets_0J         dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/WJets_0J/    type=80   xsec=49110 npro=78830600
+name=WJets_1J         dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/WJets_1J/    type=81   xsec=8218  npro=19087588
+name=WJets_2J         dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/WJets_2J/    type=82   xsec=2772  npro=14640582
+#name=WJets_madgraph   dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=22  xsec=61526.7  doJetFlavorSplit=1
+#name=WJets-HT100To200  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=44 xsec=1345 kfac=1.21 doJetFlavorSplit=1
+#name=WJets-HT200To400   dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=45 xsec=359.7  kfac=1.21 doJetFlavorSplit=1
+#name=WJets-HT400To600  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=46  xsec=48.91 kfac=1.21 doJetFlavorSplit=1
+#name=WJets-HT600To800  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=47  xsec=12.05 kfac=1.21  doJetFlavorSplit=1 
+#name=WJets-HT800To1200  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=41  xsec=5.501 kfac=1.21  doJetFlavorSplit=1 
+#name=WJets-HT1200To2500  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=42  xsec=1.329 kfac=1.21  doJetFlavorSplit=1 
+#name=WJets-HT2500ToInf  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/     type=43  xsec=0.03216 kfac=1.21  doJetFlavorSplit=1 
+#name=WBJets  dir=/store/group/lpchbb/HeppyNtuples/V25/WBJetsToLNu_Wpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=48  xsec=6.004 kfac=1.21  doJetFlavorSplit=1
+#name=WBJets-Pt100To200  dir=/store/group/lpchbb/HeppyNtuples/V25/WBJetsToLNu_Wpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/,/store/group/lpchbb/HeppyNtuples/V25b/WBJetsToLNu_Wpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=48  xsec=6.004 kfac=1.21  doJetFlavorSplit=1
+#name=WBJets-Pt200ToInf  dir=/store/group/lpchbb/HeppyNtuples/V25b/WBJetsToLNu_Wpt-200toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=481  xsec=0.8524 kfac=1.21  doJetFlavorSplit=1
+#name=WJets_BGenFilter  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_BGenFilter_Wpt-200toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=49 xsec=3.545 kfac=1.21 doJetFlavorSplit=1
+#name=WJets_BGenFilter-Pt100To200  dir=/store/group/lpchbb/HeppyNtuples/V25b/WJetsToLNu_BGenFilter_Wpt-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=49 xsec=26.1 kfac=1.21 doJetFlavorSplit=1
+#name=WJets_BGenFilter-Pt200ToInf  dir=/store/group/lpchbb/HeppyNtuples/V25/WJetsToLNu_BGenFilter_Wpt-200toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/,/store/group/lpchbb/HeppyNtuples/V25b/WJetsToLNu_BGenFilter_Wpt-200toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/    type=491 xsec=3.545 kfac=1.21 doJetFlavorSplit=1
+#name=TT_powheg  dir=/eos/uscms/store/group/lpchbb/HeppyNtuples/V25/VHBB_HEPPY_V25_TT_TuneCUETP8M2T4_13TeV-powheg-Py8__RunIISummer16MAv2-PUMoriond17_80r2as_2016_TrancheIV_v6-v1/ type=120  xsec=831.76
+name=TT_powheg  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/TT_powheg/ type=120  xsec=831.76 npro=71480032
+name=TToLeptons_s   dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/TToLeptons_s/    type=16 xsec=3.36 npro=622671
+name=TToLeptons_t_powheg  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/TToLeptons_t_powheg/    type=17  xsec=136.02 npro=67239552
+name=TBarToLeptons_t_powheg  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/TBarToLeptons_t_powheg/    type=17  xsec=80.95 npro=38813840
+name=T_tW    dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/T_tW/    type=20  xsec=35.6 npro=6952366
+name=Tbar_tW   dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/Tbar_tW/     type=21  xsec=35.6 npro=6932659
+name=WZ_fil  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/WZ_fil/   type=34  xsec=10.71  npro=14001490
+name=WW_fil  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/WW_fil/   type=36  xsec=49.997 npro=3224860
+name=ZZ_fil  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/ZZ_fil/ type=37  xsec=3.22 npro=9656811
+
+name=QCD_HT100to200    dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT100to200/      type=24  xsec=2.785e7   npro=77688744
+name=QCD_HT200to300    dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT200to300/       type=25   xsec=1.717e6 npro=57478476
+name=QCD_HT300to500    dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT300to500/       type=26  xsec=3.513e5 npro=54338576
+name=QCD_HT500to700    dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT500to700/       type=27  xsec=3.163e4 npro=51670612
+name=QCD_HT700to1000   dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT700to1000/     type=28  xsec=6.802e3 npro=44813416
+name=QCD_HT1000to1500  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT1000to1500/  type=29  xsec=1.206e3 npro=15025459
+name=QCD_HT1500to2000  dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT1500to2000/   type=30  xsec=120.4 npro=11776320 
+name=QCD_HT2000toInf   dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT2000toInf/     type=31  xsec=25.24 npro=5739467
+#name=QCD_HT50to100    dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/QCD_HT50to100/       type=32  xsec=2.4675e8  npro=4097052 
+
+
+
+name=DYToLL_madgraph       dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_madgraph/      type=23  xsec=5765.4 npro=47989624
+name=DYToLL_HT100to200     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_HT100to200/    type=61  xsec=147.40 kfac=1.23 npro=7613096 
+name=DYToLL_HT200to400     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_HT200to400/    type=62  xsec=40.99 kfac=1.23 npro=1518932
+name=DYToLL_HT400to600     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_HT400to600/    type=63  xsec=5.678 kfac=1.23 npro=771383
+name=DYToLL_HT600to800     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_HT600to800/    type=64  xsec=1.367 kfac=1.23 npro=8292251
+name=DYToLL_HT800to1200     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_HT800to1200/    type=65  xsec=0.6304 kfac=1.23 npro=2518951
+name=DYToLL_HT1200to2500     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_HT1200to2500/    type=66  xsec=0.1514 kfac=1.23 npro=596020
+name=DYToLL_HT2500toInf     dir=/store/user/sbc01/SkimmedHeppyNtuples/V25_EWK_SR_May9/DYToLL_HT2500toInf/    type=67  xsec=0.003565 kfac=1.23 npro=399736
+
+
+
+
+
+
+

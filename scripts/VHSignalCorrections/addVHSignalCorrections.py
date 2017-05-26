@@ -26,7 +26,7 @@ def getVHCorrFactor(V_pt, typ):
     if (ibin > hist.GetNbinsX()): return hist.GetBinContent(hist.GetNbinsX())
     return hist.GetBinContent(ibin)
 
-ifile = ROOT.TFile(sys.argv[1])
+ifile = ROOT.TFile.Open(sys.argv[1])
 ofile = ROOT.TFile(sys.argv[2],"RECREATE")
 
 tree = ifile.Get("tree")

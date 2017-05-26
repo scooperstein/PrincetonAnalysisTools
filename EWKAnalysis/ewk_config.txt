@@ -1,0 +1,16 @@
+analysis=EWKAnalysis
+outputname=output
+
+samples=cfg/samples_skimmed.txt
+
+earlybranches=cfg/earlybranches.txt
+existingbranches=cfg/existingbranches.txt
+newbranches=cfg/newbranches.txt
+
+#bdtsettings=cfg/bdtsettings.txt
+reg1settings=cfg/reg1_settings.txt
+#reg2settings=cfg/reg2_settings.txt
+settings=cfg/settings.txt
+
+systematics=cfg/systematics.txt
+scalefactors=cfg/scalefactors.txt

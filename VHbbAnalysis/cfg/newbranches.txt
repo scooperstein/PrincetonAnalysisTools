@@ -82,6 +82,11 @@ type=2  name=H_pt_bestCSV
 type=2  name=jjWPtBalance
 type=2  name=CS_SF
 type=2  name=Lep_SF
+type=2  name=Lep_SFUp
+type=2  name=Lep_SFDown
+type=2  name=LepFail_SF
+type=2  name=LepFail_SFUp
+type=2  name=LepFail_SFDown
 type=2  name=WJetNLOWeight
 
 type=1  name=nAddJets252p9_puid

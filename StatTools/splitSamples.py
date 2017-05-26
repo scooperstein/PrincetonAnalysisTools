@@ -35,6 +35,9 @@ parser.add_argument('-tol','--tolerance',type=float,default=0.5,help="Tolerance 
 parser.add_argument('-bb','--binBoundaries',type=str,default="",help="Manually specify the bin edges for the histogram that goes into the histogram")
 parser.add_argument('-vv','--doVV', type=bool, default=False, help="If true do VV analysis (default False)")
 parser.add_argument('-donlo','--doNLOWJets', type=bool, default=False, help="If true use NLO W+jets samples, if false use LO (default False)")
+parser.add_argument('-rwtt','--reweightTT', type=bool, default=False, help="If true assume full TT statistics, if false use only half (default False)")
+parser.add_argument('-si','--oldSI', type=bool, default=False, help="If true use old sampleIndex def., if false use new (correct) definition (default False)")
+parser.add_argument('-sa', '--sample', type=str, default="", help="Specify to run on only one particular sample")
 args = parser.parse_args()
 print args
 
@@ -46,10 +49,16 @@ print args
 
 ROOT.gROOT.SetBatch(True)
 
-print "going to open this file now: ",args.inputfile
-ifile = ROOT.TFile.Open(args.inputfile, "r")
+#print "going to open this file now: ",args.inputfile
+ipath = args.inputfile
+#ifile = ROOT.TFile.Open(args.inputfile, "r")
 catName = args.catName
 presel = args.preselection
+
+if args.ofilename == "":
+    ofile = ROOT.TFile.Open("hists_%s.root" % catName, "RECREATE")
+else:
+    ofile = ROOT.TFile.Open(args.ofilename, "RECREATE")
 
 systematics = {}
 if (args.systematics != ""):
@@ -82,7 +91,10 @@ print set_of_weights
 #weight_string = "weight"
 #weight_string = "weight*(bTagWeightEF/bTagWeight)*(1+isWenu*(-1+(SF_HLT_Ele23_WPLoose[lepInd]/EffHLT_Ele27_WPLoose_Eta2p1[lepInd])))"
 #weight_string = "(1./CS_SF)*weight*(1 + (sampleIndex==120)*(-1 + 0.5))"
-weight_string = "(1./CS_SF)*weight"
+if args.reweightTT:
+    weight_string = "(1./CS_SF)*weight*(1 + (sampleIndex==120)*(-1 + 0.5))"
+else:
+    weight_string = "(1./CS_SF)*weight"
 #weight_string = "(1./CS_SF)*weight*(1 + (sampleIndex==17)*(-1 + 3.07))"
 #weight_string = "(1./CS_SF)*(bTagWeightICHEP/bTagWeight)*weight"
 #weight_string = "(1./CS_SF)*weight*(1+isWenu*(-1+(SF_HLT_Ele23_WPLoose[lepInd]/EffHLT_Ele27_WPLoose_Eta2p1[lepInd])))"
@@ -98,7 +110,8 @@ for weight in set_of_weights:
     weight_string += "*" + weight
 print weight_string
 
-tree_mc = ifile.Get("tree")
+tree_mc = ROOT.TChain("tree")
+#tree_mc = ifile.Get("tree")
 #bdtname = "BDT_wMass_Dec14_3000_5"
 #bdtname = "BDT_wMass_Dec4"
 #bdtname = "CMS_vhbb_BDT_Wln_13TeV"
@@ -119,20 +132,21 @@ sampleMapAltModel = {} # alternate MC samples for model shape systematics
 sampleMap["data_obs"] = [0]
 sampleMapAltModel["TT"] = [50,51,52]
 sampleMap["TT"] = [120]
-sampleMap["s_Top"] = [16,17,20,21]
+#sampleMap["s_Top"] = [16,17,20,21]
+sampleMap["s_Top"] = [16,17,17,20,21]
 #sampleMap["WH_hbb"] = [-12501]
 sampleMap["WH_hbb"] = [-12500,-12501]
 sampleMapAltModel["WH_hbb"] = [-125010, -125011]
 sampleMap["ZH_hbb"] = [-12502]
 #sampleMap["Wj0b"] = [2200,4100,4200,4300,4400,4500,4600,4700]
 if not args.doNLOWJets:
-    sampleMap["Wj0b"] = [2200,4100,4200,4300,4400,4500,4600,4700,4800,4900]
+    sampleMap["Wj0b"] = [2200,4100,4200,4300,4400,4500,4600,4700,4800,4900,48100,49100]
     sampleMapAltModel["Wj0b"] = [6000]
     #sampleMap["Wj1b"] = [2201,4101,4201,4301,4401,4501,4601,4701]
-    sampleMap["Wj1b"] = [2201,4101,4201,4301,4401,4501,4601,4701,4801,4901]
+    sampleMap["Wj1b"] = [2201,4101,4201,4301,4401,4501,4601,4701,4801,4901,48101,49101]
     sampleMapAltModel["Wj1b"] = [6001]
     #sampleMap["Wj2b"] = [2202,4102,4202,4302,4402,4502,4602,4702]
-    sampleMap["Wj2b"] = [2202,4102,4202,4302,4402,4502,4602,4702,4802,4902]
+    sampleMap["Wj2b"] = [2202,4102,4202,4302,4402,4502,4602,4702,4802,4902,48102,49102]
     sampleMapAltModel["Wj2b"] = [6002]
 else:
     sampleMap["Wj0b"] = [7100,7200,7300,8000,8100,8200]
@@ -162,16 +176,20 @@ sampleMap["Zj2b"] = [2302,6102,6202,6302,6402,6502,6602,6702]
 
 sampleNameMap = {}
 sampleNameMap["TT"] = ["TT_powheg"]
-sampleNameMap["s_Top"] = ["TToLeptons_s","TToLeptons_t","T_tW","Tbar_tW"]
+sampleNameMap["s_Top"] = ["TToLeptons_s","TToLeptons_t_powheg","TBarToLeptons_t_powheg","T_tW","Tbar_tW"]
+#sampleNameMap["s_Top"] = ["TToLeptons_s","TToLeptons_t","T_tW","Tbar_tW"]
 #sampleNameMap["WH_hbb"] = ["WH125_powheg"]
 sampleNameMap["WH_hbb"] = ["WplusH125_powheg","WminusH125_powheg"]
 sampleNameMap["ZH_hbb"] = ["ZH125_powheg"]
 if not args.doNLOWJets:
     #sampleNameMap["Wj0b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800"]
-    sampleNameMap["Wj0b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets","WJets_BGenFilter"]
+    #sampleNameMap["Wj0b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets","WJets_BGenFilter"]
+    sampleNameMap["Wj0b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets-Pt100To200","WJets_BGenFilter-Pt100To200","WBJets-Pt200ToInf","WJets_BGenFilter-Pt200ToInf"]
     #sampleNameMap["Wj1b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800"]
-    sampleNameMap["Wj1b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets","WJets_BGenFilter"]
-    sampleNameMap["Wj2b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets","WJets_BGenFilter"]
+    #sampleNameMap["Wj1b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets","WJets_BGenFilter"]
+    sampleNameMap["Wj1b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets-Pt100To200","WJets_BGenFilter-Pt100To200","WBJets-Pt200ToInf","WJets_BGenFilter-Pt200ToInf"]
+    #sampleNameMap["Wj2b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets","WJets_BGenFilter"]
+    sampleNameMap["Wj2b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800","WBJets-Pt100To200","WJets_BGenFilter-Pt100To200","WBJets-Pt200ToInf","WJets_BGenFilter-Pt200ToInf"]
     #sampleNameMap["Wj2b"] = ["WJets_madgraph","WJets-HT800To1200","WJets-HT1200To2500","WJets-HT2500ToInf","WJets-HT100To200","WJets-HT200To400","WJets-HT400To600","WJets-HT600To800"]
 else:
     sampleNameMap["Wj0b"] = ["WJets-Pt100To250","WJets-Pt250To400","WJets-Pt400To600","WJets_0J","WJets_1J","WJets_2J"]
@@ -215,7 +233,11 @@ def makeCutString(sample, sMap):
         cutString = presel + "&&Sum$(abs(GenWZQuark_pdgId)==5)<2&&("
     for index in sMap[sample]:
             #if (index == 4900 or index == 4901 or index == 4902): continue # HACK HACK FIXME
-            cutString += "(sampleIndex==%i)||" % index
+            #cutString += "(sampleIndex==%i)||" % index
+            if args.oldSI:
+                cutString += "(sampleIndex_GenJetSum==%i)||" % index
+            else:
+                cutString += "(sampleIndex==%i)||" % index
     cutString = cutString[0:len(cutString)-2]
     cutString += ")"
     return cutString
@@ -230,47 +252,37 @@ hSig = ROOT.TH1F("hSig","hSig",nBinsFine,args.xlow,args.xhigh)
 #tree.Draw("%s>>hBkg" % bdtname,"((%s)&&sampleIndex>0)*weight*(2.2/1.28)" % presel)
 bkgCutString = makeCutString("Bkg", sampleMap)
 print bkgCutString
-sigCutString = makeCutString("WH_hbb", sampleMap)
 if args.doVV:
     sigCutString = makeCutString("VVHF", sampleMap)
-tree_mc.Draw("%s>>hBkg" % bdtname,"((%s)&&(%s))*%s" % (presel,bkgCutString,weight_string))
-if args.doVV:
-    if args.vzTree != "":
-        ifile_vz = ROOT.TFile.Open(args.vzTree)
-        tree_vz = ifile_vz.Get("tree")
-        tree_vz.Draw("%s>>hSig" % bdtname,"((%s)&&(%s))*%s" % (presel,sigCutString,weight_string))
-    else:     
-        tree_mc.Draw("%s>>hSig" % bdtname,"((%s)&&(%s))*%s" % (presel,sigCutString,weight_string))
+else:
+    sigCutString = makeCutString("WH_hbb", sampleMap)
 
-ifile_sig = ROOT.TFile.Open(args.inputfile.replace("output_mc","output_signal"))
-tree_sig = ifile_sig.Get("tree")
-ifile.cd()
-if args.doVV:
-    hBkgWH = ROOT.TH1F("hBkgWH","hBkgWH",nBinsFine,args.xlow,args.xhigh)
-    tree_sig.Draw("%s>>hBkgWH" % bdtname,"((%s)&&(%s))*%s" % (presel,bkgCutString,weight_string))
-    print hBkg.Integral()
-    print "adding VH contribution to background.."
-    hBkg.Add(hBkgWH) 
-    print hBkg.Integral()
-else: 
-    tree_sig.Draw("%s>>hSig" % bdtname,"((%s)&&(%s))*%s" % (presel,sigCutString,weight_string))
-ifile_sig.Close()
+fnames = [] # avoid adding the same tree twice
+tree_sig = ROOT.TChain("tree")
+tree_bkg = ROOT.TChain("tree")
+for sample in sampleNameMap:
+    if sample in sigSamps:
+        for sname in sampleNameMap[sample]:
+            #fname = ipath + "/sum_" + sname + "_3.root"
+            fname = ipath + "/sum_" + sname + "_weighted2.root"
+            #fname = ipath + "/sum_" + sname + ".root"
+            tree_sig.Add(fname)
+    elif sample != "data_obs":
+        for sname in sampleNameMap[sample]:
+            #fname = ipath + "/sum_" + sname + "_3.root"
+            fname = ipath + "/sum_" + sname + "_weighted2.root"
+            #fname = ipath + "/sum_" + sname + ".root"
+            if fname not in fnames:
+                print "adding  %s for background" % fname
+                tree_bkg.Add(fname)
+                fnames.append(fname)
+         
+tree_bkg.Draw("%s>>hBkg" % bdtname,"((%s)&&(%s))*%s" % (presel,bkgCutString,weight_string))
+tree_sig.Draw("%s>>hSig" % bdtname,"((%s)&&(%s))*%s" % (presel,sigCutString,weight_string))
 
-if (args.ttbarTree != ""):
-    print "got here"
-    ifile_tt = ROOT.TFile.Open(args.ttbarTree,"r")
-    hBkg2 = ROOT.TH1F("hBkg2","hBkg2",nBinsFine,args.xlow,args.xhigh)
-    tree_tt = ifile_tt.Get("tree")
-    # make sure we don't weight actual data by puWeight, SF's, etc.
-    #print tree_tt.GetEntries("sampleIndex==120")
-    tree_tt.Draw("%s>>hBkg2" % bdtname,"((%s)&&(%s))*%s" % (presel,bkgCutString,weight_string))
-    print hBkg.Integral()
-    print hBkg2.Integral()
-    hBkg.Add(hBkg2)
-    print hBkg.Integral()
-    ifile_tt.Close() 
+#ifile.cd()
 
-print "total background, total sig:",hSig.Integral(),", ",hBkg.Integral()
+print "total signal, total background:",hSig.Integral(),", ",hBkg.Integral()
 
 binBoundaries = numpy.zeros(nBins+1,dtype=float)
 binBoundaries[0] = args.xlow
@@ -339,52 +351,68 @@ if (args.binBoundaries != ""):
     
 hBkg = hBkg.Rebin(nBins, "", binBoundaries)
 print binBoundaries
-if args.ofilename == "":
-    ofile = ROOT.TFile.Open("hists_%s.root" % catName, "RECREATE")
-else:
-    ofile = ROOT.TFile.Open(args.ofilename, "RECREATE")
 if args.binstats == "":
     otextfile = open("binStats_%s.txt" % catName, "w")
 else:
     otextfile = open(args.binstats,"w")
-tree = ROOT.TTree("tree","tree")
+tree = ROOT.TChain("tree")
+#tree = ROOT.TTree("tree","tree")
 #hBkg.Write()
 for sample in sampleMap:
+    if (args.sample != "" and sample != args.sample): continue
     #if (sample!="s_Top" and sample!="VVHF" and sample!="VVLF"): continue
     #if (sample != "Wj0b" and sample!="Wj1b" and sample!="Wj2b"): continue
     #if (sample != "Bkg" and sample != "data_obs" and sample != "WH_hbb" and sample != "ZH_hbb"): continue
     #if (sample != "VVHF"): continue
     #if (sample != "Bkg"): continue
-    if (args.ttbarTree != "" and (sample == "TT" or sample == "Bkg")): 
-        ifile_tt = ROOT.TFile.Open(args.ttbarTree,"r")
-        tree_tt = ifile_tt.Get("tree")
-        if (sample == "TT"):
-            tree = tree_tt
-        else:
-            chain = ROOT.TChain("tree")
-            chain.Add(args.inputfile)
-            chain.Add(args.ttbarTree)
-            tree = chain
-        #ofile.cd()
-        #ifile_tt.Close()
-    elif (sample == "WH_hbb" or sample == "ZH_hbb"):
-        ifile_sig = ROOT.TFile.Open(args.inputfile.replace("output_mc","output_signal"))
-        tree_sig = ifile_sig.Get("tree")
-        tree = tree_sig
+    #if (args.ttbarTree != "" and (sample == "TT" or sample == "Bkg")): 
+    #    ifile_tt = ROOT.TFile.Open(args.ttbarTree,"r")
+    #    tree_tt = ifile_tt.Get("tree")
+    #    if (sample == "TT"):
+    #        tree = tree_tt
+    #    else:
+    #        chain = ROOT.TChain("tree")
+    #        chain.Add(args.inputfile)
+    #        chain.Add(args.ttbarTree)
+    #        tree = chain
+    #    #ofile.cd()
+    #    #ifile_tt.Close()
+    #elif (sample == "WH_hbb" or sample == "ZH_hbb"):
+    #    ifile_sig = ROOT.TFile.Open(args.inputfile.replace("output_mc","output_signal"))
+    #    tree_sig = ifile_sig.Get("tree")
+    #    tree = tree_sig
     #elif (sample == "VVHF" or sample == "VVLF"):
     #    ifile_vv = ROOT.TFile.Open(args.inputfile.replace("output_mc","output_vv"))
     #    tree_vv = ifile_vv.Get("tree")
     #    tree = tree_vv
-    elif (args.wjetsTree != "" and (sample == "Wj0b" or sample == "Wj1b" or sample=="Wj2b")):
-        ifile_wjets = ROOT.TFile.Open(args.wjetsTree)
-        tree_wjets = ifile_wjets.Get("tree")
-        tree = tree_wjets
-    elif (args.vzTree != "" and (sample == "VVHF" or sample == "VVLF")):
-        ifile_vz = ROOT.TFile.Open(args.vzTree)
-        tree_vz = ifile_vz.Get("tree")
-        tree = tree_vz
-    else:
-        tree = tree_mc  
+    #elif (args.wjetsTree != "" and (sample == "Wj0b" or sample == "Wj1b" or sample=="Wj2b")):
+    #    ifile_wjets = ROOT.TFile.Open(args.wjetsTree)
+    #    tree_wjets = ifile_wjets.Get("tree")
+    #    tree = tree_wjets
+    #elif (args.vzTree != "" and (sample == "VVHF" or sample == "VVLF")):
+    #    ifile_vz = ROOT.TFile.Open(args.vzTree)
+    #    tree_vz = ifile_vz.Get("tree")
+    #    tree = tree_vz
+    #else:
+    #    tree = tree_mc 
+    if sample != "Bkg" and sample != "data_obs": 
+        for sname in sampleNameMap[sample]:
+            #fname = ipath + "/sum_" + sname + ".root"
+            fname = ipath + "/sum_" + sname + "_weighted2.root"
+            #fname = ipath + "/sum_" + sname + "_3.root"
+            #print tree.GetEntries()
+            tree.Add(fname)
+            print "Added for sample %s: %s" % (sample,fname)
+            #print sname,tree.GetEntries()
+    elif sample == "Bkg":
+        for sample in sampleNameMap:
+            if sample in sigSamps: continue
+            for sname in sampleNameMap[sample]: 
+                #fname = ipath + "/sum_" + sname + ".root"
+                fname = ipath + "/sum_" + sname + "_weighted2.root"
+                #fname = ipath + "/sum_" + sname + "_3.root"
+                tree.Add(fname)
+     
     #cutString = presel + "&&("
     #for index in sampleMap[sample]:
     #        cutString += "(sampleIndex==%i)||" % index
@@ -404,6 +432,7 @@ for sample in sampleMap:
         # make sure we don't weight actual data by puWeight, SF's, etc.
         #tree_data.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)*sb_weight3" % (cutString)) ## FIXME
         tree_data.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)" % (cutString)) 
+        #tree_data.Draw("BDT_V25_March27_400_5>>%s" % (sample),"((%s)&&Pass_nominal)" % (cutString)) # HACK FIXME PLEASE!!
         ifile_data.Close()
     elif (sample == "data_obs"):
         # fake data which is sum of all MC
@@ -422,10 +451,12 @@ for sample in sampleMap:
     #    ifile_tt.Close() 
     else:
         tree.Draw("%s>>%s" % (bdtname, sample),"((%s)&&Pass_nominal)*%s" % (cutString,weight_string)) 
+        #print "just drew tree for sample %s, now chain.Print()" % sample
+        #tree.Print()
     print "tree.Draw(\"%s>>%s\",\"((%s)&&Pass_nominal)*%s\"" % (bdtname,sample,cutString,weight_string) 
     #hBDT = hBDT.Rebin(nBins, "", binBoundaries)
     # Add bin-by-bin stat. uncertainties
-    if (sample not in ["data_obs"] and (tolerance <= 0.5 or sample not in ["QCD","VVLF","VVHF","WH_hbb","ZH_hbb"]) and sample == "Wj2b"): # assuming for SR the tolerance does not go above 0.50
+    if (sample not in ["data_obs"] and (tolerance <= 0.5 or sample not in ["QCD","VVLF","VVHF","WH_hbb","ZH_hbb"]) ): # assuming for SR the tolerance does not go above 0.50
     #if (sample not in ["QCD","VVLF","VVHF","WH_hbb","ZH_hbb","data_obs"]): # can exclude these when running on background to reduce the number of nuisances
         for ibin in range(1, hBDT.GetNbinsX()+1):
             B = hBDT.GetBinContent(ibin)
@@ -582,8 +613,10 @@ for sample in sampleMap:
                             print args.vzTree.replace("output_vz.root","%s/output_%s_1.root" %(sampleName,sampleName))
                             ifilename_counts = args.vzTree.replace("output_vz.root","%s/output_%s_1.root" %(sampleName,sampleName))
                         else:
-                            print args.inputfile.replace("output_mc.root","%s/output_%s_1.root" %(sampleName,sampleName))
-                            ifilename_counts = args.inputfile.replace("output_mc.root","%s/output_%s_1.root" %(sampleName,sampleName))
+                            #print args.inputfile.replace("output_mc.root","%s/output_%s_1.root" %(sampleName,sampleName))
+                            #ifilename_counts = args.inputfile.replace("output_mc.root","%s/output_%s_1.root" %(sampleName,sampleName))
+                            print args.inputfile.replace("haddjobs","%s/output_%s_1.root" %(sampleName,sampleName))
+                            ifilename_counts = args.inputfile.replace("haddjobs","%s/output_%s_1.root" %(sampleName,sampleName))
                         #print args.inputfile.replace("output_mc.root","%s/output_%s_1.root" %(sampleName,sampleName))
                         #ifilename_counts = args.inputfile.replace("output_mc.root","%s/output_%s_1.root" %(sampleName,sampleName))
                         ifile_counts = ROOT.TFile.Open(ifilename_counts)
@@ -740,8 +773,8 @@ for sample in sampleMap:
     print "((%s)&&Pass_nominal)*%s" % (cutString,weight_string)
     if (sample == "TT" and args.ttbarTree != ""): 
         ifile_tt.Close()
-
-ifile.Close()
+    tree.Reset()
+#ifile.Close()
 ofile.Close()
 otextfile.close()
    

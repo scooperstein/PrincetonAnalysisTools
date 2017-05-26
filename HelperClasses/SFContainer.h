@@ -17,6 +17,7 @@ class SFContainer {
     std::string name;
     std::string binning;
     std::string branchname;
+    std::string length; // name of branch of length of collection to apply SF to
 
     void  AddBranch(std::string branch);
     float getScaleFactor(float pt, float eta, float &sf_err);

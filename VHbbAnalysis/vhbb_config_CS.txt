@@ -13,5 +13,5 @@ reg1settings=cfg/reg1_settings.txt
 reg2settings=cfg/reg2_settings.txt
 settings=cfg/settings_CS.txt
 
-systematics=cfg/systematics_CS.txt
+systematics=cfg/systematics.txt
 scalefactors=cfg/scalefactors.txt

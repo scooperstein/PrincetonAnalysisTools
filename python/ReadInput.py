@@ -13,12 +13,13 @@ ROOT.gSystem.Load("AnalysisDict.so")
 
 debug=1
 
-def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
+def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, doSkim=False):
     if debug > 100:
          print "filetype is ", filetype
          print "filename is ", filename
          print "samplesToRun is ", samplesToRun
          print "filesToRun is ", filesToRun
+         print "doSkim is ", doSkim
 
     runSelectedSamples = False
     if (len(samplesToRun) > 0):
@@ -89,8 +90,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
                         try:
                             ifile = ROOT.TFile.Open(filename)
                             tree = ifile.Get("tree")
-                            print tree.GetEntry()
-                            print tree.GetEntries()
+                            ifile.Close()
                         except:
                             print "File: %s : no good, trying with another..." % filename
                             continue
@@ -172,8 +172,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
             # now set up any of the branches if they don't exist yet (must be floats for BDT)
             for bdtvar in bdtInfo.bdtVars:
                 if (bdtvar.isExisting):
-                    am.SetupBranch(bdtvar.localVarName, 2)
-                else:
+                    am.SetupBranch(bdtvar.localVarName, 2, -1 ,0, "early")
+                elif not doSkim:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetupNewBranch(bdtInfo.bdtname, 2)
             am.AddBDT(bdtInfo)
@@ -184,7 +184,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
             for bdtvar in reg1.bdtVars:
                 if (bdtvar.isExisting):
                     am.SetupBranch(bdtvar.localVarName, 2, -1, 0, "early")
-                else:
+                elif not doSkim:
+                    print "setting up new branch: ",bdtvar.localVarName
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet1EnergyRegression(reg1)
         if settings.has_key("reg2settings"):
@@ -193,7 +194,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
             for bdtvar in reg2.bdtVars:
                 if (bdtvar.isExisting):
                     am.SetupBranch(bdtvar.localVarName, 2, -1 ,0, "early")
-                else:
+                elif not doSkim:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet2EnergyRegression(reg2) 
         
@@ -210,8 +211,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0):
             for sf in sfs:
                 print "add scale factor"
                 am.AddScaleFactor(sf)
-                am.SetupNewBranch(sf.branchname, 2)
-                am.SetupNewBranch(sf.branchname+"_err", 2)
+                am.SetupNewBranch(sf.branchname, 7, 10)
+                am.SetupNewBranch(sf.branchname+"_err", 7, 10)
                 print "added scale factor"   
  
         return am    
@@ -483,7 +484,9 @@ def SetupSF(lines):
             elif key=="binning":
                 SF.binning=value
             elif key=="branchname":
-                SF.branchname=value 
+                SF.branchname=value
+            elif key=="length":
+                SF.length=value 
             else:
                 print "In scale factor file, what is:",item
         # now parse the json and build the scale factor map

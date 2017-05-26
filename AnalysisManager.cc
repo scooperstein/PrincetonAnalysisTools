@@ -97,6 +97,10 @@ void AnalysisManager::AddSystematic(SystematicContainer syst){
 
 void AnalysisManager::AddScaleFactor(SFContainer sf) {
     scaleFactors.push_back(sf);
+    std::cout<<"added sf: "<<sf.name<<", now going to test it"<<std::endl;
+    float sf_err = 1.0;
+    float sfac = sf.getScaleFactor(100.,1.2,sf_err);
+    std::cout<<sfac<<std::endl;
 }
 
 void AnalysisManager::AddBDT(BDTInfo bdt) {
@@ -414,7 +418,7 @@ std::vector<std::string> AnalysisManager::ListSampleNames() {
 
 
 // Process all input samples and all events
-void AnalysisManager::Loop(std::string sampleName, std::string filename, std::string ofilename){
+void AnalysisManager::Loop(std::string sampleName, std::string filename, std::string ofilename, bool doSkim){
     // Specify sample name if we want to run on only a particular sample, specify
     // filenames if we want to run only on specific files from that sample.
     std::vector<std::string> filenames;
@@ -554,45 +558,67 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     nb = fChain->GetEntry(jentry);   
                     nbytes += nb;
                     
-                    cursyst=&(systematics[iSyst]);
-                    if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
-                    ApplySystematics();
-                    if(debug>1000) std::cout<<"running analysis"<<std::endl;
-                    bool select = Analyze();
-                    *b[Form("Pass_%s",cursyst->name.c_str())] = false;
-                    if(select) { 
-                        anyPassing=true;
-                        *b[Form("Pass_%s",cursyst->name.c_str())] = true;
-                    }
-                    if(select || (cursyst->name=="nominal" && anyPassing)){
-                        if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                        for (int i=0; i < scaleFactors.size(); i++) {
-                            SFContainer sf = scaleFactors[i];
-                            float sf_err = 0.0;
-                            if (cursample->sampleNum != 0) {
-                                if (sf.binning.find("abs") == -1) {
-                                    *f[sf.branchname] = sf.getScaleFactor(*f[sf.branches[0]], *f[sf.branches[1]], sf_err);
+                    if (!doSkim) {
+
+                        cursyst=&(systematics[iSyst]);
+                        if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
+                        ApplySystematics();
+                        if(debug>1000) std::cout<<"running analysis"<<std::endl;
+                        bool select = Analyze();
+                        *b[Form("Pass_%s",cursyst->name.c_str())] = false;
+                        if(select) { 
+                            anyPassing=true;
+                            *b[Form("Pass_%s",cursyst->name.c_str())] = true;
+                        }
+                        if(select || (cursyst->name=="nominal" && anyPassing)){
+                            if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
+                            for (int i=0; i < scaleFactors.size(); i++) {
+                                SFContainer sf = scaleFactors[i];
+                                float sf_err = 0.0;
+                                if (cursample->sampleNum != 0) {
+                                    for (int j=0; j < *in[sf.length]; j++) {
+                                        if (sf.binning.find("abs") == -1) {
+                                            f[sf.branchname][j] = sf.getScaleFactor(f[sf.branches[0]][j], f[sf.branches[1]][j], sf_err);
+                                        }
+                                        else {
+                                             f[sf.branchname][j] = sf.getScaleFactor(fabs(f[sf.branches[0]][j]), fabs(f[sf.branches[1]][j]), sf_err);
+                                        }
+                                        f[Form("%s_err",sf.branchname.c_str())][j] = sf_err; 
+                                    }
                                 }
                                 else {
-                                    *f[sf.branchname] = sf.getScaleFactor(fabs(*f[sf.branches[0]]), fabs(*f[sf.branches[1]]), sf_err);
+                                    // data event, scale factor should just be 1.0
+                                    for (int j=0; j < *in[sf.length]; j++) {
+                                        f[sf.branchname][j] = 1.0;
+                                        f[Form("%s_err",sf.branchname.c_str())][j] = 0.0; 
+                                    }
                                 }
+                                
                             }
-                            else {
-                                // data event, scale factor should just be 1.0
-                                *f[sf.branchname] = 1.0;
-                                sf_err = 1.0;
-                            }
-                            *f[Form("%s_err",sf.branchname.c_str())] = sf_err;
+                            FinishEvent();
+                            if(cursyst->name=="nominal") saved++;
                         }
-                        FinishEvent();
-                        if(cursyst->name=="nominal") saved++;
+                    }
+                    else {
+                        // running skim
+                        ofile->cd();
+                        outputTree->Fill();
+                        saved++;
                     }
                 }
             } // end event loop
         } // end file loop
         ofile->cd();
-        cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
-        cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
+        if (!doSkim) {
+            cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
+            cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
+            cursample->CountWeighted->Write(Form("CountWeighted_%s",cursample->sampleName.c_str()));
+        }
+        else {
+            cursample->CountWeightedLHEWeightScale->Write();
+            cursample->CountWeightedLHEWeightPdf->Write();
+            cursample->CountWeighted->Write();
+        }
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;
     

@@ -10,6 +10,7 @@ parser.add_argument('-b', '--binstats', type=str, default="", help="Text file li
 parser.add_argument('-r', '--rateParams', type=str, default="", help="Comma-separated list of samples for which to include freely floating scale factors") 
 parser.add_argument('-o', '--outputfilename', type=str, default="", help="Name of the output datacard")
 parser.add_argument('-vv','--doVV', type=bool, default=False, help="If true do VV analysis (default False)")
+parser.add_argument('-bnt','--binNThreshold', type=str, default="", help="Only consider bbb's for bin # >= X (default -1)")
 args = parser.parse_args()
 
 
@@ -68,8 +69,10 @@ for i in range(len(cats)):
     print "Calculating Yields for Category: %s: %s" % (cats[i],cat_labels[i])
     nBkgTot = 0.0;
     nSigTot = 0.0;
-    ifile = ROOT.TFile("hists_%s.root" % cats[i])
-    #ifile = ROOT.TFile(args.ihistfile, "r")
+    if (args.ihistfile == ""):
+        ifile = ROOT.TFile("hists_%s.root" % cats[i])
+    else:
+        ifile = ROOT.TFile(args.ihistfile, "r")
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
     print cat_labels[i]
@@ -158,8 +161,12 @@ if (args.systematics != ""):
         sysLine += "\n"
         systematics += sysLine
 
-#if (args.binstats != ""):
-if (True): # actually I think we always want to do this, should clean this up after HCP ;)
+#if (True): # actually I think we always want to do this, should clean this up after HCP ;)
+if (args.binNThreshold == ""):
+    binThreshold = -1
+else:
+    binThreshold = int(args.binNThreshold)
+if (args.binstats != ""):
     for cat in cat_labels:
         try:
             #binStats_file = open(args.binstats, "r")
@@ -170,6 +177,12 @@ if (True): # actually I think we always want to do this, should clean this up af
         for line in binStats_file:
             if (line[0] == '#'): continue
             line = line.strip()
+            index = line.find("_bin")
+            if (index==-1): continue
+            tmp = line[index+1:]
+            index2 = tmp.find("_") + index + 1
+            binN = int(line[index+4:index2])
+            if (binN < binThreshold): continue
             sysLine = line
             for i in range(60 - len(line)):
                 sysLine += " "
