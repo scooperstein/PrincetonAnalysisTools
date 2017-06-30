@@ -1,0 +1,38 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+# ONLY USE FLOATS
+type=2  name=intL               val=35900 # 1/pb
+type=2  name=onlyEvenEvents     val=0
+type=2  name=onlyOddEvents      val=0
+type=2  name=doReg              val=0
+type=2  name=JERScale           val=1.0
+type=2  name=reReg              val=0
+
+type=2  name=j1ptCut            val=50
+type=2  name=j2ptCut            val=30
+type=2  name=jetEtaCut          val=4.7
+
+type=2  name=LepPtPresel        val=20
+
+type=2  name=mjjcut             val=180
+type=2  name=eptcut             val=30
+type=2  name=muptcut            val=25
+type=2  name=eletacut           val=2.17
+#type=2  name=eletacut           val=2.5
+type=2  name=muetacut           val=2.4
+type=2  name=metcut             val=20
+type=2  name=wmtcut             val=40
+#type=2  name=erelisocut         val=0.15
+#type=2  name=murelisocut        val=0.12
+type=2  name=erelisocut         val=100
+type=2  name=murelisocut        val=100
+type=2  name=elMetDPhiCut       val=100
+type=2  name=muMetDPhiCut       val=100
+type=2  name=elidcut            val=2
+type=2  name=muidcut            val=1
+
+# events must have number of add. jets/leptons < this value
+type=2  name=nAddJetsCut        val=100
+type=2  name=nAddLeptonsCut     val=100
+

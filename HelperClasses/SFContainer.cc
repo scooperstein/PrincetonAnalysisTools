@@ -13,6 +13,7 @@ inline SFContainer::SFContainer()
     branchname = "weight_SF";
     branches = std::vector<std::string>();
     scaleMap = new TH2F("scaleMap","scaleMap",10,0,500,10,-2.5,2.5);
+    length = "nselLeptons";
 }
 
 

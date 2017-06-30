@@ -51,7 +51,7 @@
 #include "TMVA/Tools.h"
 #endif
 
-void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeSize = 0.05, int maxDepth = 4, float adaboostbeta = 0.1, int iteration = 0, TString myMethodList = "")
+void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 400, float MinNodeSize = 0.05, int maxDepth = 5, float adaboostbeta = 0.1, int iteration = 0, TString myMethodList = "")
 {
 
   std::cout<<"\n--------------------------------------------------\n"
@@ -180,7 +180,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeS
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    char outfileName[80];
-   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_V24_Dec5_%i_%i_%sSig_%s%s%sBkg_%s%s.root",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(outfileName,"TMVA_13TeV_V25_March27_%i_%i_%sSig_%s%s%sBkg_%s%s.root",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(outfileName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i.root",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
@@ -195,7 +195,7 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeS
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    char factoryName[80];
-   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_V24_Dec5_%i_%i_%sSig_%s%s%sBkg_%s%s",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
+   if(iteration==0) sprintf(factoryName,"TMVA_13TeV_V25_March27_%i_%i_%sSig_%s%s%sBkg_%s%s",nTrees,maxDepth,sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2);
    else sprintf(factoryName,"TMVA_13TeV_%sSig_%s%s%sBkg_%s%s_%i",sigName,WjetsName,TTbarName,VVName,CutsName,CutsName2,iteration);
    TMVA::Factory *factory = new TMVA::Factory( factoryName, outputFile,
                                                "!V:!Silent:Color:DrawProgressBar:Transformations=I:AnalysisType=Classification" );
@@ -214,21 +214,30 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeS
    //factory->AddVariable("HJ1_HJ2_dR", 'F');
    factory->AddVariable("H_pt",   'F');
    factory->AddVariable("V_pt",   'F');
-   factory->AddVariable("Jet_btagCSV[hJetInd2]", 'F');
+   //factory->AddVariable("Jet_btagCSV[hJetInd2]", 'F');
+   factory->AddVariable("hJets_btagCSV_1", 'F');
+   //factory->AddVariable("Jet_btagCMVA[hJetInd2]", 'F');
    factory->AddVariable("Top1_mass_fromLepton_regPT_w4MET", 'F');
    factory->AddVariable("HVdPhi", 'F');
-   factory->AddVariable("nAddJets252p9_puid", 'I');
-   //factory->AddVariable("nAddJet_f", 'F');
+   //factory->AddVariable("nAddJets252p9_puid", 'I');
+   factory->AddVariable("nAddJet_f", 'F');
    factory->AddVariable("lepMetDPhi", 'F');
    factory->AddVariable("softActivityVH_njets5", 'I');
    //factory->AddVariable("Jet_pt_reg[hJetInd1]", 'F');
+   ////factory->AddVariable("hJets_pt_0", 'F');
    //factory->AddVariable("Jet_pt_reg[hJetInd2]", 'F');
+   //factory->AddVariable("hJets_pt_1", 'F');
    //factory->AddVariable("selLeptons_pt[lepInd]", 'F');
+   ////factory->AddVariable("selLeptons_pt_0", 'F');
    //factory->AddVariable("selLeptons_relIso_0", 'F');
    //factory->AddVariable("Jet_btagCSV[hJetInd1]", 'F');
+   ////factory->AddVariable("hJets_btagCSV_0", 'F');
    //factory->AddVariable("selLeptons_eta[lepInd]", 'F');
+   //factory->AddVariable("selLeptons_eta_0", 'F');
    //factory->AddVariable("Jet_eta[hJetInd1]", 'F');
+   //factory->AddVariable("hJets_eta_0", 'F');
    //factory->AddVariable("Jet_eta[hJetInd2]", 'F');
+   //factory->AddVariable("hJets_eta_1", 'F');
    //factory->AddVariable("jjWPtBalance", 'F');
    //factory->AddVariable("AddJets252p9_puid_leadJet_btagCSV", 'F');
    //factory->AddVariable("AddJets252p9_puid_leadJet_pt", 'F');
@@ -595,16 +604,20 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeS
    bkg_testing_chain->Add(Form("%s/TBarToLep_t/*.root", testing_dir.c_str()));
    */
    if (doVV != 1) {
-   bkg_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_odd_bkg.root");
-   sig_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_odd_sig.root");
-   bkg_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_even_bkg.root");
-   sig_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/ofile_even_sig.root");
+   //bkg_training_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining_withCSVM/ofile_odd_bkg.root");
+   //sig_training_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining_withCSVM/ofile_odd_sig.root");
+   //bkg_testing_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining_withCSVM/ofile_even_bkg.root");
+   //sig_testing_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March7_CMVA_forBDTTraining_withCSVM/ofile_even_sig.root");
+   bkg_training_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_odd_bkg.root");
+   sig_training_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_odd_sig.root");
+   bkg_testing_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_even_bkg.root");
+   sig_testing_chain->Add("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_even_sig.root");
    }
    else {
-   bkg_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_odd_bkgvv.root");
-   sig_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_odd_vv.root");
-   bkg_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_even_bkgvv.root");
-   sig_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Oct28/ofile_even_vv.root");
+   bkg_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_odd_bkgvv.root");
+   sig_training_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_odd_vv.root");
+   bkg_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_even_bkgvv.root");
+   sig_testing_chain->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_March27_forBDTTraining/bdttraining/ofile_even_vv.root");
    }
    TTree *sig_training_tree = (TTree*) sig_training_chain;
    TTree *bkg_training_tree = (TTree*) bkg_training_chain;
@@ -616,7 +629,8 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeS
    //factory->SetWeightExpression("weight*weight_PU*bTagWeight*CS_SF*weight_ptQCD*weight_ptEWK*selLeptons_SF_IsoTight[lepInd]*(selLeptons_SF_IdCutTight[lepInd]*isWmunu + selLeptons_SF_IdMVATight[lepInd]*isWenu)");
    //factory->SetWeightExpression("weight*(1 + isWmunu*((1.0/selLeptons_SF_HLT_RunD4p2[lepInd])-1)) * (1 + isWmunu*(selLeptons_SF_HLT_RunD4p3[lepInd]-1)) * (1 + (isWenu*((1./SF_HLT_Ele23_WPLoose[lepInd]) - 1    )) )");
    //factory->SetWeightExpression("weight*(CS_SF_new2/CS_SF)");
-   factory->SetWeightExpression("weight");
+   //factory->SetWeightExpression("weight");
+   factory->SetWeightExpression("2.0*weight*bTagWeightMoriondCMVA*VPtCorrFactorSplit3*VHCorrFactor");
    factory->AddSignalTree(sig_training_tree,1.0,TMVA::Types::kTraining);
    factory->AddBackgroundTree(bkg_training_tree,1.0,TMVA::Types::kTraining);
    factory->AddSignalTree(sig_testing_tree,1.0,TMVA::Types::kTesting);
@@ -630,11 +644,16 @@ void OLD_TMVAClassification_8TeV( int doVV = 0, int nTrees = 500, float MinNodeS
 //factory->PrepareTrainingAndTestTree(mycutsSig,mycutsBkg,"NormMode=None:!V");
   //TCut mycutsSig = "sampleIndex<0&&hJets_btagCSV_0>0.95&&hJets_btagCSV_1>0.82&&H_pt>84&&V_pt>100&&abs(HVdPhi)>2.92&&abs(lepMetDPhi)<1.4&&nAddLep_f<1&&nAddJet_f<1&&H_mass>90&&H_mass<150";
   //TCut mycutsBkg = "sampleIndex>0&&hJets_btagCSV_0>0.95&&hJets_btagCSV_1>0.82&&H_pt>84&&V_pt>100&&abs(HVdPhi)>2.92&&abs(lepMetDPhi)<1.4&&nAddLep_f<1&&nAddJet_f<1&&H_mass>90&&H_mass<150";
-  TCut mycutsSig = "H_mass>90&&H_mass<150&&sampleIndex==-12501&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46";
-  TCut mycutsBkg = "H_mass>90&&H_mass<150&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46&&((sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==3500)||(sampleIndex==3600)||(sampleIndex==3700)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3701)||(sampleIndex==3702))";
+  TCut mycutsSig = "H_mass>90&&H_mass<150&&(sampleIndex==-12501||sampleIndex==-12500)&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100";
+  TCut mycutsBkg = "H_mass>90&&H_mass<150&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&((sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==50)||(sampleIndex==51)||(sampleIndex==52)||(sampleIndex==3400)||(sampleIndex==3600)||(sampleIndex==3700)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==3401)||(sampleIndex==3402)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3701)||(sampleIndex==3702)||(sampleIndex==48100)||(sampleIndex==48101)||(sampleIndex==48102)||(sampleIndex==49100)||(sampleIndex==49101)||(sampleIndex==49102))";
+  //TCut mycutsBkg = "H_mass>90&&H_mass<150&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&((sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==3500)||(sampleIndex==3600)||(sampleIndex==3700)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3701)||(sampleIndex==3702))";
+  //TCut mycutsSig = "H_mass>90&&H_mass<150&&sampleIndex==-12501&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46";
+  //TCut mycutsBkg = "H_mass>90&&H_mass<150&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46&&((sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==3500)||(sampleIndex==3600)||(sampleIndex==3700)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3701)||(sampleIndex==3702))";
   if (doVV == 1) {
-      mycutsSig = "Sum$(abs(GenWZQuark_pdgId)==5)>=2&&((sampleIndex==3500)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&H_mass>60&&H_mass<160&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46";
-      mycutsBkg = "H_mass>60&&H_mass<160&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&Top1_mass_fromLepton_regPT_w4MET>0&&Jet_btagCSV[hJetInd2]>=0.46&&((((sampleIndex==3502)||(sampleIndex==3500)||(sampleIndex==3501)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Sum$(abs(GenWZQuark_pdgId)==5)<2)||(((sampleIndex==-12501)||(sampleIndex==-12502)||(sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402))))"; 
+      mycutsSig = "Sum$(abs(GenWZQuark_pdgId)==5)>=2&&((sampleIndex==3400)||(sampleIndex==3401)||(sampleIndex==3402)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&H_mass>60&&H_mass<160";
+      //mycutsSig = "Sum$(abs(GenWZQuark_pdgId)==5)>=2&&((sampleIndex==3500)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&H_mass>60&&H_mass<160";
+      mycutsBkg = "H_mass>60&&H_mass<160&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&((((sampleIndex==3402)||(sampleIndex==3400)||(sampleIndex==3401)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Sum$(abs(GenWZQuark_pdgId)==5)<2)||(((sampleIndex==-12501)||(sampleIndex==-12500)||(sampleIndex==-12502)||(sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==50)||(sampleIndex==51)||(sampleIndex==52)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==48100)||(sampleIndex==48101)||(sampleIndex==48102)||(sampleIndex==49100)||(sampleIndex==49101)||(sampleIndex==49102)))))"; 
+      //mycutsBkg = "H_mass>60&&H_mass<160&&Pass_nominal&&(Vtype==2||Vtype==3)&&H_pt>100&&V_pt>100&&((((sampleIndex==3402)||(sampleIndex==3400)||(sampleIndex==3401)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&Sum$(abs(GenWZQuark_pdgId)==5)<2)||(((sampleIndex==-12501)||(sampleIndex==-12500)||(sampleIndex==-12502)||(sampleIndex==16)||(sampleIndex==17)||(sampleIndex==20)||(sampleIndex==21)||(sampleIndex==2202)||(sampleIndex==2202)||(sampleIndex==4100)||(sampleIndex==4101)||(sampleIndex==4200)||(sampleIndex==4201)||(sampleIndex==4300)||(sampleIndex==4301)||(sampleIndex==4102)||(sampleIndex==4202)||(sampleIndex==4302)||(sampleIndex==4402)||(sampleIndex==4502)||(sampleIndex==4602)||(sampleIndex==4702)||(sampleIndex==4802)||(sampleIndex==4902)||(sampleIndex==2301)||(sampleIndex==6101)||(sampleIndex==6201)||(sampleIndex==6301)||(sampleIndex==6401)||(sampleIndex==120)||(sampleIndex==2300)||(sampleIndex==6100)||(sampleIndex==6200)||(sampleIndex==6300)||(sampleIndex==6400)||(sampleIndex==2200)||(sampleIndex==4400)||(sampleIndex==4500)||(sampleIndex==4600)||(sampleIndex==4700)||(sampleIndex==4800)||(sampleIndex==4900)||(sampleIndex==2201)||(sampleIndex==4401)||(sampleIndex==4501)||(sampleIndex==4601)||(sampleIndex==4701)||(sampleIndex==4801)||(sampleIndex==4901)||(sampleIndex==2302)||(sampleIndex==6102)||(sampleIndex==6202)||(sampleIndex==6302)||(sampleIndex==6402)||(sampleIndex==48100)||(sampleIndex==48101)||(sampleIndex==48102)||(sampleIndex==49100)||(sampleIndex==49101)||(sampleIndex==49102)))))"; 
   }
 
   factory->PrepareTrainingAndTestTree(mycutsSig,mycutsBkg,"!V");

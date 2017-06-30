@@ -16,6 +16,7 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
 )
 parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=10, type=int, help="Number of input files per batch job")
 parser.add_option("-s","--sample", dest="sample", default="", type=str, help="Run on only a specific sample (can be comma-separated list)")
+parser.add_option("-d","--doData", dest="doData", default=-1, type=int, help="If -1 run all samples, if 0 run only MC, if 1 run only data")
 (options, args) = parser.parse_args()
 
 ROOT.gSystem.Load("AnalysisDict.so")
@@ -24,6 +25,8 @@ ROOT.gSystem.Load("AnalysisDict.so")
 samplesToRun = [] # if empty run on all samples
 am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun,"",options.runBatch)
 am.debug=2
+
+doData = options.doData
 
 if (options.sample != ""):
     samplesToSubmit = options.sample.split(',')
@@ -54,7 +57,15 @@ else:
     for sample in am.samples:
         if (options.sample != ""):
             #if (sample.sampleName != options.sample): continue
-            if (sample.sampleName not in samplesToSubmit): continue
+            if (sample.sampleName not in samplesToSubmit ):
+                print "sample: ",sample.sampleName," not in list, skipping..."
+                continue
+        if (options.doData == 0 and sample.sampleName.find("Run")!=-1):
+            print "skipping data sample: ",sample.sampleName
+            continue
+        if (options.doData == 1 and sample.sampleName.find("Run")==-1):
+            print "skipping MC sample: ",sample.sampleName
+            continue
         sampleName = sample.sampleName
         print sampleName
         os.system("mkdir -p %s/%s" % (jobName,sampleName))

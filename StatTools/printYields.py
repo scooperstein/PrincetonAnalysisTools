@@ -10,6 +10,7 @@ parser.add_argument('-b', '--binstats', type=str, default="", help="Text file li
 parser.add_argument('-r', '--rateParams', type=str, default="", help="Comma-separated list of samples for which to include freely floating scale factors") 
 parser.add_argument('-o', '--outputfilename', type=str, default="", help="Name of the output datacard")
 parser.add_argument('-vv','--doVV', type=bool, default=False, help="If true do VV analysis (default False)")
+parser.add_argument('-bnt','--binNThreshold', type=str, default="", help="Only consider bbb's for bin # >= X (default -1)")
 args = parser.parse_args()
 
 
@@ -22,16 +23,17 @@ dc_string = "" # write datacard
 #cats = ["WenLowPt_0","WenLowPt_1","WenHighPt_0","WenHighPt_1","WmnLowPt_0","WmnLowPt_1","WmnMidPt_0","WmnMidPt_1","WmnHighPt_0","WmnHighPt_1"]
 #cat_labels = ["ch1_Wenu","ch1_Wenu3","ch2_Wmunu","ch2_Wmunu2","ch2_Wmunu3"]
 #cat_labels = ["ch1_WenuL","ch1_WenuH","ch1_Wenu3L","ch1_Wenu3H","ch2_WmunuL","ch2_WmunuH","ch2_Wmunu2L","ch2_Wmunu2H","ch2_Wmunu3L","ch2_Wmunu3H"]
-#samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
-#samples = ["ZH","WH","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
-samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
-#samples = ["ZH","WH","Bkg"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF"]
-#samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b"]
-#samples = ["WH","TT","s_Top"]
-#samples = ["WH","TT"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","Zj1b","TT","Zj0b","Wj0b","Wj1b","Wj2b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","QCD","Zj0b","Zj1b","Zj2b"]
+samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1b","Zj2b","QCD"]
+#samples = ["ZH_hbb","WH_hbb","Bkg"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF"]
+#samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b"]
+#samples = ["WH_hbb","TT","s_Top"]
+#samples = ["WH_hbb","TT"]
 #cats = ["WmnLowPt","WmnMidPt", "WmnHighPt"]
 #cat_labels = ["ch2_Wmunu", "ch2_Wmunu2","ch2_Wmunu3"]
 #cats = ["WenLowPt", "WenHighPt"]
@@ -43,8 +45,8 @@ samples = ["ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj0b","Zj1
 #    cat_labels = list(cats)
 
 if args.doVV:
-    samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
-    #samples = ["VVHF","VVLF","ZH","WH","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
+    samples = ["VVHF","VVLF","ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
+    #samples = ["VVHF","VVLF","ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
 
 # It probably makes sense to just run this script once per channel and
 # then combine the datacards with combineDatacard.py, but the code is set
@@ -67,8 +69,10 @@ for i in range(len(cats)):
     print "Calculating Yields for Category: %s: %s" % (cats[i],cat_labels[i])
     nBkgTot = 0.0;
     nSigTot = 0.0;
-    ifile = ROOT.TFile("hists_%s.root" % cats[i])
-    #ifile = ROOT.TFile(args.ihistfile, "r")
+    if (args.ihistfile == ""):
+        ifile = ROOT.TFile("hists_%s.root" % cats[i])
+    else:
+        ifile = ROOT.TFile(args.ihistfile, "r")
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
     print cat_labels[i]
@@ -80,7 +84,7 @@ for i in range(len(cats)):
         nyield = ifile.Get("BDT_%s_%s" % (cat_labels[i],sample)).Integral()
         if (nyield > 0): zeroYield = False
         print "%s = %.4f" % (sample, nyield )
-        if (sample != "WH" and sample != "ZH"): nBkgTot += nyield
+        if (sample != "WH_hbb" and sample != "ZH_hbb"): nBkgTot += nyield
         else: nSigTot += nyield
         # for readable aligment
         if (nyield < 10):
@@ -120,7 +124,7 @@ if (args.systematics != ""):
     for line in sys_file:
         if (line[0] == '#'): continue
         line = line.strip()
-        #print line
+        print line
         params = line.split(' ')
         # remove extra spaces, there's probably a smarter way to do this
         paramsToKeep = []
@@ -157,8 +161,12 @@ if (args.systematics != ""):
         sysLine += "\n"
         systematics += sysLine
 
-#if (args.binstats != ""):
-if (True): # actually I think we always want to do this, should clean this up after HCP ;)
+#if (True): # actually I think we always want to do this, should clean this up after HCP ;)
+if (args.binNThreshold == ""):
+    binThreshold = -1
+else:
+    binThreshold = int(args.binNThreshold)
+if (args.binstats != ""):
     for cat in cat_labels:
         try:
             #binStats_file = open(args.binstats, "r")
@@ -169,6 +177,12 @@ if (True): # actually I think we always want to do this, should clean this up af
         for line in binStats_file:
             if (line[0] == '#'): continue
             line = line.strip()
+            index = line.find("_bin")
+            if (index==-1): continue
+            tmp = line[index+1:]
+            index2 = tmp.find("_") + index + 1
+            binN = int(line[index+4:index2])
+            if (binN < binThreshold): continue
             sysLine = line
             for i in range(60 - len(line)):
                 sysLine += " "

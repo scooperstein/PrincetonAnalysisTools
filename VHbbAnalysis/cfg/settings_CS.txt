@@ -3,13 +3,19 @@
 
 # ONLY USE FLOATS
 type=2  name=vetolep            val=1
-type=2  name=intL               val=12890 # 1/pb
+type=2  name=intL               val=35900 # 1/pb
 type=2  name=doCutFlow          val=0
 type=2  name=doControlSamples   val=1
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
 type=2  name=do2015             val=0
 type=2  name=doReg              val=1
+type=2  name=doBoost            val=0
+type=2  name=doCMVA             val=1
+type=2  name=JERScale           val=1.0
+type=2  name=doICHEP            val=0
+type=2  name=doVPtReweighting   val=0
+type=2  name=reReg              val=1
 
 type=2  name=j1ptCut            val=25
 type=2  name=j2ptCut            val=25
@@ -24,9 +30,10 @@ type=2  name=LepPtPresel        val=25
 type=2  name=eptcut             val=30
 type=2  name=muptcut            val=25
 type=2  name=eletacut           val=2.17
+#type=2  name=eletacut           val=2.5
 type=2  name=muetacut           val=2.4
 type=2  name=metcut             val=0
-type=2  name=erelisocut         val=0.15
+type=2  name=erelisocut         val=0.06
 type=2  name=murelisocut        val=0.06
 type=2  name=elMetDPhiCut       val=2.0
 type=2  name=muMetDPhiCut       val=2.0
@@ -41,13 +48,7 @@ type=2  name=vptcut             val=100 # use eventClass variable instead
 type=2  name=nAddJetsCut        val=2
 type=2  name=nAddLeptonsCut     val=1
 
-#type=2  name=SF_Wj0b            val=1.0
-##type=2  name=SF_WHF             val=1.0
-#type=2  name=SF_Wj1b            val=1.0
-#type=2  name=SF_Wj2b            val=1.0
-#type=2  name=SF_TT              val=1.0
-
-type=2  name=SF_Wj0b            val=0.93
-type=2  name=SF_Wj1b            val=1.60
-type=2  name=SF_Wj2b            val=0.80
-type=2  name=SF_TT              val=0.88
+type=2  name=SF_Wj0b            val=1.01
+type=2  name=SF_Wj1b            val=1.49
+type=2  name=SF_Wj2b            val=1.94
+type=2  name=SF_TT              val=0.84

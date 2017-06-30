@@ -12,6 +12,7 @@
 #pragma link C++ defined_in "HelperClasses/EquationSolver.h";
 #pragma link C++ defined_in "plugins/VHbbAnalysis.h";
 #pragma link C++ defined_in "plugins/VHbbTrigger.h";
+#pragma link C++ defined_in "plugins/EWKAnalysis.h";
 #pragma link C++ defined_in "AnalysisManager.h";
 #pragma link C++ defined_in "plugins/WorkspaceAnalysis.h";
  

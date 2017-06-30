@@ -53,7 +53,8 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
         tmvaReader_BDTs[i]->AddVariable("V_pt",   &V_pt);
       }
       if (Nm1Var!=5) {
-        tmvaReader_BDTs[i]->AddVariable("Jet_btagCSV[hJetInd2]", &hJets_btagCSV_1);
+        tmvaReader_BDTs[i]->AddVariable("hJets_btagCSV_1", &hJets_btagCSV_1);
+        //tmvaReader_BDTs[i]->AddVariable("Jet_btagCSV[hJetInd2]", &hJets_btagCSV_1);
       }
       if (Nm1Var!=6) {
         tmvaReader_BDTs[i]->AddVariable("Top1_mass_fromLepton_regPT_w4MET", &Top1_mass_fromLepton_regPT_w4MET);
@@ -64,8 +65,8 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
         tmvaReader_BDTs[i]->AddVariable("HVdPhi", &HVdPhi);
       }
       if (Nm1Var!=8) {
-        //tmvaReader_BDTs[i]->AddVariable("nAddJet_f", &nAddJet_f);
-        tmvaReader_BDTs[i]->AddVariable("nAddJets252p9_puid", &nAddJet_f);
+        tmvaReader_BDTs[i]->AddVariable("nAddJet_f", &nAddJet_f);
+        //tmvaReader_BDTs[i]->AddVariable("nAddJets252p9_puid", &nAddJet_f);
       }
       if (Nm1Var!=9) {
         tmvaReader_BDTs[i]->AddVariable("lepMetDPhi", &lepMetDPhi);
@@ -106,6 +107,7 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
       //}
       //tmvaReader_BDTs[i]->AddVariable("AddJets252p9_puid_leadJet_pt", &AddJets252p9_puid_leadJet_pt);
       if (Nm1Var!=21) {
+        //tmvaReader_BDTs[i]->AddVariable("hJets_btagCSV_0", &hJets_btagCSV_0);
         tmvaReader_BDTs[i]->AddVariable("V_mt", &V_mt);
       }
       if (Nm1Var!=22) {
@@ -167,6 +169,7 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
   //nentries = 1000;
   cout<<"starting loop over "<<nentries<<" events"<<endl;
   for (Long64_t z=0; z<nentries; z++) {
+  //for (Long64_t z=0; z<50000; z++) {
     oldtree->GetEntry(z);
     //isWenu_f = (float) isWenu;
     hJets_btagCSV_0 = Jet_btagCSV[hJetInd1];
@@ -220,7 +223,9 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
   }
 
   //newtree->Print();
-  newtree->AutoSave();
+  //newtree->AutoSave();
+  newfile->cd();
+  newtree->Write();
   delete oldfile;
   delete newfile;
 }
