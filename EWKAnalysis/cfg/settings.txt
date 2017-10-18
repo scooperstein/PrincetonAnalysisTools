@@ -11,6 +11,10 @@ type=2  name=reReg              val=0
 
 type=2  name=j1ptCut            val=50
 type=2  name=j2ptCut            val=30
+#type=2  name=Jet1PtPresel       val=50
+#type=2  name=Jet2PtPresel       val=30
+type=2  name=Jet1PtPresel       val=40
+type=2  name=Jet2PtPresel       val=20
 type=2  name=jetEtaCut          val=4.7
 
 type=2  name=LepPtPresel        val=20
@@ -21,12 +25,12 @@ type=2  name=muptcut            val=25
 type=2  name=eletacut           val=2.17
 #type=2  name=eletacut           val=2.5
 type=2  name=muetacut           val=2.4
-type=2  name=metcut             val=20
-type=2  name=wmtcut             val=40
-#type=2  name=erelisocut         val=0.15
-#type=2  name=murelisocut        val=0.12
-type=2  name=erelisocut         val=100
-type=2  name=murelisocut        val=100
+type=2  name=metcut             val=0
+#type=2  name=metcut             val=20
+#type=2  name=wmtcut             val=40
+type=2  name=wmtcut             val=0
+type=2  name=erelisocut         val=0.15
+type=2  name=murelisocut        val=0.12
 type=2  name=elMetDPhiCut       val=100
 type=2  name=muMetDPhiCut       val=100
 type=2  name=elidcut            val=2

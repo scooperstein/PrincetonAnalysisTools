@@ -128,19 +128,22 @@ RooWorkspace w("w","workspace");
         //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June27_SR/output_mc.root");
         //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June28_CR-v2/output_allmc.root");
         //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June29_SR_justSignal/output_mc.root");
-        TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V24_Wln_SR_Oct3_forPreapproval_v2/output_signal.root");
-        TTree *tree = (TTree*) file_down->Get("tree");
+        //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V24_Wln_SR_Oct3_forPreapproval_v2/output_signal.root");
+        //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V25_Wln_CR_Feb9/output_ttpowheg.root");
+        //TTree *tree = (TTree*) file_down->Get("tree");
+        TChain *tree = new TChain("tree");
+        tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_April6/haddjobs/sum_*H125_powheg_weighted.root");
         TH1F *hist_mbb_reg = new TH1F("hist_mbb_reg","hist_mbb_reg",100,0,250);
         TH1F *hist_mbb = new TH1F("hist_mbb","hist_mbb",100,0,250);
 	
-        tree->Draw("H_mass>>hist_mbb_reg","(sampleIndex==-12501&&Pass_nominal==1&&(Vtype==2||Vtype==3)&&Jet_btagCSV[hJetInd1]>0.935)*weight"); 
-        tree->Draw("H_mass_noreg>>hist_mbb","(sampleIndex==-12501&&Pass_nominal==1&&(Vtype==2||Vtype==3)&&Jet_btagCSV[hJetInd1]>0.935)*weight");    
+        tree->Draw("H_mass>>hist_mbb_reg","((sampleIndex==-12501||sampleIndex==-12500)&&Pass_nominal==1&&(Vtype==2||Vtype==3)&&Jet_btagCSV[hJetInd1]>0.9432)*weight*bTagWeightMoriondCMVA*VPtCorrFactorSplit3*VHCorrFactor"); 
+        tree->Draw("H_mass_noreg>>hist_mbb","((sampleIndex==-12501||sampleIndex==-12500)&&Pass_nominal==1&&(Vtype==2||Vtype==3)&&Jet_btagCSV[hJetInd1]>0.9432)*weight*bTagWeightMoriondCMVA*VPtCorrFactorSplit3*VHCorrFactor");    
         
         //TH1F *hist_mbb_reg = new TH1F("hist_mbb_reg","hist_mbb_reg",100,0,250);
         //TH1F *hist_mbb = new TH1F("hist_mbb","hist_mbb",100,0,250);
 
         //tree->Draw("Top1_mass_fromLepton_regPT_w4MET>>hist_mbb_reg","(sampleIndex>0&&sampleIndex!=6000&&sampleIndex!=6001&&sampleIndex!=6002&&controlSample==1&&(Vtype==2||Vtype==3))*weight"); 
-       // tree->Draw("Top1_mass_fromLepton_w4MET>>hist_mbb","(sampleIndex>0&&sampleIndex!=6000&&sampleIndex!=6001&&sampleIndex!=6002&&controlSample==1&&(Vtype==2||Vtype==3))*weight");    
+        //tree->Draw("Top1_mass_fromLepton_w4MET>>hist_mbb","(sampleIndex>0&&sampleIndex!=6000&&sampleIndex!=6001&&sampleIndex!=6002&&controlSample==1&&(Vtype==2||Vtype==3))*weight");    
 
         TFile *fout = new TFile("hists.root","RECREATE");
         hist_mbb_reg->Write();

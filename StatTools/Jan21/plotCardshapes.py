@@ -10,10 +10,15 @@ ROOT.gStyle.SetOptStat(0)
 #SF_Wj1b = 2.38
 #SF_Wj2b = 1.07
 
-SF_TT = 1.0
-SF_Wj0b = 1.0
-SF_Wj1b = 1.0
-SF_Wj2b = 1.0
+SF_TT = 0.91
+SF_Wj0b = 1.14
+SF_Wj1b = 1.66
+SF_Wj2b = 1.49
+
+#SF_TT = 1.0
+#SF_Wj0b = 1.0
+#SF_Wj1b = 1.0
+#SF_Wj2b = 1.0
 
 channel = sys.argv[1]
 ifile = ROOT.TFile("hists_%s.root" % channel)
@@ -27,16 +32,16 @@ wj0b = ifile.Get("BDT_%s_Wj0b" % channel)
 wj1b = ifile.Get("BDT_%s_Wj1b" % channel)
 wj2b = ifile.Get("BDT_%s_Wj2b" % channel)
 wh = ifile.Get("BDT_%s_WH_hbb" % channel)
-qcd = ifile.Get("BDT_%s_QCD" % channel)
+#qcd = ifile.Get("BDT_%s_QCD" % channel)
 bkg = ifile.Get("BDT_%s_Bkg" % channel)
 vvhf = ifile.Get("BDT_%s_VVHF" % channel)
 vvlf = ifile.Get("BDT_%s_VVLF" % channel)
 
+#doBlind = False
 doBlind = True
-#doBlind = True
 if (doBlind and channel.find("HighPt")!=-1):
-    #for i in range(data.GetNbinsX()-13,data.GetNbinsX()+1):
-    for i in range(data.GetNbinsX()-4,data.GetNbinsX()+1):
+    for i in range(data.GetNbinsX()-7,data.GetNbinsX()+1):
+    #for i in range(data.GetNbinsX()-4,data.GetNbinsX()+1):
         data.SetBinContent(i,0.0)
         data.SetBinError(i,0.0)
 data.SetMarkerStyle(20)
@@ -58,8 +63,8 @@ wj1b.SetFillColor(410)
 wj2b.SetLineColor(416)
 wj2b.SetFillColor(416)
 wh.SetLineColor(808)
-qcd.SetLineColor(616)
-qcd.SetFillColor(616)
+#qcd.SetLineColor(616)
+#qcd.SetFillColor(616)
 vvhf.SetLineColor(922)
 vvhf.SetFillColor(922)
 vvlf.SetLineColor(921)
@@ -69,13 +74,13 @@ vvlf.SetFillColor(921)
 #vvlf.SetLineWidth(3)
 wh.SetLineWidth(3)
 
-#tt.Scale(SF_TT)
-#wj0b.Scale(SF_Wj0b)
-#wj1b.Scale(SF_Wj1b)
-#wj2b.Scale(SF_Wj2b)
+tt.Scale(SF_TT)
+wj0b.Scale(SF_Wj0b)
+wj1b.Scale(SF_Wj1b)
+wj2b.Scale(SF_Wj2b)
 #wh.Scale(30.0)
-vvhf.Scale(0.6017)
-vvlf.Scale(0.6017)
+#vvhf.Scale(0.6017)
+#vvlf.Scale(0.6017)
 
 stack = ROOT.THStack("stack","stack")
 stack.Add(stop)
@@ -108,7 +113,8 @@ stackvv.Add(vvhf)
 #stack.SetMaximum(20000)
 canv = ROOT.TCanvas("canv","canv")
 canv.SetBottomMargin(0.3)
-xmin = -1
+xmin = 0.3
+#xmin = -1
 xmax = 1
 frame = ROOT.TH1F("frame","",1,xmin,xmax)
 frame.SetStats(0)
@@ -117,6 +123,7 @@ frame.GetXaxis().SetTitleOffset(0.91);
 frame.GetYaxis().SetTitle("Events")
 #frame.GetXaxis().SetTitle("atanhBDT")
 frame.GetYaxis().SetLabelSize(0.04)
+#frame.GetYaxis().SetRangeUser(10E-03,16000)
 #frame.GetYaxis().SetRangeUser(10E-03,stack.GetStack().Last().GetMaximum()*1.3)
 frame.GetYaxis().SetRangeUser(10E-03,stack.GetStack().Last().GetMaximum()*100)
 #frame.GetYaxis().SetRangeUser(10E-03,200)
@@ -137,7 +144,7 @@ data.Draw("ep same")
 wh.Draw("hist same")
 wh.Draw("ep same")
 
-leg = ROOT.TLegend(0.7,0.7,0.9,0.9)
+leg = ROOT.TLegend(0.65,0.65,0.9,0.9)
 #leg = ROOT.TLegend(0.4,0.6,0.7,0.9)
 #leg = ROOT.TLegend(0.7,0.6,0.9,0.9)
 leg.AddEntry(stop,"Single Top")
@@ -180,6 +187,8 @@ frame2.Draw()
 
 data2=data.Clone("data2")
 mc_total=stack.GetStack().Last().Clone("mc_total")
+mc2_total = wh.Clone("mc2_total")
+mc2_total.Divide(mc_total)
 data2.Add(mc_total,-1)
 data2.Divide(mc_total)
 
@@ -200,6 +209,7 @@ mc_total_uncDown.SetLineWidth(1)
 mc_total_uncDown.SetFillColor(ROOT.kBlack)
 mc_total_uncDown.SetFillStyle(3004)
 
+mc2_total.Draw("hist same")
 mc_total_uncUp.Draw("HIST SAME")
 mc_total_uncDown.Draw("HIST SAME")
 

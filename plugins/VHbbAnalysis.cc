@@ -29,7 +29,8 @@ void VHbbAnalysis::InitAnalysis(){
 //default to false in the future
 bool VHbbAnalysis::Preselection(){
     //return true; // for the moment don't impose any preselection
-    bool sel=true;
+    //bool sel=true;
+    //if (*in["evt"]!=14133238) return false;
     //if (*in["evt"]!=378187 && *in["evt"]!=378183 && *in["evt"]!=378179 && *in["evt"]!=378181) { return false; }
     //std::cout<<*in["evt"]<<std::endl;
     //std::cout<<"found it!"<<std::endl;
@@ -40,15 +41,15 @@ bool VHbbAnalysis::Preselection(){
         return false;
     }
     if (*f["onlyEvenEvents"]) {
-        if (*in["evt"]%2 == 1) sel=false;
+        if (*in["evt"]%2 == 1) return false;
     }    
     else if (*f["onlyOddEvents"]) {
-        if (*in["evt"]%2 == 0) sel=false;
+        if (*in["evt"]%2 == 0) return false;
     }    
     // stitch WJets inclusive sample to HT-binned samples
-    if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
+    if (cursample->sampleNum == 22 && *f["lheHT"] > 100) return false; 
     // stitch ZJets inclusive sample to HT-binned samples
-    if (cursample->sampleNum == 23 && *f["lheHT"] > 100) sel=false; 
+    if (cursample->sampleNum == 23 && *f["lheHT"] > 100) return false; 
 
     // use W+jets b-enriched samples but make sure all samples are orthogonal
     if (cursample->sampleNum == 22 || cursample->sampleNum == 41 || cursample->sampleNum == 42 || 
@@ -56,24 +57,36 @@ bool VHbbAnalysis::Preselection(){
         || cursample->sampleNum == 46 || cursample->sampleNum == 47) {
         //if (*f["lheV_pt"] > 40) {
         if (*f["lheV_pt"] > 100) {
-            if (*f["lheNb"]!=0 || *in["nGenStatus2bHad"]!=0) sel=false;
+            if (*f["lheNb"]!=0 || *in["nGenStatus2bHad"]!=0) return false;
         }
     }
     else if (cursample->sampleNum == 48) {
-        if (*f["lheV_pt"] < 100 || *f["lheV_pt"] > 200 || *f["lheNb"] == 0) sel=false;
+        if (*f["lheV_pt"] < 100 || *f["lheV_pt"] > 200 || *f["lheNb"] == 0) return false;
     }
     else if (cursample->sampleNum == 481) {
-        if (*f["lheV_pt"] < 200 || *f["lheNb"] == 0) sel=false;
+        if (*f["lheV_pt"] < 200 || *f["lheNb"] == 0) return false;
     }
     else if (cursample->sampleNum == 49) {
-        if (*f["lheV_pt"] < 100 || *f["lheV_pt"] > 200 || *in["nGenStatus2bHad"] == 0) sel=false; 
+        if (*f["lheV_pt"] < 100 || *f["lheV_pt"] > 200 || *in["nGenStatus2bHad"] == 0) return false; 
     }
     else if (cursample->sampleNum == 491) {
-        if (*f["lheV_pt"] < 200 || *in["nGenStatus2bHad"] == 0) sel=false; 
+        if (*f["lheV_pt"] < 200 || *in["nGenStatus2bHad"] == 0) return false; 
     }
+    
+    if ((*f["Vtype"]!=2 && *f["Vtype"]!=3)) return false;
 
+    if (cursample->sampleNum==0) {
+        if (*f["json"]!=1) return false;
+    }
+    if (int(*f["doICHEP"])==0 && int(*f["do2015"])==0) {
+        if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
+    }  
+
+    if (*f["V_pt"] < *f["vptcut"]) return false;
+ 
     // Heppy jet corrections for JER/JEC are full correction, it's easier to just use the
     // correction on top of the nominal
+    bool atLeastOnePassesCMVA = false;
     for (int i=0; i<*in["nJet"]; i++) {
         if (int(*f["doReg"]) == 0) {
             // don't apply the regression. The easiest way to do this is to just reset the value of
@@ -82,12 +95,18 @@ bool VHbbAnalysis::Preselection(){
             f["Jet_pt_reg"][i] = f["Jet_pt"][i];
         }
         else if (int(*f["reReg"]) != 0) {
+            //std::cout<<"regressed jet pt was: "<<f["Jet_pt_reg"][i]<<std::endl;
             f["Jet_pt_reg"][i] = evaluateRegression(i);
+            //std::cout<<"now it is: "<<f["Jet_pt_reg"][i]<<std::endl;
         }
 
         if (int(*f["doCMVA"]) != 0) {
             // use CMVAv2 discriminator instead of usual CSV
             f["Jet_btagCSV"][i] = f["Jet_btagCMVA"][i];
+        }
+
+        if (f["Jet_btagCSV"][i] > *f["j1ptCSV"]) {
+            atLeastOnePassesCMVA = true;
         }
 
         float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
@@ -123,7 +142,9 @@ bool VHbbAnalysis::Preselection(){
         f["Jet_pt_reg_corrJERUp_ratio"][i] = f["Jet_pt_reg_corrJERUp"][i] / f["Jet_pt_reg"][i] ; 
         f["Jet_pt_reg_corrJERDown_ratio"][i] = f["Jet_pt_reg_corrJERDown"][i] / f["Jet_pt_reg"][i] ; 
     }
-  
+ 
+    if (!atLeastOnePassesCMVA) return false;
+ 
     SetupFactorizedJECs(cursyst->name);
 
     *f["met_pt_JECUp_ratio"] = *f["met_shifted_JetEnUp_pt"] / *f["met_pt"] ;
@@ -137,24 +158,24 @@ bool VHbbAnalysis::Preselection(){
     // Preselect for two jets and one lepton which pass some minimum pt threshold
     int nPreselJets = 0;
     for (int i=0; i < *in["nJet"]; i++) {
-        if (f["Jet_pt_reg"][i] > *f["JetPtPresel"]) nPreselJets++;
+        if (f["Jet_pt_reg"][i] > *f["JetPtPresel"] && in["Jet_puId"][i] > 0) nPreselJets++;
         //std::cout<<"Jet_pt["<<i<<"] = "<<f["Jet_pt"][i]<<std::endl;
     }
     int nPreselLep = 0;
     for (int i=0; i < *in["nselLeptons"]; i++) {
-        if (f["selLeptons_pt"][i] > *f["LepPtPresel"]) nPreselLep++;
+        if (f["selLeptons_pt"][i] > *f["LepPtPresel"] && fabs(f["selLeptons_eta"][i])<2.5 && (fabs(in["selLeptons_pdgId"][i])==11 || fabs(in["selLeptons_pdgId"][i])==13) ) nPreselLep++;
     }
     //for (int i=0; i < *in["naLeptons"]; i++) {
     //    if (f["aLeptons_pt"][i] > *f["LepPtPresel"]) nPreselLep++;
     //}
-    
+   
     if (int(*f["doBoost"])==0) {
-        if (nPreselJets < 2 || nPreselLep < 1) sel = false;
+        if (nPreselJets < 2 || nPreselLep < 1) return false;
     }
     else {
-        if ((nPreselJets < 2 && *in["nFatjetAK08ungroomed"]<1) || nPreselLep < 1) sel = false;
+        if ((nPreselJets < 2 && *in["nFatjetAK08ungroomed"]<1) || nPreselLep < 1) return false;
     }
-    return sel;
+    return true; // passed pre-selection
 }
 
 bool VHbbAnalysis::Analyze(){
@@ -223,8 +244,8 @@ bool VHbbAnalysis::Analyze(){
         // for the rest of the MC we just dont have the HLT in 2016, have to apply data efficiencies 
     }
     else {
-        if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) sel=false;
-        //if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) sel=false;
+        //if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) sel=false;
+        if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) sel=false;
     }
 
     //if (*in["HLT_BIT_HLT_IsoMu20_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu20_v"]!=1 ) sel=false;
@@ -1531,7 +1552,7 @@ void VHbbAnalysis::FinishEvent(){
         *f["WJetNLOWeight"] = WJetNLOWeight;
         
     }
-
+    
     // FIXME nominal must be last
     if(cursyst->name=="nominal"){
         ofile->cd();

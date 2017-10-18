@@ -16,9 +16,12 @@ mcTot_4 = 0.
 mcTotErr_4 = 0
 mcTot_5 = 0.
 mcTotErr_5 = 0
+bTot = 0.
+bTotErr = 0.
 #for sample in ["data_obs"]:
-#for sample in ["Zj0b","Zj1b","Zj2b","Wj0b","Wj1b","Wj2b","TT","s_Top","VVHF","VVLF"]:
-for sample in ["Zj0b","Zj1b","Zj2b","Wj0b","Wj1b","Wj2b","TT","s_Top","VVLF","VVHF","ZH","WH"]:
+for sample in ["Zj0b","Zj1b","Zj2b","Wj0b","Wj1b","Wj2b","TT","s_Top","VVHF","VVLF"]:
+#for sample in ["WH_hbb","ZH_hbb"]:
+#for sample in ["Zj0b","Zj1b","Zj2b","Wj0b","Wj1b","Wj2b","TT","s_Top","VVLF","VVHF","ZH_hbb","WH_hbb"]:
 #for sample in ["Zj0b","Zj1b","Zj2b","Wj0b","Wj1b","Wj2b","TT","s_Top","VVLF","VVHF"]:
     h_ttWmn = ifile.Get("shapes_fit_s/ttWmn/%s" % sample)
     mcTot_2 += h_ttWmn.Integral()
@@ -62,21 +65,30 @@ for sample in ["Zj0b","Zj1b","Zj2b","Wj0b","Wj1b","Wj2b","TT","s_Top","VVLF","VV
         mcErr_1 += pow(h_wlfWen.GetBinError(i),2)
     mcTotErr_1 += mcErr_1
     mcErr_1 = sqrt(mcErr_1)
-    print "%s        & $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $ \\\\" % (sample,h_wlfWmn.Integral(),mcErr_0,h_wlfWen.Integral(),mcErr_1,h_ttWmn.Integral(),mcErr_2,h_ttWen.Integral(),mcErr_3,h_whfWmn.Integral(),mcErr_4,h_whfWen.Integral(),mcErr_5)
+    #print "%s        & $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $ \\\\" % (sample,h_wlfWmn.Integral(),mcErr_0,h_wlfWen.Integral(),mcErr_1,h_ttWmn.Integral(),mcErr_2,h_ttWen.Integral(),mcErr_3,h_whfWmn.Integral(),mcErr_4,h_whfWen.Integral(),mcErr_5)
     #print "%s        & $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $ \\\\" % (sample,h_wlfWmn.Integral(),1./sqrt(h_wlfWmn.GetEffectiveEntries())*h_wlfWmn.Integral(),h_wlfWen.Integral(),1./sqrt(h_wlfWen.GetEffectiveEntries())*h_wlfWen.Integral(),h_ttWmn.Integral(),h_ttWmn.Integral()*1./sqrt(h_ttWmn.GetEffectiveEntries()),h_ttWen.Integral(),1./sqrt(h_ttWen.GetEffectiveEntries())*h_ttWen.Integral(),h_whfWmn.Integral(),1./sqrt(h_whfWmn.GetEffectiveEntries())*h_whfWmn.Integral(),h_whfWen.Integral(),1./sqrt(h_whfWen.GetEffectiveEntries())*h_whfWen.Integral())
-    #h_Wmn = ifile.Get("shapes_fit_s/WmnHighPt/%s" % sample)
-    #h_Wen = ifile.Get("shapes_fit_s/WenHighPt/%s" % sample)
-    #print sample
+    h_Wmn = ifile.Get("shapes_fit_s/WmnHighPt/%s" % sample)
+    h_Wen = ifile.Get("shapes_fit_s/WenHighPt/%s" % sample)
+    #h_Wmn = ifile.Get("shapes_prefit/WmnHighPt/%s" % sample)
+    #h_Wen = ifile.Get("shapes_prefit/WenHighPt/%s" % sample)
+    print sample
     #print "%.2f +/= %.2f" % (h_Wmn.Integral(),h_Wmn.Integral()*1./sqrt(h_Wmn.GetEffectiveEntries()))
     #print "%.2f +/= %.2f" % (h_Wen.Integral(),h_Wen.Integral()*1./sqrt(h_Wen.GetEffectiveEntries()))
-    #nBins = h_Wmn.GetNbinsX()
-    #totErr = 0.
-    #totSum = 0.
+    nBins = h_Wmn.GetNbinsX()
+    totErr = 0.
+    totSum = 0.
+    #for i in range(nBins,nBins+1):
     #for i in range(nBins-3,nBins+1):
-    #    #print i
-    #    totSum += h_Wmn.GetBinContent(i)
-    #    totSum += h_Wen.GetBinContent(i)
-    #    totErr += pow(h_Wmn.GetBinError(i),2)
-    #totErr = sqrt(totErr)
-    #print "%.2f +/= %.2f" % (totSum, totErr)
-print "Total Background        & $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $ \\\\" % (mcTot_0,sqrt(mcTotErr_0),mcTot_1,sqrt(mcTotErr_1),mcTot_2,sqrt(mcTotErr_2),mcTot_3,sqrt(mcTotErr_3),mcTot_4,sqrt(mcTotErr_4),mcTot_5,sqrt(mcTotErr_5))
+    for i in range(nBins-7,nBins+1):
+        #print i
+        totSum += h_Wmn.GetBinContent(i)
+        totSum += h_Wen.GetBinContent(i)
+        totErr += pow(h_Wmn.GetBinError(i),2)
+        totErr += pow(h_Wen.GetBinError(i),2)
+    totErr = sqrt(totErr)
+    print "%.2f +/- %.2f" % (totSum, totErr)
+    bTot += totSum
+    bTotErr += pow(totErr,2)
+bTotErr = sqrt(bTotErr)
+print "Total MC: %.2f +/- %.2f" % (bTot,bTotErr) 
+#print "Total Background        & $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $   &  $ %.2f \pm %.2f $ \\\\" % (mcTot_0,sqrt(mcTotErr_0),mcTot_1,sqrt(mcTotErr_1),mcTot_2,sqrt(mcTotErr_2),mcTot_3,sqrt(mcTotErr_3),mcTot_4,sqrt(mcTotErr_4),mcTot_5,sqrt(mcTotErr_5))

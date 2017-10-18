@@ -11,6 +11,7 @@ parser.add_argument('-r', '--rateParams', type=str, default="", help="Comma-sepa
 parser.add_argument('-o', '--outputfilename', type=str, default="", help="Name of the output datacard")
 parser.add_argument('-vv','--doVV', type=bool, default=False, help="If true do VV analysis (default False)")
 parser.add_argument('-bnt','--binNThreshold', type=str, default="", help="Only consider bbb's for bin # >= X (default -1)")
+parser.add_argument('-ewk','--doEWK', type=bool, default=False, help="If true do EWK analysis (default False)")
 args = parser.parse_args()
 
 
@@ -47,6 +48,9 @@ samples = ["ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","VVHF","VVLF","Zj
 if args.doVV:
     samples = ["VVHF","VVLF","ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b"]
     #samples = ["VVHF","VVLF","ZH_hbb","WH_hbb","s_Top","TT","Wj0b","Wj1b","Wj2b","Zj0b","Zj1b","Zj2b","QCD"]
+elif args.doEWK:
+    #samples = ["EWKWJets","s_Top","TT","Wjets","VV","Zjets","QCD_data"]
+    samples = ["EWKWJets","s_Top","TT","Wjets","VV","Zjets","QCD_data","IntEWKWJets"]
 
 # It probably makes sense to just run this script once per channel and
 # then combine the datacards with combineDatacard.py, but the code is set
@@ -81,6 +85,7 @@ for i in range(len(cats)):
     for sample in samples: 
         print sample
         #nyield = ifile.Get("%s/%s" % (cat,sample)).Integral()
+        print "BDT_%s_%s" % (cat_labels[i],sample)
         nyield = ifile.Get("BDT_%s_%s" % (cat_labels[i],sample)).Integral()
         if (nyield > 0): zeroYield = False
         print "%s = %.4f" % (sample, nyield )
@@ -169,8 +174,8 @@ else:
 if (args.binstats != ""):
     for cat in cat_labels:
         try:
-            #binStats_file = open(args.binstats, "r")
-            binStats_file = open("binStats_%s.txt" % cat,"r")
+            binStats_file = open(args.binstats, "r")
+            #binStats_file = open("binStats_%s.txt" % cat,"r")
         except FileOpenError:
             print "Couldn't open binstats file %s" % args.binstats
             continue
@@ -190,7 +195,7 @@ if (args.binstats != ""):
             matchesSample = False
             for cat_i in cat_labels:
                 for sample in samples:
-                    if (cat_i == cat and sysLine.find(sample) != -1):
+                    if ((cat_i == cat and sysLine.find(sample) != -1 and (sample.find("EWKWJets")==-1 or sysLine.count("EWKWJets")>1)) and not (sample == "EWKWJets" and sysLine.find("IntEWKWJets")!=-1)): 
                         sysLine += "1.0        "
                         matchesSample = True
                     else:
@@ -234,7 +239,7 @@ dc_string += "\n"
 dc_string += "process                                                     "
 for label in cat_labels:
     for i in range(len(samples)):
-        if (args.doVV):
+        if (args.doVV or args.doEWK):
             dc_string += str(i)
         else:
             dc_string += str(i-1)

@@ -27,7 +27,7 @@ wj2b = ifile.Get("shapes_fit_s/%s/Wj2b" % channel)
 zj0b = ifile.Get("shapes_fit_s/%s/Zj0b" % channel)
 zj1b = ifile.Get("shapes_fit_s/%s/Zj1b" % channel)
 zj2b = ifile.Get("shapes_fit_s/%s/Zj2b" % channel)
-wh = ifile.Get("shapes_fit_s/%s/WH_hbb" % channel)
+wh = ifile.Get("shapes_prefit/%s/WH_hbb" % channel)
 vvhf = ifile.Get("shapes_fit_s/%s/VVHF" % channel)
 vvlf = ifile.Get("shapes_fit_s/%s/VVLF" % channel)
 #qcd = ifile.Get("shapes_fit_s/%s/QCD" % channel)
@@ -35,7 +35,8 @@ data_hist = datafile.Get("BDT_%s_data_obs" % channel)
 
 doBlind = True
 if (doBlind):
-    for i in range(data_hist.GetNbinsX()-4,data_hist.GetNbinsX()+1):
+    #for i in range(data_hist.GetNbinsX()-4,data_hist.GetNbinsX()+1):
+    for i in range(data_hist.GetNbinsX()-7,data_hist.GetNbinsX()+1):
         data_hist.SetBinContent(i,0.0)
         data_hist.SetBinError(i,0.0)
 
@@ -108,6 +109,8 @@ stackvv.Add(vvhf)
 #stack.SetMaximum(1.3*stack.GetMaximum())
 #stack.SetMinimum(0.)
 
+wh.Sumw2()
+
 #bkg.SetTitle(channel)
 #bkg.GetXaxis().SetTitle("Mjj [GeV]")
 
@@ -116,7 +119,7 @@ stackvv.Add(vvhf)
 canv = ROOT.TCanvas("canv","canv")
 canv.SetBottomMargin(0.3)
 xmin = 0
-xmax = 15
+xmax = 12
 frame = ROOT.TH1F("frame","",1,xmin,xmax)
 frame.SetStats(0)
 frame.GetXaxis().SetLabelSize(0)
@@ -124,6 +127,7 @@ frame.GetXaxis().SetTitleOffset(0.91);
 frame.GetYaxis().SetTitle("Events")
 #frame.GetXaxis().SetTitle("atanhBDT")
 frame.GetYaxis().SetLabelSize(0.04)
+#frame.GetYaxis().SetRangeUser(10E-03,16000)
 #frame.GetYaxis().SetRangeUser(10E-03,stack.GetStack().Last().GetMaximum()*1.3)
 frame.GetYaxis().SetRangeUser(10E-03,stack.GetStack().Last().GetMaximum()*100)
 #frame.GetYaxis().SetRangeUser(10E-03,200)
@@ -142,7 +146,7 @@ data.Draw("ep same")
 #stackvv.Draw("hist same")
 #stackvv.Draw("ep same")
 wh.Draw("hist same")
-wh.Draw("ep same")
+#wh.Draw("ep same")
 
 leg = ROOT.TLegend(0.7,0.7,0.9,0.9)
 #leg = ROOT.TLegend(0.4,0.6,0.7,0.9)
@@ -175,6 +179,8 @@ pad2.cd()
 frame2 = ROOT.TH1F("frame2","",1,xmin,xmax)
 frame2.SetMinimum(-0.5)	
 frame2.SetMaximum(0.5) 
+#frame2.SetMinimum(-1.5)	
+#frame2.SetMaximum(1.5) 
 frame2.GetYaxis().SetLabelSize(0.02)
 frame2.GetXaxis().SetLabelSize(0.04)
 frame2.GetYaxis().SetTitleSize(0.04)
@@ -188,6 +194,8 @@ data2=data.Clone("data2")
 mc_total=stack.GetStack().Last().Clone("mc_total")
 data2.Add(mc_total,-1)
 data2.Divide(mc_total)
+mc2_total = wh.Clone("mc2_total")
+mc2_total.Divide(mc_total)
 
 mc_total_uncUp=stack.GetStack().Last().Clone("mc_total")
 mc_total_uncDown=stack.GetStack().Last().Clone("mc_total")
@@ -206,6 +214,7 @@ mc_total_uncDown.SetLineWidth(1)
 mc_total_uncDown.SetFillColor(ROOT.kBlack)
 mc_total_uncDown.SetFillStyle(3004)
 
+mc2_total.Draw("hist same")
 mc_total_uncUp.Draw("HIST SAME")
 mc_total_uncDown.Draw("HIST SAME")
 

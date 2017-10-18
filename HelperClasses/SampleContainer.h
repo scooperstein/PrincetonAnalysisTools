@@ -35,9 +35,10 @@ class SampleContainer {
     TH1F *CountWeightedLHEWeightScale;
     TH1F *CountWeightedLHEWeightPdf;
     TH1F *CountWeighted;
+    TH1F *CountFullWeighted;
     int lepFlav; // if 0 only select Wmunu events, if 1 only select Wenu events
  
-    void AddFile(const char* fname, int isBatch=0);
+    void AddFile(const char* fname, int isBatch=0, int doSkim=0);
     void ComputeWeight(float);
 
   /** adds a lumi section range to 'goodLumis' (typically

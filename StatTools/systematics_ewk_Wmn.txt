@@ -1,0 +1,40 @@
+# bkg scale factor uncertainties 
+#
+# bkg modeling (powheg vs mcAtNlo shapes for example)
+#
+# uncertainty on jets and btag
+#
+# uncertainty on stat. templates
+#
+lumi_13TeV                lnN 1.025 EWKWJets,TT,s_Top,Wjets,Zjets,VV
+CMS_ewkwjet_scale_j_13TeV    shape 1.0  EWKWJets,TT,s_Top,Wjets,Zjets,VV  1.0  JEC
+CMS_ewkwjet_res_j_13TeV      shape 1.0  EWKWJets,TT,s_Top,Wjets,Zjets,VV  1.0  JER
+CMS_ewkwjet_eff_m_Wln_13TeV   shape 1.0  EWKWJets,TT,s_Top,Wjets,Zjets,VV Lep_SF
+CMS_ewkwjet_qgl            shape 1.0  EWKWJets,TT,s_Top,Wjets,Zjets,VV corrQGL   
+CMS_ewkwjet_EWKWJets       lnN   1.05 EWKWJets
+CMS_ewkwjet_TT            lnN   1.10 TT
+CMS_ewkwjet_VV             lnN   1.10 VV
+CMS_ewkwjet_ST             lnN   1.15 s_Top
+CMS_ewkwjet_Wjets          lnN   1.04 Wjets 
+CMS_ewkwjet_Zjets          lnN   1.10 Zjets 
+CMS_ewkwjet_puWeight          shape 1.0  EWKWJets,TT,s_Top,Wjets,Zjets,VV  weight_PU
+#CMS_ewkwjet_EWKWJetsModel  shape 1.0 EWKWJets 1.0 
+#CMS_ewkwjet_LHE_weights_pdf_EWWJets lnN 1.05  EWKWJets
+#CMS_ewkwjet_LHE_weights_pdf_Wjets  lnN 1.05  Wjets
+#CMS_ewkwjet_LHE_weights_pdf_Zjets  lnN 1.05  Zjets
+#CMS_ewkwjet_LHE_weights_pdf_VV     lnN 1.03    VV
+#CMS_ewkwjet_LHE_weights_pdf_TT     lnN 1.005  TT
+CMS_ewkwjet_LHE_weights_scale_muF_TT shape 1.0 TT LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_ewkwjet_LHE_weights_scale_muR_TT shape 1.0 TT LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_ewkwjet_LHE_weights_scale_muF_Wjets shape 1.0 Wjets LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_ewkwjet_LHE_weights_scale_muR_Wjets shape 1.0 Wjets LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_ewkwjet_LHE_weights_scale_muF_Zjets shape 1.0 Zjets LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_ewkwjet_LHE_weights_scale_muR_Zjets shape 1.0 Zjets LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_ewkwjet_LHE_weights_scale_muF_VV shape 1.0 VV LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_ewkwjet_LHE_weights_scale_muR_VV shape 1.0 VV LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_ewkwjet_LHE_weights_scale_muF_EWKWJets shape 1.0 EWKWJets LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_ewkwjet_LHE_weights_scale_muR_EWKWJets shape 1.0 EWKWJets LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_ewkwjet_interference lnN 1.50 IntEWKWJets
+CMS_ewkwjet_QCD_Wmn          lnN 1.50 QCD_data
+#CMS_ewkwjet_QCD_dataModel          shape 1.0 QCD_data 1.0
+CMS_ewkwjet_EWKWJetsModel          shape 1.0 EWKWJets 1.0

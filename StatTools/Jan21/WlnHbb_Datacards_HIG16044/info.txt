@@ -1,0 +1,5 @@
+Directory with inputs to create datacards used for HIG-16-044.
+To re-produce the datacards do:
+python ../runCardsCards_split.py runCards_SR.sh SR
+python ../runCardsCards_split.py runCards_CR.sh CR
+bash ../makeDatacards.sh
