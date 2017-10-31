@@ -31,9 +31,13 @@ type=2  name=JetPtPresel        val=20
 type=2  name=LepPtPresel        val=20
 
 type=2  name=eptcut             val=30
+type=2  name=e1ptcut            val=25
+type=2  name=e2ptcut            val=17
 type=2  name=muptcut            val=25
-type=2  name=eletacut           val=2.17
-#type=2  name=eletacut           val=2.5
+type=2  name=mu1ptcut           val=25
+type=2  name=mu2ptcut           val=15
+#type=2  name=eletacut           val=2.17
+type=2  name=eletacut           val=2.5
 type=2  name=muetacut           val=2.4
 type=2  name=metcut             val=0
 type=2  name=erelisocut         val=0.06

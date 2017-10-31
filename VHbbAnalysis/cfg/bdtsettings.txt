@@ -4,15 +4,6 @@
 bdtmethod=BDT
 #bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
 bdtname=CMS_vhbb_BDT_Wln_13TeV
-#xmlFile=aux/TMVA_13TeV_April28_300_3_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
-#xmlFile=aux/TMVA_13TeV_May6_450_3_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
-#xmlFile=aux/TMVA_13TeV_June17_400_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml  
-#xmlFile=aux/TMVA_13TeV_V24_Sep20_massWindow_fullTTStats_400_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
-#xmlFile=aux/TMVA_13TeV_June17_400_5_VVSig_0b1b2bWjetsTTbarVVBkg_Mjj_BDT.weights.xml 
-#xmlFile=aux/TMVA_13TeV_V24_Nov16_400_3_VVSig_0b1b2bWjetsTTbarVVBkg_Mjj_BDT.weights.xml 
-#xmlFile=aux/TMVA_13TeV_V24_Jan31_CMVA_400_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
-#xmlFile=aux/TMVA_13TeV_V25_Feb10_400_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
-#xmlFile=aux/TMVA_13TeV_V25_March10_400_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
 xmlFile=aux/TMVA_13TeV_V25_March27_400_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
 
 name=H_mass                 lname=H_mass                      isEx=1 isSpec=0 order=1

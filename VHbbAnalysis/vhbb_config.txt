@@ -1,7 +1,8 @@
 analysis=VHbbAnalysis
 outputname=output
 
-samples=cfg/samples.txt
+#samples=cfg/samples.txt
+samples=cfg/samples_fewsignal.txt
 
 earlybranches=cfg/earlybranches.txt
 existingbranches=cfg/existingbranches.txt

@@ -1,7 +1,6 @@
 # types:  unsigned int=0, int=1, float=2, double=3, bool=4
 #     array +5;   vector +10;
 
-type=2  name=json
 type=1  name=lumi
 type=1  name=run
 #type=1  name=HLT_WenHbbLowLumi
@@ -9,19 +8,19 @@ type=1  name=run
 #type=1  name=HLT_BIT_HLT_Ele23_WPLoose_Gsf_v
 #type=1  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
 type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
-type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v
-type=1  name=HLT_BIT_HLT_Ele27_WPTight_Gsf_v
-type=1  name=HLT_BIT_HLT_IsoMu20_v
-type=1  name=HLT_BIT_HLT_IsoTkMu20_v
-type=1  name=HLT_BIT_HLT_IsoMu22_v
-type=1  name=HLT_BIT_HLT_IsoTkMu22_v
+type=1  name=HLT_BIT_HLT_PFMET110_PFMHT110_IDTight_v
+type=1  name=HLT_BIT_HLT_PFMET120_PFMHT120_IDTight_v
+type=1  name=HLT_BIT_HLT_PFMET170_NoiseCleaned_v
+type=1  name=HLT_BIT_HLT_PFMET170_HBHE_BeamHaloCleaned_v
+type=1  name=HLT_BIT_HLT_PFMET170_HBHECleaned_v
 type=1  name=HLT_BIT_HLT_IsoMu24_v
 type=1  name=HLT_BIT_HLT_IsoTkMu24_v
-#type=2  name=HLT_BIT_HLT_Ele27_WPLoose_Gsf_v
-#type=2  name=HLT_BIT_HLT_Ele27_WP85_Gsf_v
-type=1  name=HLT2_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v
-type=1  name=HLT2_BIT_HLT_IsoMu20_v
-type=1  name=HLT2_BIT_HLT_IsoTkMu20_v
+type=1  name=HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v
+type=1  name=HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v
+type=1  name=HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v
+type=1  name=HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
+type=1  name=HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
+
 
 #type=1  name=nPVs
 type=2  name=rho
@@ -109,15 +108,17 @@ type=7  name=GenHiggsBoson_phi                  max=10  onlyMC=1 lengthBranch=nG
 type=7  name=GenHiggsBoson_mass                 max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
 
 type=1  name=nselLeptons 
-type=7  name=selLeptons_eta                     max=20
+#type=7  name=selLeptons_eta                     max=20
 type=7  name=selLeptons_phi                     max=20
 type=7  name=selLeptons_mass                    max=20
 type=7  name=selLeptons_relIso03                max=20
 type=7  name=selLeptons_relIso04                max=20
 type=6  name=selLeptons_pdgId                   max=20
+type=6  name=selLeptons_charge                  max=20
 type=6  name=selLeptons_eleCutIdCSA14_25ns_v1   max=20
 type=6  name=selLeptons_eleCutIdSpring15_25ns_v1 max=20
 type=6  name=selLeptons_tightId                 max=20
+type=6  name=selLeptons_looseIdPOG              max=20
 type=7  name=selLeptons_eleSieie                max=20
 type=7  name=selLeptons_eleDEta                 max=20
 type=7  name=selLeptons_eleDPhi                 max=20
@@ -200,7 +201,7 @@ type=2  name=H_mass
 type=2  name=H_pt
 type=2  name=HCSV_reg_mass
 type=2  name=HCSV_reg_pt
-type=2  name=V_pt
+#type=2  name=V_pt
 type=2  name=HVdPhi
 type=2  name=met_sumEt
 type=2  name=met_shifted_JetEnUp_pt
@@ -236,7 +237,7 @@ type=6  name=GenWZQuark_pdgId                   max=10  onlyMC=1
 
 #type=7  name=Jet_pt_reg                       max=100     lengthBranch=nJet
 type=6  name=Jet_id                           max=100     lengthBranch=nJet
-type=6  name=Jet_puId                         max=100     lengthBranch=nJet
+#type=6  name=Jet_puId                         max=100     lengthBranch=nJet
 type=7  name=Jet_rawPt                        max=100     lengthBranch=nJet
 #type=7  name=Jet_eta                          max=100     lengthBranch=nJet
 #type=7  name=Jet_mass                         max=100     lengthBranch=nJet

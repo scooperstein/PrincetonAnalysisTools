@@ -1,6 +1,7 @@
 # types:  unsigned int=0, int=1, float=2, double=3, bool=4
 #     array +5;   vector +10;
 
+type=2  name=json
 type=1  name=evt
 type=2  name=Vtype
 type=1  name=nselLeptons
@@ -9,6 +10,8 @@ type=1  name=nJet
 type=7  name=Jet_pt         max=100     lengthBranch=nJet
 type=7  name=Jet_pt_reg     max=100     lengthBranch=nJet
 type=7  name=selLeptons_pt  max=10
+type=7  name=selLeptons_eta                     max=20
+type=6  name=selLeptons_pdgId                     max=20
 type=7  name=aLeptons_pt    max=50
 type=2  name=lheHT  onlyMC=1
 type=2  name=lheNb  onlyMC=1
@@ -18,6 +21,12 @@ type=2  name=met_pt
 type=2  name=met_phi
 type=7  name=Jet_btagCSV                      max=100     lengthBranch=nJet
 type=7  name=Jet_btagCMVA                     max=100     lengthBranch=nJet
+type=2  name=V_pt
+
+type=1  name=HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v
+type=1  name=HLT_BIT_HLT_Ele27_WPTight_Gsf_v
+type=1  name=HLT_BIT_HLT_IsoMu24_v
+type=1  name=HLT_BIT_HLT_IsoTkMu24_v
 
 type=7  name=Jet_corr                         max=100     lengthBranch=nJet
 type=7  name=Jet_corr_JERUp                         max=100     lengthBranch=nJet onlyMC=1
@@ -135,7 +144,7 @@ type=7  name=Jet_corr_CorrelationGroupUncorrelatedDown        max=100   lengthBr
 
 
 #type=6  name=Jet_id                           max=100     lengthBranch=nJet
-#type=6  name=Jet_puId                         max=100     lengthBranch=nJet
+type=6  name=Jet_puId                         max=100     lengthBranch=nJet
 #type=7  name=Jet_rawPt                        max=100     lengthBranch=nJet
 type=7  name=Jet_eta                          max=100     lengthBranch=nJet
 type=7  name=Jet_mass                         max=100     lengthBranch=nJet

@@ -3,12 +3,6 @@
 
 bdtmethod=BDTG
 bdtname="Jet2_pt_regression"
-#xmlFile=../JetEnergyRegression/weights/Wln_noMET.xml
-#xmlFile=aux/new-weights-23Jan.xml
-#xmlFile=aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml
-#xmlFile=aux/TMVARegression_BDTG_July28.weights.xml
-#xmlFile=aux/ttbar-spring16-500k-13d-300t.weights.xml
-#xmlFile=aux/ttbar-G25-500k-13d-300t.weights.xml
 xmlFile=aux/gravall-v25.weights.xml 
 
 name=Jet_pt              lname=hJets_pt_1            isEx=0 isSpec=0 order=1
