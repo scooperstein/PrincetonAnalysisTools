@@ -3,6 +3,8 @@
 
 type=1  name=JetInd1
 type=1  name=JetInd2
+type=1  name=JetInd3
+type=1  name=JetInd4
 type=1  name=elInd
 type=1  name=muInd
 type=1  name=lepInd
@@ -18,6 +20,7 @@ type=1  name=isWenu
 type=1  name=isWmunu
 type=2  name=nProcEvents
 type=2  name=nPVs_f
+type=2  name=rochesterCorr
 
 type=7  name=LHE_weights_scale_normwgt                      max=10  onlyMC=1 lengthBranch=nLHE_weights_scale
 type=7  name=LHE_weights_pdf_normwgt                        max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
@@ -31,6 +34,8 @@ type=2  name=minJMetDPhiPtL
 type=2  name=V_mt
 type=2  name=yW
 type=2  name=zW
+type=2  name=yW_noMET
+type=2  name=zW_noMET
 type=2  name=JJVdEta
 type=2  name=JJVdEta_4MET
 type=2  name=V_eta_4MET
@@ -40,12 +45,24 @@ type=2  name=JJEtaBal
 type=2  name=JJPtBal
 type=2  name=Mjj_noreg
 type=2  name=Mjj
+type=2  name=Mjj_JECUp
+type=2  name=Mjj_JECDown
+type=2  name=Mjj_JERUp
+type=2  name=Mjj_JERDown
 type=2  name=JJVdPhi
 type=2  name=PtJJ
+type=2  name=PtJJ_JECUp
+type=2  name=PtJJ_JECDown
+type=2  name=PtJJ_JERUp
+type=2  name=PtJJ_JERDown
 type=2  name=JJL_pt
+type=2  name=JJW_pt
 type=2  name=RPt
 
 type=2  name=corrQGL
+type=2  name=corrQGL_norm
+type=2  name=corrQGLUp
+type=2  name=corrQGLDown
 
 type=2  name=jjWPtBalance
 type=2  name=Lep_SF
@@ -97,6 +114,10 @@ type=2  name=met_pt_JECDown_ratio
 
 type=2  name=Jet1_pt
 type=2  name=Jet2_pt
+type=2  name=Jet1_eta
+type=2  name=Jet2_eta
+type=2  name=Jet1_qgl
+type=2  name=Jet2_qgl
 
 type=2  name=softActivityVH_njets5_f
 

@@ -41,10 +41,11 @@ inline SampleContainer::SampleContainer()
     CountWeightedLHEWeightScale = new TH1F("CountWeightedLHEWeightScale","CountWeightedLHEWeightScale",6,-0.5,5.5);
     CountWeightedLHEWeightPdf = new TH1F("CountWeightedLHEWeightPdf","CountWeightedLHEWeightPdf",103,-0.5,102.5);
     CountWeighted = new TH1F("CountWeighted","CountWeighted",1,0.,2.0);
+    CountFullWeighted = new TH1F("CountFullWeighted","CountFullWeighted",1,0.,2.0);
     lepFlav = -1;
 }
 
-inline void SampleContainer::AddFile(const char* fname,int isBatch) {
+inline void SampleContainer::AddFile(const char* fname,int isBatch, int doSkim) {
     files.push_back(fname);
     std::cout<<"in SC "<<fname<<std::endl;
     std::cout<<"isBatch "<<isBatch<<std::endl;
@@ -54,6 +55,7 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch) {
     sampleChain->Add(fname);
     //std::cout<<nProFromFile<<std::endl; 
     if(nProFromFile) {
+        if (doSkim == 0 && files.size() > 1) return; // skimmed files already have the summed count histograms
         TFile *file = TFile::Open(fname);
         if (file->IsZombie()) return;
         //TH1F* counter = (TH1F*)file.Get("Count");
@@ -61,14 +63,16 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch) {
         //TH1F* counterPos = (TH1F*)file->Get("CountPosWeight");
         //TH1F* counterNeg = (TH1F*)file->Get("CountNegWeight");
         TH1F* counter = (TH1F*)file->Get("CountWeighted");
+        TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
         //int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
         float nEffective = counter->GetBinContent(1);
         if(sampleNum==49 or sampleNum==491) {
             //special prescription for WJets_BGenFilter sample weighting
-            TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
+            //TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
             nEffective = counterFullWeight->GetBinContent(1); 
         }
         CountWeighted->Add(counter);
+        CountFullWeighted->Add(counterFullWeight);
         std::cout<<"pe = "<<processedEvents<<std::endl;
         processedEvents += nEffective;
         std::cout<<"pe = "<<processedEvents<<std::endl;

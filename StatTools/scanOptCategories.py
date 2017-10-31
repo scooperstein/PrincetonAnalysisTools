@@ -17,48 +17,58 @@ if (len(sys.argv) != 4 and len(sys.argv) != 5):
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
+ofile = ROOT.TFile.Open(sys.argv[3],"RECREATE")
+otree = ROOT.TTree("tree","tree")
+
 ifilename = sys.argv[1]
 print "trying to open ",ifilename
-ifile = ROOT.TFile.Open(ifilename)
-tree = ifile.Get("tree")
+#ifile = ROOT.TFile.Open(ifilename)
+#tree = ifile.Get("tree")
+#
+#ifile_sig = ROOT.TFile.Open(ifilename.replace("output_mc.root","output_signal.root"))
+#tree_sig = ifile_sig.Get("tree")
+#
+#if (ifilename.find("allmc")):
+#    ifilename = ifilename.replace("allmc","mc")
 
-ifile_sig = ROOT.TFile.Open(ifilename.replace("output_mc.root","output_signal.root"))
-tree_sig = ifile_sig.Get("tree")
-
-if (ifilename.find("allmc")):
-    ifilename = ifilename.replace("allmc","mc")
+tree = ROOT.TChain("tree")
+tree.Add(ifilename)
+tree_sig =  tree
 
 useCombine = False # calculate significance using full data card with Combine
-#bdtname = "V_pt"bdtname = "CMS_vhbb_BDT_Wln_13TeV"
-bdtname = "CMS_vhbb_BDT_Wln_13TeV"
+doGaussFits = True
+bdtname = "H_pt"
+#bdtname = "CMS_vhbb_BDT_Wln_13TeV"
 #bdtname = "BDT_V24_Oct25_350_3_VVSig"
 #bdtname = "BDT_V24_Oct19_500_4_VVSig"
 #bdtname = "BDT_May30_noMbb_v2"
 #bdtname = "V_pt"
 #presel = ""
-presel = "Pass_nominal==1&&V_pt>100&&(Vtype==2||Vtype==3)"
+#presel = "Pass_nominal==1&&V_pt>100&&(Vtype==2||Vtype==3)"
+presel = "Pass_nominal==1&&V_pt>100&&(Vtype==2||Vtype==3)&&nAddJet_f==0&&Jet_btagCSV[hJetInd2]>0.4432"
 #presel = "H_mass>0"
-#xlow = 100
-#xhigh = 1000
-xlow = -1.
-xhigh = 1.
+xlow = 100
+xhigh = 1000
+#xlow = -1.
+#xhigh = 1.
+#xlow = -1.
+#xhigh = 1.
 
-#bdtname_f = "H_mass"
+bdtname_f = "H_mass"
 #bdtname_f = "BDT_May30_350_5"
-bdtname_f = "CMS_vhbb_BDT_Wln_13TeV"
+#bdtname_f = "CMS_vhbb_BDT_Wln_13TeV"
 #bdtname_f = "BDT_V24_Oct25_350_3_VVSig"
 #bdtname_f = "BDT_V24_Oct19_500_4_VVSig"
 #bdtname_f = "BDT_V24_Sep20_fullTTStats_500_4"
-xlow_f = -1
-xhigh_f = 1
-#xlow_f = 50
-#xhigh_f = 250
+#xlow_f = -1
+#xhigh_f = 1
+xlow_f = 0
+xhigh_f = 255
 #maximum_edge = 0.9 # don't let right-most bin boundary go higher so that it has sufficient statistics
-maximum_edge = 1.0
+#maximum_edge = 1.0
+maximum_edge = 1000
 nCat = int(sys.argv[2])
 
-ofile = ROOT.TFile.Open(sys.argv[3],"RECREATE")
-otree = ROOT.TTree("tree","tree")
 ncat = numpy.zeros(1, dtype=int)
 ncat[0] = nCat
 S_arr = numpy.zeros(nCat, dtype=float)
@@ -78,7 +88,7 @@ procStep = int(sys.argv[4])
 #binSplitting = [(1./50,0.0,0.1),(1./50,0.1,0.75),(1./100,0.75,0.95),(1./200,0.95,1.0)]
 #binSplitting = [(1.,0.0,0.6),(1./20,0.6,0.8),(1./40,0.8,1.0)]
 #binSplitting = [(1./4,0.0,0.5),(1./16,0.5,1.0)]
-binSplitting = [(0.25,0.0,0.5),(0.05,0.5,0.8),(0.025,0.8,0.95),(0.0125,0.95,1.0)]
+#binSplitting = [(0.25,0.0,0.5),(0.05,0.5,0.8),(0.025,0.8,0.95),(0.0125,0.95,1.0)]
 # can we make it choose only one per category at a time?
 #binSplitting = [(0.02,0.49,0.61),(0.02,0.64,0.76),(0.005,0.875,0.925)]
 #binSplitting = [(0.02,0.68,0.72),(0.005,0.845,0.955)]
@@ -87,7 +97,7 @@ binSplitting = [(0.25,0.0,0.5),(0.05,0.5,0.8),(0.025,0.8,0.95),(0.0125,0.95,1.0)
 #binSplitting = [(0.025,0.5,1.0)]
 #binSplitting = [(1./20,0.0,0.8),(1./40,0.8,1.0)]
 #binSplitting = [(1./15,0.0,1.0)]
-#binSplitting = [(1./50,0.0,1.0)]
+binSplitting = [(1./20,0.0,1.0)]
 doWPs = False
 if (len(sys.argv) > 5):
     if (sys.argv[5] ==  "True"): doWPs = True
@@ -120,8 +130,8 @@ hSig2 = ROOT.TH2F("hSig","hSig",nbins,xlow,xhigh,nbins,xlow,xhigh)
 #print "Overal S/sqrt(B): %f" % (sDen/sqrt(bkgDen))
 
 #tree.Draw("%s>>hs" % bdtname,"(Sum$(abs(GenWZQuark_pdgId)==5)>=2&&((sampleIndex==3500)||(sampleIndex==3501)||(sampleIndex==3502)||(sampleIndex==3600)||(sampleIndex==3601)||(sampleIndex==3602)||(sampleIndex==3700)||(sampleIndex==3701)||(sampleIndex==3702))&&(%s))*weight" % presel)
-tree_sig.Draw("%s>>hs" % bdtname,"(sampleIndex==-12501&&(%s))*weight" % presel)
-tree.Draw("%s>>hbkg" % bdtname,"(sampleIndex>0&&sampleIndex!=50&&sampleIndex!=51&&sampleIndex!=52&&(%s))*weight" % presel)
+tree_sig.Draw("%s>>hs" % bdtname,"((sampleIndex==-12501||sampleIndex==-12500)&&(%s))*weight*VPtCorrFactorSplit3*VHCorrFactor" % presel)
+tree.Draw("%s>>hbkg" % bdtname,"(sampleIndex>0&&sampleIndex!=50&&sampleIndex!=51&&sampleIndex!=52&&(%s))*weight*VPtCorrFactorSplit3*VHCorrFactor" % presel)
 #tree.Draw("%s>>hs" % bdtname,"(sampleIndex==-12501&&(%s))*weight*weight_PU*bTagWeight*CS_SF*weight_ptQCD*weight_ptEWK*selLeptons_SF_IsoTight[lepInd]*(selLeptons_SF_IdCutTight[lepInd]*isWmunu + selLeptons_SF_IdMVATight[lepInd]*isWenu)" % presel)
 #tree.Draw("%s>>hbkg" % bdtname,"(sampleIndex>0&&sampleIndex!=50&&sampleIndex!=51&&sampleIndex!=52&&(%s))*weight*weight_PU*bTagWeight*CS_SF*weight_ptQCD*weight_ptEWK*selLeptons_SF_IsoTight[lepInd]*(selLeptons_SF_IdCutTight[lepInd]*isWmunu + selLeptons_SF_IdMVATight[lepInd]*isWenu)" % presel)
 
@@ -241,8 +251,9 @@ elif (nCat == 8):
 bestSig = 0.
 bestWP = ()
 
-#print bsets
+#print "bsets = ", bsets
 for bset in bsets:
+    #print "bset = ",bset
     overlappingCats = False # throw out divisions where a category has 0 
     for i in range(len(bset)-1):
         if (bset[i] == bset[i+1]):
@@ -282,25 +293,41 @@ for bset in bsets:
         #    S = 0.
         #    B = 0.
         #else:
+            
         S = hs.Integral(binLow, binHigh)
         B = hbkg.Integral(binLow, binHigh)
+        if doGaussFits:
+            # get S,B yields in mass resolution window
+            hsmass = ROOT.TH1F("hsmass","hsmass",255,0,255)
+            hbkgmass = ROOT.TH1F("hbkgmass","hbkgmass",255,0,255)
+            print "%s>%f&&%s<%f" % (bdtname,bset[i],bdtname,bset[i+1])
+            tree_sig.Draw("H_mass>>hsmass","((sampleIndex==-12501||sampleIndex==-12500)&&(%s)&&%s>%f&&%s<%f)*weight*VPtCorrFactorSplit3*VHCorrFactor" % (presel,bdtname,bset[i],bdtname,bset[i+1]))
+            tree.Draw("H_mass>>hbkgmass","(sampleIndex>0&&sampleIndex!=50&&sampleIndex!=51&&sampleIndex!=52&&(%s)&&%s>%f&&%s<%f)*weight*VPtCorrFactorSplit3*VHCorrFactor" % (presel,bdtname,bset[i],bdtname,bset[i+1]))
+            hsmass.Fit("gaus")
+            mean = hsmass.GetFunction("gaus").GetParameter(1)
+            sigma = hsmass.GetFunction("gaus").GetParameter(2)
+            b1 = hsmass.FindBin(mean - 2*sigma)
+            b2 = hsmass.FindBin(mean + 2*sigma)
+            S = hsmass.Integral(b1,b2)
+            B = hbkgmass.Integral(b1,b2)
+            print b1,b2,mean,sigma
         S_arr[i] = S
         B_arr[i] = B
         #bound_arr[i] = bset[i]
         print binLow, binHigh, S, B
         if (B > 0):
             print "adding to combSens: ",S,", ",B,": ",(S/sqrt(B))
-            #combSens += pow(S,2)/B
+            combSens += pow(S,2)/B
             #combSens += 2*((S+B)*log(1+(S/B)) - S )
             #bErr = 0.
             #for j in range(binLow,binHigh+1):
             #     bErr += pow(hbkg.GetBinError(j),2)
             #bErr = sqrt(bErr)
-            bErr = B*getBinDB(0.5*(bset[i]+bset[i+1]))
+            #bErr = B*getBinDB(0.5*(bset[i]+bset[i+1]))
             #print "S,B,bErr',combSens"
-            combSens += 2*((S+B)*log (((S+B)*(B+pow(bErr,2)))/(pow(B,2)+(S+B)*pow(bErr,2))) - (pow(B,2)/pow(bErr,2))*log(1 + (pow(bErr,2)*S)/(B*(B+pow(bErr,2))) ) )
-            print "S,B,bErr,combSens"
-            print S,B,bErr,combSens 
+            #combSens += 2*((S+B)*log (((S+B)*(B+pow(bErr,2)))/(pow(B,2)+(S+B)*pow(bErr,2))) - (pow(B,2)/pow(bErr,2))*log(1 + (pow(bErr,2)*S)/(B*(B+pow(bErr,2))) ) )
+            #print "S,B,bErr,combSens"
+            #print S,B,bErr,combSens 
             #combSens += pow(S,2)/pow(sqrt(B)+0.1*B,2)
             print combSens
             if (useCombine):

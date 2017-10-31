@@ -613,11 +613,13 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
             cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
             cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
             cursample->CountWeighted->Write(Form("CountWeighted_%s",cursample->sampleName.c_str()));
+            cursample->CountFullWeighted->Write(Form("CountFullWeighted_%s",cursample->sampleName.c_str()));
         }
         else {
             cursample->CountWeightedLHEWeightScale->Write();
             cursample->CountWeightedLHEWeightPdf->Write();
             cursample->CountWeighted->Write();
+            cursample->CountFullWeighted->Write();
         }
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;

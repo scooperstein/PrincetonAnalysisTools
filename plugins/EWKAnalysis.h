@@ -5,6 +5,7 @@
 #include <iostream>
 #include "../AnalysisManager.h"
 #include "TLorentzVector.h"
+#include "HelperClasses/RoccoR.cc"
 
 using namespace std;
 
@@ -32,5 +33,7 @@ class EWKAnalysis : public AnalysisManager {
     float getQGLCorr(float partonFlav=0, float eta=0., float qgl=-10.); 
     float getQGLCorr_q(float x=-99.);
     float getQGLCorr_g(float x=-99.);
+    //RoccoR  *rc = new RoccoR("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/EWKAnalysis/aux/roccor.2016.v3/rcdata.2016.v3/"); 
+    RoccoR  *rc = new RoccoR("aux/roccor.2016.v3/rcdata.2016.v3/"); 
 };
 

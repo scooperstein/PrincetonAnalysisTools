@@ -21,7 +21,6 @@ type=1  name=HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v
 type=1  name=HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
 type=1  name=HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
 
-
 #type=1  name=nPVs
 type=2  name=rho
 type=2  name=puWeight                              onlyMC=1

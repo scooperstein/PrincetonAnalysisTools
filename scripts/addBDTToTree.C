@@ -1,8 +1,27 @@
-void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.root",const char* newfilename="testingtree_mh125_evenbkg_allmvas.root", std::vector<const char*> weights=std::vector<const char*>(),std::vector<const char*> newbranch=std::vector<const char*>(),int Nm1Var=0, bool refill=false) {
-  
+#include <string>
+#include <vector>
+#include "TMVA/Factory.h"
+#include "TMVA/Reader.h"
+#include "TMVA/Tools.h"
+#include <cstdlib>
+#include <iostream>
+#include <map>
 #include <string>
 
+#include "TChain.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TObjString.h"
+#include "TSystem.h"
+#include "TROOT.h"
+#include "TMath.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
+using namespace std;
 
+void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.root",const char* newfilename="testingtree_mh125_evenbkg_allmvas.root", std::vector<const char*> weights=std::vector<const char*>(),std::vector<const char*> newbranch=std::vector<const char*>(),int Nm1Var=0, bool refill=false) {
+  
   using std::max;
   using std::min;
   
@@ -119,7 +138,7 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
       cout<<"finished tmvaReader_BDT "<<i<<endl;
   }
 
-  TFile *oldfile = new TFile(oldfilename);
+  TFile *oldfile = TFile::Open(oldfilename);
   
   TTree *oldtree = (TTree*)oldfile->Get("tree");
 
@@ -150,7 +169,7 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
   oldtree->SetBranchAddress("JJEtaBal", &JJEtaBal);
   Long64_t nentries = oldtree->GetEntries();
 
-  TFile *newfile = new TFile(newfilename, "recreate");
+  TFile *newfile = TFile::Open(newfilename, "recreate");
   TTree *newtree = oldtree->CloneTree(0);
 
   std::vector<TBranch*> bBDT;
@@ -228,4 +247,16 @@ void addBDTToTree(const char* oldfilename="testingtree_mh125_evenbkg_newmvas.roo
   newtree->Write();
   delete oldfile;
   delete newfile;
+}
+
+int main(int argc, char *argv[]) {
+    
+    const char* file1 = argv[1];
+    const char* file2 = argv[2];
+    std::vector<const char*> weights;
+    std::vector<const char*> branches;
+    weights.push_back("weights/TMVA_13TeV_V25_March27_400_5_VVSig_0b1b2bWjetsTTbarVVBkg_Mjj_BDT.weights.xml");
+    branches.push_back("CMS_vvbb_BDT_Wln_13TeV");
+
+   addBDTToTree(file1,file2,weights,branches);
 }

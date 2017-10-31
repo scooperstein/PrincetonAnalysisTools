@@ -5,10 +5,10 @@ samples=cfg/samples.txt
 
 earlybranches=cfg/earlybranches.txt
 existingbranches=cfg/existingbranches.txt
-#newbranches=cfg/newbranches.txt
+newbranches=cfg/newbranches_skim.txt
 
-reg1settings=cfg/reg1_settings.txt
+#reg1settings=cfg/reg1_settings.txt
 #reg2settings=cfg/reg2_settings.txt
 settings=cfg/settings_skim.txt
 
-systematics=cfg/systematics.txt
+systematics=cfg/systematics_skim.txt

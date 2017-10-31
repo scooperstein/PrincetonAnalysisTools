@@ -1,6 +1,8 @@
 #nominal needs to go last
-#name=JECUp       branches=Jet_pt,Jet_pt_reg,Jet_mass,met_pt  scaleVar=Jet_corr_JECUp_ratio,Jet_corr_JECUp_ratio,Jet_corr_JECUp_ratio,met_pt_JECUp_ratio
-#name=JECDown     branches=Jet_pt,Jet_pt_reg,Jet_mass,met_pt  scaleVar=Jet_corr_JECDown_ratio,Jet_corr_JECDown_ratio,Jet_corr_JECDown_ratio,met_pt_JECDown_ratio
-#name=JERUp       branches=Jet_pt,Jet_pt_reg,Jet_mass  scaleVar=Jet_corr_JERUp_ratio,Jet_pt_reg_corrJERUp_ratio,Jet_corr_JERUp_ratio
-#name=JERDown     branches=Jet_pt,Jet_pt_reg,Jet_mass  scaleVar=Jet_corr_JERDown_ratio,Jet_pt_reg_corrJERDown_ratio,Jet_corr_JERDown_ratio
+name=JECUp       branches=Jet_pt,Jet_pt_reg,Jet_mass,met_pt  scaleVar=Jet_corr_JECUp_ratio,Jet_corr_JECUp_ratio,Jet_corr_JECUp_ratio,met_pt_JECUp_ratio
+name=JECDown     branches=Jet_pt,Jet_pt_reg,Jet_mass,met_pt  scaleVar=Jet_corr_JECDown_ratio,Jet_corr_JECDown_ratio,Jet_corr_JECDown_ratio,met_pt_JECDown_ratio
+#name=JECUp       branches=Jet_pt,Jet_pt_reg,Jet_mass  scaleVar=Jet_corr_JECUp_ratio,Jet_corr_JECUp_ratio,Jet_corr_JECUp_ratio
+#name=JECDown     branches=Jet_pt,Jet_pt_reg,Jet_mass  scaleVar=Jet_corr_JECDown_ratio,Jet_corr_JECDown_ratio,Jet_corr_JECDown_ratio
+name=JERUp       branches=Jet_pt,Jet_pt_reg,Jet_mass  scaleVar=Jet_corr_JERUp_ratio,Jet_corr_JERUp_ratio,Jet_corr_JERUp_ratio
+name=JERDown     branches=Jet_pt,Jet_pt_reg,Jet_mass  scaleVar=Jet_corr_JERDown_ratio,Jet_corr_JERDown_ratio,Jet_corr_JERDown_ratio
 name=nominal

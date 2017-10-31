@@ -258,14 +258,16 @@ if __name__ == "__main__":
     categoriesFile = "categories.dat"
     debug=False
     deepDebug=False
+    inputDirectory = ""
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:dD", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories","debug","deepDebug"])
+        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:f:dD", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories","debug","deepDebug","inputDirectory"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
 
     for opt, arg in opts:
+        print opt,arg
         if opt in ("-h", "--help"):
             usage()
             sys.exit()
@@ -290,11 +292,13 @@ if __name__ == "__main__":
         elif opt in ("-D", "--deepDebug"):
             debug=True
             deepDebug=True
+        elif opt in ("-f", "--inputDirectory"):
+            inputDirectory = arg
         else:
             print "Unrecongnized option " + opt
 
-    if (rootInputFile == ""):
-        print "You have to select one input file."
+    if (rootInputFile == "" and inputDirectory == ""):
+        print "You have to select one input file or input directory."
         usage()
         sys.exit(3)
 
@@ -302,6 +306,7 @@ if __name__ == "__main__":
         weightName = "1"
     
     print "Parsing all files"
+    print "inputDirectory = ",inputDirectory
     finalHistos = []
     if(debug): print "Parsing selection file..."
     selection_cut = parseSelection(selectionFile)
@@ -316,13 +321,142 @@ if __name__ == "__main__":
     if(debug): print "Parsing categories file..."
     categories = parseCategories(categoriesFile)
 
-    file = ROOT.TFile(rootInputFile)
-    tree = file.Get(treeName)
+    if (inputDirectory == ""):
+        file = ROOT.TFile.Open(rootInputFile)
+        tree = file.Get(treeName)
+
+
+    sampleNameMap = {}
+    sampleNameMap["WH125p"] = "WplusH125_powheg" 
+    sampleNameMap["WH125m"] = "WminusH125_powheg" 
+    sampleNameMap["ZH125"]  = "ZH125_powheg"
+    sampleNameMap["WZ_udcsg"] = "WZ_fil"
+    sampleNameMap["WZ_b"] = "WZ_fil"
+    sampleNameMap["WZ_bb"] = "WZ_fil"
+    sampleNameMap["ZZ_udcsg"] = "ZZ_fil"
+    sampleNameMap["ZZ_b"] = "ZZ_fil"
+    sampleNameMap["ZZ_bb"] = "ZZ_fil"
+    sampleNameMap["WW_udcsg"] = "WW_fil"
+    sampleNameMap["WW_b"] = "WW_fil"
+    sampleNameMap["WW_bb"] = "WW_fil"
+    sampleNameMap["TT_powheg"] = "TT_powheg"
+    sampleNameMap["TToLeptons_s"] = "TToLeptons_s"
+    sampleNameMap["TToLeptons_t"] = ["TToLeptons_t_powheg","TBarToLeptons_t_powheg"]    
+    #sampleNameMap["TBarToLeptons_t_powheg"] = "TBarToLeptons_t_powheg" 
+    #sampleNameMap["TToLeptons_t_powheg"] = "TToLeptons_t_powheg" 
+    sampleNameMap["T_tW"] = "T_tW"
+    sampleNameMap["Tbar_tW"] = "Tbar_tW"
+    sampleNameMap["W_udcsg"] = "WJets_madgraph"
+    sampleNameMap["W_b"] = "WJets_madgraph"
+    sampleNameMap["W_bb"] = "WJets_madgraph"
+    sampleNameMap["W_udcsg_HT100To200"] = "WJets-HT100To200"
+    sampleNameMap["W_b_HT100To200"] = "WJets-HT100To200"
+    sampleNameMap["W_bb_HT100To200"] = "WJets-HT100To200"
+    sampleNameMap["W_udcsg_HT200To400"] = "WJets-HT200To400"
+    sampleNameMap["W_b_HT200To400"] = "WJets-HT200To400"
+    sampleNameMap["W_bb_HT200To400"] = "WJets-HT200To400"
+    sampleNameMap["W_udcsg_HT400To600"] = "WJets-HT400To600"
+    sampleNameMap["W_b_HT400To600"] = "WJets-HT400To600"
+    sampleNameMap["W_bb_HT400To600"] = "WJets-HT400To600"
+    sampleNameMap["W_udcsg_HT600To800"] = "WJets-HT600To800"
+    sampleNameMap["W_b_HT600To800"] = "WJets-HT600To800"
+    sampleNameMap["W_bb_HT600To800"] = "WJets-HT600To800"
+    sampleNameMap["W_udcsg_HT800To1200"] = "WJets-HT800To1200"
+    sampleNameMap["W_b_HT800To1200"] = "WJets-HT800To1200"
+    sampleNameMap["W_bb_HT800To1200"] = "WJets-HT800To1200"
+    sampleNameMap["W_udcsg_HT1200To2500"] = "WJets-HT1200To2500"
+    sampleNameMap["W_b_HT1200To2500"] = "WJets-HT1200To2500"
+    sampleNameMap["W_bb_HT1200To2500"] = "WJets-HT1200To2500"
+    sampleNameMap["W_udcsg_HT2500ToInf"] = "WJets-HT2500ToInf"
+    sampleNameMap["W_b_HT2500ToInf"] = "WJets-HT2500ToInf"
+    sampleNameMap["W_bb_HT2500ToInf"] = "WJets-HT2500ToInf"
+    sampleNameMap["W_udcsg_WBJets_Pt100To200"] = "WBJets-Pt100To200"
+    sampleNameMap["W_b_WBJets_Pt100To200"] = "WBJets-Pt100To200"
+    sampleNameMap["W_bb_WBJets_Pt100To200"] = "WBJets-Pt100To200"
+    sampleNameMap["W_udcsg_WBJets_Pt200ToInf"] = "WBJets-Pt200ToInf"
+    sampleNameMap["W_b_WBJets_Pt200ToInf"] = "WBJets-Pt200ToInf"
+    sampleNameMap["W_bb_WBJets_Pt200ToInf"] = "WBJets-Pt200ToInf"
+    sampleNameMap["W_udcsg_BGenFilter_Pt100To200"] = "WJets_BGenFilter-Pt100To200"
+    sampleNameMap["W_b_BGenFilter_Pt100To200"] = "WJets_BGenFilter-Pt100To200"
+    sampleNameMap["W_bb_BGenFilter_Pt100To200"] = "WJets_BGenFilter-Pt100To200"
+    sampleNameMap["W_udcsg_BGenFilter_Pt200ToInf"] = "WJets_BGenFilter-Pt200ToInf"
+    sampleNameMap["W_b_BGenFilter_Pt200ToInf"] = "WJets_BGenFilter-Pt200ToInf"
+    sampleNameMap["W_bb_BGenFilter_Pt200ToInf"] = "WJets_BGenFilter-Pt200ToInf"
+    sampleNameMap["Z_udcsg"] = "DYToLL_madgraph"
+    sampleNameMap["Z_b"] = "DYToLL_madgraph"
+    sampleNameMap["Z_bb"] = "DYToLL_madgraph"
+    sampleNameMap["Z_udcsg_HT100To200"] = "DYToLL_HT100to200"
+    sampleNameMap["Z_b_HT100To200"] = "DYToLL_HT100to200"
+    sampleNameMap["Z_bb_HT100To200"] = "DYToLL_HT100to200"
+    sampleNameMap["Z_udcsg_HT200To400"] = "DYToLL_HT200to400"
+    sampleNameMap["Z_b_HT200To400"] = "DYToLL_HT200to400"
+    sampleNameMap["Z_bb_HT200To400"] = "DYToLL_HT200to400"
+    sampleNameMap["Z_udcsg_HT400To600"] = "DYToLL_HT400to600"
+    sampleNameMap["Z_b_HT400To600"] = "DYToLL_HT400to600"
+    sampleNameMap["Z_bb_HT400To600"] = "DYToLL_HT400to600"
+    ####sampleNameMap["QCD_HT100To200"] = "QCD_HT100to200"
+    sampleNameMap["QCD_HT100To200"] = "IntEWKWJets"
+    sampleNameMap["QCD_HT200To300"] = "QCD_HT200to300"
+    sampleNameMap["QCD_HT300To500"] = "QCD_HT300to500"
+    sampleNameMap["QCD_HT500To700"] = "QCD_HT500to700"
+    sampleNameMap["QCD_HT700To1000"] = "QCD_HT700to1000"
+    sampleNameMap["QCD_HT1000To1500"] = "QCD_HT1000to1500"
+    sampleNameMap["QCD_HT1500To2000"] = "QCD_HT1500to2000"
+    sampleNameMap["QCD_HT2000ToInf"] = "QCD_HT2000toInf"
+    sampleNameMap["WJets_0J"] = "WJets_0J"
+    sampleNameMap["WJets_1J"] = "WJets_1J"
+    sampleNameMap["WJets_2J"] = "WJets_2J"
+    sampleNameMap["EWKWJets"] = "EWKWJets"
+    sampleNameMap["EWKWJets_herwig"] = "EWKWJets_herwig"
+    sampleNameMap["IntEWKWJets"] = "IntEWKWJets"
+    sampleNameMap["WZ_fil"] = "WZ_fil"
+    sampleNameMap["WW_fil"] = "WW_fil"
+    sampleNameMap["ZZ_fil"] = "ZZ_fil"
+    sampleNameMap["DYToLL_madgraph"] = "DYToLL_madgraph"
+    sampleNameMap["DYToLL_HT100to200"] = "DYToLL_HT100to200"
+    sampleNameMap["DYToLL_HT200to400"] = "DYToLL_HT200to400"
+    sampleNameMap["DYToLL_HT400to600"] = "DYToLL_HT400to600"
+    sampleNameMap["DYToLL_HT600to800"] = "DYToLL_HT600to800"
+    sampleNameMap["DYToLL_HT800to1200"] = "DYToLL_HT800to1200"
+    sampleNameMap["DYToLL_HT1200to2500"] = "DYToLL_HT1200to2500"
+    sampleNameMap["DYToLL_HT2500toInf"] = "DYToLL_HT2500toInf"
+    sampleNameMap["ZJets_0J"] = "ZJets_0J"
+    sampleNameMap["ZJets_1J"] = "ZJets_1J"
+    sampleNameMap["ZJets_2J"] = "ZJets_2J"
+    sampleNameMap["WJets_inc"] = "WJets_madgraph"
+    sampleNameMap["WJets_HT100To200"] = "WJets-HT100To200"
+    sampleNameMap["WJets_HT200To400"] = "WJets-HT200To400"
+    sampleNameMap["WJets_HT400To600"] = "WJets-HT400To600"
+    sampleNameMap["WJets_HT600To800"] = "WJets-HT600To800"
+    sampleNameMap["WJets_HT800To1200"] = "WJets-HT800To1200"
+    sampleNameMap["WJets_HT1200To2500"] = "WJets-HT1200To2500"
+    sampleNameMap["WJets_HT2500ToInf"] = "WJets-HT2500ToInf"
+    ##sampleNameMap["QCD_HT100To200"] = "ZJets_0J"
 
     print "Looping over samples and histograms"
+    print "inputDirectory = ",inputDirectory
+    output = ROOT.TFile.Open(rootOutputFile, "recreate")
     for ns, s in enumerate(samples):
         #if(debug): print "Processing sample: ", s[1]
         print "Processing sample: ", s[1]
+        if s[1] not in sampleNameMap:
+            sampleNameMap[s[1]] = s[1]
+        if (inputDirectory != ""):
+            if isinstance(sampleNameMap[s[1]], (list, tuple)):
+                tree = ROOT.TChain(treeName)
+                for item in sampleNameMap[s[1]]:
+                    print "Adding to tree: " + inputDirectory + "/sum_" + item + "_weighted.root"
+                    #tree.Add(inputDirectory + "/sum_" + item + "_weighted3.root")
+                    #tree.Add(inputDirectory + "/sum_" + item + "_weighted2.root")
+                    #tree.Add(inputDirectory + "/sum_" + item + "_3.root")
+                    tree.Add(inputDirectory + "/sum_" + item + ".root")
+            else:
+                print inputDirectory + "/sum_" + sampleNameMap[s[1]] + "_weighted2.root"
+                #file = ROOT.TFile(inputDirectory + "/sum_" + sampleNameMap[s[1]] + "_weighted3.root")
+                #file = ROOT.TFile(inputDirectory + "/sum_" + sampleNameMap[s[1]] + "_weighted2.root")
+                #file = ROOT.TFile(inputDirectory + "/sum_" + sampleNameMap[s[1]] + "_3.root")
+                file = ROOT.TFile.Open(inputDirectory + "/sum_" + sampleNameMap[s[1]] + ".root")
+                tree = file.Get(treeName)
         for nv, v in enumerate(allHistos.vars):
             if(deepDebug): print v
             temp_hist = ""
@@ -361,17 +495,22 @@ if __name__ == "__main__":
                     final_h.GetXaxis().SetTitle(allHistos.xaxis[nv])
                     final_h.GetYaxis().SetTitle(allHistos.yaxis[nv])
                     finalHistos.append(final_h)
+                    output.cd()
+                    final_h.Write()
                 except:
                     print "Failed to draw"
                     print "v",v
                     print "cut",cut
                     print "temp_hist",temp_hist
                     sys.exit(4)
-                    
-    output = ROOT.TFile(rootOutputFile, "recreate")
-    for h in finalHistos:
-        h.Write()
-        
+        if (inputDirectory != ""):
+            tree.Reset()
+            file.Close()            
+    #output = ROOT.TFile(rootOutputFile, "recreate")
+    #for h in finalHistos:
+    #    h.Write()
+    
+    output.cd()    
     inputfiletree.Write()
     plotvariabletree.Write()
 
