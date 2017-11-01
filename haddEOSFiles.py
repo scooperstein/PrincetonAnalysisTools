@@ -64,7 +64,8 @@ for samplepath in samplepaths:
     print samplepath
     #sample = samplepath[samplepath.find("March28/")+8:]
     #sample = samplepath[samplepath.find("Oct17/")+6:]
-    sample = samplepath[samplepath.rfind("/"):]
+    sample = samplepath[samplepath.rfind("/")+1:]
+    print sample
     ##if (sample.find("WJets_madgraph")==-1 and sample.find("WJets-HT")==-1): continue
     #if (sample.find("Wplus")==-1 and sample.find("Wminus")==-1): continue
     samplefiles = findAllRootFiles("%s/%s" % (ipath,sample),"FNAL")

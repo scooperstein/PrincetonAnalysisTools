@@ -434,6 +434,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
         bool sampleFound=false;
         for(int i=0; i<(int)samples.size(); i++) {
             if(sampleName == samples[i].sampleName) {
+                ofile = new TFile(ofilename.c_str(), "recreate"); // moved here by Jan
                 sampleFound=true;
                 SampleContainer* onlySample = new SampleContainer(samples[i]);
                 if (filenames.size() > 0) {
@@ -461,7 +462,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 else {
                     //ofile = new TFile(Form("%s_%s.root",outputTreeName.c_str(),samples[0].sampleName.c_str()),"recreate");
                 }
-                ofile = new TFile(ofilename.c_str(), "recreate");
+                //ofile = new TFile(ofilename.c_str(), "recreate");
                 samples.clear();
                 samples.push_back(*onlySample);
                 break;
@@ -483,6 +484,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
     ofile->cd();
     //TTree *newtree = fChain->CloneTree(0);
     // for now we will use a default file to set the structure for the output tree
+    outputTree = new TTree(); 
     outputTree = fChain->CloneTree(0); // need this one to only keep the branches you want 
     
     // it would probably be smarter to check also if SetupBranch() has been called since the last time outputTree was initialized

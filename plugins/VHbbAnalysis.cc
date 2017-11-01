@@ -169,10 +169,6 @@ bool VHbbAnalysis::Analyze(){
            f["Jet_btagCSV"][i] = f["Jet_btagCMVA"][i];
         }
 
-        float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
-        if (JERScale != 1.0) {
-            smearJets(JERScale);
-        }
     }
 
     if(debug>1000) {
@@ -196,10 +192,10 @@ bool VHbbAnalysis::Analyze(){
             }
         }
     }
-    else {
-        //if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
-        if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
-    }
+    //else {
+    //    //if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
+    //    if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
+    //}
 
     if (*in["sampleIndex"]==0) {
         if (*f["json"]!=1) return false;
@@ -253,7 +249,7 @@ bool VHbbAnalysis::Analyze(){
         // (i.e. there is no fat jet) or file size for W+jets is ridiculous for boosted analysis  
         if (*in["nFatjetAK08ungroomed"]<1) {
             if(f["Jet_btagCMVA"][*in["hJetInd1"]]<*f["j1ptCSV"] || f["Jet_btagCMVA"][*in["hJetInd2"]]<*f["j2ptCSV"]){
-                return=false;
+                return false;
             }
         } 
     }
@@ -1347,32 +1343,6 @@ void VHbbAnalysis::FinishEvent(){
                //*f["Lep_SF"] = f["SF_ElIdMVATrigWP80"][*in["lepInd1"]] * f["SF_egammaEffi_tracker"][*in["lepInd1"]];
                //*f["Lep_SF"] = 1.0;
            }
-           else {
-               *f["Lep_SF"] = f["SF_SingleElTrigger"][*in["lepInd"]] * f["SF_ElIdIso"][*in["lepInd"]] *  f["SF_egammaEffi_tracker"][*in["lepInd"]];
-               *f["Lep_SFUp"] = (f["SF_SingleElTrigger"][*in["lepInd"]] + f["SF_SingleElTrigger_err"][*in["lepInd"]] )* (f["SF_ElIdIso"][*in["lepInd"]] + f["SF_ElIdIso_err"][*in["lepInd"]] ) *  (f["SF_egammaEffi_tracker"][*in["lepInd"]] + f["SF_egammaEffi_tracker_err"][*in["lepInd"]] );
-                *f["Lep_SFUp"] = *f["Lep_SFUp"] / *f["Lep_SF"];
-               *f["Lep_SFDown"] = (f["SF_SingleElTrigger"][*in["lepInd"]] - f["SF_SingleElTrigger_err"][*in["lepInd"]] )* (f["SF_ElIdIso"][*in["lepInd"]] - f["SF_ElIdIso_err"][*in["lepInd"]] ) *  (f["SF_egammaEffi_tracker"][*in["lepInd"]] - f["SF_egammaEffi_tracker_err"][*in["lepInd"]] );
-                *f["Lep_SFDown"] = *f["Lep_SFDown"] / *f["Lep_SF"];
-                
-               // failing SF to correct for data/MC differences in lepton veto yields 
-               *f["LepFail_SF"] = 1.0;
-               *f["LepFail_SFUp"] = 1.0;
-               *f["LepFail_SFDown"] = 1.0;
-               if (*in["nselLeptons"] > 1) {
-                   for (int i=0; i < *in["nselLeptons"]; i++) {
-                       if (i == *in["lepInd"]) continue;
-                       *f["LepFail_SF"] = f["SF_EleVeto"][i];
-                       *f["LepFail_SFUp"] = f["SF_EleVeto"][i] + f["SF_EleVeto_err"][i];
-                       *f["LepFail_SFUp"] = *f["LepFail_SFUp"] / *f["LepFail_SF"];
-                       *f["LepFail_SFDown"] = f["SF_EleVeto"][i] - f["SF_EleVeto_err"][i];
-                       *f["LepFail_SFDown"] = *f["LepFail_SFDown"] / *f["LepFail_SF"];
-                       break; // apply for highest pT lepton besides selected one
-                   }
-               }
-
-               //*f["Lep_SF"] = f["SF_ElIdMVATrigWP80"][*in["lepInd"]] * f["SF_egammaEffi_tracker"][*in["lepInd"]];
-               //*f["Lep_SF"] = 1.0;
-           }
         }
         // in V23 for 2016 they changed the names of all the btag weights x.x
         if (*f["do2015"] != 1) {
@@ -1458,6 +1428,7 @@ void VHbbAnalysis::FinishEvent(){
     // FIXME nominal must be last
     if(cursyst->name=="nominal"){
         ofile->cd();
+        if (debug>10000) std::cout<<"filling output tree"<<std::endl;
         outputTree->Fill();
     }
     return;
@@ -2092,6 +2063,7 @@ float VHbbAnalysis::ptWeightQCD(int nGenVbosons, float lheHT, int GenVbosons_pdg
         if (abs(GenVbosons_pdgId) == 24){
             SF =   ((lheHT>=100 && lheHT<200)*1.588 * ( 1345 / (1.23 *  1.29e3) ) + (lheHT>=200 && lheHT<400)*1.438 * ( 359.7 / ( 1.23 *  3.86e2)) + (lheHT>=400 && lheHT<600)*1.494 * (48.91 / (1.23 * 47.9 )) + (lheHT>=600)*1.139 * ( 18.77 / (1.23 * 19.9) ));
         }
+    }
     return SF>0?SF:0;
 }
 

@@ -101,6 +101,7 @@ else:
             content += "Notification = never\n"
             #content += "WhenToTransferOutput=On_Exit\n"
             #content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../aux/MuonIso_Z_RunCD_Reco74X_Dec1.json,../../aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json,../../aux/MuonID_Z_RunCD_Reco74X_Dec1.json,../../aux/CutBasedID_TightWP.json,../../aux/CutBasedID_LooseWP.json,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt,../../cfg/scalefactors.txt\n" % options.configFile
+            content += "transfer_input_files = ../../%s,../../RunSkim.py,../../RunSample.py,../../../AnalysisDict.so,../../../env.sh,../../cfg,../../aux,../../../python/ReadInput.py,../../../AnalysisDict_rdict.pcm,../../../HelperClasses,../../../AnalysisManager.h,../../../plugins\n" % options.configFile
             content += "Queue  1\n"
             #print content
             submitFile.write(content)
@@ -121,24 +122,27 @@ else:
         export ORIG_DIR=$PWD
         # Set up environment
         echo "setting up the environment"
-        cd %s/..
+        #cd %s/..
+        cd /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw-patch/CMSSW_7_6_3_patch2/src
         source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval `scramv1 runtime -sh`
         pwd
         ls
         #source env.sh
-        source %s/../env.sh
-        
+        #source %s/../env.sh
+        source env.sh        
+
         echo "successfully set up the enviroment"
   
         cd $ORIG_DIR  
     
-        echo "copying over necessary files"
-        cp -r %s/cfg .
-        cp -r %s/aux .
-        cp %s/RunSample.py .
-        cp %s/../AnalysisDict.so .
-        cp -r %s/*.txt . 
+        #echo "copying over necessary files"
+        ##cd EWKAnalysis
+        #cp -r %s/cfg .
+        #cp -r %s/aux .
+        #cp %s/RunSample.py .
+        #cp %s/../AnalysisDict.so .
+        #cp -r %s/*.txt . 
 
         echo "running RunSample.py"
         echo $ORIG_DIR/$4
