@@ -7,6 +7,7 @@
 
 #include "EWKAnalysis.h"
 #include "HelperClasses/EquationSolver.h"
+#include "TRandom3.h"
 
 // initialize parameters
 EWKAnalysis::EWKAnalysis(){
@@ -46,13 +47,16 @@ bool EWKAnalysis::Preselection(){
         if (*in["evt"]%2 == 0) sel=false;
     }    
     // stitch WJets inclusive sample to HT-binned samples
-    if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
+    //if (cursample->sampleNum == 22 && *f["lheHT"] > 100) sel=false; 
     // stitch ZJets inclusive sample to HT-binned samples
-    if (cursample->sampleNum == 23 && *f["lheHT"] > 100) sel=false; 
+    if (cursample->sampleNum == 23 && *f["lheHT"] > 100) return false; 
     
     // Impose trigger requirements
     if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
     //if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) sel=false;
+    
+    *f["met_pt_JECUp_ratio"] = *f["met_shifted_JetEnUp_pt"] / *f["met_pt"] ;
+    *f["met_pt_JECDown_ratio"] = *f["met_shifted_JetEnDown_pt"] / *f["met_pt"] ;
 
     if (*f["met_pt"] < *f["metcut"]) return false;
 
@@ -63,39 +67,36 @@ bool EWKAnalysis::Preselection(){
     // Heppy jet corrections for JER/JEC are full correction, it's easier to just use the
     // correction on top of the nominal
     for (int i=0; i<*in["nJet"]; i++) {
-        if (int(*f["doReg"]) == 0) {
-            // don't apply the regression. The easiest way to do this is to just reset the value of
-            // the regressed jet pt to the nominal jet pt, since we build everything later from the 
-            // jet pt's.
-            f["Jet_pt_reg"][i] = f["Jet_pt"][i];
-        }
-        else if (int(*f["reReg"]) != 0) {
-            //std::cout<<"Jet_pt_reg was "<<f["Jet_pt_reg"][i]<<std::endl;
-            //std::cout<<"regression evaluates to: "<<evaluateRegression(i)<<std::endl;
-            f["Jet_pt_reg"][i] = evaluateRegression(i);
-            //std::cout<<"Now jet_pt_reg is "<<f["Jet_pt_reg"][i]<<std::endl;
-        }
-        float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
-        //float JERScale = 1.0; // apply JER smearing x times the nominal smearing amount
-        if (JERScale != 1.0) {
-            smearJets(JERScale);
-        }
+        //if (int(*f["doReg"]) == 0) {
+        //    // don't apply the regression. The easiest way to do this is to just reset the value of
+        //    // the regressed jet pt to the nominal jet pt, since we build everything later from the 
+        //    // jet pt's.
+        //    f["Jet_pt_reg"][i] = f["Jet_pt"][i];
+       // }
+        //else if (int(*f["reReg"]) != 0) {
+        //    //std::cout<<"Jet_pt_reg was "<<f["Jet_pt_reg"][i]<<std::endl;
+        //    //std::cout<<"regression evaluates to: "<<evaluateRegression(i)<<std::endl;
+        //    f["Jet_pt_reg"][i] = evaluateRegression(i);
+        //    //std::cout<<"Now jet_pt_reg is "<<f["Jet_pt_reg"][i]<<std::endl;
+       // }
+        //float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
+        ////float JERScale = 1.0; // apply JER smearing x times the nominal smearing amount
+        //if (JERScale != 1.0) {
+        //    smearJets(JERScale);
+       // }
 
-        //std::cout<<*in["nJet"]<<": "<<f["Jet_pt_reg_corrJECUp"][i]<<" / "<<f["Jet_pt_reg"][i]<<std::endl;
-        //f["Jet_corr_JERUp_ratio"][i] = f["Jet_corr_JERUp"][i] / f["Jet_corr_JER"][i] ; 
-        //f["Jet_corr_JERDown_ratio"][i] = f["Jet_corr_JERDown"][i] / f["Jet_corr_JER"][i] ; 
-        //f["Jet_corr_JECUp_ratio"][i] = f["Jet_corr_JECUp"][i] / f["Jet_corr"][i] ; 
-        //f["Jet_corr_JECDown_ratio"][i] = f["Jet_corr_JECDown"][i] / f["Jet_corr"][i] ; 
-        //f["Jet_pt_reg_corrJECUp_ratio"][i] = f["Jet_pt_reg_corrJECUp"][i] / f["Jet_pt_reg"][i] ; 
-        //f["Jet_pt_reg_corrJECDown_ratio"][i] = f["Jet_pt_reg_corrJECDown"][i] / f["Jet_pt_reg"][i] ; 
-        //f["Jet_pt_reg_corrJERUp_ratio"][i] = f["Jet_pt_reg_corrJERUp"][i] / f["Jet_pt_reg"][i] ; 
-        //f["Jet_pt_reg_corrJERDown_ratio"][i] = f["Jet_pt_reg_corrJERDown"][i] / f["Jet_pt_reg"][i] ; 
+        //std::cout<<*in["nJet"]<<": "<<f["Jet_pt_reg_corrJECUp"][i]<<" / "<<f["Jet_pt"][i]<<std::endl;
+        f["Jet_corr_JERUp_ratio"][i] = f["Jet_corr_JERUp"][i] / f["Jet_corr_JER"][i] ; 
+        f["Jet_corr_JERDown_ratio"][i] = f["Jet_corr_JERDown"][i] / f["Jet_corr_JER"][i] ; 
+        f["Jet_corr_JECUp_ratio"][i] = f["Jet_corr_JECUp"][i] / f["Jet_corr"][i] ; 
+        f["Jet_corr_JECDown_ratio"][i] = f["Jet_corr_JECDown"][i] / f["Jet_corr"][i] ; 
+        //f["Jet_pt_reg_corrJECUp_ratio"][i] = f["Jet_pt_reg_corrJECUp"][i] / f["Jet_pt"][i] ; 
+        //f["Jet_pt_reg_corrJECDown_ratio"][i] = f["Jet_pt_reg_corrJECDown"][i] / f["Jet_pt"][i] ; 
+        //f["Jet_pt_reg_corrJERUp_ratio"][i] = f["Jet_pt_reg_corrJERUp"][i] / f["Jet_pt"][i] ; 
+        //f["Jet_pt_reg_corrJERDown_ratio"][i] = f["Jet_pt_reg_corrJERDown"][i] / f["Jet_pt"][i] ; 
     }
   
     //SetupFactorizedJECs(cursyst->name);
-
-    //*f["met_pt_JECUp_ratio"] = *f["met_shifted_JetEnUp_pt"] / *f["met_pt"] ;
-    //*f["met_pt_JECDown_ratio"] = *f["met_shifted_JetEnDown_pt"] / *f["met_pt"] ;
 
     //// for some reason sometimes in Heppy trees met < 0, which leads to annoying error messages
     //if (*f["met_pt"] <= 0.) {
@@ -108,13 +109,14 @@ bool EWKAnalysis::Preselection(){
     int indJet2 = -1;
     for (int i=0; i < *in["nJet"]; i++) {
         if (fabs(f["Jet_eta"][i]) < *f["jetEtaCut"] && in["Jet_puId"][i] > 0 && in["Jet_id"][i] > 0 ) {
-            if (f["Jet_pt_reg"][i] > *f["j1ptCut"] && nPreselJets==0) {
+            if (f["Jet_pt"][i] > *f["Jet1PtPresel"] && nPreselJets==0) {
                 nPreselJets++;
                 indJet1 = i;
             }
-            else if (nPreselJets>0 && f["Jet_pt_reg"][i] > *f["j2ptCut"]) {
+            else if (nPreselJets==1 && f["Jet_pt"][i] > *f["Jet2PtPresel"]) {
                 nPreselJets++;
                 indJet2 = i;
+                break;
             }
         }
     }
@@ -130,8 +132,8 @@ bool EWKAnalysis::Preselection(){
     if ((*f["Vtype"]!=2 && *f["Vtype"]!=3) || nPreselJets < 2 || nPreselLep < 1) return false;
 
     TLorentzVector J1,J2,Hjj;
-    J1.SetPtEtaPhiM(f["Jet_pt_reg"][indJet1], f["Jet_eta"][indJet1], f["Jet_phi"][indJet1], f["Jet_mass"][indJet1] * (f["Jet_pt_reg"][indJet1] / f["Jet_pt"][indJet1] ) );
-    J2.SetPtEtaPhiM(f["Jet_pt_reg"][indJet2], f["Jet_eta"][indJet2], f["Jet_phi"][indJet2], f["Jet_mass"][indJet2] * (f["Jet_pt_reg"][indJet2] / f["Jet_pt"][indJet2] ) );
+    J1.SetPtEtaPhiM(f["Jet_pt"][indJet1], f["Jet_eta"][indJet1], f["Jet_phi"][indJet1], f["Jet_mass"][indJet1] * f["Jet_pt"][indJet1] );
+    J2.SetPtEtaPhiM(f["Jet_pt"][indJet2], f["Jet_eta"][indJet2], f["Jet_phi"][indJet2], f["Jet_mass"][indJet2] * f["Jet_pt"][indJet2] );
     Hjj = J1 + J2;
     float Mjj = Hjj.M();
     if (Mjj < *f["mjjcut"]) return false;
@@ -143,21 +145,21 @@ bool EWKAnalysis::Analyze(){
     *in["sampleIndex"] = cursample->sampleNum;
     bool sel=true;
 
-    for (int i=0; i<*in["nJet"]; i++) {
-        if (int(*f["doReg"]) == 0) {
-            // don't apply the regression. The easiest way to do this is to just reset the value of
-            // the regressed jet pt to the nominal jet pt, since we build everything later from the 
+    //for (int i=0; i<*in["nJet"]; i++) {
+        //if (int(*f["doReg"]) == 0) {
+        //    // don't apply the regression. The easiest way to do this is to just reset the value of
+        //    // the regressed jet pt to the nominal jet pt, since we build everything later from the 
             // jet pt's.
-            f["Jet_pt_reg"][i] = f["Jet_pt"][i];
-        }
-        else if (int(*f["reReg"]) != 0) {
-            f["Jet_pt_reg"][i] = evaluateRegression(i);
-        }
-        float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
-        if (JERScale != 1.0) {
-            smearJets(JERScale);
-        }
-    }
+        //    f["Jet_pt"][i] = f["Jet_pt"][i];
+        //}
+        //else if (int(*f["reReg"]) != 0) {
+        //    f["Jet_pt"][i] = evaluateRegression(i);
+        //}
+        //float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
+        //if (JERScale != 1.0) {
+        //    smearJets(JERScale);
+        //}
+    //}
 
     if(debug>1000) {
          std::cout<<"Imposing trigger and json requirements"<<std::endl;
@@ -171,25 +173,44 @@ bool EWKAnalysis::Analyze(){
         if (*f["json"]!=1) return false;
     }
  
-    *in["JetInd1"] = 0;
-    *in["JetInd2"] = 1;
+    *in["JetInd1"] = -1;
+    *in["JetInd2"] = -1;
     bool leadJetIsFound = false;
     for (int i=0; i < *in["nJet"]; i++) {
         if (fabs(f["Jet_eta"][i]) < *f["jetEtaCut"] && in["Jet_puId"][i] > 0 && in["Jet_id"][i] > 0 ) {
-            if (f["Jet_pt_reg"][i] > *f["j1ptCut"]) {
+            if (f["Jet_pt"][i] > *f["j1ptCut"]) {
                 if (leadJetIsFound) {
                     *in["JetInd2"] = i;
+                     break;
                 }   
                 else {
                     *in["JetInd1"] = i;
                     leadJetIsFound = true;
                 }
             }
-            else if (leadJetIsFound && f["Jet_pt_reg"][i] > *f["j2ptCut"]) {
+            else if (leadJetIsFound && f["Jet_pt"][i] > *f["j2ptCut"]) {
                 *in["JetInd2"] = i;
+                break;
             }
         }
-    }    
+    }
+
+    if (*in["JetInd1"]==-1 || *in["JetInd2"] == -1) return false;
+
+    *in["JetInd3"] = -1;
+    *in["JetInd4"] = -1;
+
+    for (int i=0; i < *in["nJet"]; i++) {
+        if (i == *in["JetInd1"] || i == *in["JetInd2"]) {
+            continue;
+        }
+        if (*in["JetInd3"] == -1) {
+            *in["JetInd3"] = i;
+        }
+        else if (*in["JetInd4"] == -1) {
+            *in["JetInd4"] = i;
+        }
+    } 
     
  
 
@@ -198,16 +219,19 @@ bool EWKAnalysis::Analyze(){
         std::cout<<"JetInd1 = "<<*in["JetInd1"]<<std::endl;
         std::cout<<"JetInd2 = "<<*in["JetInd2"]<<std::endl;
         std::cout<<"found two jets with pt "
-            <<f["Jet_pt_reg"][*in["JetInd1"]]<<" "
-            <<f["Jet_pt_reg"][*in["JetInd2"]]<<" "
+            <<f["Jet_pt"][*in["JetInd1"]]<<" "
+            <<f["Jet_pt"][*in["JetInd2"]]<<" "
             <<std::endl;
     }
     
     TLorentzVector J1,J2,Hjj;
-    J1.SetPtEtaPhiM(f["Jet_pt_reg"][*in["JetInd1"]], f["Jet_eta"][*in["JetInd1"]], f["Jet_phi"][*in["JetInd1"]], f["Jet_mass"][*in["JetInd1"]] * (f["Jet_pt_reg"][*in["JetInd1"]] / f["Jet_pt"][*in["JetInd1"]] ) );
-    J2.SetPtEtaPhiM(f["Jet_pt_reg"][*in["JetInd2"]], f["Jet_eta"][*in["JetInd2"]], f["Jet_phi"][*in["JetInd2"]], f["Jet_mass"][*in["JetInd2"]] * (f["Jet_pt_reg"][*in["JetInd2"]] / f["Jet_pt"][*in["JetInd2"]] ) );
+    J1.SetPtEtaPhiM(f["Jet_pt"][*in["JetInd1"]], f["Jet_eta"][*in["JetInd1"]], f["Jet_phi"][*in["JetInd1"]], f["Jet_mass"][*in["JetInd1"]] * f["Jet_pt"][*in["JetInd1"]] );
+    J2.SetPtEtaPhiM(f["Jet_pt"][*in["JetInd2"]], f["Jet_eta"][*in["JetInd2"]], f["Jet_phi"][*in["JetInd2"]], f["Jet_mass"][*in["JetInd2"]] * f["Jet_pt"][*in["JetInd2"]] );
     Hjj = J1 + J2;
     *f["Mjj"] = Hjj.M();
+    if (debug > 10000) {
+        std::cout<<"Cutting on M(jj): "<<*f["Mjj"]<<std::endl;
+    }
     if (*f["Mjj"] < *f["mjjcut"]) return false;
     
     TLorentzVector J1_noreg,J2_noreg,Hjj_noreg;
@@ -219,7 +243,7 @@ bool EWKAnalysis::Analyze(){
     *f["PtJJ"] = Hjj.Pt();
    
     if (*f["met_pt"] < *f["metcut"]) return false;
-    
+
     //check if event passes any event class
     *in["lepInd"] = -1;
     *in["isWmunu"] = 0;
@@ -236,6 +260,24 @@ bool EWKAnalysis::Analyze(){
     }
     if (*in["isWmunu"] == 0 && *in["isWenu"] == 0) return false;
     
+    // calculate and apply Rochester corrections for muon momentum
+    float rochesterCorr = 1.0;
+    if (*in["isWmunu"] == 1) {
+        //RoccoR  *rc = new RoccoR("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/EWKAnalysis/aux/roccor.2016.v3/rcdata.2016.v3/"); 
+        if (*in["sampleIndex"] == 0) {
+            // data event
+            rochesterCorr = rc->kScaleDT(in["selLeptons_charge"][*in["lepInd"]], f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]], 0, 0);
+        }
+        else {
+            TRandom3 *rand = new TRandom3();
+            double u1 = rand->Rndm();
+            double u2 = rand->Rndm();
+            rochesterCorr = rc->kScaleAndSmearMC(in["selLeptons_charge"][*in["lepInd"]], f["selLeptons_pt"][*in["lepInd"]], f["selLeptons_eta"][*in["lepInd"]], f["selLeptons_phi"][*in["lepInd"]],  in["selLeptons_trackerLayers"][*in["lepInd"]], u1, u2, 0, 0);
+        }
+        f["selLeptons_pt"][*in["lepInd"]] = f["selLeptons_pt"][*in["lepInd"]] * rochesterCorr;
+    }
+    *f["rochesterCorr"] = rochesterCorr;
+     
     *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd"]];
     *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd"]];
     
@@ -305,22 +347,27 @@ bool EWKAnalysis::Analyze(){
     // Now we can calculate whatever we want (transverse) with W and H four-vectors
     *f["JJVdPhi"] = Hjj.DeltaPhi(W);
     *f["JJVdEta"] = fabs(Hjj.Eta() - W.Eta());
-    *f["yW"] = f["selLeptons_eta"][*in["lepInd"]] - (f["Jet_eta"][*in["JetInd1"]] + f["Jet_eta"][*in["JetInd2"]] )/2.;
-    *f["zW"] = *f["yW"] / (fabs(f["Jet_eta"][*in["JetInd1"]] - f["Jet_eta"][*in["JetInd2"]]) );
+    *f["yW_noMET"] = f["selLeptons_eta"][*in["lepInd"]] - (f["Jet_eta"][*in["JetInd1"]] + f["Jet_eta"][*in["JetInd2"]] )/2.;
+    *f["zW_noMET"] = fabs(*f["yW_noMET"]) / (fabs(f["Jet_eta"][*in["JetInd1"]] - f["Jet_eta"][*in["JetInd2"]]) );
+    *f["yW"] = *f["V_eta"] - (f["Jet_eta"][*in["JetInd1"]] + f["Jet_eta"][*in["JetInd2"]] )/2.;
+    *f["zW"] = fabs(*f["yW"]) / (fabs(f["Jet_eta"][*in["JetInd1"]] - f["Jet_eta"][*in["JetInd2"]]) );
     TLorentzVector neutrino = getNu4Momentum(Lep, MET);
     TLorentzVector W_4MET = neutrino + Lep;
     *f["JJVdEta_4MET"] = fabs(Hjj.Eta() - W_4MET.Eta());
     *f["V_eta_4MET"] = W_4MET.Eta();
     *f["yW_4MET"] = *f["V_eta_4MET"] - (f["Jet_eta"][*in["JetInd1"]] + f["Jet_eta"][*in["JetInd2"]] )/2.;
-    *f["zW_4MET"] = *f["yW_4MET"] / (fabs(f["Jet_eta"][*in["JetInd1"]] - f["Jet_eta"][*in["JetInd2"]]) );
+    *f["zW_4MET"] = fabs(*f["yW_4MET"]) / (fabs(f["Jet_eta"][*in["JetInd1"]] - f["Jet_eta"][*in["JetInd2"]]) );
 
     *f["JJEtaBal"] = ( fabs(f["Jet_eta"][*in["JetInd1"]] + f["Jet_eta"][*in["JetInd2"]]) ) / (fabs(f["Jet_eta"][*in["JetInd1"]] - f["Jet_eta"][*in["JetInd2"]]) ) ;
-    *f["JJPtBal"] = *f["PtJJ"] / (f["Jet_pt_reg"][*in["JetInd1"]] + f["Jet_pt_reg"][*in["JetInd2"]]);
+    *f["JJPtBal"] = *f["PtJJ"] / (f["Jet_pt"][*in["JetInd1"]] + f["Jet_pt"][*in["JetInd2"]]);
     TLorentzVector JJL = Hjj + Lep; 
     *f["JJL_pt"] = JJL.Pt();
-    *f["RPt"] = *f["JJL_pt"] / (f["Jet_pt_reg"][*in["JetInd1"]] + f["Jet_pt_reg"][*in["JetInd2"]] + f["selLeptons_pt"][*in["lepInd"]]);
+    TLorentzVector JJW = Hjj + W;
+     *f["JJW_pt"] = JJW.Pt();
+    //*f["RPt"] = *f["JJL_pt"] / (f["Jet_pt"][*in["JetInd1"]] + f["Jet_pt"][*in["JetInd2"]] + f["selLeptons_pt"][*in["lepInd"]]);
+    *f["RPt"] = *f["JJW_pt"] / (f["Jet_pt"][*in["JetInd1"]] + f["Jet_pt"][*in["JetInd2"]] + *f["V_pt"]);
  
-    //std::cout<<cursyst->name.c_str()<<": Hbb.M() = "<<Hbb.M()<<", Jet_pt_reg[jetInd1] = "<<f["Jet_pt_reg"][jetInd1]<<", Jet_pt_reg[jetInd2] = "<<f["Jet_pt_reg"][jetInd2]<<", "<<(f["Jet_corr_JECUp"][jetInd1] / f["Jet_corr"][jetInd1])<<", "<<(f["Jet_corr_JECDown"][jetInd1] / f["Jet_corr"][jetInd1])<<std::endl;
+    //std::cout<<cursyst->name.c_str()<<": Hbb.M() = "<<Hbb.M()<<", Jet_pt_reg[jetInd1] = "<<f["Jet_pt"][jetInd1]<<", Jet_pt_reg[jetInd2] = "<<f["Jet_pt"][jetInd2]<<", "<<(f["Jet_corr_JECUp"][jetInd1] / f["Jet_corr"][jetInd1])<<", "<<(f["Jet_corr_JECDown"][jetInd1] / f["Jet_corr"][jetInd1])<<std::endl;
     if (cursyst->name != "nominal") {
         *f[Form("Mjj_%s",cursyst->name.c_str())] = Hjj.M();
         *f[Form("PtJJ_%s",cursyst->name.c_str())] = Hjj.Pt();
@@ -391,7 +438,7 @@ void EWKAnalysis::FinishEvent(){
     //    return;
     //} 
     // General use variables
- 
+
     if (cursample->sampleNum == 49 || cursample->sampleNum == 491) {
         *f["nProcEvents"] = cursample->CountWeighted->GetBinContent(1);
     }
@@ -515,23 +562,29 @@ void EWKAnalysis::FinishEvent(){
     *f["isWenu_f"] = (float) *in["isWenu"];
     *f["isWmunu_f"] = (float) *in["isWmunu"];
     *f["softActivityVH_njets5_f"] = (float) *in["softActivityVH_njets5"];
+    *f["Jet1_pt"] = f["Jet_pt"][*in["JetInd1"]];
+    *f["Jet2_pt"] = f["Jet_pt"][*in["JetInd2"]];
+    *f["Jet1_eta"] = f["Jet_eta"][*in["JetInd1"]];
+    *f["Jet2_eta"] = f["Jet_eta"][*in["JetInd2"]];
+    *f["Jet1_qgl"] = f["Jet_qgl"][*in["JetInd1"]];
+    *f["Jet2_qgl"] = f["Jet_qgl"][*in["JetInd2"]];
     //*f["nPVs_f"] = (float) *in["nPVs"];
 
-    //if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
-    //for (unsigned int i=0; i<bdtInfos.size(); i++) {
-    // 
-    //    BDTInfo tmpBDT = bdtInfos[i];
-    //    if(debug>5000) {
-    //        PrintBDTInfoValues(tmpBDT);
-    //        std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
-    //    }
-    //    std::string bdtname(tmpBDT.bdtname);
-    //    if (cursyst->name != "nominal") {
-    //        bdtname.append("_");
-    //        bdtname.append(cursyst->name);
-    //    }
-    //    *f[bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
-    //}
+    if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
+    for (unsigned int i=0; i<bdtInfos.size(); i++) {
+     
+        BDTInfo tmpBDT = bdtInfos[i];
+        if(debug>5000) {
+            PrintBDTInfoValues(tmpBDT);
+            std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
+        }
+        std::string bdtname(tmpBDT.bdtname);
+        if (cursyst->name != "nominal") {
+            bdtname.append("_");
+            bdtname.append(cursyst->name);
+        }
+        *f[bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
+    }
 
     if (*in["sampleIndex"]!=0) {
         if (*in["isWmunu"] == 1) {
@@ -575,6 +628,8 @@ void EWKAnalysis::FinishEvent(){
         if (*in["sampleIndex"]!=0) {
             *f["corrQGL"] = getQGLCorr(in["Jet_partonFlavour"][*in["JetInd1"]], f["Jet_eta"][*in["JetInd1"]], f["Jet_qgl"][*in["JetInd1"]]);
             *f["corrQGL"] = *f["corrQGL"] *  getQGLCorr(in["Jet_partonFlavour"][*in["JetInd2"]], f["Jet_eta"][*in["JetInd2"]], f["Jet_qgl"][*in["JetInd2"]]);
+            *f["corrQGLUp"] = *f["corrQGL"];
+            *f["corrQGLDown"] = 1. / *f["corrQGL"]; 
         }
 
         *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["weight_ptEWK"] * *f["Lep_SF"] * *f["corrQGL"];
@@ -602,6 +657,58 @@ void EWKAnalysis::FinishEvent(){
         *f["WJetNLOWeight"] = WJetNLOWeight;
         
     }
+    
+    // preserve normalization after applying QGL corrections
+    std::map<std::string, float> QGLMap;
+    QGLMap["EWKWJets"] = 0.9461;
+    QGLMap["EWKWJets_herwig"] = 0.9461;
+    QGLMap["IntEWKWJets"] = 8.973620e-01;
+    QGLMap["ZJets_0J"] = 0.9693;
+    QGLMap["ZJets_1J"] = 0.9610;
+    QGLMap["ZJets_2J"] = 0.9524;
+    QGLMap["DYToLL_HT100to200"] = 0.9536;
+    QGLMap["DYToLL_HT200to400"] = 0.9563;
+    QGLMap["DYToLL_HT400to600"] = 0.9530;
+    QGLMap["DYToLL_HT600to800"] = 0.9441;
+    QGLMap["DYToLL_HT800to1200"] = 0.9362;
+    QGLMap["DYToLL_HT1200to2500"] = 0.9227;
+    QGLMap["DYToLL_HT2500toInf"] = 0.9063;
+    QGLMap["DYToLL_madgraph"] = 0.9628;
+    QGLMap["TToLeptons_t_powheg"] = 0.9844;
+    QGLMap["TT_powheg"] = 0.9813;
+    QGLMap["TToLeptons_s"] = 0.9898;
+    QGLMap["TBarToLeptons_t_powheg"] = 0.9821;
+    QGLMap["T_tW"] = 0.9746;
+    QGLMap["Tbar_tW"] = 0.9750;
+    QGLMap["WJets"] = 0.9683;
+    QGLMap["WJets_0J"] = 0.9828;
+    QGLMap["WJets_1J"] = 0.9674;
+    QGLMap["WJets_2J"] = 0.9545;
+    QGLMap["WW_fil"] = 0.9600;
+    QGLMap["WZ_fil"] = 0.9600;
+    QGLMap["ZZ_fil"] = 0.9591;
+    QGLMap["WJets-HT100to200"] = 0.9585;
+    QGLMap["WJets-HT200to400"] = 0.9586;
+    QGLMap["WJets-HT400to600"] = 0.9558;
+    QGLMap["WJets-HT600to800"] = 0.9489;
+    QGLMap["WJets-HT800to1200"] = 0.9424;
+    QGLMap["WJets-HT1200to2500"] = 0.9285;
+    QGLMap["WJets-HT2500toInf"] = 0.9116;
+    QGLMap["WJets_madgraph"] = 0.9614;
+    QGLMap["WJetsMadInc"] = 0.9614;
+    QGLMap["QCD_Pt_120to170_EMEnriched"] = 0.994663;
+    QGLMap["QCD_Pt_120to170_MuEnrichedPt5"] = 0.994221;
+    QGLMap["QCD_Pt_170to300_EMEnriched"] = 0.982772;
+    QGLMap["QCD_Pt_170to300_MuEnrichedPt5"] = 1.002450;
+    QGLMap["QCD_Pt_30to50_EMEnriched"] = 1.000000;
+    QGLMap["QCD_Pt_30to50_MuEnrichedPt5"] = 1.031954;
+    QGLMap["QCD_Pt_50to80_EMEnriched"] = 0.980436;
+    QGLMap["QCD_Pt_50to80_MuEnrichedPt5"] = 0.949880;
+    QGLMap["QCD_Pt_80to120_EMEnriched"] = 1.004608;
+    QGLMap["QCD_Pt_80to120_MuEnrichedPt5"] = 1.032725;
+    QGLMap["QCD_HT100to200"] = 1.0; 
+ 
+    *f["corrQGL_norm"] = QGLMap[cursample->sampleName];
 
     // FIXME nominal must be last
     if(cursyst->name=="nominal"){
@@ -768,14 +875,14 @@ void EWKAnalysis::smearJets(float JERScale) {
            // std::cout<<"Re-smeared jet_pt = "<<f["Jet_pt"][i]<<std::endl;
         
             // re-evaluate jet energy regression on re-smeared jets
-            //std::cout<<"Jet_pt_reg was: "<<f["Jet_pt_reg"][i]<<std::endl;
-            f["Jet_pt_reg_Heppy"][i] = f["Jet_pt_reg"][i];
-            f["Jet_pt_reg"][i] = evaluateRegression(i);
-            //std::cout<<"now it has been re-evaluated to: "<<f["Jet_pt_reg"][i]<<std::endl;
+            //std::cout<<"Jet_pt_reg was: "<<f["Jet_pt"][i]<<std::endl;
+            f["Jet_pt_reg_Heppy"][i] = f["Jet_pt"][i];
+            f["Jet_pt"][i] = evaluateRegression(i);
+            //std::cout<<"now it has been re-evaluated to: "<<f["Jet_pt"][i]<<std::endl;
     }
 }
 float EWKAnalysis::evaluateRegression(int i) {
-            if (f["Jet_pt_reg"][i] == -99) { return -99; }
+            if (f["Jet_pt"][i] == -99) { return -99; }
             *f["Jet1_pt"] = float(f["Jet_pt"][i]);
             *f["Jet1_eta"] = float(f["Jet_eta"][i]);
             TLorentzVector tmp;

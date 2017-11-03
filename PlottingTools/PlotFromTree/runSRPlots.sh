@@ -1,8 +1,9 @@
-#python plotFromTree.py -i ../../VHbbAnalysis/V23_Wlnu_CR_July1.0/output_data.root -I inputfiles_onlydata.dat -o output_data.root
-#python plotFromTree.py -i ../../VHbbAnalysis/V23_Wlnu_CR_July1.0/output_mc.root -o output_mc.root -w '(1./CS_SF)*weight*(2.28/9.24)'
-#python plotFromTree.py -i ../../VHbbAnalysis/V23_Wlnu_CR_July1.0/output_ttpowheg.root -I inputfiles_onlyttpowheg.dat -o output_ttpow.root -w '(1./CS_SF)*weight*(2.28/9.24)'
-python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SRVV_Nov23/output_data.root -I inputfiles_onlydata.dat -o output_data.root
-python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SRVV_Nov23/output_mc.root -o output_mc.root -w '(bTagWeightICHEP/bTagWeight)*(1.0/CS_SF)*weight*(12.89/12.89)'
-python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SRVV_Nov23/output_ttpowheg.root -I inputfiles_onlyttpowheg.dat -o output_ttpow.root -w '(bTagWeightICHEP/bTagWeight)*(1.0/CS_SF)*weight*(12.89/12.89)'
-python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SRVV_Nov23/output_signal.root -I inputfiles_onlysignal.dat -o output_signal.root -w '(bTagWeightICHEP/bTagWeight)*(1.0/CS_SF)*weight*(12.89/12.89)'
-hadd -f output.root output_mc.root output_data.root output_ttpow.root output_signal.root
+python plotFromTree.py -i /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_April6_data/output_data.root -P plotvariables.dat -C categories.dat -S selection.dat -I inputfiles_onlydata.dat -o output_data.root
+####python plotFromTree.py -f /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_April6_QCD/haddjobs/ -P plotvariables.dat -C categories.dat -S selection.dat -I inputfiles_onlyqcd.dat -o output_qcd.root -w 'weight*(1./CS_SF)*bTagWeightMoriondCMVA*VPtCorrFactorSplit3'
+python plotFromTree.py -f /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_April6/haddjobs/ -P plotvariables.dat -C categories.dat -S selection.dat -I inputfiles_onlyvz.dat -o output_vz.root -w 'weight*(1./CS_SF)*bTagWeightMoriondCMVA*VPtCorrFactorSplit3'
+python plotFromTree.py -f /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_April6/haddjobs/ -P plotvariables.dat -C categories.dat -S selection.dat -o output_mc.root -w 'weight*(1./CS_SF)*bTagWeightMoriondCMVA*VPtCorrFactorSplit3'
+python plotFromTree.py -f /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_April6/haddjobs/ -P plotvariables.dat -C categories.dat -S selection.dat -I inputfiles_onlyttpowheg.dat -o output_ttpow.root -w 'weight*(1./CS_SF)*bTagWeightMoriondCMVA*VPtCorrFactorSplit3'
+python plotFromTree.py -f /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_SR_April6/haddjobs/ -P plotvariables.dat -C categories.dat -S selection.dat -I inputfiles_onlysignal.dat -o output_signal.root -w 'weight*(1./CS_SF)*bTagWeightMoriondCMVA*VPtCorrFactorSplit3*VHCorrFactor'
+hadd -f output.root output_mc.root output_data.root output_ttpow.root output_signal.root output_vz.root output_qcd.root
+#hadd -f output.root output_mc.root output_data.root output_ttpow.root output_signal.root
+#hadd -f output.root output_mc.root output_data.root output_ttpow.root output_signal.root output_nlowjets.root

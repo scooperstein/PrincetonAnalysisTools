@@ -1,0 +1,10 @@
+#type=110 name=QCD_Pt_30to50_EMEnriched
+type=111 name=QCD_Pt_50to80_EMEnriched
+type=112 name=QCD_Pt_80to120_EMEnriched
+type=113 name=QCD_Pt_120to170_EMEnriched
+type=114 name=QCD_Pt_170to300_EMEnriched 
+type=115 name=QCD_Pt_30to50_MuEnrichedPt5 
+type=116 name=QCD_Pt_50to80_MuEnrichedPt5
+type=117 name=QCD_Pt_80to120_MuEnrichedPt5
+type=118 name=QCD_Pt_120to170_MuEnrichedPt5
+type=119 name=QCD_Pt_170to300_MuEnrichedPt5

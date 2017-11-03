@@ -1,0 +1,12 @@
+#type=70 name=WJets
+type=80 name=WJets_0J
+type=81 name=WJets_1J
+type=82 name=WJets_2J
+type=22 name=WJets_madgraph
+#type=44 name=WJets_HT100To200
+#type=45 name=WJets_HT200To400
+#type=46 name=WJets_HT400To600
+#type=47 name=WJets_HT600To800
+#type=41 name=WJets_HT800To1200
+#type=42 name=WJets_HT1200To2500
+#type=43 name=WJets_HT2500ToInf

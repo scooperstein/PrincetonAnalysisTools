@@ -10,6 +10,7 @@
 #pragma link C++ defined_in "HelperClasses/BDTVariable.h";
 #pragma link C++ defined_in "HelperClasses/InfoStructs.h";
 #pragma link C++ defined_in "HelperClasses/EquationSolver.h";
+#pragma link C++ defined_in "HelperClasses/RoccoR.h";
 #pragma link C++ defined_in "plugins/VHbbAnalysis.h";
 #pragma link C++ defined_in "plugins/VHbbTrigger.h";
 #pragma link C++ defined_in "plugins/EWKAnalysis.h";

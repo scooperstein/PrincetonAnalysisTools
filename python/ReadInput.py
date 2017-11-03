@@ -108,7 +108,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                         #    testfile = ROOT.TFile.Open(filename)
                         #    testfile.Recover()
                         #if (testfile.isZombie()): continue
-                        samplecon.AddFile(filename,isBatch)
+                        samplecon.AddFile(filename,isBatch,int(doSkim))
                         addedAtLeastOneFile=True
                     except:
                         print "Can't add",filename
@@ -159,7 +159,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             # now set up any of the branches if they don't exist yet (must be floats for BDT)
             for bdtvar in bdtInfo.bdtVars:
                 if (bdtvar.isExisting):
-                    am.SetupBranch(bdtvar.localVarName, 2)
+                    am.SetupBranch(bdtvar.localVarName, 2, -1, 0, "early")
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetupNewBranch(bdtInfo.bdtname, 2)
@@ -184,7 +184,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             for bdtvar in reg1.bdtVars:
                 if (bdtvar.isExisting):
                     am.SetupBranch(bdtvar.localVarName, 2, -1, 0, "early")
-                elif not doSkim:
+                #elif not doSkim:
+                else:
                     print "setting up new branch: ",bdtvar.localVarName
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet1EnergyRegression(reg1)
@@ -194,7 +195,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             for bdtvar in reg2.bdtVars:
                 if (bdtvar.isExisting):
                     am.SetupBranch(bdtvar.localVarName, 2, -1 ,0, "early")
-                elif not doSkim:
+                #elif not doSkim:
+                else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
             am.SetJet2EnergyRegression(reg2) 
         
@@ -217,7 +219,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
  
         return am    
     elif filetype is "samplefile":
-        samples=MakeSampleMap(filelines)
+        samples=MakeSampleMap(filelines,samplesToRun)
         #print "writing samples to pickle file"
         #import pickle
         #with open('samples.pickle', 'wb') as fp:
@@ -275,7 +277,7 @@ def MakeConfigMap(lines):
     return settings
 
 
-def MakeSampleMap(lines):
+def MakeSampleMap(lines,samplesToRun):
     if debug > 100: print "Reading samples"
     samples={}
 
@@ -288,6 +290,15 @@ def MakeSampleMap(lines):
         samplekfac=1
         samplescale=1
         sample={}
+        
+        dontRun = False
+        for item in line.split():
+            name,value=item.split("=")
+            if name.find("name") is 0:
+                if len(samplesToRun)>0 and str(value) not in samplesToRun:
+                    line = ""
+                    dontRun = True
+        if dontRun: continue
 
         for item in line.split():
             name,value=item.split("=")

@@ -12,6 +12,7 @@
 #include <TH2F.h>
 #include <TF1.h>
 #include <TTree.h>
+#include <TChain.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 #include "TLorentzVector.h"
@@ -141,12 +142,23 @@ RooWorkspace w("w","workspace");
 
 	TCanvas *c3 = new TCanvas();
 	//TFile *file_down =  new TFile("BTagCSV_analysis"+type+"_trignom_v21_v21_123jets1_2csv_bdt_trigWt.root");
-        TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June28_CR-v2/output_data.root");
+        //TFile *file_down = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June28_CR-v2/output_data.root");
+        //TFile *file_down = TFile::Open("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_CR_Nov29/output_data.root");
+        TFile *file_down = TFile::Open("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_CR_April6_data/output_data.root");
+        //TFile *file_down = TFile::Open("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_signal.root");
+        //cout<<"here"<<endl;
 	//TProfile *hist_mbb_reg= (TProfile*)file_down->Get("hprof");
         TTree *tree_data = (TTree*) file_down->Get("tree");
         TH2F *hdata = new TH2F("hdata","hdata",nbinsx,xlow1,xhigh1,nbinsy,xlow2,xhigh2);
         tree_data->Draw(Form("%s:%s>>hdata",var2,var1),"(sampleIndex==0&&controlSample==1&&(Vtype==2||Vtype==3))*weight"); 
+        //tree_data->Draw(Form("%s:%s>>hdata",var2,var1),"(run<=276811&&sampleIndex==0&&controlSample==3&&(Vtype==2||Vtype==3))*weight"); 
+        //tree_data->Draw(Form("%s:%s>>hdata",var2,var1),"(selLeptons_relIso_0<0.06&&H_mass>90&&H_mass<150&&cutFlow>=10&&(isWmunu||isWenu)&&V_pt>100&&(Vtype==2||Vtype==3))*weight"); 
+        //tree_data->Draw(Form("%s:%s>>hdata",var2,var1),"((sampleIndex!=0||run<=276811)&&selLeptons_relIso_0<0.06&&H_mass>90&&H_mass<150&&cutFlow>=10&&(isWmunu||isWenu)&&V_pt>100&&(Vtype==2||Vtype==3))*weight"); 
+        //tree_data->Draw(Form("%s:%s>>hdata",var2,var1),"(run<=276811&&sampleIndex==0&&controlSample==2&&(H_mass<90||H_mass>150)&&(Vtype==2||Vtype==3))*weight"); 
+        cout<<hdata->Integral()<<endl;
         TProfile *hist_mbb_reg = hdata->ProfileX("hist_mbb_reg");
+        //hist_mbb_reg->SetErrorOption("s");
+        cout<<"here"<<endl;
         	
         hist_mbb_reg->SetLineColor(1);
 	hist_mbb_reg->SetMarkerColor(1);
@@ -155,13 +167,24 @@ RooWorkspace w("w","workspace");
 /////////
 
 	//TFile *file_qcd =  new TFile("QCD"+type+".root");
-        TFile *file_mc = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June28_CR-v2/output_allmc.root");
+        //TFile *file_mc = new TFile("/uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/PrincetonAnalysisTools/VHbbAnalysis/V21_Wlnu_June28_CR-v2/output_allmc.root");
+        //TFile *file_mc = TFile::Open("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_CR_Nov29/output_allmc.root");
+        //TFile *file_mc = TFile::Open("root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/V24_Wlnu_SR_Nov29/output_allmc.root");
 	//TProfile *hist_mbb_reg_qcd= (TProfile*)file_qcd->Get("hprof");
-        TTree *tree = (TTree*) file_mc->Get("tree");
+        //TTree *tree = (TTree*) file_mc->Get("tree");
+        TChain *tree = new TChain("tree");
+        tree->Add("/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_CR_April6_v2/haddjobs/sum_*_3.root");
         TH2F *hmc= new TH2F("hmc","hmc",nbinsx,xlow1,xhigh1,nbinsy,xlow2,xhigh2);
-        tree->Draw(Form("%s:%s>>hmc",var2,var1),"(sampleIndex>0&&sampleIndex!=6000&&sampleIndex!=6001&&sampleIndex!=6002&&controlSample==1&&(Vtype==2||Vtype==3))*weight");    
+        tree->Draw(Form("%s:%s>>hmc",var2,var1),"(sampleIndex>0&&sampleIndex!=6000&&sampleIndex!=6001&&sampleIndex!=6002&&controlSample==1&&(Vtype==2||Vtype==3))*weight*bTagWeightMoriondCMVA*VPtCorrFactorSplit3");    
+        //tree->Draw(Form("%s:%s>>hmc",var2,var1),"(sampleIndex>0&&sampleIndex!=6000&&sampleIndex!=6001&&sampleIndex!=6002&&controlSample==3&&(Vtype==2||Vtype==3))*weight");    
+        //tree->Draw(Form("%s:%s>>hmc",var2,var1),"((sampleIndex!=0||run<=276811)&&selLeptons_relIso_0<0.06&&H_mass>90&&H_mass<150&&cutFlow>=10&&(isWmunu||isWenu)&&V_pt>100&&(Vtype==2||Vtype==3))*weight");    
+        //tree->Draw(Form("%s:%s>>hmc",var2,var1),"(selLeptons_relIso_0<0.06&&H_mass>90&&H_mass<150&&cutFlow>=10&&(isWmunu||isWenu)&&V_pt>100&&(Vtype==2||Vtype==3))*weight*bTagWeightMoriondCMVA*VPtCorrFactorSplit3");    
+        //tree->Draw(Form("%s:%s>>hmc",var2,var1),"(sampleIndex>0&&sampleIndex!=6000&&sampleIndex!=6001&&sampleIndex!=6002&&controlSample==2&&(H_mass<90||H_mass>150)&&(Vtype==2||Vtype==3))*weight");    
+        cout<<hmc->Integral()<<endl;
         TProfile *hist_mbb_reg_qcd = hmc->ProfileX("hist_mbb_reg_qcd");
 	hist_mbb_reg_qcd->SetStats(kFALSE);
+        //hist_mbb_reg_qcd->SetErrorOption("s");
+        cout<<"here"<<endl;
 	//if (type_int==1) hist_mbb_reg_qcd->Rebin(10);
 	//if (type_int==0) hist_mbb_reg_qcd->Rebin(4);
         cout<<hist_mbb_reg->Integral()<<endl;
@@ -177,11 +200,19 @@ RooWorkspace w("w","workspace");
 	frame2->SetYTitle(ylabel);
 	frame2->Draw();
 
+        //hist_mbb_reg->SetFillStyle(1001);
+        //hist_mbb_reg->SetFillColorAlpha(kRed,0.7);
+        hist_mbb_reg->SetFillStyle(3001);
+        hist_mbb_reg->SetMarkerStyle(1);
+
+        //hist_mbb_reg_qcd->SetFillStyle(1001);
+        //hist_mbb_reg_qcd->SetFillColorAlpha(kBlue,0.7);
         hist_mbb_reg_qcd->SetFillStyle(3001);
         hist_mbb_reg_qcd->SetFillColor(kBlue);
         hist_mbb_reg_qcd->SetMarkerStyle(1);
 
 	hist_mbb_reg_qcd->Draw("e2same");
+	//hist_mbb_reg->Draw("e2same");
 	hist_mbb_reg->Draw("Psame");
 	
 
@@ -206,7 +237,10 @@ RooWorkspace w("w","workspace");
 	pave.SetTextSize(top*0.5);
 	pave.SetTextColor(kBlue+1);
 
-	sprintf(cmd,"WHbb TT CS",text_type.Data())	;
+	//sprintf(cmd,"WHbb TT CS",text_type.Data())	;
+	//sprintf(cmd,"WHbb W+HF CS",text_type.Data())	;
+	//sprintf(cmd,"WHbb W+LF CS",text_type.Data())	;
+	sprintf(cmd,"WHbb SR",text_type.Data())	;
 	//sprintf(cmd,"\%s selection",text_type.Data())	;
 	pave.AddText(cmd);
 
@@ -242,7 +276,7 @@ RooWorkspace w("w","workspace");
 	pCMS2.SetTextAlign(32);
 	pCMS2.SetFillStyle(-1);
 	pCMS2.SetBorderSize(0);
-	pCMS2.AddText("L = 2.32 fb^{-1} (13 TeV)");
+	pCMS2.AddText("L = 35.9 fb^{-1} (13 TeV)");
 	gPad->Update();
 	pCMS1.Draw("same");
 	pCMS2.Draw("same");
@@ -258,15 +292,18 @@ RooWorkspace w("w","workspace");
 	leg->SetBorderSize(0);
 	leg->SetTextFont(42);
 	leg->SetTextSize(0.025);
+	//leg->AddEntry(hist_mbb_reg,"Signal MC","F");
 	leg->AddEntry(hist_mbb_reg,"Data","P");
+	//leg->AddEntry(hist_mbb_reg_qcd,"Bkg. MC","F");
 	leg->AddEntry(hist_mbb_reg_qcd,"MC","F");
 	leg->Draw("same");
 
 
 	c_roo->Print(Form("profile_plots/profile_%s_vs_%s.pdf",var1,var2));
+	c_roo->Print(Form("profile_plots/profile_%s_vs_%s.png",var1,var2));
         c_roo->Close();
         file_down->Close();
-        file_mc->Close();
+        //file_mc->Close();
 
 /*	
 	TCanvas *c11 = new TCanvas();

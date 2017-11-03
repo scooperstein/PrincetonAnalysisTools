@@ -19,7 +19,7 @@ def findAllRootFiles(value, site,doFilter=False,doRecursive=True):
             #filepath = "root://xrootd-cms.infn.it/" + filepath
             #filepath = "root://cmsxrootd.fnal.gov/" + filepath
             if filepath.find(".root") != -1:
-                if filepath.find("V25_EWK_SR_May3/output")!=-1: continue
+                ##if filepath.find("V27_EWK_SR_Oct17/output")!=-1: continue
                 filepath = siteIP + "/" + filepath
                 samplepaths.append(filepath)
             elif filepath.find("haddjobs")==-1 and filepath.find("sum_")==-1 and filepath.find("/log/")==-1 and filepath.find(".log")==-1 and filepath.find(".submit")==-1 and filepath.find(".stderr")==-1 and filepath.find(".stdout")==-1 and filepath.find(".sh")==-1:
@@ -44,13 +44,15 @@ def findAllRootFiles(value, site,doFilter=False,doRecursive=True):
 
 import sys
 import os
-region = sys.argv[1]
-kind = sys.argv[2]
+##region = sys.argv[1]
+##kind = sys.argv[2]
 
 #ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_Feb13" % region
 #ipath = "/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_March28" % region
 #ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_March28" % region
-ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V25_EWK_SR_May3"
+##ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V27_EWK_SR_Oct17/"
+ipath = sys.argv[1]
+ipath = ipath.replace("/eos/uscms/store","/store")
 
 samplepaths = findAllRootFiles(ipath,"FNAL",False,False)
 #print samplepaths
@@ -61,10 +63,15 @@ for samplepath in samplepaths:
     if samplepath.find("sum_")!=-1: continue
     print samplepath
     #sample = samplepath[samplepath.find("March28/")+8:]
-    sample = samplepath[samplepath.find("May3/")+5:]
+    #sample = samplepath[samplepath.find("Oct17/")+6:]
+    sample = samplepath[samplepath.rfind("/")+1:]
+    print sample
+    ##if (sample.find("WJets_madgraph")==-1 and sample.find("WJets-HT")==-1): continue
+    #if (sample.find("Wplus")==-1 and sample.find("Wminus")==-1): continue
     samplefiles = findAllRootFiles("%s/%s" % (ipath,sample),"FNAL")
     outstring += "hadd sum_%s.root " % sample
-    jobtext = "cd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/\n" 
+    #jobtext = "cd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/\n" 
+    jobtext = "cd /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw-patch/CMSSW_7_6_3_patch2/src/\n" 
     jobtext += "source /cvmfs/cms.cern.ch/cmsset_default.sh\n"
     jobtext += "eval `scramv1 runtime -sh`\n"
     jobtext += "cd - \n"

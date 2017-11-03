@@ -11,6 +11,8 @@ type=2  name=reReg              val=0
 
 type=2  name=j1ptCut            val=50
 type=2  name=j2ptCut            val=30
+type=2  name=Jet1PtPresel       val=40
+type=2  name=Jet2PtPresel       val=20
 type=2  name=jetEtaCut          val=4.7
 
 type=2  name=LepPtPresel        val=20

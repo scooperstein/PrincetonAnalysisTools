@@ -22,14 +22,15 @@ parser.add_option("-d","--doData", dest="doData", default=-1, type=int, help="If
 ROOT.gSystem.Load("AnalysisDict.so")
 
 # reads samples, existing branches and new branches
-samplesToRun = [] # if empty run on all samples
-am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToRun,"",options.runBatch)
+if (options.sample != ""):
+    samplesToSubmit = options.sample.split(',')
+else:
+    samplesToSubmit = [] # if empty run on all samples
+am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToSubmit,"",options.runBatch)
 am.debug=2
 
 doData = options.doData
 
-if (options.sample != ""):
-    samplesToSubmit = options.sample.split(',')
 
 if (options.runBatch == False):
     print "Running locally over all samples"
@@ -49,6 +50,7 @@ else:
     #    print "Attempting to create jobs under jobName %s, which already exists!" % jobName
     #    sys.exit(0)
     os.system("mkdir -p %s" % jobName)
+    os.system("mkdir -p /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/%s" % jobName)
 
     submitFiles = []
 
@@ -69,6 +71,7 @@ else:
         sampleName = sample.sampleName
         print sampleName
         os.system("mkdir -p %s/%s" % (jobName,sampleName))
+        os.system("mkdir -p /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/%s/%s" % (jobName,sampleName))
         nProcJobs = 0
         nFiles = len(sample.files)
         nJobs = nFiles / nFilesPerJob + 1
@@ -91,13 +94,14 @@ else:
             #content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nProcJobs)
             #content += "Requirements   =  OpSys == 'LINUX' && (Arch =='INTEL' || Arch =='x86_64')\n"
             content += "initialdir = %s/%s\n" % (jobName,sampleName)
-            content += "Should_Transfer_Files = YES\n"
+            #content += "Should_Transfer_Files = YES\n"
             content += "Output = %i.stdout\n" % nProcJobs
             content += "Error  = %i.stderr\n" % nProcJobs
             content += "Log    = %i.log\n"    % nProcJobs
             content += "Notification = never\n"
-            content += "WhenToTransferOutput=On_Exit\n"
+            #content += "WhenToTransferOutput=On_Exit\n"
             #content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../aux/MuonIso_Z_RunCD_Reco74X_Dec1.json,../../aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json,../../aux/MuonID_Z_RunCD_Reco74X_Dec1.json,../../aux/CutBasedID_TightWP.json,../../aux/CutBasedID_LooseWP.json,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt,../../cfg/scalefactors.txt\n" % options.configFile
+            content += "transfer_input_files = ../../%s,../../RunSkim.py,../../RunSample.py,../../../AnalysisDict.so,../../../env.sh,../../cfg,../../aux,../../../python/ReadInput.py,../../../AnalysisDict_rdict.pcm,../../../HelperClasses,../../../AnalysisManager.h,../../../plugins\n" % options.configFile
             content += "Queue  1\n"
             #print content
             submitFile.write(content)
@@ -118,20 +122,35 @@ else:
         export ORIG_DIR=$PWD
         # Set up environment
         echo "setting up the environment"
-        cd %s/..
+        #cd %s/..
+        cd /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw-patch/CMSSW_7_6_3_patch2/src
         source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval `scramv1 runtime -sh`
         pwd
         ls
         #source env.sh
-        source %s/../env.sh
-        cd EWKAnalysis
+        #source %s/../env.sh
+        source env.sh        
+
         echo "successfully set up the enviroment"
+  
+        cd $ORIG_DIR  
+    
+        #echo "copying over necessary files"
+        ##cd EWKAnalysis
+        #cp -r %s/cfg .
+        #cp -r %s/aux .
+        #cp %s/RunSample.py .
+        #cp %s/../AnalysisDict.so .
+        #cp -r %s/*.txt . 
 
         echo "running RunSample.py"
         echo $ORIG_DIR/$4
         python RunSample.py $1 $2 $3 $ORIG_DIR/$4
-        echo "all done!" ''' % (os.getcwd(), os.getcwd() )
+        echo "done running, now copying output to EOS"
+        xrdcp -f $ORIG_DIR/$4 root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/%s/$2
+        rm $ORIG_DIR/$4
+        echo "all done!" ''' % (os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), jobName )
 
     runscript = open("%s/condor_runscript.sh" % (jobName) , "w")
     runscript.write(condor_runscript_text)
