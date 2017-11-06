@@ -17,6 +17,10 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
 parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=10, type=int, help="Number of input files per batch job")
 parser.add_option("-s","--sample", dest="sample", default="", type=str, help="Run on only a specific sample (can be comma-separated list)")
 parser.add_option("-d","--doData", dest="doData", default=-1, type=int, help="If -1 run all samples, if 0 run only MC, if 1 run only data")
+parser.add_option("--site","--site", dest="site", default="FNAL", type=str, help="If running on lxplus include option --si CERN, otherwise assumes you are running on FNAL")
+parser.add_option("--useSGE","--useSGE", dest="useSGE", default=0, type=int, help="If 0 (default) use condor, if 1 use SGE job submission")
+parser.add_option("--doSkim","--doSkim", dest="doSkim", default=0, type=int, help="If 0 (default) run analysis jobs, if 1 run skimming jobs")
+parser.add_option("--submitJobs","--submitJobs", dest="submitJobs", default=1, type=int, help="If 1 (default) submit jobs to batch queue, if 0 then only create submission files")
 (options, args) = parser.parse_args()
 
 ROOT.gSystem.Load("AnalysisDict.so")
@@ -30,7 +34,10 @@ am=ReadInput.ReadTextFile(options.configFile, "cfg", samplesToSubmit,"",options.
 am.debug=2
 
 doData = options.doData
-
+site = options.site
+useSGE = options.useSGE
+doSkim = options.doSkim
+submitJobs = options.submitJobs
 
 if (options.runBatch == False):
     print "Running locally over all samples"
@@ -43,14 +50,31 @@ if (options.runBatch == False):
     am.Loop()
 
 else:
-    print "Running analysis jobs on condor. Note that this will only work from LPC machines"
+    print "Running analysis jobs on batch queue. Site: %s"
+    if useSGE:
+        print "Using SGE batch system..."
+    else:
+        print "Using Condor batch system..."
     jobName = options.jobName
+
+    if site == "FNAL":
+        output_dir = "/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples" # parent directory in user's EOS space to store all output files
+    elif site == "CERN":
+        output_dir = "/eos/cms/store/user/scoopers/VHbbAnalysisNtuples"
+    if doSkim:
+        output_dir = output_dir.replace("VHbbAnalysisNtuples","SkimmedAnalysisNtuples")
 
     #if os.path.exists(jobName):
     #    print "Attempting to create jobs under jobName %s, which already exists!" % jobName
     #    sys.exit(0)
     os.system("mkdir -p %s" % jobName)
-    os.system("mkdir -p /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/%s" % jobName)
+    if site=="FNAL":
+        os.system("mkdir -p %s/%s" % (output_dir,jobName))
+    elif site=="CERN":
+        os.system("mkdir -p %s/%s" % (output_dir,jobName))
+    else:
+        print "unknown site: ",site,"exiting..."
+        sys.exit(1)
 
     submitFiles = []
 
@@ -71,7 +95,10 @@ else:
         sampleName = sample.sampleName
         print sampleName
         os.system("mkdir -p %s/%s" % (jobName,sampleName))
-        os.system("mkdir -p /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/%s/%s" % (jobName,sampleName))
+        if site=="FNAL":
+            os.system("mkdir -p %s/%s/%s" % (output_dir,jobName,sampleName))
+        elif site=="CERN":
+            os.system("mkdir -p %s/%s/%s" % (output_dir,jobName,sampleName))
         nProcJobs = 0
         nFiles = len(sample.files)
         nJobs = nFiles / nFilesPerJob + 1
@@ -86,27 +113,46 @@ else:
             if (filesToRun == ""): continue
 
             nProcJobs += 1
-            fname = "%s/%s/job%i.submit" % (jobName, sampleName,nProcJobs)
-            submitFile = open(fname, "w")
-            content =  "universe = vanilla\n"
-            content += "Executable = %s/condor_runscript.sh\n" % jobName
-            content += "Arguments = %s %s %s output_%s_%i.root\n" % (options.configFile, sampleName, filesToRun,sampleName, nProcJobs)
-            #content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nProcJobs)
-            #content += "Requirements   =  OpSys == 'LINUX' && (Arch =='INTEL' || Arch =='x86_64')\n"
-            content += "initialdir = %s/%s\n" % (jobName,sampleName)
-            #content += "Should_Transfer_Files = YES\n"
-            content += "Output = %i.stdout\n" % nProcJobs
-            content += "Error  = %i.stderr\n" % nProcJobs
-            content += "Log    = %i.log\n"    % nProcJobs
-            content += "Notification = never\n"
-            #content += "WhenToTransferOutput=On_Exit\n"
-            #content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../aux/MuonIso_Z_RunCD_Reco74X_Dec1.json,../../aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json,../../aux/MuonID_Z_RunCD_Reco74X_Dec1.json,../../aux/CutBasedID_TightWP.json,../../aux/CutBasedID_LooseWP.json,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt,../../cfg/scalefactors.txt\n" % options.configFile
-            content += "transfer_input_files = ../../%s,../../RunSkim.py,../../RunSample.py,../../../AnalysisDict.so,../../../env.sh,../../cfg,../../aux,../../../python/ReadInput.py,../../../AnalysisDict_rdict.pcm,../../../HelperClasses,../../../AnalysisManager.h,../../../plugins\n" % options.configFile
-            content += "Queue  1\n"
+            if not useSGE:
+                fname = "%s/%s/job%i.submit" % (jobName, sampleName,nProcJobs)
+                submitFile = open(fname, "w")
+                content =  "universe = vanilla\n"
+                content += "Executable = %s/condor_runscript.sh\n" % jobName
+                content += "Arguments = %s %s %s output_%s_%i.root\n" % (options.configFile, sampleName, filesToRun,sampleName, nProcJobs)
+                #content += "Arguments = %s %s %s %i\n" % (options.configFile, sampleName, filename, nProcJobs)
+                #content += "Requirements   =  OpSys == 'LINUX' && (Arch =='INTEL' || Arch =='x86_64')\n"
+                content += "initialdir = %s/%s\n" % (jobName,sampleName)
+                #content += "Should_Transfer_Files = YES\n"
+                content += "Output = %i.stdout\n" % nProcJobs
+                content += "Error  = %i.stderr\n" % nProcJobs
+                content += "Log    = %i.log\n"    % nProcJobs
+                content += "Notification = never\n"
+                #content += "WhenToTransferOutput=On_Exit\n"
+                #content += "transfer_input_files = ../../%s,../../cfg/samples.txt,../../cfg/earlybranches.txt,../../cfg/existingbranches.txt,../../cfg/newbranches.txt,../../cfg/bdtsettings.txt,../../cfg/reg1_settings.txt,../../cfg/reg2_settings.txt,../../cfg/settings.txt,../../aux/TMVARegression_BDTG_ttbar_Nov23.weights.xml,../../aux/TMVA_13TeV_Dec14_3000_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml,../../aux/MuonIso_Z_RunCD_Reco74X_Dec1.json,../../aux/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.json,../../aux/MuonID_Z_RunCD_Reco74X_Dec1.json,../../aux/CutBasedID_TightWP.json,../../aux/CutBasedID_LooseWP.json,../../RunSample.py,../../../AnalysisDict.so,../../cfg/systematics.txt,../../cfg/scalefactors.txt\n" % options.configFile
+                content += "transfer_input_files = ../../%s,../../RunSkim.py,../../RunSample.py,../../../AnalysisDict.so,../../../env.sh,../../cfg,../../aux,../../../python/ReadInput.py,../../../AnalysisDict_rdict.pcm,../../../HelperClasses,../../../AnalysisManager.h,../../../plugins\n" % options.configFile
+                content += "Queue  1\n"
+            else:
+                fname = "%s/%s/job%iSubmit.sh" % (jobName, sampleName,nProcJobs)
+                submitFile = open(fname, "w")
+                content = "source %s/%s/condor_runscript.sh %s %s %s output_%s_%i.root\n" % (os.getcwd(),jobName,options.configFile, sampleName, filesToRun,sampleName, nProcJobs)  
             #print content
             submitFile.write(content)
             submitFile.close()
             submitFiles.append(fname)
+
+    xrdcp_string = "xrdcp -f $ORIG_DIR/$4 %s/%s/$2" %(output_dir.replace("/eos/uscms","root://cmseos.fnal.gov/"),jobName)
+    if site == "CERN":
+        xrdcp_string = "xrdcp -f $ORIG_DIR/$4 root://eoscms.cern.ch:/%s/%s/$2" %(output_dir,jobName)
+    copy_string = "" # not sure how to automatically transfer files to SGE job nodes, for now do it manually
+    runfile = "RunSample.py"
+    if doSkim:
+        runfile = "RunSkim.py"
+    if useSGE:
+        copy_string = ''' cp -r %s/cfg .
+        cp -r %s/aux .
+        cp %s/%s .
+        cp %s/../AnalysisDict.so .
+        cp -r %s/*.txt . ''' % (os.getcwd(),os.getcwd(),os.getcwd(),runfile,os.getcwd(),os.getcwd())
 
     condor_runscript_text = '''
 
@@ -137,30 +183,41 @@ else:
         cd $ORIG_DIR  
     
         #echo "copying over necessary files"
-        ##cd EWKAnalysis
         #cp -r %s/cfg .
         #cp -r %s/aux .
         #cp %s/RunSample.py .
         #cp %s/../AnalysisDict.so .
         #cp -r %s/*.txt . 
+        %s
 
-        echo "running RunSample.py"
+        echo "running %s"
         echo $ORIG_DIR/$4
-        python RunSample.py $1 $2 $3 $ORIG_DIR/$4
+        python %s $1 $2 $3 $ORIG_DIR/$4
         echo "done running, now copying output to EOS"
-        xrdcp -f $ORIG_DIR/$4 root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/%s/$2
+        ###xrdcp -f $ORIG_DIR/$4 root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/%s/$2
+        %s
         rm $ORIG_DIR/$4
-        echo "all done!" ''' % (os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), jobName )
+        echo "all done!" ''' % (os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), copy_string, runfile, runfile, jobName, xrdcp_string )
 
     runscript = open("%s/condor_runscript.sh" % (jobName) , "w")
     runscript.write(condor_runscript_text)
     runscript.close()
 
-    ## Send job to condor
-    print "Submit files created, sending jobs to Condor..."
-    for file in submitFiles:
-        print("condor_submit %s" % file)
-        os.system("condor_submit %s" % file)
+    if submitJobs:
+        if not useSGE:
+            ## Send job to condor
+            print "Submit files created, sending jobs to Condor..."
+            for file in submitFiles:
+                print("condor_submit %s" % file)
+                os.system("condor_submit %s" % file)
+        else:
+            ## Send jobs with SGE
+            print "Submit files created, sending jobs to SGE batch..."
+            for file in submitFiles:
+                print 'bsub -R "pool>30000" -q 1nh -J job1 < %s' %file
+                os.system('bsub -R "pool>30000" -q 1nh -J job1 < %s' %file) 
+    else:
+        print "Submit files created, but will not submit jobs to batch queue"
 
         
 
