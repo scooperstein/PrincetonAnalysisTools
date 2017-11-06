@@ -19,6 +19,7 @@ pisapre="srm://stormgf1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/"
 #pisapre="srm://stormfe1.pi.infn.it:8444/srm/managerv2?SFN=/cms/store/"
 cernpre="srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/"
 fnalpre="srm://cmseos.fnal.gov:8443/srm/v2/server?SFN=/eos/uscms/store/"
+desypre="srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN=/pnfs/desy.de/cms/tier2/store/"
 
 sourcepre=''
 destpre=''
@@ -68,6 +69,8 @@ elif source.find('cern') != -1:
     sourcepre=cernpre
 elif source.find('fnal') != -1:
     sourcepre=fnalpre
+elif source.find('desy') != -1:
+    sourcepre=desypre
 else:
     print "source",source,"is not setup"
     sys.exit(0)
@@ -78,6 +81,8 @@ elif dest.find('cern') != -1:
     destpre=cernpre
 elif dest.find('fnal') != -1:
     destpre=fnalpre
+elif dest.find('desy') != -1:
+    destpre=desypre
 else:
     print "destination",dest,"is not setup"
     sys.exit(0)
