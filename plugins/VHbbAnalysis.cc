@@ -331,7 +331,6 @@ bool VHbbAnalysis::Analyze(){
     }else if(*in["isWenu"]==1 || *in["isWmunu"]==1){
         //std::cout<<" isWenu "<<*in["isWenu"]<<std::endl;
         
-        //std::cout<<" lepInd1 "<<*in["lepInd1"]<<std::endl;
         *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd1"]];
         *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd1"]];
         //std::cout<<" lepInd1 "<<*in["lepInd1"]<<std::endl;
