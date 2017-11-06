@@ -1,3 +1,6 @@
+#### Now outdated, please just use RunAnalysis.py with the option --doSkim 1 to submit skimming jobs
+####
+
 import ROOT
 import sys
 import ReadInput
