@@ -264,14 +264,14 @@ for sample in sampleNameMap:
     if sample in sigSamps:
         for sname in sampleNameMap[sample]:
             #fname = ipath + "/sum_" + sname + "_3.root"
-            fname = ipath + "/sum_" + sname + "_weighted2.root"
-            #fname = ipath + "/sum_" + sname + ".root"
+            #fname = ipath + "/sum_" + sname + "_weighted2.root"
+            fname = ipath + "/sum_" + sname + ".root"
             tree_sig.Add(fname)
     elif sample != "data_obs":
         for sname in sampleNameMap[sample]:
             #fname = ipath + "/sum_" + sname + "_3.root"
-            fname = ipath + "/sum_" + sname + "_weighted2.root"
-            #fname = ipath + "/sum_" + sname + ".root"
+            #fname = ipath + "/sum_" + sname + "_weighted2.root"
+            fname = ipath + "/sum_" + sname + ".root"
             if fname not in fnames:
                 print "adding  %s for background" % fname
                 tree_bkg.Add(fname)
@@ -397,8 +397,8 @@ for sample in sampleMap:
     #    tree = tree_mc 
     if sample != "Bkg" and sample != "data_obs": 
         for sname in sampleNameMap[sample]:
-            #fname = ipath + "/sum_" + sname + ".root"
-            fname = ipath + "/sum_" + sname + "_weighted2.root"
+            fname = ipath + "/sum_" + sname + ".root"
+            #fname = ipath + "/sum_" + sname + "_weighted2.root"
             #fname = ipath + "/sum_" + sname + "_3.root"
             #print tree.GetEntries()
             tree.Add(fname)
@@ -408,8 +408,8 @@ for sample in sampleMap:
         for sample in sampleNameMap:
             if sample in sigSamps: continue
             for sname in sampleNameMap[sample]: 
-                #fname = ipath + "/sum_" + sname + ".root"
-                fname = ipath + "/sum_" + sname + "_weighted2.root"
+                fname = ipath + "/sum_" + sname + ".root"
+                #fname = ipath + "/sum_" + sname + "_weighted2.root"
                 #fname = ipath + "/sum_" + sname + "_3.root"
                 tree.Add(fname)
      

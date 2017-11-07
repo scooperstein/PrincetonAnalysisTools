@@ -1,0 +1,52 @@
+# bkg scale factor uncertainties 
+#
+# bkg modeling (powheg vs mcAtNlo shapes for example)
+#
+# uncertainty on jets and btag
+#
+# uncertainty on stat. templates
+#
+lumi_13TeV                lnN 1.025 WH_hbb,ZH_hbb,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF
+CMS_vhbb_ST               lnN 1.15 s_Top
+CMS_vhbb_VV               lnN 1.15 VVHF,VVLF
+CMS_vhbb_boost_EWK_13TeV  lnN 1.02 ZH_hbb,WH_hbb
+#CMS_vhbb_boost_QCD_13TeV  lnN 1.05 ZH_hbb,WH_hbb
+CMS_vhbb_eff_m_Wln_13TeV      shape 1.0  WH_hbb,ZH_hbb,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF Lep_SF
+pdf_gg                    lnN 1.01 s_Top,QCD
+pdf_qqbar                 lnN 1.01 ZH_hbb,WH_hbb,VVLF,VVHF
+CMS_vhbb_puWeight         shape 1.0  WH_hbb,ZH_hbb,TT,s_Top,Wj0b,Wj1b,Wj2b,QCD,Zj0b,Zj1b,Zj2b,VVLF,VVHF  weight_PU
+CMS_vhbb_LHE_weights_scale_muF_WH shape 1.0 WH_hbb LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_ZH shape 1.0 ZH_hbb LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_TT shape 1.0 TT LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Wj0b shape 1.0 Wj0b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Wj1b shape 1.0 Wj1b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Wj2b shape 1.0 Wj2b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_QCD shape 1.0 QCD LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Zj0b shape 1.0 Zj0b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Zj1b shape 1.0 Zj1b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_Zj2b shape 1.0 Zj2b LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_VVHF shape 1.0 VVHF LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muF_VVLF shape 1.0 VVLF LHE_weights_scale_wgt[0],LHE_weights_scale_wgt[1]
+CMS_vhbb_LHE_weights_scale_muR_WH shape 1.0 WH_hbb LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_ZH shape 1.0 ZH_hbb LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_TT shape 1.0 TT LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Wj0b shape 1.0 Wj0b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Wj1b shape 1.0 Wj1b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Wj2b shape 1.0 Wj2b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_QCD shape 1.0 QCD LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Zj0b shape 1.0 Zj0b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Zj1b shape 1.0 Zj1b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_Zj2b shape 1.0 Zj2b LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_VVHF shape 1.0 VVHF LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_scale_muR_VVLF shape 1.0 VVLF LHE_weights_scale_wgt[2],LHE_weights_scale_wgt[3]
+CMS_vhbb_LHE_weights_pdf_ZH     lnN 1.01  ZH_hbb
+CMS_vhbb_LHE_weights_pdf_WH     lnN 1.01  WH_hbb
+CMS_vhbb_LHE_weights_pdf_TT     lnN 1.005  TT
+CMS_vhbb_LHE_weights_pdf_Wj0b   lnN 1.05  Wj0b
+CMS_vhbb_LHE_weights_pdf_Wj1b   lnN 1.03  Wj1b
+CMS_vhbb_LHE_weights_pdf_Wj2b   lnN 1.02  Wj2b
+CMS_vhbb_LHE_weights_pdf_Zj0b   lnN 1.05  Zj0b
+CMS_vhbb_LHE_weights_pdf_Zj1b   lnN 1.03  Zj1b
+CMS_vhbb_LHE_weights_pdf_Zj2b   lnN 1.02  Zj2b
+CMS_vhbb_LHE_weights_pdf_VVHF   lnN 1.02  VVHF
+CMS_vhbb_LHE_weights_pdf_VVLF   lnN 1.03  VVLF

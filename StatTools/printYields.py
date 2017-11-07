@@ -12,6 +12,7 @@ parser.add_argument('-o', '--outputfilename', type=str, default="", help="Name o
 parser.add_argument('-vv','--doVV', type=bool, default=False, help="If true do VV analysis (default False)")
 parser.add_argument('-bnt','--binNThreshold', type=str, default="", help="Only consider bbb's for bin # >= X (default -1)")
 parser.add_argument('-ewk','--doEWK', type=bool, default=False, help="If true do EWK analysis (default False)")
+parser.add_argument('--samples','--samples', type=str, default="", help="Specify specific comma-separated list of samples to consider (default all samples)")
 args = parser.parse_args()
 
 
@@ -51,6 +52,14 @@ if args.doVV:
 elif args.doEWK:
     #samples = ["EWKWJets","s_Top","TT","Wjets","VV","Zjets","QCD_data"]
     samples = ["EWKWJets","s_Top","TT","Wjets","VV","Zjets","QCD_data","IntEWKWJets"]
+if args.samples != "":
+    ## run on sub-set of analysis samples
+    samples = []
+    samples_to_run = args.samples.split(',')
+    for sample in samples_to_run:
+        samples.append(sample)
+print "samples = ",samples
+
 
 # It probably makes sense to just run this script once per channel and
 # then combine the datacards with combineDatacard.py, but the code is set
@@ -80,7 +89,11 @@ for i in range(len(cats)):
     zeroYield = True # don't write to datacard if all samples in cat are zero
     cat_rates = ""
     print cat_labels[i]
-    nData = ifile.Get("BDT_%s_data_obs" % cat_labels[i]).Integral()
+    nData = 0.
+    try:
+        nData = ifile.Get("BDT_%s_data_obs" % cat_labels[i]).Integral()
+    except:
+        print "Could not find data histogram, setting data yield to 0.0..."
     cat_fake_obs_line = "   %.4f" % nData
     for sample in samples: 
         print sample
@@ -176,7 +189,7 @@ if (args.binstats != ""):
         try:
             binStats_file = open(args.binstats, "r")
             #binStats_file = open("binStats_%s.txt" % cat,"r")
-        except FileOpenError:
+        except:
             print "Couldn't open binstats file %s" % args.binstats
             continue
         for line in binStats_file:
