@@ -128,6 +128,10 @@ bool VHbbAnalysis::Preselection(){
     for (int i=0; i < *in["nJet"]; i++) {
         if (f["Jet_pt_reg"][i] > *f["JetPtPresel"] && in["Jet_puId"][i] > 0) nPreselJets++;
     }
+    int nPreselLep = 0; // FIXME needs to be configurable or possibly removed
+    for (int i=0; i < *in["nselLeptons"]; i++) {
+        if (f["selLeptons_pt"][i] > *f["LepPtPresel"] && fabs(f["selLeptons_eta"][i])<2.5 && (fabs(in["selLeptons_pdgId"][i])==11 || fabs(in["selLeptons_pdgId"][i])==13) ) nPreselLep++;
+    }
 
     // for the moment let's remove the nLep preselection, since this is different for each channel
     // and the cut required by Vtype should anyway already be tighter than this.
@@ -135,7 +139,8 @@ bool VHbbAnalysis::Preselection(){
     //for (int i=0; i < *in["nselLeptons"]; i++) {
     //    if (f["selLeptons_pt"][i] > *f["LepPtPresel"] && fabs(f["selLeptons_eta"][i])<2.5 && (fabs(in["selLeptons_pdgId"][i])==11 || fabs(in["selLeptons_pdgId"][i])==13) ) nPreselLep++;
     //}
-    
+   
+    // remove nPreselLep cut for now since we want to pre-select for all channels 
     if (int(*f["doBoost"])==0) {
         if (nPreselJets < 2) return false;
     } else {
@@ -342,10 +347,8 @@ bool VHbbAnalysis::Analyze(){
     }else if(*in["isWenu"]==1 || *in["isWmunu"]==1){
         //std::cout<<" isWenu "<<*in["isWenu"]<<std::endl;
         
-        //std::cout<<" lepInd1 "<<*in["lepInd1"]<<std::endl;
         *f["selLeptons_pt_0"] = f["selLeptons_pt"][*in["lepInd1"]];
         *f["selLeptons_eta_0"] = f["selLeptons_eta"][*in["lepInd1"]];
-        //std::cout<<" lepInd1 "<<*in["lepInd1"]<<std::endl;
         
         //FIXME why do we do this?  Cut-flow?  CP
         if (*in["lepInd1"] == -1) {
@@ -1320,7 +1323,7 @@ void VHbbAnalysis::FinishEvent(){
                 *f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd1"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd1"]] ) *  ( (20.1/36.4) * f["SF_MuTriggerBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuTriggerGH"][*in["lepInd1"]]) * ( (20.1/36.4) * f["SF_MuTrackerBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuTrackerGH"][*in["lepInd1"]]); 
                 *f["Lep_SFUp"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd1"]] + f["SF_MuIDTightBCDEF_err"][*in["lepInd1"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd1"]] + f["SF_MuIDTightGH_err"][*in["lepInd1"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] + f["SF_MuIsoTightBCDEF_err"][*in["lepInd1"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd1"]] + f["SF_MuIsoTightGH_err"][*in["lepInd1"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd1"]] + f["SF_MuTriggerBCDEF_err"][*in["lepInd1"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd1"]]) + f["SF_MuTriggerGH_err"][*in["lepInd1"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd1"]] + f["SF_MuTrackerBCDEF_err"][*in["lepInd1"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd1"]] + f["SF_MuTrackerGH_err"][*in["lepInd1"]] ));
                 *f["Lep_SFUp"] = *f["Lep_SFUp"] / *f["Lep_SF"];
-                *f["Lep_SFDown"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd1"]] - f["SF_MuIDTightBCDEF_err"][*in["lepInd1"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd1"]] - f["SF_MuIDTightGH_err"][*in["lepInd1"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] - f["SF_MuIsoTightBCDEF_err"][*in["lepInd1"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd1"]] - f["SF_MuIsoTightGH_err"][*in["lepInd1"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd1"]] - f["SF_MuTriggerBCDEF_err"][*in["lepInd1"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd1"]]) - f["SF_MuTriggerGH_err"][*in["lepInd1"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd1"]] - f["SF_MuTrackerBCDEF_err"][*in["lepInd1"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd1"]] - f["SF_MuTrackerGH_err"][*in["lepInd1"]] )); 
+                *f["Lep_SFDown"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd"]] - f["SF_MuIDTightBCDEF_err"][*in["lepInd"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd"]] - f["SF_MuIDTightGH_err"][*in["lepInd"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd"]] - f["SF_MuIsoTightBCDEF_err"][*in["lepInd"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd"]] - f["SF_MuIsoTightGH_err"][*in["lepInd"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd"]] - f["SF_MuTriggerBCDEF_err"][*in["lepInd"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd"]]) - f["SF_MuTriggerGH_err"][*in["lepInd"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd"]] - f["SF_MuTrackerBCDEF_err"][*in["lepInd"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd"]] - f["SF_MuTrackerGH_err"][*in["lepInd"]] )); 
                 *f["Lep_SFDown"] = *f["Lep_SFDown"] / *f["Lep_SF"];
             }
         }

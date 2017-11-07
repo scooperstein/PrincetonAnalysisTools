@@ -11,8 +11,12 @@ def findAllRootFiles(value, site,doFilter=False,doRecursive=True):
         siteIP = "root://cmseos.fnal.gov"
         #siteIP = "root://131.225.207.127:1094"
         if (site == "CERN"): 
-            siteIP = "root://188.184.38.46:1094"
-        onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", siteIP, "ls", value]).split('\n')
+            #siteIP = "root://188.184.38.46:1094"
+            ##siteIP = "root://cmseos.cern.ch"
+            onlyFiles = subprocess.check_output(["eos", "ls", value]).split('\n')
+        elif (site == "FNAL"):
+            #onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", siteIP, "ls", value]).split('\n')
+            onlyFiles = subprocess.check_output(["xrdfs", siteIP, "ls", value]).split('\n')
         #print "onlyFiles = ",onlyFiles
         for filepath in onlyFiles:
             if (filepath == ""): continue
@@ -47,17 +51,32 @@ import os
 ##region = sys.argv[1]
 ##kind = sys.argv[2]
 
+useCondor = False
+
 #ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_Feb13" % region
 #ipath = "/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_March28" % region
 #ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_March28" % region
 ##ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V27_EWK_SR_Oct17/"
 ipath = sys.argv[1]
-ipath = ipath.replace("/eos/uscms/store","/store")
+site = "FNAL"
+if len(sys.argv)>2:
+    site = sys.argv[2]
+if site != "FNAL" and site != "CERN":
+    print "unknown site: %s, quitting..." % site
 
-samplepaths = findAllRootFiles(ipath,"FNAL",False,False)
+if site == "FNAL":
+    ipath_short = ipath.replace("/eos/uscms/store","/store")
+elif site == "CERN":
+    ipath_short = ipath.replace("/eos/cms/store","/store")
+
+samplepaths = findAllRootFiles(ipath_short,site,False,False)
 #print samplepaths
 outstring = ""
-os.mkdir("/eos/uscms"+ipath+"/haddjobs")
+#os.mkdir(ipath+"/haddjobs")
+tmp = ipath.split('/')
+submission_dir = tmp[len(tmp)-2] + "_haddjobsubmission"
+print "job submission files will be created in: ",submission_dir
+os.mkdir(submission_dir)
 submitfiles = []
 for samplepath in samplepaths:
     if samplepath.find("sum_")!=-1: continue
@@ -79,12 +98,20 @@ for samplepath in samplepaths:
     for samplefile in samplefiles:
         outstring += samplefile + " "
         jobtext += samplefile + " "
+    jobtext += "\n"
     outstring += "\n"
-    runscript = open("/eos/uscms"+ipath+"/haddjobs/"+sample+".sh","w")
+    xrdcp_string = ""
+    if site == "FNAL":
+        xrdcp_string = "xrdcp sum_%s.root root://cmseos.fnal.gov:/%s/haddjobs/\n" % (sample,ipath_short)
+    elif site == "CERN":
+        xrdcp_string = "xrdcp sum_%s.root root://eoscms.cern.ch:/%s/haddjobs/\n" % (sample,ipath_short)
+    jobtext += xrdcp_string
+    jobtext += "rm sum_%s.root\n" % sample
+    runscript = open(submission_dir + "/" +sample+".sh","w")
     runscript.write(jobtext)
     submittext =  "universe = vanilla\n"
-    submittext += "Executable = /eos/uscms%s/haddjobs/%s.sh\n" % (ipath,sample)
-    submittext += "initialdir = /eos/uscms%s/haddjobs \n" %  ipath
+    submittext += "Executable = %s/%s.sh\n" % (submission_dir,sample)
+    submittext += "initialdir = %s \n" %  submission_dir
     submittext += "Should_Transfer_Files = YES\n"
     submittext += "Output = %s.stdout\n" % sample
     submittext += "Error  = %s.stderr\n" % sample
@@ -92,15 +119,19 @@ for samplepath in samplepaths:
     submittext += "Notification = never\n"
     submittext += "WhenToTransferOutput=On_Exit\n"
     submittext += "Queue  1\n"
-    submitFile = open("/eos/uscms"+ipath+"/haddjobs/"+sample+".submit","w")
+    submitFile = open(submission_dir + "/" +sample+".submit","w")
     submitFile.write(submittext)
     submitFile.close()
     runscript.close()
-    submitfiles.append("/eos/uscms"+ipath+"/haddjobs/"+sample+".submit")
+    submitfiles.append(submission_dir + "/" +sample+".submit")
     
 for submitfile in submitfiles:
-    print "condor_submit ",submitfile
-    os.system("condor_submit %s" %submitfile)
+    if useCondor:
+        print "condor_submit ",submitfile
+        os.system("condor_submit %s" %submitfile)
+    else:
+        print 'bsub -R "pool>30000" -q 1nh -J job1 < %s' % submitfile.replace(".submit",".sh")
+        os.system('bsub -R "pool>30000" -q 1nh -J job1 < %s' % submitfile.replace(".submit",".sh"))
 #print outstring
 
 

@@ -627,13 +627,12 @@ def findAllRootFiles(value, site):
                 samplepaths.extend(findAllRootFiles(filepath,site))
     else:
         from os import listdir
-        from os.path import isfile, join
-        print "here"
-        onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
+        from os.path import isfile, join, isdir
+        #onlyfiles = [ f for f in listdir(str(value)) if isfile(join(str(value),f)) ]
+        onlyfiles = listdir(str(value))
         for rootfile in onlyfiles:
-            print rootfile
             if rootfile.find(".root") != -1:
                 samplepaths.append(str(value)+"/"+str(rootfile))
-            else:
-                samplepaths.extend(findAllRootFiles(str(value)+"/"+str(rootfile)),site)
+            elif (isdir(join(str(value),rootfile))):
+                samplepaths.extend(findAllRootFiles(str(value)+"/"+str(rootfile),site))
     return samplepaths
