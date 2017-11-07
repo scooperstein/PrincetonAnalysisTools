@@ -24,6 +24,11 @@ NIND=-1
 plotinfos={}
 samples={}
 
+extraSignalSampleIndexes = []
+#extraSignalSampleIndexes = [3502]
+#extraSignalSampleIndexes = [3500,3501,3502,3600,3601,3602,3700,3701,3702]
+
+
 # Set Defaults
 pads = []
 
@@ -90,11 +95,19 @@ StaticMax=False
 dotitles=False
 dotdr=True
 dochi2=True
+dod=True
 #cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
 #cattitles=["Electron Barrel (Eta < 0.8)","Electron Barrel (Eta > 0.8)","Electron Endcaps"]
 #cattitles=["|#eta| < 0.8","0.8 < |#eta| < 1.4442","|#eta| > 1.556"]
 #cattitles = ["TT CS (Wl#nu)","W+HF CS (Wl#nu)","W+LF CS (Wl#nu)"]
-cattitles = ["TT CS (W#mu#nu)","W+HF CS (W#mu#nu)","W+LF CS (W#mu#nu)","TT CS (We#nu)","W+HF CS (We#nu)", "W+LF CS (We#nu)"]
+#cattitles = ["TT CS (W#mu#nu)","W+HF CS (W#mu#nu)","W+LF CS (W#mu#nu)","TT CS (We#nu)","W+HF CS (We#nu)", "W+LF CS (We#nu)"]
+#cattitles = ["t#bar{t} enriched: 1-lepton (  #mu)","W+bb enriched (W#mu#nu)","W+udcsg enriched (W#mu#nu)", "t#bar{t} enriched: 1-lepton (e)","W+bb enriched (We#nu)","W+udcsg enriched (We#nu)"]
+#cattitles = ["t#bar{t} enriched: 1-lepton","t#bar{t} enriched: 1-lepton"]
+#cattitles = ["t#bar{t} enriched (W#mu#nu)","W+bb enriched (W#mu#nu)","W+udcsg enriched (W#mu#nu)", "t#bar{t} enriched (We#nu)","W+bb enriched (We#nu)","W+udcsg enriched (We#nu)"]
+#cattitles = ["2-lepton: (Z#mu#mu)","2-lepton: (Zee)"]
+cattitles = ["1-lepton: (W#mu#nu)","1-lepton: (We#nu)"]
+#cattitles = ["TT CS (Wl#nu)","W+HF CS (Wl#nu)"]
+#cattitles = ["2-jet","3-jet"]
 #cattitles=["W#mu#nu","We#nu"]
 dointegrals=False
 domean=False
@@ -210,7 +223,7 @@ class SampleInfo:
         
 
     def ParseConfigLines(self):
-        if self.configline is not "":
+        if self.configline is not "" and self.configline[0]!='#':
             items=self.configline.split()
             for item in items:
                 if item.find("sampleIndex=") is not -1:
@@ -234,13 +247,14 @@ class SampleInfo:
                     print "Item",item,"not parsed."
         else:
             self.plotsample=0
+            print self.configline
             print "No configuration--no plotting"
    
 
 
 NEWVALS=["datasampleIndex","linex","stackmax","stackmin","stackminlog","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2","setminlog"]
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","dotdr","dochi2","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "dosoverb", "dosoversqrtb", "Normalize" ,"Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","dotdr","dod","dochi2","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "dosoverb", "dosoversqrtb", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -597,7 +611,7 @@ def CountSamplesInLegend():
 
 def AssociateConfigToSample(configlines):
     for line in configlines:
-        if line.find("name=") is not -1:
+        if line.find("name=") is not -1 and line[0]!='#':
             if Debug:
                 print "AssociateConfigToSample",line
             items=line.split()
@@ -851,12 +865,12 @@ def Plot(num,printsuffix="",printcat=-1):
     else:
         if dodata:
             if dobkg:
-                stacktypes=["bkg","sig","data"]
+                stacktypes=["bkg","sig","data","sig2"]
             else:
                 stacktypes=["sig","data"]
         else:
             if dobkg:
-                stacktypes=["bkg","sig"]
+                stacktypes=["bkg","sig","sig2"]
             else:
                 stacktypes=["sig"]
 
@@ -1076,17 +1090,21 @@ def Plot(num,printsuffix="",printcat=-1):
         hist_1 = [""]*cur_plot.ncat
         dataTot = [""]*cur_plot.ncat
         mcTot = [""]*cur_plot.ncat
+        mcTotNoError = [""]*cur_plot.ncat
         mcErrBand = [""]*cur_plot.ncat
         sigTot = [""]*cur_plot.ncat
         chi2text = [""]*cur_plot.ncat
+        dtext = [""]*cur_plot.ncat
         for icat in cats:
             stackmaxima[icat].sort()
             if StaticMax:
                 global stackmax
             else:
                 if dolog is True:
+                    print "stackmaxima,stackminlog = ",stackmaxima[icat][-1],stackminlog
                     logmax=math.log10(stackmaxima[icat][-1])
                     logmin=math.log10(stackminlog)
+                    print "logmax,logmin = ",logmax,logmin
                     stackmax=math.pow(10,maxscaleup*logmax - (maxscaleup-1)*logmin)
                 else:
                     stackmax=stackmaxima[icat][-1]*maxscaleup
@@ -1128,6 +1146,8 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks[initalstack+str(icat)].SetMinimum(stackminlog)
 
             if doxtitle==True:
+                print initalstack,str(icat)
+                print stacks
                 stacks[initalstack+str(icat)].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
             else:
                 stacks[initalstack+str(icat)].GetXaxis().SetTitle("")
@@ -1241,10 +1261,10 @@ def Plot(num,printsuffix="",printcat=-1):
                             if dosoversqrtb:
                                 for bin in range(0,mcTot[icat].GetNbinsX()+1):
                                     mcTot[icat].SetBinContent(bin,math.sqrt(mcTot[icat].GetBinContent(bin)))
-                # Draw MC statistical uncertainty 
-                mcTot[icat].SetFillStyle(3013)
-                mcTot[icat].SetFillColor(ROOT.kBlack)
-                mcTot[icat].Draw("E2 same")
+                ### Draw MC statistical uncertainty 
+                ##mcTot[icat].SetFillStyle(3013)
+                ##mcTot[icat].SetFillColor(ROOT.kBlack)
+                ##mcTot[icat].Draw("E2 same")
                 if stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries() > 0:
                     error=math.sqrt(1/float(stacks["bkglines"+str(icat)][lineorder[0]].GetEffectiveEntries()))*stacks["bkglines"+str(icat)][lineorder[0]].Integral() 
                     print "bkg int","%.2f"%stacks["bkglines"+str(icat)][lineorder[0]].Integral(),"+/-","%.2f"%error
@@ -1311,6 +1331,24 @@ def Plot(num,printsuffix="",printcat=-1):
                         else:
                             can.cd(2)
                     chi2text[icat].Draw()
+                
+                if dod:
+                    #d = 1.0
+                    d = calcD(stacks["bkg%i" % icat].GetStack().Last(), stacks["sig%i" % icat].GetStack().Last())
+                    dtext[icat] = ROOT.TPaveText(textx1,0.55,textx1+0.2,0.65,"brNDC");
+                    dtext[icat].SetTextFont(62);
+                    dtext[icat].SetTextSize(0.06)
+                    dtext[icat].SetBorderSize(0)
+                    dtext[icat].SetLineColor(0)
+                    dtext[icat].SetLineStyle(0)
+                    dtext[icat].SetLineWidth(0)
+                    dtext[icat].SetFillColor(0)
+                    dtext[icat].SetFillStyle(0)
+                    dtext[icat].AddText("d = %.2f"%(d))
+                    iPad = (icat%Ncol)+1
+                    can.cd(iPad)
+                    dtext[icat].Draw()
+                    
  
             if dodivide:
                 if docats:
@@ -1322,7 +1360,12 @@ def Plot(num,printsuffix="",printcat=-1):
                 can.GetPad(pad_id).SetGrid(True)
                 dataTot[icat].Sumw2()
                 mcTot[icat].Sumw2()
-                dataTot[icat].Divide(mcTot[icat])
+                # don't want data points in ratio to include MC uncertainty
+                mcTotNoError[icat] = mcTot[icat].Clone()
+                for i in range(1,mcTotNoError[icat].GetNbinsX()+1):
+                    mcTotNoError[icat].SetBinError(i,0.)
+                #dataTot[icat].Divide(mcTot[icat])
+                dataTot[icat].Divide(mcTotNoError[icat])
                 dataTot[icat].SetMarkerColor(1)
                 if docats:
                     dataTot[icat].SetMarkerSize(0.5)
@@ -1331,8 +1374,20 @@ def Plot(num,printsuffix="",printcat=-1):
                 dataTot[icat].SetMarkerStyle(20)
                 dataTot[icat].SetLineColor(1)
                 dataTot[icat].SetLineWidth(2)
-                dataTot[icat].SetMaximum(1.57)
-                dataTot[icat].SetMinimum(0.5)
+                #dataTot[icat].SetMaximum(1.5)
+                #dataTot[icat].SetMinimum(0.5)
+                #dataTot[icat].SetMaximum(2.)
+                #dataTot[icat].SetMinimum(0.)
+                dataTot[icat].SetMaximum(1.25)
+                dataTot[icat].SetMinimum(0.75)
+                #dataTot[icat].SetMaximum(1.75)
+                #dataTot[icat].SetMinimum(0.5)
+                #dataTot[icat].SetMaximum(1.17)
+                #dataTot[icat].SetMinimum(0.9)
+                #dataTot[icat].SetMaximum(1.27)
+                #dataTot[icat].SetMinimum(0.8)
+                #dataTot[icat].SetMaximum(1.27)
+                #dataTot[icat].SetMinimum(0.7)
                 dataTot[icat].GetYaxis().SetNdivisions(505)
                 dataTot[icat].SetTitle('')
                 dataTot[icat].GetXaxis().SetTitleOffset(1.)
@@ -1359,7 +1414,9 @@ def Plot(num,printsuffix="",printcat=-1):
                     mcErrBand[icat].SetPointError(ibin,mcTot[icat].GetBinWidth(ibin)/2, e)
                 mcErrBand[icat].SetFillColor(ROOT.kBlack)
                 mcErrBand[icat].SetFillStyle(3013)
-                mcErrBand[icat].Draw("SAME2") 
+                mcErrBand[icat].Draw("SAME2")
+                if (icat == 0): 
+                    legend2.AddEntry(mcErrBand[icat],"MC Stat. Unc.","f") 
                 if dochi2:    
                     chi2text[icat].Draw()
 
@@ -1476,11 +1533,17 @@ def SampleMap(sampletype):
             print "SampleMap, sampleIndex:",samples[sample].sampleIndex
         if samples[sample].plotsample==0:
             continue
-        if sampletype == "sig" and sample < datasampleIndex:
+        if (sampletype == "sig" and (sample < datasampleIndex or sample in extraSignalSampleIndexes)):
+        ##if (sampletype == "sig" and (sample != datasampleIndex and sample in extraSignalSampleIndexes)):
             sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
+        #if (sampletype == "sig" and (sample < datasampleIndex)):
+        #    sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
+        #if (sampletype == "sig2" and (sample in extraSignalSampleIndexes)):
+        #    sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
         elif sampletype == "data" and sample == datasampleIndex:
             sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
-        elif sampletype == "bkg" and sample >datasampleIndex:
+        elif (sampletype == "bkg" and ((sample >datasampleIndex and sample not in extraSignalSampleIndexes) or sample==-100 or sample==-101 or sample==-200)):
+        ##elif (sampletype == "bkg" and (sample != datasampleIndex and sample not in extraSignalSampleIndexes)):
             sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
         elif sampletype == "all":
             sampleIndexs[samples[sample].order]=samples[sample].sampleIndex
@@ -1538,7 +1601,7 @@ def MakeStack(sampletype, icat):
         if samples[sampleIndex].plotsample == 1:
             histname=str(cur_plot.plotvarname)+"_cat"+str(icat)+"_"+str(samples[sampleIndex].inshortnames)
             if Debug:
-                print "SampleMap histname",histname
+                print "SampleMap histname",histname,sampleIndex
             rootfile.cd()
             hist=ROOT.gROOT.FindObject(histname).Clone()
             hist=FormatHist(hist,sampleIndex,sampletype)
@@ -1676,6 +1739,8 @@ def MakeOverlayLines(sampletype, icat):
             rootfile.cd()
             if first == 1:
                 first=0
+                if (sampletype.find("sig")!=-1):
+                    first=1 # FIXME HACK to draw signals not stacked
                 thishist=ROOT.gROOT.FindObject(histname).Clone("stacklines_cat"+str(icat)+"_index"+str(index))
                 thishist=FormatHist(thishist,sampleIndex,sampletype)
                 fullhist=thishist.Clone("fullhist")
@@ -1825,7 +1890,8 @@ def SetText():
         plottext.AddText(text)
     
 def SetTextTitle():
-    plottexttitle = ROOT.TPaveText(textx1,texty1-0.1,textx2,texty1,"brNDC");
+    #plottexttitle = ROOT.TPaveText(textx1,texty1-0.1,textx2,texty1,"brNDC");
+    plottexttitle = ROOT.TPaveText(textx1,texty1-0.05,textx2,texty1,"brNDC");
     plottexttitle.SetTextFont(62);
     plottexttitle.SetTextSize(0.0425)
     plottexttitle.SetBorderSize(0)
@@ -1906,6 +1972,18 @@ def WriteCat(suffix, icat):
     num=cur_plot.index
     Plot(num,suffix,icat)
 
+def calcD(bkg, sig):
+    tmpSig = sig.Clone("tmpSig")
+    tmpBkg = bkg.Clone("tmpBkg")
+    if (tmpSig.Integral() > 0):
+        tmpSig.Scale(1./tmpSig.Integral())
+    if (tmpBkg.Integral() > 0):
+        tmpBkg.Scale(1./tmpBkg.Integral())
+    d = 0.
+    nbins = tmpSig.GetNbinsX()
+    for i in range(1,nbins+1):
+        d += abs(tmpSig.GetBinContent(i) - tmpBkg.GetBinContent(i))
+    return d/2.
 
 option="START"
 ENDLIST=[".q","q","quit","end","exit"]
