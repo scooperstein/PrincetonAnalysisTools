@@ -1,0 +1,1 @@
+python plotFromTree.py -f /eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_VHbb_test_runonskim/haddjobs/ -P plotvariables.dat -C categories.dat -S selection.dat -I inputfiles_onlysignal.dat -o output.root -w 'weight'

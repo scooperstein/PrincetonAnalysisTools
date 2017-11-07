@@ -1,0 +1,30 @@
+file=PlotFromTree/output.root
+
+singlecat=0
+dod=False
+dolegend=True
+nLeg=2
+dodivide=False
+dotitles=True 
+legx1=0.45  legy1=0.6 legx2=0.95 legy2=0.92
+textx1=0.17  texty1=0.82 textx2=0.43 texty2=0.92
+
+maxscaleup=1.8
+stackminlog=10
+dodata=False
+dolog=False
+
+#xsize=1000 ysize=600
+xsize=1200 ysize=600
+
+#text=CMS Preliminary 2015 \n#sqrt{s} = 13 TeV, L = 2.32 fb^{-1}
+#text=CMS Preliminary 2016 \n#sqrt{s} = 13 TeV, L = 22.0 fb^{-1}
+#text=CMS Preliminary 2016 \n#sqrt{s} = 13 TeV, L = 7.2 fb^{-1}
+#text=CMS Preliminary 2016 \n#sqrt{s} = 13 TeV, L = 12.9 fb^{-1}, Pre-fit
+#text=CMS Preliminary 2016 \n#sqrt{s} = 13 TeV, L = 35.9 fb^{-1}, Pre-fit
+text=CMS Preliminary 2016\n#sqrt{s} = 13 TeV, L = 35.9 fb^{-1}
+
+
+name=WH125p       sampleIndex=-12500 order=72   plot=1  leg=0    scale=100   color=880   marker=0  displayName=WH125x100
+name=WH125m       sampleIndex=-12501 order=73   plot=1  leg=1    scale=100   color=880   marker=0  displayName=WH125x100
+name=TT_powheg    sampleIndex=120      order=57   plot=1  leg=1    scale=1      color=600   marker=0  displayName=t#bar{t}@POWHEG

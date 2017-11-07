@@ -62,13 +62,17 @@ bool VHbbAnalysis::Preselection(){
         if (*f["lheV_pt"] < 200 || *in["nGenStatus2bHad"] == 0) return false; 
     }
     
-    if ((*f["Vtype"]!=2 && *f["Vtype"]!=3)) return false;
+    //if ((*f["Vtype"]!=2 && *f["Vtype"]!=3)) return false;
+    if (*f["Vtype"]<0 || *f["Vtype"]>4) return false;
 
     if (cursample->sampleNum==0) {
         if (*f["json"]!=1) return false;
     }
     if (int(*f["doICHEP"])==0 && int(*f["do2015"])==0) {
-        if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
+        ////if (*in["HLT_BIT_HLT_Ele27_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
+        if (*f["Vtype"]==4 && *in["HLT_BIT_HLT_PFMET110_PFMHT110_IDTight_v"]!=1 && *in["HLT_BIT_HLT_PFMET120_PFMHT120_IDTight_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_NoiseCleaned_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_HBHE_BeamHaloCleaned_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_HBHECleaned_v"]!=-1) return false;  //0-lep
+        if ((*f["Vtype"]==2 || *f["Vtype"]==3) && *in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false; // 1-lep       
+        if ((*f["Vtype"]==0 || *f["Vtype"]==1) && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"]!=1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"]!=1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"]!=1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"]!=1 && *in["HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"]!=1) return false; // 2-lep
     }  
 
     if (*f["V_pt"] < *f["vptcut"]) return false;
@@ -112,7 +116,7 @@ bool VHbbAnalysis::Preselection(){
         f["Jet_pt_reg_corrJERUp_ratio"][i] = f["Jet_pt_reg_corrJERUp"][i] / f["Jet_pt_reg"][i] ; 
         f["Jet_pt_reg_corrJERDown_ratio"][i] = f["Jet_pt_reg_corrJERDown"][i] / f["Jet_pt_reg"][i] ; 
     }
-    if (!atLeastOnePassesCMVA) return false;
+    if (!atLeastOnePassesCMVA && *f["Vtype"]!=0 && *f["Vtype"]!=1) return false;
  
     SetupFactorizedJECs(cursyst->name);
 
@@ -128,12 +132,25 @@ bool VHbbAnalysis::Preselection(){
     for (int i=0; i < *in["nselLeptons"]; i++) {
         if (f["selLeptons_pt"][i] > *f["LepPtPresel"] && fabs(f["selLeptons_eta"][i])<2.5 && (fabs(in["selLeptons_pdgId"][i])==11 || fabs(in["selLeptons_pdgId"][i])==13) ) nPreselLep++;
     }
-    
+
+    // for the moment let's remove the nLep preselection, since this is different for each channel
+    // and the cut required by Vtype should anyway already be tighter than this.
+    //int nPreselLep = 0; // FIXME needs to be configurable or possibly removed
+    //for (int i=0; i < *in["nselLeptons"]; i++) {
+    //    if (f["selLeptons_pt"][i] > *f["LepPtPresel"] && fabs(f["selLeptons_eta"][i])<2.5 && (fabs(in["selLeptons_pdgId"][i])==11 || fabs(in["selLeptons_pdgId"][i])==13) ) nPreselLep++;
+    //}
+   
+    // remove nPreselLep cut for now since we want to pre-select for all channels 
     if (int(*f["doBoost"])==0) {
-        if (nPreselJets < 2 || nPreselLep < 1) return false;
+        if (nPreselJets < 2) return false;
     } else {
-        if ((nPreselJets < 2 && *in["nFatjetAK08ungroomed"]<1) || nPreselLep < 1) return false;
+        if ((nPreselJets < 2 && *in["nFatjetAK08ungroomed"]<1)) return false;
     }
+    //if (int(*f["doBoost"])==0) {
+    //    if (nPreselJets < 2 || nPreselLep < 1) return false;
+    //} else {
+    //    if ((nPreselJets < 2 && *in["nFatjetAK08ungroomed"]<1) || nPreselLep < 1) return false;
+    //}
     return sel;
 }
 
@@ -186,11 +203,10 @@ bool VHbbAnalysis::Analyze(){
             if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu22_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu22_v"]!=1 ) return false;
         }
     }else {
-        if (*f["VtypeSim"]!=4 && *in["HLT_BIT_HLT_PFMET110_PFMHT110_IDTight_v"]!=1 && *in["HLT_BIT_HLT_PFMET120_PFMHT120_IDTight_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_NoiseCleaned_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_HBHE_BeamHaloCleaned_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_HBHECleaned_v"]!=-1) {  //0-lep
-            if (*f["VtypeSim"]!=2 && *f["VtypeSim"]!=3 && *in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) { // 1-lep       
-                if (*f["VtypeSim"]!=0 && *f["VtypeSim"]!=1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"]!=-1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"]!=-1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"]!=-1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"]!=-1 && *in["HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"]!=-1) return false; // 2-lep
-            }
-        }
+        if (*f["Vtype"]==4 && *in["HLT_BIT_HLT_PFMET110_PFMHT110_IDTight_v"]!=1 && *in["HLT_BIT_HLT_PFMET120_PFMHT120_IDTight_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_NoiseCleaned_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_HBHE_BeamHaloCleaned_v"]!=1 && *in["HLT_BIT_HLT_PFMET170_HBHECleaned_v"]!=-1) return false;  //0-lep
+        if ((*f["Vtype"]==2 || *f["Vtype"]==3) && *in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false; // 1-lep       
+        if ((*f["Vtype"]==0 || *f["Vtype"]==1) && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"]!=1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"]!=1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"]!=1 && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"]!=1 && *in["HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"]!=1) return false; // 2-lep
+
     }
     //else {
     //    //if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"]!=1 && *in["HLT_BIT_HLT_IsoMu24_v"]!=1 && *in["HLT_BIT_HLT_IsoTkMu24_v"]!=1) return false;
@@ -433,6 +449,11 @@ bool VHbbAnalysis::Analyze(){
     if (*f["V_pt"] < *f["vptcut"]) return false;
     if (sel) *in["cutFlow"] += 1; // pT(W) cut
 
+    if(*in["isZee"]==1 || *in["isZmm"]==1){ 
+        *f["V_mass"] = V.M();
+        if (*f["V_mass"] < *f["zmasslow"] || *f["V_mass"] > *f["zmasshigh"]) return false;
+    }
+
     // di-jet kinematics
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dEta"] = fabs( HJ1.Eta() - HJ2.Eta());
@@ -672,11 +693,12 @@ bool VHbbAnalysis::Analyze(){
         }
     } 
 
-    *in["isZnn"] = 0;
-    *in["isWmunu"] = 0;
-    *in["isWenu"] = 0;
-    *in["isZmm"] = 0;
-    *in["isZee"] = 0;
+    // Why is this here? - Stephane
+    //*in["isZnn"] = 0;
+    //*in["isWmunu"] = 0;
+    //*in["isWenu"] = 0;
+    //*in["isZmm"] = 0;
+    //*in["isZee"] = 0;
     
     *in["nAddLeptons"] = nAddLep;
     if (nAddLep>= *f["nAddLeptonsCut"]) return false;
@@ -1282,6 +1304,7 @@ void VHbbAnalysis::FinishEvent(){
     }
 
     if (*in["sampleIndex"]!=0) {
+        *f["Lep_SF"] = 1.0;
         if (*in["isWmunu"] == 1) {
             if (*f["do2015"] == 1) {
                 // used for 2015 analysis
@@ -1297,10 +1320,10 @@ void VHbbAnalysis::FinishEvent(){
             }
             else {
                 //*f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd"]] ) ; 
-                *f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd"]] ) *  ( (20.1/36.4) * f["SF_MuTriggerBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuTriggerGH"][*in["lepInd"]]) * ( (20.1/36.4) * f["SF_MuTrackerBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuTrackerGH"][*in["lepInd"]]); 
-                *f["Lep_SFUp"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd"]] + f["SF_MuIDTightBCDEF_err"][*in["lepInd"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd"]] + f["SF_MuIDTightGH_err"][*in["lepInd"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd"]] + f["SF_MuIsoTightBCDEF_err"][*in["lepInd"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd"]] + f["SF_MuIsoTightGH_err"][*in["lepInd"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd"]] + f["SF_MuTriggerBCDEF_err"][*in["lepInd"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd"]]) + f["SF_MuTriggerGH_err"][*in["lepInd"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd"]] + f["SF_MuTrackerBCDEF_err"][*in["lepInd"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd"]] + f["SF_MuTrackerGH_err"][*in["lepInd"]] ));
+                *f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd1"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd1"]] ) *  ( (20.1/36.4) * f["SF_MuTriggerBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuTriggerGH"][*in["lepInd1"]]) * ( (20.1/36.4) * f["SF_MuTrackerBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuTrackerGH"][*in["lepInd1"]]); 
+                *f["Lep_SFUp"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd1"]] + f["SF_MuIDTightBCDEF_err"][*in["lepInd1"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd1"]] + f["SF_MuIDTightGH_err"][*in["lepInd1"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] + f["SF_MuIsoTightBCDEF_err"][*in["lepInd1"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd1"]] + f["SF_MuIsoTightGH_err"][*in["lepInd1"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd1"]] + f["SF_MuTriggerBCDEF_err"][*in["lepInd1"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd1"]]) + f["SF_MuTriggerGH_err"][*in["lepInd1"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd1"]] + f["SF_MuTrackerBCDEF_err"][*in["lepInd1"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd1"]] + f["SF_MuTrackerGH_err"][*in["lepInd1"]] ));
                 *f["Lep_SFUp"] = *f["Lep_SFUp"] / *f["Lep_SF"];
-                *f["Lep_SFDown"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd"]] - f["SF_MuIDTightBCDEF_err"][*in["lepInd"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd"]] - f["SF_MuIDTightGH_err"][*in["lepInd"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd"]] - f["SF_MuIsoTightBCDEF_err"][*in["lepInd"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd"]] - f["SF_MuIsoTightGH_err"][*in["lepInd"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd"]] - f["SF_MuTriggerBCDEF_err"][*in["lepInd"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd"]]) - f["SF_MuTriggerGH_err"][*in["lepInd"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd"]] - f["SF_MuTrackerBCDEF_err"][*in["lepInd"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd"]] - f["SF_MuTrackerGH_err"][*in["lepInd"]] )); 
+                *f["Lep_SFDown"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd1"]] - f["SF_MuIDTightBCDEF_err"][*in["lepInd1"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd1"]] - f["SF_MuIDTightGH_err"][*in["lepInd1"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] - f["SF_MuIsoTightBCDEF_err"][*in["lepInd1"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd1"]] - f["SF_MuIsoTightGH_err"][*in["lepInd1"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd1"]] - f["SF_MuTriggerBCDEF_err"][*in["lepInd1"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd1"]]) - f["SF_MuTriggerGH_err"][*in["lepInd1"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd1"]] - f["SF_MuTrackerBCDEF_err"][*in["lepInd1"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd1"]] - f["SF_MuTrackerGH_err"][*in["lepInd1"]] )); 
                 *f["Lep_SFDown"] = *f["Lep_SFDown"] / *f["Lep_SF"];
             }
         }

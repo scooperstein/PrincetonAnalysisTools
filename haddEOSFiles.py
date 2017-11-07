@@ -51,7 +51,7 @@ import os
 ##region = sys.argv[1]
 ##kind = sys.argv[2]
 
-useCondor = False
+useCondor = True
 
 #ipath = "/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_Feb13" % region
 #ipath = "/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples/V25_Wlnu_%s_March28" % region
@@ -72,7 +72,7 @@ elif site == "CERN":
 samplepaths = findAllRootFiles(ipath_short,site,False,False)
 #print samplepaths
 outstring = ""
-#os.mkdir(ipath+"/haddjobs")
+os.mkdir(ipath+"/haddjobs")
 tmp = ipath.split('/')
 submission_dir = tmp[len(tmp)-2] + "_haddjobsubmission"
 print "job submission files will be created in: ",submission_dir
@@ -87,7 +87,7 @@ for samplepath in samplepaths:
     print sample
     ##if (sample.find("WJets_madgraph")==-1 and sample.find("WJets-HT")==-1): continue
     #if (sample.find("Wplus")==-1 and sample.find("Wminus")==-1): continue
-    samplefiles = findAllRootFiles("%s/%s" % (ipath,sample),"FNAL")
+    samplefiles = findAllRootFiles("%s/%s" % (ipath_short,sample),"FNAL")
     outstring += "hadd sum_%s.root " % sample
     #jobtext = "cd /uscms_data/d3/sbc01/HbbAnalysis13TeV/CMSSW_7_6_3_patch2/src/\n" 
     jobtext = "cd /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw-patch/CMSSW_7_6_3_patch2/src/\n" 
@@ -102,9 +102,9 @@ for samplepath in samplepaths:
     outstring += "\n"
     xrdcp_string = ""
     if site == "FNAL":
-        xrdcp_string = "xrdcp sum_%s.root root://cmseos.fnal.gov:/%s/haddjobs/\n" % (sample,ipath_short)
+        xrdcp_string = "xrdcp sum_%s.root root://cmseos.fnal.gov:/%s/haddjobs/sum_%s.root\n" % (sample,ipath_short,sample)
     elif site == "CERN":
-        xrdcp_string = "xrdcp sum_%s.root root://eoscms.cern.ch:/%s/haddjobs/\n" % (sample,ipath_short)
+        xrdcp_string = "xrdcp sum_%s.root root://eoscms.cern.ch:/%s/haddjobs/sum_%s.root\n" % (sample,ipath_short,sample)
     jobtext += xrdcp_string
     jobtext += "rm sum_%s.root\n" % sample
     runscript = open(submission_dir + "/" +sample+".sh","w")

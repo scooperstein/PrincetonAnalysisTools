@@ -50,7 +50,7 @@ if (options.runBatch == False):
     am.Loop()
 
 else:
-    print "Running analysis jobs on batch queue. Site: %s"
+    print "Running analysis jobs on batch queue. Site: %s" % site
     if useSGE:
         print "Using SGE batch system..."
     else:
