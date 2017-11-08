@@ -355,7 +355,6 @@ bool VHbbAnalysis::Analyze(){
             // not Wenu or Wmunu, use preselected lepton
             *in["lepInd1"] = 0;
         }
-        //std::cout<<" lepInd1 "<<*in["lepInd1"]<<std::endl;
 
         if(debug>1000) {
             std::cout<<"cutting on dphi(lep, met)"<<std::endl;
