@@ -3,6 +3,7 @@ outputname=output
 
 #samples=cfg/samples.txt
 samples=cfg/samples_fewsignal.txt
+#samples=cfg/samples_fewsignal_desy.txt
 #samples=cfg/samples_skimmed.txt
 
 earlybranches=cfg/earlybranches.txt
