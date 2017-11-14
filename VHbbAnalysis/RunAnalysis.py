@@ -17,7 +17,7 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
 parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=10, type=int, help="Number of input files per batch job")
 parser.add_option("-s","--sample", dest="sample", default="", type=str, help="Run on only a specific sample (can be comma-separated list)")
 parser.add_option("-d","--doData", dest="doData", default=-1, type=int, help="If -1 run all samples, if 0 run only MC, if 1 run only data")
-parser.add_option("--site","--site", dest="site", default="FNAL", type=str, help="If running on lxplus include option --si CERN, otherwise assumes you are running on FNAL")
+parser.add_option("--site","--site", dest="site", default="FNAL", type=str, help="If running on lxplus include option --site CERN, otherwise assumes you are running on FNAL")
 parser.add_option("--useSGE","--useSGE", dest="useSGE", default=0, type=int, help="If 0 (default) use condor, if 1 use SGE job submission")
 parser.add_option("--doSkim","--doSkim", dest="doSkim", default=0, type=int, help="If 0 (default) run analysis jobs, if 1 run skimming jobs")
 parser.add_option("--submitJobs","--submitJobs", dest="submitJobs", default=1, type=int, help="If 1 (default) submit jobs to batch queue, if 0 then only create submission files")
