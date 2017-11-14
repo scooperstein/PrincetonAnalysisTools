@@ -95,7 +95,7 @@ StaticMax=False
 dotitles=False
 dotdr=True
 dochi2=True
-dod=True
+dosep=True
 #cattitles=["EB-EB-hiR9-hiR9","EB-EB-!(hiR9-hiR9)","!(EB-EB)-hiR9-hiR9","!(EB-EB)-!(hiR9-hiR9)"]
 #cattitles=["Electron Barrel (Eta < 0.8)","Electron Barrel (Eta > 0.8)","Electron Endcaps"]
 #cattitles=["|#eta| < 0.8","0.8 < |#eta| < 1.4442","|#eta| > 1.556"]
@@ -254,7 +254,7 @@ class SampleInfo:
 
 NEWVALS=["datasampleIndex","linex","stackmax","stackmin","stackminlog","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2","setminlog"]
 
-PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","dotdr","dod","dochi2","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "dosoverb", "dosoversqrtb", "Normalize" ,"Debug","DebugNew"]
+PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","dotdr","dosep","dochi2","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "dosoverb", "dosoversqrtb", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
     if option == "START":
@@ -1146,8 +1146,6 @@ def Plot(num,printsuffix="",printcat=-1):
                 stacks[initalstack+str(icat)].SetMinimum(stackminlog)
 
             if doxtitle==True:
-                print initalstack,str(icat)
-                print stacks
                 stacks[initalstack+str(icat)].GetXaxis().SetTitle(str(cur_plot.xaxislabel))
             else:
                 stacks[initalstack+str(icat)].GetXaxis().SetTitle("")
@@ -1332,22 +1330,23 @@ def Plot(num,printsuffix="",printcat=-1):
                             can.cd(2)
                     chi2text[icat].Draw()
                 
-                if dod:
-                    #d = 1.0
-                    d = calcD(stacks["bkg%i" % icat].GetStack().Last(), stacks["sig%i" % icat].GetStack().Last())
-                    dtext[icat] = ROOT.TPaveText(textx1,0.55,textx1+0.2,0.65,"brNDC");
-                    dtext[icat].SetTextFont(62);
-                    dtext[icat].SetTextSize(0.06)
-                    dtext[icat].SetBorderSize(0)
-                    dtext[icat].SetLineColor(0)
-                    dtext[icat].SetLineStyle(0)
-                    dtext[icat].SetLineWidth(0)
-                    dtext[icat].SetFillColor(0)
-                    dtext[icat].SetFillStyle(0)
-                    dtext[icat].AddText("d = %.2f"%(d))
-                    iPad = (icat%Ncol)+1
-                    can.cd(iPad)
-                    dtext[icat].Draw()
+            if dosep:
+                #d = 1.0
+                d = calcSeparation(stacks["bkg%i" % icat].GetStack().Last(), stacks["sig%i" % icat].GetStack().Last())
+                dtext[icat] = ROOT.TPaveText(textx1,0.55,textx1+0.2,0.65,"brNDC");
+                dtext[icat].SetTextFont(62);
+                dtext[icat].SetTextSize(0.06)
+                dtext[icat].SetBorderSize(0)
+                dtext[icat].SetLineColor(0)
+                dtext[icat].SetLineStyle(0)
+                dtext[icat].SetLineWidth(0)
+                dtext[icat].SetFillColor(0)
+                dtext[icat].SetFillStyle(0)
+                dtext[icat].AddText("Sep. = %.2f"%(d))
+                #dtext[icat].AddText("d. = %.2f"%(d))
+                iPad = (icat%Ncol)+1
+                can.cd(iPad)
+                dtext[icat].Draw()
                     
  
             if dodivide:
@@ -1972,7 +1971,11 @@ def WriteCat(suffix, icat):
     num=cur_plot.index
     Plot(num,suffix,icat)
 
-def calcD(bkg, sig):
+def calcSeparation(bkg, sig):
+    ## simple metric to quantify separation power of variable.
+    ## Area normalize S and B histograms, then calculate sum over 
+    ## all bins of 0.5*abs(s-b). Range 0 (S and B exactly the same) to
+    ## 1 (S,B completely different shapes).
     tmpSig = sig.Clone("tmpSig")
     tmpBkg = bkg.Clone("tmpBkg")
     if (tmpSig.Integral() > 0):
