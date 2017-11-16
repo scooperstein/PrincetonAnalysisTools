@@ -168,7 +168,8 @@ void AnalysisManager::InitChain(std::string filename)
     // The InitChain() function is called when the selector needs to initialize
     // a new tree or chain. Typically here the branch addresses and branch
     // pointers of the tree will be set.
-    fChain = new TChain("tree");
+    fChain = new TChain("Events");
+    //fChain = new TChain("tree");
     //std::cout<<"opening "<<filename.c_str()<<std::endl;
     //TFile* tf = TFile::Open(filename.c_str());
     //std::cout<<"adding to chain"<<std::endl;
@@ -398,9 +399,11 @@ void AnalysisManager::SetNewBranches(){
 }
 
 void AnalysisManager::GetEarlyEntries(Long64_t entry, bool isData){
+    //std::cout<<"Inside AnalysisManager::GetEarlyEntries(Long64_t entry, bool isData)"<<entry<<": "<<isData<<std::endl;
     for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
             ibranch!=branchInfos.end(); ++ibranch){
         if(ibranch->second->prov == "early" && !(isData && ibranch->second->onlyMC)) {
+            //std::cout<<ibranch->first<<" is early"<<std::endl;
             if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
             branches[ibranch->first]->GetEntry(entry);
         }
@@ -443,7 +446,8 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     //int processedEvents = onlySample->processedEvents;
                     std::vector<std::string> sampleFiles = onlySample->files;
                     onlySample->files.clear();
-                    onlySample->sampleChain = new TChain("tree");
+                    //onlySample->sampleChain = new TChain("tree");
+                    onlySample->sampleChain = new TChain("Events");
                     for (int j=0; j<(int)filenames.size(); j++) {
                         if (std::find(sampleFiles.begin(), sampleFiles.end(), filenames[j]) != sampleFiles.end() ) {
                             onlySample->AddFile(filenames[j].c_str(),1);
@@ -533,7 +537,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 if((jentry%1000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 //if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 
-                
+
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
                 bool anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
@@ -574,7 +578,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                         }
                         if(select || (cursyst->name=="nominal" && anyPassing)){
                             if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                            for (int i=0; i < scaleFactors.size(); i++) {
+                            /*for (int i=0; i < scaleFactors.size(); i++) {
                                 SFContainer sf = scaleFactors[i];
                                 float sf_err = 0.0;
                                 if (cursample->sampleNum != 0) {
@@ -596,7 +600,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                                     }
                                 }
                                 
-                            }
+                            }*/
                             FinishEvent();
                             if(cursyst->name=="nominal") saved++;
                         }
@@ -612,16 +616,16 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
         } // end file loop
         ofile->cd();
         if (!doSkim) {
-            cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
-            cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
+            //cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
+            //cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
             cursample->CountWeighted->Write(Form("CountWeighted_%s",cursample->sampleName.c_str()));
-            cursample->CountFullWeighted->Write(Form("CountFullWeighted_%s",cursample->sampleName.c_str()));
+            //cursample->CountFullWeighted->Write(Form("CountFullWeighted_%s",cursample->sampleName.c_str()));
         }
         else {
-            cursample->CountWeightedLHEWeightScale->Write();
-            cursample->CountWeightedLHEWeightPdf->Write();
+            //cursample->CountWeightedLHEWeightScale->Write();
+            //cursample->CountWeightedLHEWeightPdf->Write();
             cursample->CountWeighted->Write();
-            cursample->CountFullWeighted->Write();
+            //cursample->CountFullWeighted->Write();
         }
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;

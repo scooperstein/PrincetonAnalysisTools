@@ -1,0 +1,60 @@
+# ####types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+type=1  name=luminosityBlock
+type=1  name=run
+type=2  name=fixedGridRhoFastjetAll
+
+type=1  name=nLHEScaleWeight                                  onlyMC=1
+type=7  name=LHEScaleWeight                      max=10  onlyMC=1 lengthBranch=nLHE_weights_scale
+type=1  name=nLHEPdfWeight                                    onlyMC=1
+type=6  name=LHEPdfWeight                         max=110 onlyMC=1 lengthBranch=nLHE_weights_pdf
+
+type=2  name=Pileup_nTrueInt                                  onlyMC=1
+type=2  name=genWeight                                  onlyMC=1
+type=1  name=nGenJet                                    onlyMC=1
+type=7  name=GenJet_pt                          max=20  onlyMC=1
+type=7  name=GenJet_eta                         max=20  onlyMC=1
+type=7  name=GenJet_phi                         max=20  onlyMC=1
+type=7  name=GenJet_mass                        max=20  onlyMC=1
+
+type=2  name=LHE_Nc  onlyMC=1
+
+
+type=1  name=nMuon 
+type=7  name=Muon_phi                     max=20
+type=7  name=Muon_mass                    max=20
+type=7  name=Muon_pfRelIso04_all                max=20
+type=6  name=Muon_charge                  max=20
+type=9  name=Muon_tightId                  max=20
+
+type=1  name=nGenPart                                    onlyMC=1
+type=7  name=GenPart_pt                          max=200  onlyMC=1
+type=7  name=GenPart_eta                         max=200  onlyMC=1
+type=7  name=GenPart_phi                         max=200  onlyMC=1
+#type=7  name=GenPart_mass                        max=200  onlyMC=1
+
+type=6  name=Jet_jetId                            max=100     lengthBranch=nJet
+#type=6  name=Jet_puId                         max=100     lengthBranch=nJet
+type=7  name=Jet_rawFactor                        max=100     lengthBranch=nJet
+#type=9  name=Jet_lepFilter                        max=100     lengthBranch=nJet
+
+#####type=1  name=nFatJet             
+#####type=7  name=FatJet_btagHbb        max=10  
+#####type=7  name=FatJet_btagDeepBB        max=10  
+#####type=7  name=FatJet_pt           max=10  
+#####type=7  name=FatJet_eta          max=10  
+#####type=7  name=FatJet_phi          max=10  
+#####type=7  name=FatJet_mass        max=10  
+#####type=7  name=FatJet_mpruned        max=10  
+#####type=7  name=FatJet_msoftdrop        max=10  
+
+
+type=1  name=nSoftActivityJet
+type=7  name=SoftActivityJet_pt
+type=7  name=SoftActivityJet_eta
+type=7  name=SoftActivityJetHT
+type=1 name=SoftActivityJetNjets10 
+type=1 name=SoftActivityJetNjets5 
+type=1 name=SoftActivityJetNjets2 
+

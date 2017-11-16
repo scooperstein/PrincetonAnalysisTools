@@ -1,0 +1,37 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+#type=2  name=json
+type=1  name=event
+type=1  name=nMuon
+type=1  name=nJet    
+type=7  name=Jet_pt         max=100     lengthBranch=nJet
+type=7  name=Jet_bReg         max=100     lengthBranch=nJet
+type=7  name=Muon_pt  max=10
+type=7  name=Muon_eta                     max=20
+type=6  name=Muon_pdgId                     max=20
+type=2  name=LHE_HT  onlyMC=1
+type=2  name=LHE_Nb  onlyMC=1
+type=2  name=LHE_Vpt  onlyMC=1
+#type=1  name=nGenStatus2bHad  onlyMC=1
+type=2  name=MET_pt
+type=2  name=MET_phi
+type=7  name=Jet_btagCMVA                     max=100     lengthBranch=nJet
+type=1  name=Vtype
+
+## fix these are now Bool_t's
+type=4  name=HLT_Ele27_eta2p1_WPTight_Gsf
+type=4  name=HLT_IsoMu24
+type=4  name=HLT_IsoTkMu24
+
+
+
+
+#type=6  name=Jet_jetId                           max=100     lengthBranch=nJet
+type=6  name=Jet_puId                         max=100     lengthBranch=nJet
+#type=7  name=Jet_rawPt                        max=100     lengthBranch=nJet
+type=7  name=Jet_eta                          max=100     lengthBranch=nJet
+type=7  name=Jet_mass                         max=100     lengthBranch=nJet
+type=7  name=Jet_phi                          max=100     lengthBranch=nJet
+type=9  name=Jet_lepFilter                        max=100     lengthBranch=nJet
+#type=7  name=PV_npvs

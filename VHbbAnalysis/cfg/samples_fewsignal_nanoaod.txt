@@ -1,0 +1,6 @@
+#name=WplusH125_powheg       file=root://cmsxrootd.fnal.gov://store/user/arizzi/NanoTestProd004/WplusH_HToBB_WToLNu_M125_13TeV_powheg_pythia8/NanoCrabProd004/171002_120609/0000/lzma_1.root       type=-12500   xsec=0.159
+#name=WplusH125_powheg       file=/eos/uscms/store/user/sbc01/VHbbNanoAOD/firstTest_Signal_Nov9/WplusH125_powheg.root       type=-12500   xsec=0.159
+#name=WplusH125_powheg       file=/eos/uscms/store/user/sbc01/VHbbNanoAOD/firstTest_Signal_Nov9/WplusH125_powheg_moreStat.root       type=-12500   xsec=0.159
+#name=WplusH125_powheg       file=/eos/uscms/store/user/sbc01/VHbbNanoAOD/firstTest_Signal_Nov10/WplusH125_powheg.root       type=-12500   xsec=0.159
+name=WplusH125_powheg       file=/eos/uscms/store/user/sbc01/VHbbNanoAOD/firstTest_Signal_Nov16/WplusH125_powheg.root       type=-12500   xsec=0.159 procEff=0.01
+

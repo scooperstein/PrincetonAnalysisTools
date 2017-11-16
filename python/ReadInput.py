@@ -89,7 +89,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                         print("Initializing with",filename)
                         try:
                             ifile = ROOT.TFile.Open(filename)
-                            tree = ifile.Get("tree")
+                            tree = ifile.Get("Events")
+                            #tree = ifile.Get("tree")
                             ifile.Close()
                         except:
                             print "File: %s : no good, trying with another..." % filename
