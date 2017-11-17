@@ -16,9 +16,8 @@ parser.add_argument('-d', '--dir',    type=str, default="", help='Directory with
 parser.add_argument('-m', '--missing', default=True,  help="Resubmit when output ROOT files are missing.  (Default:  True)")
 parser.add_argument('-e', '--empty',   default=False, help="Resubmit when output ROOT files are empty.  (Default:  False)")
 parser.add_argument('-c', '--check',   default=False, help="Just check if output files are present and/or valid.  (Default:  False)")
+parser.add_argument('-z', '--zombieCheck',   default=False, help="Checks input files for being zombie.")
 args = parser.parse_args()
-
-
 
 if args.dir=="":
     print "Tell me which job output directory to check!! -d DIRECTORY"
@@ -29,13 +28,32 @@ if args.odir=="":
 
 filesToResubmit = []
 
-rootFiles = []
+rootFiles = {}
 for subdir, dirs, files in os.walk(args.odir):
     for file in files:
         if (".root" in file):
              tmp = file.split('/')
              filename = tmp[len(tmp)-1]
-             rootFiles.append(filename)
+             rootFiles[filename] = os.path.join(subdir, file)
+
+
+def is_zombie(rootfilename):
+    if rootfilename in rootFiles:
+        rootfilename = rootFiles[rootfilename]
+    f = ROOT.TFile(rootfilename)
+    return f.IsZombie()  # file is closed when f goes out of scope
+
+
+def get_input_zombies(submit_file):
+    input_line = next(
+        l
+        for l in open(submit_file).readlines()
+        if l.startswith('Arguments')
+    )
+    input_files = input_line.split()[-2]
+    input_files = input_files.split(',')
+    return list(f for f in input_files if is_zombie(f))
+
 
 for subdir, dirs, files in os.walk(args.dir):
     for file in files:
@@ -46,9 +64,12 @@ for subdir, dirs, files in os.walk(args.dir):
             sample = dirpaths[len(dirpaths)-1]
             jobNum=file.replace(".submit",".root").replace("job","")
             #jobNum = file[file.find("output_%s" % sample)+7 + len(sample):file.find(".root")]
-            rootfilename = "output_%s_%s" % (sample, jobNum ) 
+            rootfilename = "output_%s_%s" % (sample, jobNum )
             if (rootfilename not in rootFiles):
-                if args.missing:
+                zombies = args.zombieCheck and get_input_zombies(os.path.join(subdir, file))
+                if zombies:
+                    print "zombies among inputfiles:", zombies
+                elif args.missing:
                     print "root output does not exist",rootfilename
                     filesToResubmit.append(os.path.join(subdir, file) )
                 continue
@@ -68,7 +89,7 @@ for subdir, dirs, files in os.walk(args.dir):
                 except AttributeError:
                     print "caught"
                     filesToResubmit.append(os.path.join(subdir, file) )
-                
+
 print "resubmitting %i failed jobs" % len(filesToResubmit)
 for failed_file in filesToResubmit:
     cmd = ["condor_submit", failed_file]
