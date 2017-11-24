@@ -28,7 +28,11 @@ type=2  name=JetPtPresel        val=25
 type=2  name=LepPtPresel        val=25
 
 type=2  name=eptcut             val=30
+type=2  name=e1ptcut            val=25
+type=2  name=e2ptcut            val=17
 type=2  name=muptcut            val=25
+type=2  name=mu1ptcut           val=25
+type=2  name=mu2ptcut           val=15
 type=2  name=eletacut           val=2.17
 #type=2  name=eletacut           val=2.5
 type=2  name=muetacut           val=2.4
@@ -40,12 +44,14 @@ type=2  name=muMetDPhiCut       val=2.0
 type=2  name=elidcut            val=2
 type=2  name=muidcut            val=1
 
-type=2  name=HVDPhiCut          val=2.5
+type=2  name=HVDPhiCut          val=-100
 type=2  name=hptcut             val=100
 type=2  name=vptcut             val=100 # use eventClass variable instead
+type=2  name=zmasslow           val=75 # for Z(ll) channel
+type=2  name=zmasshigh          val=105 # for Z(ll) channel
 
 # events must have number of add. jets/leptons < this value
-type=2  name=nAddJetsCut        val=2
+type=2  name=nAddJetsCut        val=100
 type=2  name=nAddLeptonsCut     val=1
 
 type=2  name=SF_Wj0b            val=1.01
