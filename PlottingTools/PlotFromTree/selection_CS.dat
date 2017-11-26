@@ -1,5 +1,5 @@
-met_pt>170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
-#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
+met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
+#met_pt>170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
 #met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]>0.06
 #selLeptons_eleMVAIdSppring16GenPurp[lepInd]>=2&&met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
 #met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06&&(sampleIndex<7100||sampleIndex>8202||(sampleIndex>=7100&&sampleIndex<=7302&&lheV_pt>200)||(sampleIndex>=8000&&sampleIndex<=8202&&lheV_pt<200))
