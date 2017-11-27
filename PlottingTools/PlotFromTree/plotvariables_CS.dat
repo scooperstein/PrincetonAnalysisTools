@@ -15,7 +15,7 @@
 ##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetpt   xaxis=Jet1@P_{T}@GeV   yaxis= var=Jet_pt_reg[hJetInd1]             catType=CSlep
 ##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=leadjeteta  xaxis=Jet1#eta         yaxis= var=Jet_eta[hJetInd1]            catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCSV  xaxis=Jet1@CSV         yaxis= var=Jet_btagCSV[hJetInd1]        catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCMVA  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
+##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=leadjetCMVA  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0.92      xmax=1      ymin=0 ymax=0    name=leadjetCSVZoom  xaxis=Jet1@CSV         yaxis= var=Jet_btagCSV[hJetInd1]        catType=CSlep
 ##htyp=0  ncat=6  xbins=20  ybins=0   xmin=0.94      xmax=1      ymin=0 ymax=0    name=leadjetCMVAZoom  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
 ###htyp=0  ncat=6  xbins=20  ybins=0   xmin=0.985      xmax=1      ymin=0 ymax=0    name=leadjetCMVAZoom2  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
@@ -94,7 +94,7 @@
 ###htyp=0  ncat=6  xbins=11 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets10   xaxis=num.@SA10@Jets   yaxis=  var=softActivityVH_njets10  catType=afterAddLep
 ###htyp=0  ncat=6  xbins=11 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets5   xaxis=num.@SA5@Jets   yaxis=  var=softActivityVH_njets5  catType=afterAddLep
 ###htyp=0  ncat=6  xbins=21 ybins=0   xmin=0      xmax=20     ymin=0  ymax=0    name=nSAJets2   xaxis=num.@SA2@Jets   yaxis=  var=softActivityVH_njets10  catType=afterAddLep
-htyp=0  ncat=2  xbins=10 ybins=0  xmin=0       xmax=10     ymin=0  ymax=0    name=nAddJets    xaxis=nAddJets  yaxis= var=nAddJets252p9_puid  catType=CStest
+htyp=0  ncat=2  xbins=10 ybins=0  xmin=0       xmax=10     ymin=0  ymax=0    name=nAddJets    xaxis=nAddJets  yaxis= var=nAddJets252p9_puid  catType=CSlep
 ###htyp=0 ncat=6  xbins=40 ybins=0   xmin=0      xmax=400    ymin=0  ymax=0    name=SA_HT           xaxis=SA@HT         yaxis=   var=softActivityVH_HT        catType=afterAddLep
 
 ###htyp=0  ncat=6  xbins=20 ybins=0  xmin=0       xmax=300    ymin=0  ymax=0    name=AddJetPt       xaxis=AddJet@p_{T}  yaxis=  var=AddJets252p9_puid_leadJet_pt  catType=CSlep
