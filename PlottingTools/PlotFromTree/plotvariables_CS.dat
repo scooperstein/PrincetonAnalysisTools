@@ -15,7 +15,7 @@
 ##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetpt   xaxis=Jet1@P_{T}@GeV   yaxis= var=Jet_pt_reg[hJetInd1]             catType=CSlep
 ##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=leadjeteta  xaxis=Jet1#eta         yaxis= var=Jet_eta[hJetInd1]            catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCSV  xaxis=Jet1@CSV         yaxis= var=Jet_btagCSV[hJetInd1]        catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCMVA  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
+##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=leadjetCMVA  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0.92      xmax=1      ymin=0 ymax=0    name=leadjetCSVZoom  xaxis=Jet1@CSV         yaxis= var=Jet_btagCSV[hJetInd1]        catType=CSlep
 ##htyp=0  ncat=6  xbins=20  ybins=0   xmin=0.94      xmax=1      ymin=0 ymax=0    name=leadjetCMVAZoom  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
 ###htyp=0  ncat=6  xbins=20  ybins=0   xmin=0.985      xmax=1      ymin=0 ymax=0    name=leadjetCMVAZoom2  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
