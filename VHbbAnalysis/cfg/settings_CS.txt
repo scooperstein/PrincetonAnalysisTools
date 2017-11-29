@@ -19,6 +19,9 @@ type=2  name=reReg              val=1
 
 type=2  name=j1ptCut            val=25
 type=2  name=j2ptCut            val=25
+#type=2  name=j1ptCSV            val=0.9535
+#type=2  name=j2ptCSV            val=0.5426
+#type=2  name=j1ptCSV            val=0.4432
 type=2  name=j1ptCSV            val=-100
 type=2  name=j2ptCSV            val=-100
 type=2  name=j1etaCut           val=2.5

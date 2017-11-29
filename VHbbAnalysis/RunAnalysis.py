@@ -61,6 +61,16 @@ else:
         print "unknown site: ",site,"exiting..."
         sys.exit(1)
 
+    if site == "FNAL":  ## let's do a little autodetect for desy and cern..
+        import socket
+        hostname = socket.gethostname()
+        if hostname.endswith('.desy.de'):
+            print 'detected site: DESY'
+            site = 'DESY'
+        if hostname.endswith('.cern.ch'):
+            print 'detected site: CERN'
+            site = 'CERN'
+
     if site == "FNAL":
         output_dir = "/eos/uscms/store/user/sbc01/VHbbAnalysisNtuples" # parent directory in user's EOS space to store all output files
     elif site == "CERN":
@@ -216,6 +226,9 @@ else:
 
     condor_runscript_text_desy = '''
 
+        export PATH=/afs/desy.de/common/passwd:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/cvmfs/grid.cern.ch/emi3ui-latest/bin:/cvmfs/grid.cern.ch/emi3ui-latest/sbin:/cvmfs/grid.cern.ch/emi3ui-latest/usr/bin:/cvmfs/grid.cern.ch/emi3ui-latest/usr/sbin:$PATH
+        echo "echo PATH:"
+        echo $PATH
         echo "arguments: " $1 $2 $3 $4
         echo "username and group"
         id -n -u
@@ -229,6 +242,8 @@ else:
         cd /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw-patch/CMSSW_7_6_3_patch2/src
         source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval `scramv1 runtime -sh`
+        echo "echo PATH:"
+        echo $PATH
 
         echo "changing to tempdir"
         cd $tmp_dir

@@ -2,13 +2,13 @@
 #
 #   Plotting from flat tree
 #   Based on a program written by Matteo Sani (UCSD)
-#   
+#
 #   Augmented slightly by Chris Palmer (Princeton)
 #
 
 
 import ROOT
-import getopt, sys, array
+import getopt, sys, array, os
 
 def inputfileTree(mysamples):
 
@@ -22,7 +22,7 @@ def inputfileTree(mysamples):
     histoindfromfiles = array.array('i', nfiles[0]*[1])  #junk
     inshortnames = ROOT.TClonesArray("TObjString", len(mysamples))
     infilenames = ROOT.TClonesArray("TObjString", len(mysamples)) #junk
-        
+
     inputfiletree.Branch("nfiles", nfiles, "nfiles/I");
     inputfiletree.Branch("nindfiles", nindfiles, "nindfiles/I");
     inputfiletree.Branch("intlumi",  intlumi, "intlumi/F");
@@ -37,7 +37,7 @@ def inputfileTree(mysamples):
         temp = ROOT.TObjString()
         temp.SetString(s[1])
         inshortnames[i] = temp
-    
+
     inputfiletree.Fill()
 
     return inputfiletree
@@ -62,7 +62,7 @@ def plotvariableTree(allHistos):
     xaxislabels = ROOT.TClonesArray("TObjString", Nvar[0])
     yaxislabels = ROOT.TClonesArray("TObjString", Nvar[0])
     plotvarnames = ROOT.TClonesArray("TObjString", Nvar[0])
-        
+
     plotvartree.Branch("Nvar", Nvar, "Nvar/I");
     plotvartree.Branch("typplotall", typplotall, "typplotall/I");
     plotvartree.Branch("doplot", doplot, "doplot[Nvar]/I");
@@ -79,7 +79,7 @@ def plotvariableTree(allHistos):
     plotvartree.Branch("xaxislabels", "TClonesArray", ROOT.AddressOf(xaxislabels), 32000, 0)
     plotvartree.Branch("yaxislabels", "TClonesArray", ROOT.AddressOf(yaxislabels), 32000, 0)
     plotvartree.Branch("plotvarnames", "TClonesArray", ROOT.AddressOf(plotvarnames), 32000, 0)
- 
+
     for i in xrange(Nvar[0]):
         h2d[i] = 0
         doplot[i] = 1
@@ -106,7 +106,7 @@ def plotvariableTree(allHistos):
     plotvartree.Fill()
 
     return plotvartree
-  
+
 class histoContainer:
     def __init__(self):
         self.histo_type = []
@@ -121,7 +121,7 @@ class histoContainer:
         self.vars = []
         self.catTypes =[]
 
-def parseSelection(filename):    
+def parseSelection(filename):
     file = open(filename)
     lines = file.readlines()
     file.close()
@@ -133,7 +133,7 @@ def parseCategories(filename):
     file = open(filename)
     lines = file.readlines()
     file.close()
-    
+
     for l in lines:
         if ("#" not in l):
             catname = ""
@@ -148,7 +148,7 @@ def parseCategories(filename):
                         catdef.append(t)
                 #else:
                 #    print "Cannot parse categories"
-            categories[catname] = catdef 
+            categories[catname] = catdef
 
     return categories
 
@@ -245,7 +245,7 @@ plotFromOptree [options]
 """
     print use
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
 
     # default parameters
     weightName = "weight"
@@ -259,12 +259,34 @@ if __name__ == "__main__":
     debug=False
     deepDebug=False
     inputDirectory = ""
+    n_cpu = 0
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hw:i:o:t:S:I:P:C:f:dD", ["help", "weight", "rootinputfile", "roototputfile", "treename", "selectionfile", "inputfile", "plotvariables", "categories","debug","deepDebug","inputDirectory"])
+        print sys.argv[1:]
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            "hw:N:i:o:t:S:I:P:C:f:dD",
+            [
+                "help",
+                "weight",
+                "ncpu",
+                "rootinputfile",
+                "rootoutputfile",
+                "treename",
+                "selectionfile",
+                "inputfile",
+                "plotvariables",
+                "categories",
+                "debug",
+                "deepDebug",
+                "inputDirectory",
+            ]
+        )
     except getopt.GetoptError:
         usage()
         sys.exit(2)
+
+    print opts
 
     for opt, arg in opts:
         print opt,arg
@@ -294,6 +316,8 @@ if __name__ == "__main__":
             deepDebug=True
         elif opt in ("-f", "--inputDirectory"):
             inputDirectory = arg
+        elif opt in ("-N", "--ncpu"):
+            n_cpu = int(arg)
         else:
             print "Unrecongnized option " + opt
 
@@ -304,7 +328,7 @@ if __name__ == "__main__":
 
     if (weightName == ""):
         weightName = "1"
-    
+
     print "Parsing all files"
     print "inputDirectory = ",inputDirectory
     finalHistos = []
@@ -327,8 +351,8 @@ if __name__ == "__main__":
 
 
     sampleNameMap = {}
-    sampleNameMap["WH125p"] = "WplusH125_powheg" 
-    sampleNameMap["WH125m"] = "WminusH125_powheg" 
+    sampleNameMap["WH125p"] = "WplusH125_powheg"
+    sampleNameMap["WH125m"] = "WminusH125_powheg"
     sampleNameMap["ZH125"]  = "ZH125_powheg"
     sampleNameMap["WZ_udcsg"] = "WZ_fil"
     sampleNameMap["WZ_b"] = "WZ_fil"
@@ -341,9 +365,9 @@ if __name__ == "__main__":
     sampleNameMap["WW_bb"] = "WW_fil"
     sampleNameMap["TT_powheg"] = "TT_powheg"
     sampleNameMap["TToLeptons_s"] = "TToLeptons_s"
-    sampleNameMap["TToLeptons_t"] = ["TToLeptons_t_powheg","TBarToLeptons_t_powheg"]    
-    #sampleNameMap["TBarToLeptons_t_powheg"] = "TBarToLeptons_t_powheg" 
-    #sampleNameMap["TToLeptons_t_powheg"] = "TToLeptons_t_powheg" 
+    sampleNameMap["TToLeptons_t"] = ["TToLeptons_t_powheg","TBarToLeptons_t_powheg"]
+    #sampleNameMap["TBarToLeptons_t_powheg"] = "TBarToLeptons_t_powheg"
+    #sampleNameMap["TToLeptons_t_powheg"] = "TToLeptons_t_powheg"
     sampleNameMap["T_tW"] = "T_tW"
     sampleNameMap["Tbar_tW"] = "Tbar_tW"
     sampleNameMap["W_udcsg"] = "WJets_madgraph"
@@ -433,16 +457,26 @@ if __name__ == "__main__":
     sampleNameMap["WJets_HT2500ToInf"] = "WJets-HT2500ToInf"
     ##sampleNameMap["QCD_HT100To200"] = "ZJets_0J"
 
-    print "Looping over samples and histograms"
-    print "inputDirectory = ",inputDirectory
-    output = ROOT.TFile.Open(rootOutputFile, "recreate")
-    for ns, s in enumerate(samples):
+    def run_sample(*args):
+
+        if len(args) == 3:
+            # ns enumerates the samples
+            # s is a tuple: (sample_type, sample_name)
+            # output is a rootfilehandle
+            ns, s, output = args
+            output_name = ''
+        else:
+            ns, s = args[0]
+            output_name = rootOutputFile.replace('.root', '_' + s[1] + '.root')
+            output = ROOT.TFile.Open(output_name, "recreate")
+
         #if(debug): print "Processing sample: ", s[1]
         print "Processing sample: ", s[1]
         if s[1] not in sampleNameMap:
             sampleNameMap[s[1]] = s[1]
         if (inputDirectory != ""):
             if isinstance(sampleNameMap[s[1]], (list, tuple)):
+                file = None
                 tree = ROOT.TChain(treeName)
                 for item in sampleNameMap[s[1]]:
                     print "Adding to tree: " + inputDirectory + "/sum_" + item + "_weighted.root"
@@ -478,16 +512,16 @@ if __name__ == "__main__":
 
                 if (category_cut != ""):
                     cut = cut + " && " + category_cut
-                    
+
                 if (selection_cut != ""):
                     cut = cut + " && " + selection_cut
 
                 cut = "(" + cut + ")* " + weightName
-                    
+
                 try:
                     if(deepDebug): tree.Print("*"+v+"*")
                     tree.Draw(v+" >> "+temp_hist, cut, "goff")
-            
+
                     final_h = ROOT.gDirectory.Get("temp_hist")
                     final_name = allHistos.name[nv] + "_cat"+str(nc)+"_"+s[1]
                     final_h.SetName(final_name)
@@ -505,13 +539,38 @@ if __name__ == "__main__":
                     sys.exit(4)
         if (inputDirectory != ""):
             tree.Reset()
-            file.Close()            
+            if file:
+                file.Close()
+
+        if not output_name:
+            output.cd()
+            inputfiletree.Write()
+            plotvariabletree.Write()
+            output.Close()
+
+        return s
     #output = ROOT.TFile(rootOutputFile, "recreate")
     #for h in finalHistos:
     #    h.Write()
-    
-    output.cd()    
-    inputfiletree.Write()
-    plotvariabletree.Write()
 
-    output.Close()
+    print "Looping over samples and histograms"
+    print "inputDirectory = ",inputDirectory
+
+    if n_cpu:
+        from multiprocessing import Pool
+        pool = Pool(n_cpu)
+        samples_done = set(pool.imap_unordered(run_sample, list(enumerate(samples))))
+        assert set(samples) == samples_done, 'some samples not run: %s'%(set(samples)-samples_done)
+        os.system('hadd -f %s %s' % (
+            rootOutputFile,
+            ' '.join(rootOutputFile.replace('.root', '_' + s[1] + '.root') for s in samples))
+        )
+
+    else:
+        output = ROOT.TFile.Open(rootOutputFile, "recreate")
+        for ns, s in enumerate(samples):
+            run_sample(ns, s, output)
+        output.cd()
+        inputfiletree.Write()
+        plotvariabletree.Write()
+        output.Close()

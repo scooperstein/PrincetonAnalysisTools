@@ -1,10 +1,10 @@
-met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
-#met_pt>170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
-#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]>0.06
-#selLeptons_eleMVAIdSppring16GenPurp[lepInd]>=2&&met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06
-#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06&&(sampleIndex<7100||sampleIndex>8202||(sampleIndex>=7100&&sampleIndex<=7302&&lheV_pt>200)||(sampleIndex>=8000&&sampleIndex<=8202&&lheV_pt<200))
-#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd]<0.06&&((sampleIndex<7000||sampleIndex>7002)||lheV_pt<100)
-#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || (run<=276811))&&selLeptons_relIso_0[lepInd]<0.06
+met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd1]<0.06
+#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd1]<0.06
+#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd1]>0.06
+#selLeptons_eleMVAIdSppring16GenPurp[lepInd1]>=2&&met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd1]<0.06
+#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd1]<0.06&&(sampleIndex<7100||sampleIndex>8202||(sampleIndex>=7100&&sampleIndex<=7302&&lheV_pt>200)||(sampleIndex>=8000&&sampleIndex<=8202&&lheV_pt<200))
+#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&selLeptons_relIso_0[lepInd1]<0.06&&((sampleIndex<7000||sampleIndex>7002)||lheV_pt<100)
+#met_pt<170&&H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || (run<=276811))&&selLeptons_relIso_0[lepInd1]<0.06
 #H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || (run>276811&&run<=278808))&&V_pt<150
 #H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)
 #H_pt>100&&V_pt>100&&(Vtype==2||Vtype==3)&&(sampleIndex!=0 || ((run==279694&&lumi>=168&&lumi<=2236)||(run==279667&&lumi>=68&&lumi<=1034)||(run==279691&&lumi>=71&&lumi<=125)||(run==277069&&lumi>=135&&lumi<=395)||(run==280192&&lumi>=1&&lumi<=10)||(run==279116&&lumi>=44&&lumi<=486)||(run==280363&&lumi>=1&&lumi<=368)||(run==279115&&lumi>=118&&lumi<=525)||(run==279794&&lumi>=91&&lumi<=1101)||(run==277217&&lumi>=33&&lumi<=48)||(run==279760&&lumi>=78&&lumi<=807)||(run==279767&&lumi>=1&&lumi<=777)||(run==279766&&lumi>=1&&lumi<=1695)))

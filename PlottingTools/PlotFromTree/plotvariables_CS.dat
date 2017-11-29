@@ -3,29 +3,29 @@
 ###htyp=0  ncat=1  xbins=60  ybins=0   xmin=-3.0   xmax=3.0    ymin=0 ymax=0    name=eisoeta     xaxis=EG@Seed@#eta    yaxis= var=elEta          catType=ltype
 ###htyp=0  ncat=1  xbins=30  ybins=0   xmin=-3.0   xmax=0      ymin=0 ymax=0    name=abseisoeta  xaxis=EG@Seed-|#eta|    yaxis= var=-abs(elEta)          catType=ltype
 ###htyp=0  ncat=1  xbins=31  ybins=0   xmin=-0.01  xmax=3.142  ymin=0 ymax=0    name=dphiejet    xaxis=#DeltaphiJet1e  yaxis= var=dphijet1e       catType=ltype
-##htyp=0  ncat=6  xbins=25  ybins=0    xmin=0      xmax=25     ymin=0  ymax=0    name=rho         xaxis=#rho             yaxis=  var=rho           catType=CSlep
-##htyp=0  ncat=6  xbins=40  ybins=0   xmin=0      xmax=40    ymin=0 ymax=0    name=nPV      xaxis=N@Vertices    yaxis=  var=nPVs                catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0    xmin=0      xmax=25     ymin=0  ymax=0    name=rho         xaxis=#rho             yaxis=  var=rho           catType=CSlep
+htyp=0  ncat=6  xbins=40  ybins=0   xmin=0      xmax=40    ymin=0 ymax=0    name=nPV      xaxis=N@Vertices    yaxis=  var=nPVs                catType=CSlep
 
 # BJet variables
 ###htyp=0  ncat=6  xbins=80  ybins=0   xmin=0      xmax=700    ymin=0 ymax=0    name=lheHT       xaxis=LHE@H_{T}        yaxis= var=lheHT                  catType=CSlep
 ###htyp=0  ncat=6  xbins=4   ybins=0   xmin=0      xmax=4      ymin=0 ymax=0    name=lheNb       xaxis=LHE@NumOfbs      yaxis= var=lheNb                  catType=CSlep
 ###htyp=0  ncat=6  xbins=4   ybins=0   xmin=0      xmax=4      ymin=0 ymax=0    name=lheNc       xaxis=LHE@NumOfcs      yaxis= var=lheNc                  catType=CSlep
 ###htyp=0  ncat=6  xbins=40  ybins=0   xmin=0      xmax=400    ymin=0 ymax=0    name=lheV_pt     xaxis=LHE@P_{T,V}      yaxis= var=lheV_pt                catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetptNR   xaxis=Jet1@P_{T}@GeV   yaxis= var=Jet_pt[hJetInd1]             catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetpt   xaxis=Jet1@P_{T}@GeV   yaxis= var=Jet_pt_reg[hJetInd1]             catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=leadjeteta  xaxis=Jet1#eta         yaxis= var=Jet_eta[hJetInd1]            catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetptNR   xaxis=Jet1@P_{T}@GeV   yaxis= var=Jet_pt[hJetInd1]             catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=leadjetpt   xaxis=Jet1@P_{T}@GeV   yaxis= var=Jet_pt_reg[hJetInd1]             catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=leadjeteta  xaxis=Jet1#eta         yaxis= var=Jet_eta[hJetInd1]            catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCSV  xaxis=Jet1@CSV         yaxis= var=Jet_btagCSV[hJetInd1]        catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=leadjetCMVA  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=leadjetCMVA  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0.92      xmax=1      ymin=0 ymax=0    name=leadjetCSVZoom  xaxis=Jet1@CSV         yaxis= var=Jet_btagCSV[hJetInd1]        catType=CSlep
-##htyp=0  ncat=6  xbins=20  ybins=0   xmin=0.94      xmax=1      ymin=0 ymax=0    name=leadjetCMVAZoom  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
+htyp=0  ncat=6  xbins=20  ybins=0   xmin=0.94      xmax=1      ymin=0 ymax=0    name=leadjetCMVAZoom  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
 ###htyp=0  ncat=6  xbins=20  ybins=0   xmin=0.985      xmax=1      ymin=0 ymax=0    name=leadjetCMVAZoom2  xaxis=Jet1@CMVA         yaxis= var=Jet_btagCMVA[hJetInd1]        catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=leadjetCSVold  xaxis=Jet1@oldCSV         yaxis= var=Jet_btagCSVV0[0]        catType=afterVpt
-##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=subjetpt    xaxis=Jet2@P_{T}@GeV   yaxis= var=Jet_pt_reg[hJetInd2]             catType=CSlep
-##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=subjetptNR    xaxis=Jet2@P_{T}@GeV   yaxis= var=Jet_pt[hJetInd2]             catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=subjeteta   xaxis=Jet2#eta         yaxis= var=Jet_eta[hJetInd2]            catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=subjetpt    xaxis=Jet2@P_{T}@GeV   yaxis= var=Jet_pt_reg[hJetInd2]             catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=subjetptNR    xaxis=Jet2@P_{T}@GeV   yaxis= var=Jet_pt[hJetInd2]             catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=subjeteta   xaxis=Jet2#eta         yaxis= var=Jet_eta[hJetInd2]            catType=CSlep
 ###htyp=0  ncat=6  xbins=40  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=jetCSV   xaxis=Jet@CSV         yaxis= var=Jet_btagCSV        catType=CSlep
 ###htyp=0  ncat=6  xbins=15  ybins=0   xmin=0      xmax=1      ymin=0 ymax=0    name=subjetCSV   xaxis=Jet2@CSV         yaxis= var=Jet_btagCSV[hJetInd2]        catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=subjetCMVA   xaxis=Jet2@CMVA         yaxis= var=Jet_btagCMVA[hJetInd2]        catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=subjetCMVA   xaxis=Jet2@CMVA         yaxis= var=Jet_btagCMVA[hJetInd2]        catType=CSlep
 ##htyp=0  ncat=6  xbins=25  ybins=0   xmin=-1      xmax=-0.5      ymin=0 ymax=0    name=subjetCMVAL   xaxis=Jet2@CMVA         yaxis= var=Jet_btagCMVA[hJetInd2]        catType=CSlep
 ##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0.5      xmax=1      ymin=0 ymax=0    name=subjetCMVAR   xaxis=Jet2@CMVA         yaxis= var=Jet_btagCMVA[hJetInd2]        catType=CSlep
 ###htyp=0  ncat=6  xbins=15  ybins=0   xmin=0.935      xmax=1      ymin=0 ymax=0    name=leadjetCSV   xaxis=Jet1@CSV         yaxis= var=Jet_btagCSV[hJetInd1]        catType=CSlep
@@ -33,12 +33,12 @@
 ###htyp=0  ncat=6  xbins=4  ybins=0   xmin=0      xmax=4      ymin=0 ymax=0    name=genJet2MatchId xaxis=genJet2MatchId  yaxis= var=Jet_genJetMatchId[hJetInd2] catType=CSlep
 
 # Electron
-###htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=0.2      ymin=0 ymax=0    name=lepRelIso03    xaxis=Lep@Rel@Iso03 yaxis= var=selLeptons_relIso03[lepInd] catType=CSlep
-###htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=0.2      ymin=0 ymax=0    name=lepRelIso04    xaxis=Lep@Rel@Iso04 yaxis= var=selLeptons_relIso04[lepInd] catType=CSlep
-##htyp=0  ncat=6  xbins=20   ybins=0   xmin=0      xmax=0.2      ymin=0 ymax=0    name=lepRelIso    xaxis=Lep@Rel@Iso yaxis= var=selLeptons_relIso_0 catType=CSlep
-##htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=300    ymin=0 ymax=0    name=lepPt        xaxis=Lepton@p_{T}  yaxis=  var=selLeptons_pt[lepInd]        catType=CSlep
-##htyp=0  ncat=6  xbins=30   ybins=0   xmin=-3.2   xmax=3.2    ymin=0 ymax=0    name=lepPhi       xaxis=Lepton@#phi   yaxis=  var=selLeptons_phi[lepInd]       catType=CSlep
-##htyp=0  ncat=6  xbins=30   ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=lepEta       xaxis=Lepton@#eta   yaxis=  var=selLeptons_eta[lepInd]       catType=CSlep
+###htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=0.2      ymin=0 ymax=0    name=lepRelIso03    xaxis=Lep@Rel@Iso03 yaxis= var=selLeptons_relIso03[lepInd1] catType=CSlep
+###htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=0.2      ymin=0 ymax=0    name=lepRelIso04    xaxis=Lep@Rel@Iso04 yaxis= var=selLeptons_relIso04[lepInd1] catType=CSlep
+htyp=0  ncat=6  xbins=20   ybins=0   xmin=0      xmax=0.2      ymin=0 ymax=0    name=lepRelIso    xaxis=Lep@Rel@Iso yaxis= var=selLeptons_relIso_0 catType=CSlep
+htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=300    ymin=0 ymax=0    name=lepPt        xaxis=Lepton@p_{T}  yaxis=  var=selLeptons_pt[lepInd1]        catType=CSlep
+htyp=0  ncat=6  xbins=30   ybins=0   xmin=-3.2   xmax=3.2    ymin=0 ymax=0    name=lepPhi       xaxis=Lepton@#phi   yaxis=  var=selLeptons_phi[lepInd1]       catType=CSlep
+htyp=0  ncat=6  xbins=30   ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=lepEta       xaxis=Lepton@#eta   yaxis=  var=selLeptons_eta[lepInd1]       catType=CSlep
 ###htyp=0  ncat=6  xbins=30   ybins=0   xmin=0      xmax=30     ymin=0 ymax=0    name=lepPdgId     xaxis=Lepton@PdgId  yaxis=  var=selLeptons_pdgId_0     catType=afterMET
 ###htyp=0  ncat=6  xbins=10   ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=elID        xaxis=Electron@ID     yaxis=  var=selLeptons_eleCutIdCSA14_25ns_v1_0 catType=afterMET
 ###htyp=0  ncat=6  xbins=5    ybins=0   xmin=0      xmax=5      ymin=0 ymax=0    name=lepTightId  xaxis=Lep@Tight@Id  yaxis=  var=selLeptons_tightId_0   catType=afterMET
@@ -50,44 +50,44 @@
 ###htyp=0  ncat=1  xbins=30   ybins=0   xmin=0      xmax=30     ymin=0  ymax=0    name=eleChi2     xaxis=Ele@#Chi^2    yaxis=    var=selLeptons_eleChi2_0   catType=eleta
 
 # DiJet Variables
-##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=mjj         xaxis=M_{jj}@GeV       yaxis= var=H_mass               catType=CSlep
-##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=mjj_noreg         xaxis=M_{jj}@NoReg       yaxis= var=H_mass_noreg               catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=mjj         xaxis=M_{jj}@GeV       yaxis= var=H_mass               catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=250    ymin=0 ymax=0    name=mjj_noreg         xaxis=M_{jj}@NoReg       yaxis= var=H_mass_noreg               catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=300    ymin=0 ymax=0    name=mjj_reg     xaxis=M_{jj}@Reg@GeV       yaxis= var=H_mass_reg     catType=CSlep
 ####htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=Hpt         xaxis=p_{T}(jj)@GeV yaxis=  var=H_pt                  catType=CSlep
-##htyp=0  ncat=6  xbins=21  ybins=0   xmin=0      xmax=350    ymin=0 ymax=0    name=Hpt         xaxis=p_{T}(jj)@GeV yaxis=  var=H_pt                  catType=CSlep
+htyp=0  ncat=6  xbins=21  ybins=0   xmin=0      xmax=350    ymin=0 ymax=0    name=Hpt         xaxis=p_{T}(jj)@GeV yaxis=  var=H_pt                  catType=CSlep
 ###htyp=0  ncat=6  xbins=15  ybins=0   xmin=100      xmax=300    ymin=0 ymax=0    name=Hpt         xaxis=p_{T}(jj)@GeV yaxis=  var=H_pt                  catType=CSlep
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=Hpt_reg     xaxis=p_{T}(jj)@Reg yaxis=  var=H_pt_reg              catType=CSlep
-##htyp=0  ncat=6  xbins=20  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=dphijj      xaxis=dPhi(jj)      yaxis=  var=HJ1_HJ2_dPhi          catType=CSlep
-##htyp=0  ncat=6  xbins=20  ybins=0   xmin=0      xmax=3      ymin=0 ymax=0    name=detajj      xaxis=dEta(jj)      yaxis=  var=HJ1_HJ2_dEta          catType=CSlep
-##htyp=0  ncat=6  xbins=20  ybins=0   xmin=0      xmax=5      ymin=0 ymax=0    name=drjj        xaxis=dR(jj)      yaxis=  var=HJ1_HJ2_dR            catType=CSlep
+htyp=0  ncat=6  xbins=20  ybins=0   xmin=-3     xmax=3      ymin=0 ymax=0    name=dphijj      xaxis=dPhi(jj)      yaxis=  var=HJ1_HJ2_dPhi          catType=CSlep
+htyp=0  ncat=6  xbins=20  ybins=0   xmin=0      xmax=3      ymin=0 ymax=0    name=detajj      xaxis=dEta(jj)      yaxis=  var=HJ1_HJ2_dEta          catType=CSlep
+htyp=0  ncat=6  xbins=20  ybins=0   xmin=0      xmax=5      ymin=0 ymax=0    name=drjj        xaxis=dR(jj)      yaxis=  var=HJ1_HJ2_dR            catType=CSlep
 ###htyp=0  ncat=6  xbins=15  ybins=0   xmin=0      xmax=3.5      ymin=0 ymax=0    name=drjj        xaxis=dR(jj)      yaxis=  var=HJ1_HJ2_dR            catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0     xmax=2      ymin=0 ymax=0    name=jjWPtBal    xaxis=jj/W@P_{T}@Bal  yaxis=      var=jjWPtBalance     catType=CSlep
-##htyp=0  ncat=6  xbins=16  ybins=0   xmin=0      xmax=3.2    ymin=0 ymax=0    name=HVdPhi      xaxis=HVdPhi yaxis= var=HVdPhi              catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0     xmax=2      ymin=0 ymax=0    name=jjWPtBal    xaxis=jj/W@P_{T}@Bal  yaxis=      var=H_pt/V_pt     catType=CSlep
+htyp=0  ncat=6  xbins=16  ybins=0   xmin=0      xmax=3.2    ymin=0 ymax=0    name=HVdPhi      xaxis=HVdPhi yaxis= var=HVdPhi              catType=CSlep
 
 # MET
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=met_pt      xaxis=MET@p_{T}@GeV    yaxis=  var=met_pt                catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3.15      xmax=3.15    ymin=0 ymax=0    name=met_phi      xaxis=MET@Phi    yaxis=  var=met_phi                catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=3.14   ymin=0 ymax=0    name=lepMetDPhi   xaxis=Lep+Met@d#phi yaxis= var=lepMetDPhi             catType=CSlep
-##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=50     ymin=0 ymax=0    name=sqrtHTJet30      xaxis=sqrt(htJet30)       yaxis= var=sqrt(htJet30)                catType=CSlep
-##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=25     ymin=0 ymax=0    name=MetSig           xaxis=MET@Sig             yaxis= var=met_pt/sqrt(htJet30)       catType=CSlep
-##htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=400    ymin=0 ymax=0    name=min_met      xaxis=min(MET,MHT)    yaxis=  var=min(met_pt,mhtJet30)              catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=met_pt      xaxis=MET@p_{T}@GeV    yaxis=  var=met_pt                catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-3.15      xmax=3.15    ymin=0 ymax=0    name=met_phi      xaxis=MET@Phi    yaxis=  var=met_phi                catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=3.14   ymin=0 ymax=0    name=lepMetDPhi   xaxis=Lep+Met@d#phi yaxis= var=lepMetDPhi             catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=50     ymin=0 ymax=0    name=sqrtHTJet30      xaxis=sqrt(htJet30)       yaxis= var=sqrt(htJet30)                catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=25     ymin=0 ymax=0    name=MetSig           xaxis=MET@Sig             yaxis= var=met_pt/sqrt(htJet30)       catType=CSlep
+htyp=0  ncat=6  xbins=25  ybins=0   xmin=0      xmax=400    ymin=0 ymax=0    name=min_met      xaxis=min(MET,MHT)    yaxis=  var=min(met_pt,mhtJet30)              catType=CSlep
 
 #BDT
 ###htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=BDT         xaxis=BDT@Output       yaxis=  var=BDT_V25_Feb10_400_5 catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=BDT         xaxis=BDT@Output       yaxis=  var=CMS_vhbb_BDT_Wln_13TeV catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=-1      xmax=1      ymin=0 ymax=0    name=BDT         xaxis=BDT@Output       yaxis=  var=CMS_vhbb_BDT_Wln_13TeV catType=CSlep
 
 ###htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass_lep     xaxis=Top@Mass@Lep    yaxis=  var=Top1_mass_fromLepton_regPT   catType=CSlep
 ###htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMasswMET_lep     xaxis=TopMass@LepMET    yaxis=  var=Top1_mass_fromLepton_regPT_wMET catType=CSlep
-##htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass     xaxis=m_{top}@[GeV]    yaxis=  var=Top1_mass_fromLepton_regPT_w4MET catType=CSlep
+htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass     xaxis=m_{top}@[GeV]    yaxis=  var=Top1_mass_fromLepton_regPT_w4MET catType=CSlep
 ###htyp=0  ncat=6  xbins=15 ybins=0   xmin=100      xmax=475    ymin=0  ymax=0    name=TopMass     xaxis=TopMass    yaxis=  var=Top1_mass_fromLepton_regPT_w4MET catType=CSlep
-##htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMassNoReg     xaxis=TopMass@No@Reg    yaxis=  var=Top1_mass_fromLepton_w4MET catType=CSlep
+htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMassNoReg     xaxis=TopMass@No@Reg    yaxis=  var=Top1_mass_fromLepton_w4MET catType=CSlep
 ###htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass_bCSV     xaxis=Top@Mass@bCSV    yaxis=  var=Top1_mass_bestCSV   catType=CSlep
 ###htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMasswMET_bCSV     xaxis=TopMass@bCSVMET    yaxis=  var=Top1_mass_bestCSV_wMET catType=CSlep
 ###htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMass_hPt     xaxis=Top@Mass@hPt    yaxis=  var=Top1_mass_highestPt   catType=CSlep
 ###htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=600    ymin=0  ymax=0    name=TopMasswMET_hPt     xaxis=TopMass@hPtMET    yaxis=  var=Top1_mass_highestPt_wMET catType=CSlep
 
 ###htyp=0  ncat=6  xbins=10 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets10_sel     xaxis=num.@SA10@Jets   yaxis=  var=softActivityVH_njets10  catType=CSlep
-##htyp=0  ncat=6  xbins=10 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets5_sel   xaxis=num.@SA5@Jets   yaxis=  var=softActivityVH_njets5  catType=CSlep
+htyp=0  ncat=6  xbins=10 ybins=0   xmin=0      xmax=10     ymin=0  ymax=0    name=nSAJets5_sel   xaxis=num.@SA5@Jets   yaxis=  var=softActivityVH_njets5  catType=CSlep
 ###htyp=0  ncat=6  xbins=20 ybins=0   xmin=0      xmax=20     ymin=0  ymax=0    name=nSAJets2_sel   xaxis=num.@SA2@Jets   yaxis=  var=softActivityVH_njets2  catType=CSlep
 ###htyp=0 ncat=6  xbins=40 ybins=0   xmin=0      xmax=400    ymin=0  ymax=0    name=SA_HT_sel           xaxis=SA@HT         yaxis=   var=softActivityVH_HT        catType=CSlep
 
@@ -103,9 +103,9 @@ htyp=0  ncat=2  xbins=10 ybins=0  xmin=0       xmax=10     ymin=0  ymax=0    nam
 ###htyp=0  ncat=6  xbins=40 ybins=0  xmin=-1       xmax=1    ymin=0  ymax=0    name=AddJetCSV       xaxis=AddJet@CSV  yaxis=  var=AddJets252p9_puid_leadJet_btagCSV  catType=CSlep
 
 ###htyp=0  ncat=6  xbins=8   ybins=0   xmin=0      xmax=8      ymin=0 ymax=0    name=Vtype       xaxis=V@Type           yaxis=  var=Vtype_f          catType=CSlep
-##htyp=0  ncat=6  xbins=20  ybins=0   xmin=0      xmax=200    ymin=0 ymax=0    name=Vmt         xaxis=W@m_{T}          yaxis=  var=V_mt             catType=CSlep
+htyp=0  ncat=6  xbins=20  ybins=0   xmin=0      xmax=200    ymin=0 ymax=0    name=Vmt         xaxis=W@m_{T}          yaxis=  var=V_mt             catType=CSlep
 ###htyp=0  ncat=6  xbins=100  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=lheVpt         xaxis=Gen@V@p_{T}          yaxis=  var=lheV_pt             catType=CSlep
-##htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=Vpt         xaxis=p_{T}(W)@[GeV]          yaxis=  var=V_pt             catType=CSlep
+htyp=0  ncat=6  xbins=30  ybins=0   xmin=0      xmax=500    ymin=0 ymax=0    name=Vpt         xaxis=p_{T}(W)@[GeV]          yaxis=  var=V_pt             catType=CSlep
 ###htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=naJets      xaxis=naJets  yaxis=  var=naJets                  catType=ltype
 ###htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets    xaxis=nAddJets  yaxis=  var=nAddJets         catType=ltype
 ###htyp=0  ncat=6  xbins=10  ybins=0   xmin=0      xmax=10     ymin=0 ymax=0    name=nAddJets20    xaxis=nAddJets20  yaxis=  var=nAddJets20         catType=afterAddLep
