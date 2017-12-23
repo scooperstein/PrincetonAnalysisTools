@@ -21,12 +21,19 @@ type=1  name=run
 #type=1  name=HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v
 #type=1  name=HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v
 
+type=1  name=Flag_goodVertices
+type=1  name=Flag_GlobalTightHalo2016Filter
+type=1  name=Flag_HBHENoiseFilter
+type=1  name=Flag_HBHENoiseIsoFilter
+type=1  name=Flag_EcalDeadCellTriggerPrimitiveFilter
+
 #type=1  name=nPVs
 type=2  name=rho
 type=2  name=puWeight                              onlyMC=1
 type=2  name=puWeightUp                            onlyMC=1
 type=2  name=puWeightDown                          onlyMC=1
-type=1  name=EX_MUON   
+type=1  name=EX_MUON
+
 
 type=2  name=btagWeightCSV
 type=2  name=btagWeightCSV_up_jes
@@ -106,7 +113,7 @@ type=7  name=GenHiggsBoson_eta                  max=10  onlyMC=1 lengthBranch=nG
 type=7  name=GenHiggsBoson_phi                  max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
 type=7  name=GenHiggsBoson_mass                 max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
 
-type=1  name=nselLeptons 
+type=1  name=nselLeptons
 #type=7  name=selLeptons_eta                     max=20
 type=7  name=selLeptons_phi                     max=20
 type=7  name=selLeptons_mass                    max=20
@@ -162,7 +169,7 @@ type=7  name=selLeptons_SFerr_HLT_RunC          max=20
 type=7  name=selLeptons_SF_trk_eta              max=20
 type=7  name=selLeptons_SFerr_trk_eta           max=20
 
-type=1  name=nvLeptons 
+type=1  name=nvLeptons
 type=7  name=vLeptons_pt                     max=20
 type=7  name=vLeptons_eta                     max=20
 type=7  name=vLeptons_phi                     max=20
@@ -196,16 +203,22 @@ type=6  name=vLeptons_eleMVAIdSpring15Trig      max=20
 type=6  name=vLeptons_eleMVArawSpring15NonTrig  max=20
 type=6  name=vLeptons_eleMVAIdSpring15NonTrig     max=20
 
-type=2  name=H_mass                            
+type=2  name=H_mass
 type=2  name=H_pt
 type=2  name=HCSV_reg_mass
 type=2  name=HCSV_reg_pt
+type=2  name=HCMVAV2_pt
+type=2  name=HCMVAV2_reg_phi
+type=2  name=HCMVAV2_mass
+type=2  name=HCMVAV2_reg_mass
 #type=2  name=V_pt
+type=2  name=V_phi
 type=2  name=V_mass
 type=2  name=HVdPhi
 type=2  name=met_sumEt
 type=2  name=met_shifted_JetEnUp_pt
 type=2  name=met_shifted_JetEnDown_pt
+type=2  name=tkMet_phi
 
 type=1  name=nGenLep                                    onlyMC=1
 type=7  name=GenLep_pt                          max=10  onlyMC=1
@@ -256,11 +269,12 @@ type=7  name=Jet_chMult                       max=100     lengthBranch=nJet
 #type=7  name=Jet_vtxNtracks                   max=100     lengthBranch=nJet
 #type=7  name=Jet_vtxPt                        max=100     lengthBranch=nJet
 #type=7  name=Jet_phi                          max=100     lengthBranch=nJet
-type=6  name=Jet_mcFlavour                    max=100     lengthBranch=nJet  onlyMC=1 
-type=6  name=Jet_hadronFlavour                max=100     lengthBranch=nJet  onlyMC=1 
+type=6  name=Jet_mcFlavour                    max=100     lengthBranch=nJet  onlyMC=1
+type=6  name=Jet_hadronFlavour                max=100     lengthBranch=nJet  onlyMC=1
 type=7  name=Jet_btagCSVV0                    max=100     lengthBranch=nJet
 type=7  name=Jet_btagnew                      max=100     lengthBranch=nJet
-type=6  name=Jet_mcMatchId                    max=100     lengthBranch=nJet  onlyMC=1 
+type=7  name=Jet_btagCMVAV2                   max=100     lengthBranch=nJet
+type=6  name=Jet_mcMatchId                    max=100     lengthBranch=nJet  onlyMC=1
 type=7  name=Jet_bTagWeightHFUp               max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightHFDown             max=100     lengthBranch=nJet
 type=7  name=Jet_bTagWeightLFUp               max=100     lengthBranch=nJet
@@ -325,7 +339,7 @@ type=6  name=GenVbosons_pdgId                 max=10  onlyMC=1
 #type=6  name=aJets_id                           max=100
 #type=8  name=aJets_btagCSV                      max=100
 
-type=1  name=softActivityVH_njets2              
+type=1  name=softActivityVH_njets2
 type=1  name=softActivityVH_njets5
 type=1  name=softActivityVH_njets10
 type=2  name=softActivityVH_HT

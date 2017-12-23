@@ -39,7 +39,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
         settings=MakeConfigMap(filelines)
 
         if settings.has_key("analysis"):
-            am=ROOT.__getattr__(settings["analysis"])()  
+            am=ROOT.__getattr__(settings["analysis"])()
             #am.debug=100000
         #print "samplesToRun",samplesToRun
         if settings.has_key("samples"):
@@ -48,9 +48,9 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             for name in samples:
                 addedAtLeastOneFile=False
                 #print "is name in samplesToRun?",name,(name in samplesToRun)
-                if (runSelectedSamples and name not in samplesToRun): 
+                if (runSelectedSamples and name not in samplesToRun):
                     #print "runSelectedSamples is TRUE and",name,"not in",samplesToRun
-                    continue 
+                    continue
                 sample=samples[name]
                 #print sample, sampledic[sample]
                 samplecon = ROOT.SampleContainer()
@@ -82,10 +82,10 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                             continue
                         else:
                             print "Files match!",filename
-                    
+
                     # AnalysisManager needs to be initialized
                     # with one file at the beginning
-                    if aminitialized == 0: 
+                    if aminitialized == 0:
                         print("Initializing with",filename)
                         try:
                             ifile = ROOT.TFile.Open(filename)
@@ -115,6 +115,9 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                 if addedAtLeastOneFile:
                     print("Adding sample %s to sample container with %i events " % (samplecon.sampleName, samplecon.processedEvents))
                     am.AddSample(samplecon)
+                else:
+                    print("No inputfile could be added for sample %s. Exiting here to avoid seg faults later." % samplecon.sampleName)
+                    sys.exit(-1)
 
         else:
             print "There are no samples in the config file."
@@ -136,7 +139,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
 
         am.ConfigureOutputTree()
         print "output tree configured"
-            
+
         if settings.has_key("newbranches"):
             branches=ReadTextFile(settings["newbranches"], "branchlist",list())
             for branch in branches:
@@ -144,14 +147,14 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1])
         else:
             print "There are no new branches in the config file."
-        
+
         if settings.has_key("settings"):
             branches=ReadTextFile(settings["settings"], "branchlist",list())
             for branch in branches:
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2])
         else:
             print "There are no settings branches in the config file."
-             
+
         if settings.has_key("bdtsettings"):
             print "Adding a BDT configuration..."
             bdtInfo=ReadTextFile(settings["bdtsettings"], "bdt",list())
@@ -180,7 +183,7 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             print "added VV BDT to analysis manager"
         if settings.has_key("reg1settings"):
             print "Adding a Jet 1 Energy Regresion..."
-            reg1 = ReadTextFile(settings["reg1settings"], "bdt",list()) 
+            reg1 = ReadTextFile(settings["reg1settings"], "bdt",list())
             for bdtvar in reg1.bdtVars:
                 if (bdtvar.isExisting):
                     am.SetupBranch(bdtvar.localVarName, 2, -1, 0, "early")
@@ -191,23 +194,23 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             am.SetJet1EnergyRegression(reg1)
         if settings.has_key("reg2settings"):
             print "Adding a Jet 2 Energy Regresion..."
-            reg2 = ReadTextFile(settings["reg2settings"], "bdt",list()) 
+            reg2 = ReadTextFile(settings["reg2settings"], "bdt",list())
             for bdtvar in reg2.bdtVars:
                 if (bdtvar.isExisting):
                     am.SetupBranch(bdtvar.localVarName, 2, -1 ,0, "early")
                 #elif not doSkim:
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
-            am.SetJet2EnergyRegression(reg2) 
-        
+            am.SetJet2EnergyRegression(reg2)
+
         if settings.has_key("systematics"):
-            systs = ReadTextFile(settings["systematics"], "systematics") 
+            systs = ReadTextFile(settings["systematics"], "systematics")
             for syst in systs:
                 print "add Systematic"
                 am.AddSystematic(syst)
                 am.SetupNewBranch("Pass_%s" % syst.name, 4)
                 print "added Systematic"
- 
+
         if settings.has_key("scalefactors"):
             sfs = ReadTextFile(settings["scalefactors"], "scalefactors")
             for sf in sfs:
@@ -215,9 +218,9 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                 am.AddScaleFactor(sf)
                 am.SetupNewBranch(sf.branchname, 7, 10)
                 am.SetupNewBranch(sf.branchname+"_err", 7, 10)
-                print "added scale factor"   
- 
-        return am    
+                print "added scale factor"
+
+        return am
     elif filetype is "samplefile":
         samples=MakeSampleMap(filelines,samplesToRun)
         #print "writing samples to pickle file"
@@ -259,7 +262,7 @@ def CleanLines(lines):
                 print "this line is commented and will be removed"
                 print line
     return cleanedLines
-    
+
 
 def MakeConfigMap(lines):
     if debug > 0: print "In MakeConfigMap"
@@ -290,7 +293,7 @@ def MakeSampleMap(lines,samplesToRun):
         samplekfac=1
         samplescale=1
         sample={}
-        
+
         dontRun = False
         for item in line.split():
             name,value=item.split("=")
@@ -347,16 +350,16 @@ def MakeSampleMap(lines,samplesToRun):
             if name.find("doJetFlavorSplit") is 0:
                 sample["doJetFlavorSplit"]=bool(value)
             if name.find("procEff") is 0:
-                sample["procEff"]=float(value) 
+                sample["procEff"]=float(value)
             if name.find("lepFlav") is 0:
-                sample["lepFlav"]=int(value)     
- 
-        sample["files"]=samplepaths 
+                sample["lepFlav"]=int(value)
+
+        sample["files"]=samplepaths
         if sample.has_key("name"):
             samples[sample["name"]]=sample
         else:
             print "sample name is empty",samplename,"not filling"
-    
+
     return samples
 
 
@@ -370,7 +373,7 @@ def MakeBranchMap(lines):
         val=-999
         onlyMC=0
         lengthBranch=""
-        
+
         for item in line.split():
             name,value = item.split("=")
             if name.find("name") is 0:
@@ -389,7 +392,7 @@ def MakeBranchMap(lines):
 
         branches[branchname]= [branchtype,arraylength,val,onlyMC,lengthBranch]
 
-    return branches            
+    return branches
 
 def SetupBDT(lines):
     bdtname = ""
@@ -397,7 +400,7 @@ def SetupBDT(lines):
     xmlFile = ""
     inputNames = []
     localVarNames = []
-    vars = {} 
+    vars = {}
 
     for line in lines:
         inputName = ""
@@ -431,12 +434,12 @@ def SetupBDT(lines):
             if name.find("isEx") is 0:
                 if (int(value) == 1): isExisting = True
         vars[order] = (inputName,localVarName,isExisting,isSpec)
-   
+
     bdt = ROOT.BDTInfo(bdtmethod, bdtname, xmlFile)
-    
+
     keys = vars.keys()
     keys.sort()
- 
+
     for key in keys:
         if (key == -1): continue
         name, lname, isExisting, isSpec = vars[key]
@@ -445,7 +448,7 @@ def SetupBDT(lines):
         else:
             print "adding spectator variable %s (%s) existing: %i" % (name,lname, int(isExisting))
         bdt.AddVariable(name, lname, isExisting, isSpec)
-    return bdt 
+    return bdt
 
 
 def SetupSyst(lines):
@@ -497,7 +500,7 @@ def SetupSF(lines):
             elif key=="branchname":
                 SF.branchname=value
             elif key=="length":
-                SF.length=value 
+                SF.length=value
             else:
                 print "In scale factor file, what is:",item
         # now parse the json and build the scale factor map
@@ -511,7 +514,7 @@ def SetupSF(lines):
         if SF.binning not in res.keys():
             print SF.binning," not in list of binnings: ",res.keys()
         if "abseta" in SF.binning:
-            stripForEta = 8 
+            stripForEta = 8
 
         etaBins = []
         ptBins = []
@@ -523,8 +526,8 @@ def SetupSF(lines):
                 etaL = float(((etaKey[stripForEta:]).rstrip(']').split(',')[0]))
                 etaH = float(((etaKey[stripForEta:]).rstrip(']').split(',')[1]))
                 etaBins.append(etaL)
-                etaBins.append(etaH)            
- 
+                etaBins.append(etaH)
+
                 for ptKey, result in sorted(values.iteritems()):
                     ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
                     ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
@@ -539,8 +542,8 @@ def SetupSF(lines):
                 ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
                 ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))
                 ptBins.append(ptL)
-                ptBins.append(ptH)            
- 
+                ptBins.append(ptH)
+
                 for etaKey, result in sorted(values.iteritems()):
                     #print etaKey
                     #print (etaKey[4:]).rstrip(']').split(',')
@@ -553,7 +556,7 @@ def SetupSF(lines):
         ptBins = list(set(ptBins))
         etaBins = sorted(etaBins)
         ptBins = sorted(ptBins)
-        
+
         #print etaBins, ptBins
         SF.scaleMap = TH2F(SF.name, SF.name, len(ptBins)-1, array(ptBins), len(etaBins)-1, array(etaBins))
         #print array(ptBins), array(etaBins)
@@ -573,7 +576,7 @@ def SetupSF(lines):
                     for ibin1 in range(binLow1,binHigh1+1):
                         for ibin2 in range(binLow2,binHigh2+1):
                             #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
-                            #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
+                            #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] )
                             SF.scaleMap.SetBinContent(ibin2,ibin1, result["value"])
                             SF.scaleMap.SetBinError(ibin2,ibin1, result["error"])
                             #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
@@ -592,7 +595,7 @@ def SetupSF(lines):
                     for ibin1 in range(binLow1,binHigh1+1):
                         for ibin2 in range(binLow2,binHigh2+1):
                             #SF.scaleMap.Fill( (ptL+ptH)/2., (etaL+etaH)/2., result["value"] )
-                            #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] ) 
+                            #SF.scaleMap.SetBinError( SF.scaleMap.GetXaxis().FindBin( (ptL+ptH)/2.), SF.scaleMap.GetYaxis().FindBin( (etaL+etaH)/2.), result["error"] )
                             SF.scaleMap.SetBinContent(ibin1,ibin2, result["value"])
                             SF.scaleMap.SetBinError(ibin1,ibin2, result["error"])
                             #print etaL,etaH,ptL,ptH,ibin2,ibin1,SF.scaleMap.GetXaxis().GetBinLowEdge(ibin1),SF.scaleMap.GetYaxis().GetBinLowEdge(ibin2), result["value"], result["error"]
@@ -612,7 +615,7 @@ def findAllRootFiles(value, site):
     if value.find("/store") is 0:
         import subprocess
         siteIP = "root://cmseos.fnal.gov"
-        if (site == "CERN"): 
+        if (site == "CERN"):
             siteIP = "root://188.184.38.46:1094"
         #onlyFiles = subprocess.check_output(["/cvmfs/cms.cern.ch/slc6_amd64_gcc491/cms/cmssw/CMSSW_7_4_14/external/slc6_amd64_gcc491/bin/xrdfs", siteIP, "ls", value]).split('\n')
         onlyFiles = subprocess.check_output(["xrdfs", siteIP, "ls", value]).split('\n')

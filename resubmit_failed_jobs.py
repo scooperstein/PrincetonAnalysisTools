@@ -40,6 +40,7 @@ for subdir, dirs, files in os.walk(args.odir):
 def is_zombie(rootfilename):
     if rootfilename in rootFiles:
         rootfilename = rootFiles[rootfilename]
+    print 'Zombie test on:', rootfilename
     f = ROOT.TFile(rootfilename)
     return f.IsZombie()  # file is closed when f goes out of scope
 

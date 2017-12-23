@@ -50,14 +50,14 @@ type=2  name=muidcut            val=1
 type=2  name=HVDPhiCut          val=-100
 type=2  name=hptcut             val=100
 type=2  name=vptcut             val=100 # use eventClass variable instead
-type=2  name=zmasslow           val=75 # for Z(ll) channel
-type=2  name=zmasshigh          val=105 # for Z(ll) channel
+type=2  name=zmasslow           val=0 # for Z(ll) channel
+type=2  name=zmasshigh          val=99999 # for Z(ll) channel
 
 # events must have number of add. jets/leptons < this value
 type=2  name=nAddJetsCut        val=100
 type=2  name=nAddLeptonsCut     val=1
 
-type=2  name=SF_Wj0b            val=1.01
-type=2  name=SF_Wj1b            val=1.49
-type=2  name=SF_Wj2b            val=1.94
-type=2  name=SF_TT              val=0.84
+type=2  name=SF_Wj0b            val=1
+type=2  name=SF_Wj1b            val=1
+type=2  name=SF_Wj2b            val=1
+type=2  name=SF_TT              val=1
