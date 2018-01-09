@@ -81,38 +81,11 @@ bool VHbbAnalysis::Preselection() {
     }
 
     // Trigger Selections
-    if (int(*f["doICHEP"]) == 0 && int(*f["do2015"]) == 0) {
-        // 0-lepton
-        if (*f["Vtype"] == 4
-            && *in["HLT_BIT_HLT_PFMET110_PFMHT110_IDTight_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET120_PFMHT120_IDTight_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET170_NoiseCleaned_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET170_HBHE_BeamHaloCleaned_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET170_HBHECleaned_v"] != 1
-           ) {
-            return false;
-        }
-        // 1-lepton
-        if ((*f["Vtype"] == 2 || *f["Vtype"] == 3)
-            && *in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"] != 1
-            && *in["HLT_BIT_HLT_IsoMu24_v"] != 1
-            && *in["HLT_BIT_HLT_IsoTkMu24_v"] != 1
-           ) {
-            return false;
-        }
-        // 2-lepton
-        if ((*f["Vtype"] == 0 || *f["Vtype"] == 1)
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"] != 1
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"] != 1
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"] != 1
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"] != 1
-            && *in["HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"] != 1
-           ) {
-            return false;
-        }
+    if (!PassVTypeAndTrigger()) {
+        return false;
     }
 
-    if (*f["V_pt"] < *f["vptcut"]) return false;
+    if (*f["V_pt"] < *f["vptPreselCut"]) return false;
 
     // Heppy jet corrections for JER/JEC are full correction, it's easier to just use the
     // correction on top of the nominal
@@ -159,15 +132,15 @@ bool VHbbAnalysis::Preselection() {
         if (f["Jet_pt_reg"][i] > *f["JetPtPresel"] && in["Jet_puId"][i] > 0) nPreselJets++;
     }
 
-    int nPreselLep = 0; // FIXME needs to be configurable or possibly removed
-    for (int i = 0; i < *in["nselLeptons"]; i++) {
-        if (f["selLeptons_pt"][i] > *f["LepPtPresel"]
-            && fabs(f["selLeptons_eta"][i]) < 2.5
-            && (fabs(in["selLeptons_pdgId"][i]) == 11 || fabs(in["selLeptons_pdgId"][i]) == 13)
-           ) {
-            nPreselLep++;
-        }
-    }
+    // int nPreselLep = 0; // FIXME needs to be configurable or possibly removed
+    // for (int i = 0; i < *in["nselLeptons"]; i++) {
+    //     if (f["selLeptons_pt"][i] > *f["LepPtPresel"]
+    //         && fabs(f["selLeptons_eta"][i]) < 2.5
+    //         && (fabs(in["selLeptons_pdgId"][i]) == 11 || fabs(in["selLeptons_pdgId"][i]) == 13)
+    //        ) {
+    //         nPreselLep++;
+    //     }
+    // }
 
     // remove nPreselLep cut for now since we want to pre-select for all channels
     if (int(*f["doBoost"]) == 0) {
@@ -183,8 +156,21 @@ bool VHbbAnalysis::Analyze() {
     *in["sampleIndex"] = cursample->sampleNum;
     bool sel = true;
     bool doCutFlow = bool(*f["doCutFlow"]);
+    bool doOnlySignalRegion = bool(*f["doOnlySignalRegion"]);
+    *in["controlSample"] = 0;  // controlSample == 0 means signal region. Everybody OK with this??
     *in["cutFlow"] = 0;
 
+    // move fast requirements to the front
+    if (debug > 1000) std::cout << "Imposing json and trigger requirements" << std::endl;
+    if (*in["sampleIndex"] == 0 && *f["json"] != 1) {
+        return false;
+    }
+    if (!PassVTypeAndTrigger()) {
+        return false;
+    }
+    if (sel) *in["cutFlow"] += 1;  // TODO sel is always true. Why ask for it to be true?
+
+    if (debug > 1000) std::cout << "Looping over jets" << std::endl;
     for (int i = 0; i < *in["nJet"]; i++) {
         if (int(*f["doReg"]) == 0) {
             // don't apply the regression. The easiest way to do this is to just reset the value of
@@ -209,66 +195,6 @@ bool VHbbAnalysis::Analyze() {
         }
     }
 
-    if (debug > 1000) std::cout << "Imposing trigger and json requirements" << std::endl;
-
-    // Impose trigger requirements
-    //FIXME configure for different channels
-    if (*f["do2015"] == 1) {
-        // for 2015 V21 ntuples
-        if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"] != 1
-            && *in["HLT_BIT_HLT_IsoMu20_v"] != 1
-            && *in["HLT_BIT_HLT_IsoTkMu20_v"] != 1
-           ) {
-            return false;
-        }
-    } else if (*f["doICHEP"] == 1) {
-        // for 2016 V22 ntuples there is no MC HLT simulation we can use, have to just apply the data trigger efficiency
-        if (*in["sampleIndex"] == 0) {
-            // regular triggers for 2016 data, but none applied to MC
-            if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v"] != 1
-                && *in["HLT_BIT_HLT_IsoMu22_v"] != 1
-                && *in["HLT_BIT_HLT_IsoTkMu22_v"] != 1
-               ) {
-                return false;
-            }
-        }
-    } else {
-        // 0-lepton
-        if (*f["Vtype"] == 4
-            && *in["HLT_BIT_HLT_PFMET110_PFMHT110_IDTight_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET120_PFMHT120_IDTight_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET170_NoiseCleaned_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET170_HBHE_BeamHaloCleaned_v"] != 1
-            && *in["HLT_BIT_HLT_PFMET170_HBHECleaned_v"] != 1
-           ) {
-            return false;
-        }
-        // 1-lepton
-        if ((*f["Vtype"] == 2 || *f["Vtype"] == 3)
-            && *in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"] != 1
-            && *in["HLT_BIT_HLT_IsoMu24_v"] != 1
-            && *in["HLT_BIT_HLT_IsoTkMu24_v"] != 1
-           ) {
-            return false;
-        }
-        // 2-lepton
-        if ((*f["Vtype"] == 0 || *f["Vtype"] == 1)
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"] != 1
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"] != 1
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"] != 1
-            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"] != 1
-            && *in["HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"] != 1
-           ) {
-            return false;
-        }
-    }
-
-    if (*in["sampleIndex"] == 0) {
-        if (*f["json"] != 1) return false;
-    }
-
-    if (sel) *in["cutFlow"] += 1;
-
     // keep track of each jet selection method separately
     std::pair<int,int> bjets_bestCSV = HighestCSVBJets();
     *in["hJetInd1_bestCSV"] = bjets_bestCSV.first;
@@ -288,13 +214,14 @@ bool VHbbAnalysis::Analyze() {
     // put CMVA cuts out of selection functions
     if (bjets.first != -1 && bjets.second != -1) {
         if (f["Jet_btagCMVA"][bjets.first] < *f["j1ptCSV"] || f["Jet_btagCMVA"][bjets.second] < *f["j2ptCSV"]) {
-            return false;
+            *in["controlSample"] = -1;
         }
     }
+    if (doOnlySignalRegion && *in["controlSample"] < 0) return false;
 
     if (bjets.first == -1) {
         if (int(*f["doBoost"]) == 0) {
-            return false;
+            return false;  // TODO this must be the same for signal and control regions?
         }
         *in["hJetInd1"] = 0;
     } else {
@@ -303,7 +230,7 @@ bool VHbbAnalysis::Analyze() {
 
     if (bjets.second == -1) {
         if (int(*f["doBoost"]) == 0) {
-            return false;
+            return false;  // TODO this must be the same for signal and control regions?
             *in["hJetInd2"] = 1;
         } else if (*in["nJet"] < 2) {
             // assume nJet (AK4 jets) > 0 even for boosted events.
@@ -319,12 +246,12 @@ bool VHbbAnalysis::Analyze() {
         // (i.e. there is no fat jet) or file size for W+jets is ridiculous for boosted analysis
         if (*in["nFatjetAK08ungroomed"] < 1) {
             if (f["Jet_btagCMVA"][*in["hJetInd1"]] < *f["j1ptCSV"] || f["Jet_btagCMVA"][*in["hJetInd2"]] < *f["j2ptCSV"]) {
-                return false;
+                return false;  // TODO this must be the same for signal and control regions?
             }
         }
     }
 
-    if (sel) *in["cutFlow"] += 1; // selected jets
+    if (sel && *in["controlSample"] > -1) *in["cutFlow"] += 1; // selected jets
 
     if (debug > 1000) {
         std::cout << "nJet = " << *in["nJet"] << std::endl;
@@ -350,11 +277,19 @@ bool VHbbAnalysis::Analyze() {
     Hbb_noreg = HJ1_noreg + HJ2_noreg;
 
     *f["H_pt"] = Hbb.Pt();
-    if (*f["H_pt"] < *f["hptcut"]) return false;
-    if (sel) *in["cutFlow"] += 1; // pT(jj) cut
+    if (*f["H_pt"] < *f["hptcut"]) {
+        *in["controlSample"] = -1;
+    } else if (sel && *in["controlSample"] > -1) {
+        *in["cutFlow"] += 1; // pT(jj) cut
+    }
 
-    if (*f["met_pt"] < *f["metcut"]) return false;
-    if (sel) *in["cutFlow"] += 1; // met cut
+    if (*f["met_pt"] < *f["metcut"]) {
+        *in["controlSample"] = -1;
+    } else if (sel && *in["controlSample"] > -1) {
+        *in["cutFlow"] += 1; // met cut
+    }
+
+    if (doOnlySignalRegion && *in["controlSample"] < 0) return false;
 
     //check if event passes any event class
     *in["lepInd1"] = -1;
@@ -396,8 +331,13 @@ bool VHbbAnalysis::Analyze() {
                   << std::endl;
     }
 
-    if (*in["isZnn"] == 0 && *in["isWmunu"] == 0 && *in["isWenu"] == 0 && *in["isZmm"] == 0 && *in["isZee"] == 0) return false;
-    if (sel) *in["cutFlow"] += 1; // lepton selection
+    if (*in["isZnn"] == 0 && *in["isWmunu"] == 0 && *in["isWenu"] == 0 && *in["isZmm"] == 0 && *in["isZee"] == 0) {
+        *in["controlSample"] = -1;
+    } else if (sel && *in["controlSample"] > -1) {
+        *in["cutFlow"] += 1; // lepton selection
+    }
+
+    if (doOnlySignalRegion && *in["controlSample"] < 0) return false;
 
     // channel specific selection and vector boson reconstruction
 
@@ -431,12 +371,12 @@ bool VHbbAnalysis::Analyze() {
         *f["lepMetDPhi"] = fabs(EvalDeltaPhi(f["selLeptons_phi"][*in["lepInd1"]], *f["met_phi"]));
 
         if (*in["isWmunu"] && *f["lepMetDPhi"] > *f["muMetDPhiCut"]) {
-            return false;
+            return false;   // TODO this must be the same for signal and control regions?
         } else if (*in["isWenu"] && *f["lepMetDPhi"] > *f["elMetDPhiCut"]) {
-            return false;
+            return false;   // TODO this must be the same for signal and control regions?
         }
 
-        if (sel) *in["cutFlow"] += 1;
+        if (sel && *in["controlSample"] > -1) *in["cutFlow"] += 1;
 
         TLorentzVector Lep, MET;
         // Reconstruct W
@@ -472,13 +412,20 @@ bool VHbbAnalysis::Analyze() {
 
     *f["V_pt"] = V.Pt();
 
-    if (*f["V_pt"] < *f["vptcut"]) return false;
-    if (sel) *in["cutFlow"] += 1; // pT(W) cut
+    if (*f["V_pt"] < *f["vptcut"]) {
+        *in["controlSample"] = -1;
+    } else if (sel && *in["controlSample"] > -1) {
+        *in["cutFlow"] += 1; // pT(W) cut
+    }
 
     if (*in["isZee"] == 1 || *in["isZmm"] == 1) {
         *f["V_mass"] = V.M();
-        if (*f["V_mass"] < *f["zmasslow"] || *f["V_mass"] > *f["zmasshigh"]) return false;
+        if (*f["V_mass"] < *f["zmasslow"] || *f["V_mass"] > *f["zmasshigh"]) {
+            *in["controlSample"] = -1;
+        }
     }
+
+    if (doOnlySignalRegion && *in["controlSample"] < 0) return false;
 
     // di-jet kinematics
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
@@ -729,17 +676,38 @@ bool VHbbAnalysis::Analyze() {
     //*in["isZee"] = 0;
 
     *in["nAddLeptons"] = nAddLep;
-    if (nAddLep >= *f["nAddLeptonsCut"]) return false;
-    if (sel) *in["cutFlow"] += 1; // additional lepton veto
+    if (nAddLep >= *f["nAddLeptonsCut"]) {
+        *in["controlSample"] = -1;
+    } else if (sel && *in["controlSample"] > -1) {
+        *in["cutFlow"] += 1; // additional lepton veto
+    }
 
-    if (*in["nAddJets252p9_puid"] >= *f["nAddJetsCut"]) return false;
-    if (sel) *in["cutFlow"] += 1; // additional jet veto
+    if (*in["nAddJets252p9_puid"] >= *f["nAddJetsCut"]) {
+        *in["controlSample"] = -1;
+    } else if (sel && *in["controlSample"] > -1) {
+        *in["cutFlow"] += 1; // additional jet veto
+    }
 
-    if (fabs(*f["HVdPhi"]) < *f["HVDPhiCut"]) return false;
-    if (sel) *in["cutFlow"] += 1; // dPhi(jj,W) cut
+    if (fabs(*f["HVdPhi"]) < *f["HVDPhiCut"]) {
+        *in["controlSample"] = -1;
+    } else if (sel && *in["controlSample"] > -1) {
+        *in["cutFlow"] += 1; // dPhi(jj,W) cut
+    }
+
+    if (doOnlySignalRegion && *in["controlSample"] < 0) return false;
+
+    // TODO is this assumption correct? Ie. if the event is in the signal region thus far, it can't be in any of the CR's.
+    // Or in other words: are all CS-cuts applied at this point, so we don't steal events from the CR's here...
+    if (*in["controlSample"] == 0) return true;
 
     // Control Samples
-    *in["controlSample"] = -1;
+    float absDeltaPhiHiggsMet = fabs(EvalDeltaPhi(*f["HCMVAV2_reg_phi"], *f["V_phi"]));
+    float higgsJet1CMVA = f["Jet_btagCMVAV2"][*in["hJetInd1"]];
+    float higgsJet2CMVA = f["Jet_btagCMVAV2"][*in["hJetInd2"]];
+    float minCSVA = std::min(higgsJet1CMVA, higgsJet2CMVA);
+    float maxCSVA = std::max(higgsJet1CMVA, higgsJet2CMVA);
+    float CSVAL = -0.5884, CSVAM = 0.4432, CSVAT = 0.9432;
+    float V_mass = *f["V_mass"], H_mass = *f["HCMVAV2_mass"];
 
     // 0-lepton
     bool base0LepCSSelection = (
@@ -747,12 +715,12 @@ bool VHbbAnalysis::Analyze() {
         (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
         && *f["V_pt"] > 170
         // Higgs Boson Cuts
-        && *f["HCMVAV2_mass"] < 500
+        && H_mass < 500
         && *f["HCMVAV2_pt"] > 120
         // Higgs Jet Cuts
         && f["Jet_pt"][*in["hJetInd1"]] > 60
         && f["Jet_pt"][*in["hJetInd2"]] > 35
-        && f["Jet_btagCMVAV2"][*in["hJetInd2"]] > -0.5884
+        && higgsJet2CMVA > CSVAL
         && fabs(f["Jet_eta"][*in["hJetInd1"]]) < 2.4
         && fabs(f["Jet_eta"][*in["hJetInd2"]]) < 2.4
         && in["Jet_id"][*in["hJetInd1"]] >= 4
@@ -769,10 +737,6 @@ bool VHbbAnalysis::Analyze() {
         && *in["Flag_HBHENoiseIsoFilter"]
         && *in["Flag_EcalDeadCellTriggerPrimitiveFilter"]
     );
-
-    float absDeltaPhiHiggsMet = fabs(EvalDeltaPhi(*f["HCMVAV2_reg_phi"], *f["V_phi"]));
-    float higgsJet1CMVA = f["Jet_btagCMVAV2"][*in["hJetInd1"]];
-    float higgsJet2CMVA = f["Jet_btagCMVAV2"][*in["hJetInd2"]];
 
     // Iterate over the jet collection and count the number of central jets and
     // the number of jets azimuthally within 0.5 radians of the reconstructed
@@ -791,22 +755,21 @@ bool VHbbAnalysis::Analyze() {
     }
 
     if (base0LepCSSelection) {
-        *in["controlSample"] = 10;
         if (*f["Vtype"] == 2 || *f["Vtype"] == 3) {
             float absDeltaPhiHiggsJet1Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd1"]], *f["V_phi"]));
             float absDeltaPhiHiggsJet2Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd2"]], *f["V_phi"]));
             float minAbsDeltaPhiHiggsJetsMet = std::min(absDeltaPhiHiggsJet1Met, absDeltaPhiHiggsJet2Met);
-            if (minAbsDeltaPhiHiggsJetsMet < 1.57 && *in["nselLeptons"] >= 1 && higgsJet1CMVA > 0.4432 && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
-                *in["controlSample"] = 11; // TTbar Control Sample Index
+            if (minAbsDeltaPhiHiggsJetsMet < 1.57 && *in["nselLeptons"] >= 1 && higgsJet1CMVA > CSVAM && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
+                *in["controlSample"] = 1; // TTbar Control Sample Index
             }
         } else if (*f["Vtype"] == 4) {
             float absDeltaPhiMetTrackMet = fabs(EvalDeltaPhi(*f["V_phi"], *f["tkMet_phi"]));
             bool vetoHiggsMassWindow = *f["HCMVAV2_reg_mass"] < 60 || *f["HCMVAV2_reg_mass"] > 160;
             if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && *in["nselLeptons"] == 0 && absDeltaPhiHiggsMet > 2) {
-                if (higgsJet1CMVA < 0.4432 && nJetsCentral <= 3) {
-                    *in["controlSample"] = 12; // Z+Light Control Sample Index
-                } else if (higgsJet1CMVA > 0.9432 && nJetsCentral == 2 && vetoHiggsMassWindow) {
-                    *in["controlSample"] = 13; // Z+bb Control Sample Index
+                if (higgsJet1CMVA < CSVAM && nJetsCentral <= 3) {
+                    *in["controlSample"] = 2; // Z+Light Control Sample Index
+                } else if (higgsJet1CMVA > CSVAT && nJetsCentral == 2 && vetoHiggsMassWindow) {
+                    *in["controlSample"] = 3; // Z+bb Control Sample Index
                 }
             }
         }
@@ -835,15 +798,14 @@ bool VHbbAnalysis::Analyze() {
     float maxCSV = std::max(f["Jet_btagCSV"][*in["hJetInd1"]], f["Jet_btagCSV"][*in["hJetInd2"]]);
 
     if (base1LepCSSelection) {
-        *in["controlSample"] = 0;
-        if (maxCSV > 0.9432){ //ttbar or W+HF
+        if (maxCSV > CSVAT){ //ttbar or W+HF
             if (*in["nAddJets252p9_puid"] > 1.5) { //ttbar
-                *in["controlSample"] = 1;
+                *in["controlSample"] = 11;
             } else if (*in["nAddJets252p9_puid"] < 0.5 && *f["met_pt"]/sqrt(*f["htJet30"]) > 2.) { //W+HF // remove mass window so we can use the same ntuple for VV, just be careful that we always avoid overlap with SR
-                *in["controlSample"] = 2;
+                *in["controlSample"] = 13;
             }
-        } else if (maxCSV > -0.5884 && maxCSV < 0.4432 && *f["met_pt"]/sqrt(*f["htJet30"]) > 2.) { //W+LF
-            *in["controlSample"] = 3;
+        } else if (maxCSV > CSVAL && maxCSV < CSVAM && *f["met_pt"]/sqrt(*f["htJet30"]) > 2.) { //W+LF
+            *in["controlSample"] = 12;
         }
 
         if (*in["sampleIndex"] == 0) {
@@ -865,17 +827,9 @@ bool VHbbAnalysis::Analyze() {
         && *f["V_pt"] > 50          // AN says: [50, 150],> 150; have to think about how to best implement the two signal regions
     );
 
-    // use higgsJet1CMVA, higgsJet2CMVA variables from 0-lepton CS above
-    float minCSVA = std::min(higgsJet1CMVA, higgsJet2CMVA);
-    float maxCSVA = std::max(higgsJet1CMVA, higgsJet2CMVA);
-    float CSVAL = -0.5884, CSVAM = 0.4432, CSVAT = 0.9432;
-    float H_pt = *f["HCMVAV2_pt"], V_mass = *f["V_mass"], H_mass = *f["HCMVAV2_mass"];  // using HCMVAV2 instead of H correct?
-
     if (base2LepCSSelection) {
-        *in["controlSample"] = 0;
         if (////////////////////////// ttbar
-            H_pt > 100
-            && maxCSVA > CSVAT
+            maxCSVA > CSVAT
             && minCSVA > CSVAL
             && !(V_mass < 10 || (V_mass > 75 && V_mass < 120))
         ) {
@@ -890,8 +844,7 @@ bool VHbbAnalysis::Analyze() {
         ) {
             *in["controlSample"] = 22;
         } else if (/////////////////// Z + LF
-            H_pt > 100
-            && maxCSVA < CSVAT
+            maxCSVA < CSVAT
             && minCSVA < CSVAL
             && (V_mass > 75 && V_mass <= 105)
         ) {
@@ -901,15 +854,11 @@ bool VHbbAnalysis::Analyze() {
     // end of 2-lepton
 
 
-    if (*f["doControlSamples"] > 0) {
-        sel = *in["controlSample"] > 0;
-    }
-
     if (doCutFlow && *in["cutFlow"] >= 2) {
         // keep all preselected events for cutflow
         return true;
     } else {
-        return sel;
+        return *in["controlSample"] > -1;
     }
 }
 
@@ -1736,6 +1685,62 @@ bool VHbbAnalysis::MuonSelection(int nLep){
     }
 
     return selectEvent;
+}
+
+bool VHbbAnalysis::PassVTypeAndTrigger() {
+    //FIXME configure for different channels
+    //TODO it would be nicer to reverse the logic ie. if (trg1 || trg2 || trg3) {return true;} else if ....
+    if (*f["do2015"] == 1) {
+        // for 2015 V21 ntuples
+        if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"] != 1
+            && *in["HLT_BIT_HLT_IsoMu20_v"] != 1
+            && *in["HLT_BIT_HLT_IsoTkMu20_v"] != 1
+           ) {
+            return false;
+        }
+    } else if (*f["doICHEP"] == 1) {
+        // for 2016 V22 ntuples there is no MC HLT simulation we can use, have to just apply the data trigger efficiency
+        if (*in["sampleIndex"] == 0) {
+            // regular triggers for 2016 data, but none applied to MC
+            if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v"] != 1
+                && *in["HLT_BIT_HLT_IsoMu22_v"] != 1
+                && *in["HLT_BIT_HLT_IsoTkMu22_v"] != 1
+               ) {
+                return false;
+            }
+        }
+    } else {
+        // 0-lepton
+        if (*f["Vtype"] == 4
+            && *in["HLT_BIT_HLT_PFMET110_PFMHT110_IDTight_v"] != 1
+            && *in["HLT_BIT_HLT_PFMET120_PFMHT120_IDTight_v"] != 1
+            && *in["HLT_BIT_HLT_PFMET170_NoiseCleaned_v"] != 1
+            && *in["HLT_BIT_HLT_PFMET170_HBHE_BeamHaloCleaned_v"] != 1
+            && *in["HLT_BIT_HLT_PFMET170_HBHECleaned_v"] != 1
+           ) {
+            return false;
+        }
+        // 1-lepton
+        if ((*f["Vtype"] == 2 || *f["Vtype"] == 3)
+            && *in["HLT_BIT_HLT_Ele27_eta2p1_WPTight_Gsf_v"] != 1
+            && *in["HLT_BIT_HLT_IsoMu24_v"] != 1
+            && *in["HLT_BIT_HLT_IsoTkMu24_v"] != 1
+           ) {
+            return false;
+        }
+        // 2-lepton
+        // FIXME: Vtype for 2 ele broken in heppy V25...
+        if ((*f["Vtype"] == 0 || *f["Vtype"] == 1)
+            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"] != 1
+            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"] != 1
+            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"] != 1
+            && *in["HLT_BIT_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"] != 1
+            && *in["HLT_BIT_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"] != 1
+           ) {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
