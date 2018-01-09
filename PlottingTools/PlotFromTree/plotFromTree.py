@@ -542,7 +542,7 @@ if __name__ == "__main__":
             if file:
                 file.Close()
 
-        if not output_name:
+        if output_name:
             output.cd()
             inputfiletree.Write()
             plotvariabletree.Write()
