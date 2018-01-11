@@ -754,16 +754,19 @@ bool VHbbAnalysis::Analyze() {
         }
     }
 
+    float absDeltaPhiHiggsJet1Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd1"]], *f["V_phi"]));
+    float absDeltaPhiHiggsJet2Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd2"]], *f["V_phi"]));
+    float minAbsDeltaPhiHiggsJetsMet = std::min(absDeltaPhiHiggsJet1Met, absDeltaPhiHiggsJet2Met);
+    float absDeltaPhiMetTrackMet = fabs(EvalDeltaPhi(*f["V_phi"], *f["tkMet_phi"]));
+    *f["minMetjDPhi"] = minAbsDeltaPhiHiggsJetsMet;
+    *f["MetTkMetDPhi"] = absDeltaPhiMetTrackMet;
+
     if (base0LepCSSelection) {
         if (*f["Vtype"] == 2 || *f["Vtype"] == 3) {
-            float absDeltaPhiHiggsJet1Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd1"]], *f["V_phi"]));
-            float absDeltaPhiHiggsJet2Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd2"]], *f["V_phi"]));
-            float minAbsDeltaPhiHiggsJetsMet = std::min(absDeltaPhiHiggsJet1Met, absDeltaPhiHiggsJet2Met);
             if (minAbsDeltaPhiHiggsJetsMet < 1.57 && *in["nselLeptons"] >= 1 && higgsJet1CMVA > CSVAM && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
                 *in["controlSample"] = 1; // TTbar Control Sample Index
             }
         } else if (*f["Vtype"] == 4) {
-            float absDeltaPhiMetTrackMet = fabs(EvalDeltaPhi(*f["V_phi"], *f["tkMet_phi"]));
             bool vetoHiggsMassWindow = *f["HCMVAV2_reg_mass"] < 60 || *f["HCMVAV2_reg_mass"] > 160;
             if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && *in["nselLeptons"] == 0 && absDeltaPhiHiggsMet > 2) {
                 if (higgsJet1CMVA < CSVAM && nJetsCentral <= 3) {
@@ -785,7 +788,7 @@ bool VHbbAnalysis::Analyze() {
             //  || (*in["isWenu"] && *f["lepMetDPhi"] < *f["elMetDPhiCut"]))
     // V_pt > 100 and bb_mass<250
     bool base1LepCSSelection = (
-        *in["cutFlow"] >= 2
+        *in["cutFlow"] >= 1         // changing from 2 to 1, as SR b-tag requirement is too strong
         && f["Jet_pt_reg"][*in["hJetInd1"]] > *f["j1ptCut"]
         && f["Jet_pt_reg"][*in["hJetInd2"]] > *f["j2ptCut"]
         && (*in["isWmunu"] != 0 || *in["isWenu"] != 0)
@@ -821,8 +824,8 @@ bool VHbbAnalysis::Analyze() {
 
     // 2-lepton
     bool base2LepCSSelection = (    // implementing table 15 of AN2015_168_v12, page 75
-        // *in["cutFlow"] >= 2      // is this needed? from 1-lepton channel....
-        (*f["Vtype"] == 0 || *f["Vtype"] == 1)
+        *in["cutFlow"] >= 1         // require Vtype and trigger
+        && (*f["Vtype"] == 0 || *f["Vtype"] == 1)  // TODO Vtype_new
         && (*in["isZmm"] || *in["isZee"])
         && *f["V_pt"] > 50          // AN says: [50, 150],> 150; have to think about how to best implement the two signal regions
     );
@@ -831,22 +834,22 @@ bool VHbbAnalysis::Analyze() {
         if (////////////////////////// ttbar
             maxCSVA > CSVAT
             && minCSVA > CSVAL
-            && !(V_mass < 10 || (V_mass > 75 && V_mass < 120))
+            && (V_mass > 10 && (V_mass < 75 || V_mass > 120))
         ) {
             *in["controlSample"] = 21;
+        } else if (/////////////////// Z + LF
+            maxCSVA < CSVAT
+            && minCSVA < CSVAL
+            && (V_mass > 75 && V_mass <= 105)
+        ) {
+            *in["controlSample"] = 22;
         } else if (/////////////////// Z + HF
             maxCSVA > CSVAT
             && minCSVA > CSVAL
             && *f["met_pt"] < 60
             && fabs(EvalDeltaPhi(*f["HCMVAV2_reg_phi"], *f["V_phi"])) > 2.5    // copied from L767
             && (V_mass > 85 && V_mass < 97)
-            && !(H_mass > 90 && H_mass < 150)
-        ) {
-            *in["controlSample"] = 22;
-        } else if (/////////////////// Z + LF
-            maxCSVA < CSVAT
-            && minCSVA < CSVAL
-            && (V_mass > 75 && V_mass <= 105)
+            && (H_mass < 90 || H_mass > 150)
         ) {
             *in["controlSample"] = 23;
         }
@@ -1263,8 +1266,16 @@ void VHbbAnalysis::FinishEvent() {
     if (*in["isWmunu"]) {
         *f["selLeptons_relIso_0"] = f["selLeptons_relIso04"][*in["lepInd1"]];
     }
-    else if (in["isWenu"]) {
+    else if (*in["isWenu"]) {
         *f["selLeptons_relIso_0"] = f["selLeptons_relIso03"][*in["lepInd1"]];
+    }
+    else if (*in["isZmm"]) {
+        *f["selLeptons_relIso_0"] = f["selLeptons_relIso04"][*in["lepInd1"]];
+        *f["selLeptons_relIso_1"] = f["selLeptons_relIso04"][*in["lepInd2"]];
+    }
+    else if (*in["isZee"]) {
+        *f["selLeptons_relIso_0"] = f["selLeptons_relIso03"][*in["lepInd1"]];
+        *f["selLeptons_relIso_1"] = f["selLeptons_relIso03"][*in["lepInd2"]];
     }
 
 
