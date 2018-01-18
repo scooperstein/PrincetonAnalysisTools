@@ -61,18 +61,21 @@ bool VHbbAnalysis::Preselection() {
         if (*f["lheV_pt"] < 200 || *in["nGenStatus2bHad"] == 0) return false;
     }
 
+    bool isZee = false;
     if (*f["Vtype"]<0 || *f["Vtype"]>4) {
-        // since Vtype == 2 is not correct in Heppy V25, check if two valid electrons are present
+        // since Vtype == 1 is not correct in Heppy V25, check if two valid electrons are present
         int n_good_electrons = 0;
         for (int i = 0; i < *in["nselLeptons"]; i++) {
-            if (*in["selLeptons_eleMVAIdSppring16GenPurp"] >= 1
-                && abs(*in["selLeptons_pdgId"]) == 11)
+            if (in["selLeptons_eleMVAIdSppring16GenPurp"][i] >= 1
+                && abs(in["selLeptons_pdgId"][i]) == 11)
             {
                 n_good_electrons++;
             }
         }
         if (n_good_electrons < 2) {
             return false;
+        } else {
+            isZee = true;
         }
     }
 
@@ -85,7 +88,13 @@ bool VHbbAnalysis::Preselection() {
         return false;
     }
 
-    if (*f["V_pt"] < *f["vptPreselCut"]) return false;
+    if (*f["Vtype"]<2 || isZee) {
+        if (*f["V_pt"] < *f["vptPreselCut"]) { // preserve 50 < Vpt < 100 for the 2-lepton channels
+            return false;
+        }
+    } else if (*f["V_pt"] < *f["vptcut"]) {    // else cut away Vpt < 100
+        return false;
+    }
 
     // Heppy jet corrections for JER/JEC are full correction, it's easier to just use the
     // correction on top of the nominal
