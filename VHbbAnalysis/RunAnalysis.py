@@ -89,6 +89,30 @@ else:
     submitFiles = []
 
     #for sampleName in am.ListSampleNames():
+    inputs_to_transfer = [
+        options.configFile,
+        'RunSkim.py',
+        'RunSample.py',
+        '../AnalysisDict.so',
+        '../env.sh',
+        'cfg',
+        'aux',
+        '../python/ReadInput.py',
+        '../AnalysisDict_rdict.pcm',
+        '../HelperClasses',
+        '../AnalysisManager.h',
+        '../plugins',
+    ]
+    # copy inputs to jobdir
+    if site == "DESY":
+        os.system('cp -r %s %s' % (' '.join(inputs_to_transfer), jobName))
+        # prepend paths with '../' for the condor jobs
+        inputs_to_transfer = list('../'+p if not p.startswith('../') else p for p in inputs_to_transfer)
+        inputs_to_transfer.remove('../python/ReadInput.py')
+        inputs_to_transfer.append('../ReadInput.py')
+    else:
+        inputs_to_transfer = list('../../'+p for p in inputs_to_transfer)
+
     nFilesPerJob = options.nFilesPerJob
     for sample in am.samples:
         if (options.sample != ""):
@@ -118,21 +142,6 @@ else:
                 filesToRun += "%s," % sample.files[index]
             filesToRun = filesToRun[:-1] # remove trailing ','
             if (filesToRun == ""): continue
-
-            inputs_to_transfer = [
-                '../../'+options.configFile,
-                '../../RunSkim.py',
-                '../../RunSample.py',
-                '../../../AnalysisDict.so',
-                '../../../env.sh',
-                '../../cfg',
-                '../../aux',
-                '../../../python/ReadInput.py',
-                '../../../AnalysisDict_rdict.pcm',
-                '../../../HelperClasses',
-                '../../../AnalysisManager.h',
-                '../../../plugins',
-            ]
 
             nProcJobs += 1
             if not useSGE:
