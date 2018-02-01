@@ -25,6 +25,8 @@ class VHbbAnalysis : public AnalysisManager {
         virtual void FinishEvent();
         virtual void TermAnalysis();
 
+        std::pair<int,int> HighestPtGoodElectronsOppCharge(float min_pt, float max_rel_iso);
+        std::pair<int,int> HighestPtGoodMuonsOppCharge(float min_pt, float max_rel_iso);
         bool ElectronSelection(int);
         bool MuonSelection(int);
         bool PassVTypeAndTrigger();
@@ -33,7 +35,7 @@ class VHbbAnalysis : public AnalysisManager {
         float puWeight_ichep_up(int i=0);
         float puWeight_ichep_down(int i=0);
         std::pair<int,int> HighestPtBJets();
-        std::pair<int,int> HighestCSVBJets();
+        std::pair<int,int> HighestCSVBJets(float j1ptCut, float j2ptCut);
         std::pair<int,int> HighestPtJJBJets();
         double GetRecoTopMass(TLorentzVector Jet, bool isJet=true, int useMET=0, bool regPT=true);
         float ptWeightQCD(int nGenVbosons=0, float lheHT=0., int GenVbosons_pdgId=0);
