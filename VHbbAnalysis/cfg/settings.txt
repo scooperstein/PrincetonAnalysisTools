@@ -4,7 +4,7 @@
 # ONLY USE FLOATS
 type=2  name=vetolep            val=1
 type=2  name=intL               val=35900 # 1/pb
-type=2  name=doCutFlow          val=0
+type=2  name=doCutFlow          val=0    # negative number will activate cutflow for preselection
 type=2  name=doOnlySignalRegion val=0
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
@@ -68,7 +68,8 @@ type=2  name=murelisocut_2lepchan val=0.25
 type=2  name=elMetDPhiCut       val=2.0
 type=2  name=muMetDPhiCut       val=2.0
 
-type=2  name=elidcut            val=2
+type=2  name=elidcut_1lepchan   val=2
+type=2  name=elidcut_2lepchan   val=1
 type=2  name=muidcut            val=1
 
 

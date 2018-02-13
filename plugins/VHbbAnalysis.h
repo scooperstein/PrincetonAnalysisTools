@@ -25,11 +25,12 @@ class VHbbAnalysis : public AnalysisManager {
         virtual void FinishEvent();
         virtual void TermAnalysis();
 
-        std::pair<int,int> HighestPtGoodElectronsOppCharge(float min_pt, float max_rel_iso);
+        std::pair<int,int> HighestPtGoodElectronsOppCharge(float min_pt, float max_rel_iso, float idcut);
         std::pair<int,int> HighestPtGoodMuonsOppCharge(float min_pt, float max_rel_iso);
         bool ElectronSelection(int);
         bool MuonSelection(int);
-        bool PassVTypeAndTrigger();
+        int UpdatedVType();
+        bool PassVTypeAndTrigger(int vtype);
         float ReWeightMC(int nPU=0);
         float puWeight_ichep(int i=0);
         float puWeight_ichep_up(int i=0);
