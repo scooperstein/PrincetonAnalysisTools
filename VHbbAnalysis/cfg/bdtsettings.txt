@@ -12,10 +12,10 @@ name=V_pt                   lname=V_pt                        isEx=1 isSpec=0 or
 #name=Jet_btagCSV[hJetInd2]  lname=hJets_btagCSV_1             isEx=0 isSpec=0 order=4
 name=hJets_btagCSV_1        lname=hJets_btagCSV_1             isEx=0 isSpec=0 order=4
 name=Top1_mass_fromLepton_regPT_w4MET lname=Top1_mass_fromLepton_regPT_w4MET isEx=0 isSpec=0 order=5
-name=HVdPhi                 lname=HVdPhi                      isEx=1 isSpec=0 order=6
+name=HVdPhi                 lname=HVdPhi                      isEx=0 isSpec=0 order=6
 name=nAddJet_f              lname=nAddJet_f                   isEx=0 isSpec=0 order=7
 name=lepMetDPhi             lname=lepMetDPhi                  isEx=0 isSpec=0 order=8
 name=softActivityVH_njets5  lname=softActivityVH_njets5_f     isEx=0 isSpec=0 order=9
 name=V_mt                   lname=V_mt                        isEx=0 isSpec=0 order=10
-name=met_pt                 lname=met_pt                      isEx=1 isSpec=0 order=11
+name=met_pt                 lname=MET_pt                      isEx=1 isSpec=0 order=11
 

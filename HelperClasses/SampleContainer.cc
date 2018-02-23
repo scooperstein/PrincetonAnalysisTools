@@ -28,7 +28,8 @@ inline SampleContainer::SampleContainer()
 	forceVersion = 0;*/
     sampleName = "";
     sampleNum = 0;
-    sampleChain = new TChain("tree");
+    sampleChain = new TChain("Events");
+    //sampleChain = new TChain("tree");
     xsec = 0;
     kFactor= 1;
     scale = 1;
@@ -62,7 +63,7 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch, int doSkim) 
         //processedEvents+=counter->GetBinContent(1);
         //TH1F* counterPos = (TH1F*)file->Get("CountPosWeight");
         //TH1F* counterNeg = (TH1F*)file->Get("CountNegWeight");
-        TH1F* counter = (TH1F*)file->Get("CountWeighted");
+        /*TH1F* counter = (TH1F*)file->Get("CountWeighted");
         TH1F* counterFullWeight = (TH1F*)file->Get("CountFullWeighted");
         //int nEffective = counterPos->GetBinContent(1) - counterNeg->GetBinContent(1); 
         float nEffective = counter->GetBinContent(1);
@@ -81,7 +82,16 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch, int doSkim) 
         std::cout<<"lhe = "<<CountWeightedLHEWeightPdf->GetBinContent(1)<<std::endl;
         CountWeightedLHEWeightScale->Add(CountWeightedLHEWeightScale_thisfile);
         CountWeightedLHEWeightPdf->Add(CountWeightedLHEWeightPdf_thisfile);
-        std::cout<<"lhe = "<<CountWeightedLHEWeightPdf->GetBinContent(1)<<std::endl;
+        std::cout<<"lhe = "<<CountWeightedLHEWeightPdf->GetBinContent(1)<<std::endl;*/
+
+        // totally different setup for grabbing event count in nanoAOD
+        TTree *Runs = (TTree*) file->Get("Runs");
+        Long64_t genEventCount = 0;
+        Runs->SetBranchAddress("genEventCount",&genEventCount);
+        Runs->GetEntry(0);
+        std::cout<<fname<<" genEventCount: "<<genEventCount<<std::endl;
+        CountWeighted->SetBinContent(1,CountWeighted->GetBinContent(1)+genEventCount);
+        processedEvents += genEventCount;
         file->Close();
     }
     

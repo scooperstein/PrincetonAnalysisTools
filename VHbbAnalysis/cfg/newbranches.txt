@@ -1,6 +1,9 @@
 # types:  unsigned int=0, int=1, float=2, double=3, bool=4
 #     array +5;   vector +10;
 
+type=2  name=minMetjDPhi
+type=2  name=MetTkMetDPhi
+
 type=1  name=hJetInd1
 type=1  name=hJetInd1_bestCSV
 type=1  name=hJetInd1_highestPt
@@ -17,9 +20,6 @@ type=1  name=lepInd1
 type=1  name=lepInd2
 type=1  name=nHJetsMatched
 type=1  name=eventClass
-type=2  name=minMetjDPhi
-type=2  name=MetTkMetDPhi
-type=2  name=lepMetDPhi
 type=2  name=lepMetDPhi
 type=1  name=sampleIndex
 type=1  name=sampleIndex_sel
@@ -78,12 +78,15 @@ type=2  name=isWenu_f
 type=2  name=isWmunu_f
 
 type=2  name=V_mt
+type=2  name=HVdPhi
 type=2  name=HVdEta
 type=2  name=HVdEta_4MET
 type=2  name=H_dEta
 type=2  name=JJEtaBal
+type=2  name=H_mass
 type=2  name=H_mass_noreg
 
+type=2  name=H_pt
 type=2  name=H_pt_highestPt
 type=2  name=H_pt_highestPtJJ
 type=2  name=H_pt_bestCSV
@@ -119,8 +122,8 @@ type=2  name=minDeltaRaJet
 type=2  name=selLeptons_pt_0
 type=2  name=selLeptons_phi_0
 type=2  name=selLeptons_eta_0
+type=2  name=selLeptons_mass_0
 type=1  name=selLeptons_pdgId_0
-type=1  name=selLeptons_eleCutIdCSA14_25ns_v1_0
 type=1  name=selLeptons_tightId_0
 type=2  name=selLeptons_relIso_0
 type=2  name=selLeptons_relIso_1

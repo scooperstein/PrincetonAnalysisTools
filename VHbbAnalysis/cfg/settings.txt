@@ -9,13 +9,16 @@ type=2  name=doOnlySignalRegion val=0
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
 type=2  name=do2015             val=0
+type=2  name=dataYear           val=2016
 type=2  name=doReg              val=1
+type=2  name=smearJets          val=0
+type=2  name=JERScale           val=1.0
 type=2  name=doBoost            val=0
 type=2  name=doCMVA             val=1
-type=2  name=JERScale           val=1.0
 type=2  name=doICHEP            val=0
+type=2  name=reReg              val=0
+type=2  name=reVType            val=0
 type=2  name=doVPtReweighting   val=0
-type=2  name=reReg              val=1
 
 type=2  name=j1ptCut_0lepchan   val=60
 type=2  name=j1ptCut_1lepchan   val=25

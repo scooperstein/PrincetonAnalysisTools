@@ -168,7 +168,8 @@ void AnalysisManager::InitChain(std::string filename)
     // The InitChain() function is called when the selector needs to initialize
     // a new tree or chain. Typically here the branch addresses and branch
     // pointers of the tree will be set.
-    fChain = new TChain("tree");
+    //fChain = new TChain("tree");
+    fChain = new TChain("Events");
     //std::cout<<"opening "<<filename.c_str()<<std::endl;
     //TFile* tf = TFile::Open(filename.c_str());
     //std::cout<<"adding to chain"<<std::endl;
@@ -198,7 +199,7 @@ void AnalysisManager::SetupBranch(std::string name, int type, int length, int on
         std::cout<<"Branch "<<name<<" cannot be set to type "<<type<<std::endl;
         return;
     }
-    if(debug>10000) std::cout<<"checking type and setting branch address"<<std::endl;
+    if(debug>10000) std::cout<<"checking type and setting branch address.  type "<<type<<std::endl;
 
     if(type==0) {
         ui[name] = new unsigned int;
@@ -220,7 +221,7 @@ void AnalysisManager::SetupBranch(std::string name, int type, int length, int on
     
     if(type>4 && type<10 && length<0) {
         std::cout<<"Types 5-9 are arrays and need a length greater than 0... not "
-            <<length<<std::endl;
+            <<length<<" name "<<name.c_str()<<std::endl;
         return;
     }
 
@@ -302,7 +303,7 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
 
     if(type>4 && type<10 && length<0) {
         std::cout<<"Types 5-9 are arrays and need a length greater than 0... not "
-            <<length<<std::endl;
+            <<length<<" name "<<name.c_str()<<std::endl;
         return;
     }
 
@@ -393,6 +394,7 @@ void AnalysisManager::SetNewBranches(){
             //SetupNewBranch(ibranch->first, ibranch->second->type, ibranch->second->length, false, "settings", ibranch->second->val); //newmem is false
             // Set the value to val which is read from settings.txt
             *f[ibranch->second->name]=ibranch->second->val;
+            if(debug>100) std::cout<<"Setting value done "<<ibranch->first.c_str()<<std::endl;
         }
     }
 }
@@ -403,6 +405,7 @@ void AnalysisManager::GetEarlyEntries(Long64_t entry, bool isData){
         if(ibranch->second->prov == "early" && !(isData && ibranch->second->onlyMC)) {
             if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
             branches[ibranch->first]->GetEntry(entry);
+            if(debug>100000) std::cout<<"Got entry for early branch "<<ibranch->first<<std::endl;
         }
     }
 }
@@ -443,7 +446,8 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     //int processedEvents = onlySample->processedEvents;
                     std::vector<std::string> sampleFiles = onlySample->files;
                     onlySample->files.clear();
-                    onlySample->sampleChain = new TChain("tree");
+                    //onlySample->sampleChain = new TChain("tree");
+                    onlySample->sampleChain = new TChain("Events");
                     for (int j=0; j<(int)filenames.size(); j++) {
                         if (std::find(sampleFiles.begin(), sampleFiles.end(), filenames[j]) != sampleFiles.end() ) {
                             onlySample->AddFile(filenames[j].c_str(),1);
@@ -574,29 +578,29 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                         }
                         if(select || (cursyst->name=="nominal" && anyPassing)){
                             if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                            for (int i=0; i < scaleFactors.size(); i++) {
-                                SFContainer sf = scaleFactors[i];
-                                float sf_err = 0.0;
-                                if (cursample->sampleNum != 0) {
-                                    for (int j=0; j < *in[sf.length]; j++) {
-                                        if (sf.binning.find("abs") == -1) {
-                                            f[sf.branchname][j] = sf.getScaleFactor(f[sf.branches[0]][j], f[sf.branches[1]][j], sf_err);
-                                        }
-                                        else {
-                                             f[sf.branchname][j] = sf.getScaleFactor(fabs(f[sf.branches[0]][j]), fabs(f[sf.branches[1]][j]), sf_err);
-                                        }
-                                        f[Form("%s_err",sf.branchname.c_str())][j] = sf_err; 
-                                    }
-                                }
-                                else {
-                                    // data event, scale factor should just be 1.0
-                                    for (int j=0; j < *in[sf.length]; j++) {
-                                        f[sf.branchname][j] = 1.0;
-                                        f[Form("%s_err",sf.branchname.c_str())][j] = 0.0; 
-                                    }
-                                }
-                                
-                            }
+                            //for (int i=0; i < scaleFactors.size(); i++) {
+                            //    SFContainer sf = scaleFactors[i];
+                            //    float sf_err = 0.0;
+                            //    if (cursample->sampleNum != 0) {
+                            //        for (int j=0; j < *in[sf.length]; j++) {
+                            //            if (sf.binning.find("abs") == -1) {
+                            //                f[sf.branchname][j] = sf.getScaleFactor(f[sf.branches[0]][j], f[sf.branches[1]][j], sf_err);
+                            //            }
+                            //            else {
+                            //                 f[sf.branchname][j] = sf.getScaleFactor(fabs(f[sf.branches[0]][j]), fabs(f[sf.branches[1]][j]), sf_err);
+                            //            }
+                            //            f[Form("%s_err",sf.branchname.c_str())][j] = sf_err; 
+                            //        }
+                            //    }
+                            //    else {
+                            //        // data event, scale factor should just be 1.0
+                            //        for (int j=0; j < *in[sf.length]; j++) {
+                            //            f[sf.branchname][j] = 1.0;
+                            //            f[Form("%s_err",sf.branchname.c_str())][j] = 0.0; 
+                            //        }
+                            //    }
+                            //    
+                            //}
                             FinishEvent();
                             if(cursyst->name=="nominal") saved++;
                         }
@@ -612,16 +616,16 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
         } // end file loop
         ofile->cd();
         if (!doSkim) {
-            cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
-            cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
+            //cursample->CountWeightedLHEWeightScale->Write(Form("CountWeightedLHEWeightScale_%s",cursample->sampleName.c_str()));
+            //cursample->CountWeightedLHEWeightPdf->Write(Form("CountWeightedLHEWeightPdf_%s",cursample->sampleName.c_str()));
             cursample->CountWeighted->Write(Form("CountWeighted_%s",cursample->sampleName.c_str()));
-            cursample->CountFullWeighted->Write(Form("CountFullWeighted_%s",cursample->sampleName.c_str()));
+            //cursample->CountFullWeighted->Write(Form("CountFullWeighted_%s",cursample->sampleName.c_str()));
         }
         else {
-            cursample->CountWeightedLHEWeightScale->Write();
-            cursample->CountWeightedLHEWeightPdf->Write();
+            //cursample->CountWeightedLHEWeightScale->Write();
+            //cursample->CountWeightedLHEWeightPdf->Write();
             cursample->CountWeighted->Write();
-            cursample->CountFullWeighted->Write();
+            //cursample->CountFullWeighted->Write();
         }
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;
@@ -816,14 +820,16 @@ void AnalysisManager::ApplySystematics(bool early){
 }
 
 
-void AnalysisManager::m(std::string key){
+double AnalysisManager::m(std::string key, int index){
+    if(debug>1000) std::cout<<"looking for key "<<key<<" with index "<<index<<std::endl;
     if(branchInfos.count(key)==0){
         std::cout<<"There is no branch with name "<<key<<std::endl;
         if(safemode){
             std::cout<<"The program must be terminated..."<<std::endl;
             std::exit(0);
         } else {
-            if(debug>1) std::cout<<"Returning 0 and hoping for the best."<<std::endl;
+            if(debug>1) std::cout<<"Returning -999 and hoping for the best."<<std::endl;
+            return -999;
         }
     } else {
         if(debug>1000) std::cout<<"here is where I should return the right branch value"<<std::endl;
@@ -831,19 +837,37 @@ void AnalysisManager::m(std::string key){
         {
         case 0:
             if(debug>1000) std::cout<<"unsigned int "<<*ui[key]<<std::endl; 
-            //return *ui[key];
-            break;
+            return (double)*ui[key];
         case 1:
             if(debug>1000) std::cout<<"int "<<*in[key]<<std::endl; 
-            //return *in[key];
-            break;
+            return (double)*in[key];
         case 2:
             if(debug>1000) std::cout<<"float "<<*f[key]<<std::endl; 
-            //return *f[key];
-            break;
+            return (double)*f[key];
+        case 3:
+            if(debug>1000) std::cout<<"double "<<*d[key]<<std::endl; 
+            return (double)*d[key];
+        case 4:
+            if(debug>1000) std::cout<<"boolean "<<*b[key]<<std::endl; 
+            return (double)*b[key];
+        case 5:
+            if(debug>1000) std::cout<<"unsigned int "<<ui[key][index]<<std::endl; 
+            return (double)ui[key][index];
+        case 6:
+            if(debug>1000) std::cout<<"int "<<in[key][index]<<std::endl; 
+            return (double)in[key][index];
+        case 7:
+            if(debug>1000) std::cout<<"float "<<f[key][index]<<std::endl; 
+            return (double)f[key][index];
+        case 8:
+            if(debug>1000) std::cout<<"double "<<d[key][index]<<std::endl; 
+            return (double)d[key][index];
+        case 9:
+            if(debug>1000) std::cout<<"boolean "<<b[key][index]<<std::endl; 
+            return (double)b[key][index];
         default:
             if(debug>10) std::cout<<"I don't know type "<<branchInfos[key]->type<<" yet..."<<std::endl;
-            //return;
+            return -999;
         }
     }
 }

@@ -11,7 +11,7 @@ from ROOT import TH2F
 #ROOT.gSystem.Load("VHbbTrigger_h.so")
 ROOT.gSystem.Load("AnalysisDict.so")
 
-debug=1
+debug=2
 
 def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, doSkim=False):
     if debug > 100:
@@ -24,8 +24,6 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
     runSelectedSamples = False
     if (len(samplesToRun) > 0):
         runSelectedSamples = True
-
-    print "runSelectedSamples",runSelectedSamples
 
     textfile=open(filename, 'r')
 
@@ -89,7 +87,8 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                         print("Initializing with",filename)
                         try:
                             ifile = ROOT.TFile.Open(filename)
-                            tree = ifile.Get("tree")
+                            treeName="Events"#"tree"
+                            tree = ifile.Get(treeName)
                             ifile.Close()
                         except:
                             print "File: %s : no good, trying with another..." % filename
@@ -124,8 +123,11 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             sys.exit(0)
         if settings.has_key("earlybranches"):
             branches=ReadTextFile(settings["earlybranches"], "branchlist",list())
+            if am.debug>10:
+                print "getting early branches"
             for branch in branches:
-                print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
+                if am.debug>10:
+                    print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
                 am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
         else:
             print "There are no early branches in the config file."
@@ -138,12 +140,14 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             print "There are no existing branches in the config file."
 
         am.ConfigureOutputTree()
-        print "output tree configured"
+        if am.debug>10: 
+            print "output tree configured"
 
         if settings.has_key("newbranches"):
             branches=ReadTextFile(settings["newbranches"], "branchlist",list())
             for branch in branches:
-                print(branch,branches[branch][0], branches[branch][1])
+                if am.debug>100: 
+                    print(branch,branches[branch][0], branches[branch][1])
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1])
         else:
             print "There are no new branches in the config file."
@@ -387,7 +391,8 @@ def MakeBranchMap(lines):
             if name.find("onlyMC") is 0:
                 onlyMC=int(value)
             if name.find("lengthBranch") is 0:
-                print "FOUND LENGTH BRANCH",value
+                if debug>1000:
+                    print "FOUND LENGTH BRANCH",value
                 lengthBranch=str(value)
 
         branches[branchname]= [branchtype,arraylength,val,onlyMC,lengthBranch]

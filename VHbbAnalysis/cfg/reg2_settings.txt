@@ -6,7 +6,7 @@ bdtname="Jet2_pt_regression"
 xmlFile=aux/gravall-v25.weights.xml 
 
 name=Jet_pt              lname=hJets_pt_1            isEx=0 isSpec=0 order=1
-name=nPVs                lname=nPVs                  isEx=1 isSpec=0 order=2
+name=nPVs                lname=PV_npvs               isEx=1 isSpec=0 order=2
 name=Jet_eta             lname=hJets_eta_1           isEx=0 isSpec=0 order=3
 name=Jet_mt              lname=hJets_mt_1            isEx=0 isSpec=0 order=4
 name=Jet_leadTrackPt     lname=hJets_leadTrackPt_1   isEx=0 isSpec=0 order=5
