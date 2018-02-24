@@ -241,7 +241,7 @@ bool VHbbAnalysis::Analyze() {
         *in["lepInd1"] = *in["elInd1"] = good_elecs_1lep.first;
     } else if (*f["MET_pt"] > *f["metcut_0lepchan"]
             && *in["Flag_goodVertices"]
-            && *in["Flag_GlobalTightHalo2016Filter"]
+            && *in["Flag_globalTightHalo2016Filter"]
             && *in["Flag_HBHENoiseFilter"]
             && *in["Flag_HBHENoiseIsoFilter"]
             && *in["Flag_EcalDeadCellTriggerPrimitiveFilter"]) {
@@ -975,7 +975,7 @@ bool VHbbAnalysis::Analyze() {
         // (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
         (*in["isWmunu"] || *in["isWenu"] || *in["isZnn"])
         && *in["cutFlow"] >= 2
-        && *f["V_pt"] > 170
+        && m("V_pt") > 170
         // Higgs Boson Cuts
         && H_mass < 500
         //&& *f["HCMVAV2_pt"] > 120 CP REMOVED
@@ -993,11 +993,11 @@ bool VHbbAnalysis::Analyze() {
         //&& in["Jet_id"][0] >= 4
         && in["Jet_puId"][0] >= 4
         // MET Filters
-        && *in["Flag_goodVertices"]
-        && *in["Flag_GlobalTightHalo2016Filter"]
-        && *in["Flag_HBHENoiseFilter"]
-        && *in["Flag_HBHENoiseIsoFilter"]
-        && *in["Flag_EcalDeadCellTriggerPrimitiveFilter"]
+        && m("Flag_goodVertices")
+        && m("Flag_globalTightHalo2016Filter")
+        && m("Flag_HBHENoiseFilter")
+        && m("Flag_HBHENoiseIsoFilter")
+        && m("Flag_EcalDeadCellTriggerPrimitiveFilter")
     );
     
 
@@ -1011,7 +1011,7 @@ bool VHbbAnalysis::Analyze() {
             }
         // } else if (*f["Vtype"] == 4) {
         } else if (*in["isZnn"]) {
-            bool vetoHiggsMassWindow = *f["HCMVAV2_reg_mass"] < 60 || *f["HCMVAV2_reg_mass"] > 160;
+            bool vetoHiggsMassWindow = m("H_mass") < 60 || m("H_mass") > 160;
             // FIXME nselLeptons needs to be replaced
             //if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && *in["nselLeptons"] == 0 && absDeltaPhiHiggsMet > 2) {
             if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && absDeltaPhiHiggsMet > 2) {
@@ -1047,14 +1047,32 @@ bool VHbbAnalysis::Analyze() {
 
     float maxCSV = std::max(f["Jet_btagCSVV2"][*in["hJetInd1"]], f["Jet_btagCSVV2"][*in["hJetInd2"]]);
 
+    // htJet30 is not currenty in nanoAOD, need to calculate it
+    *f["htJet30"] = 0.;
+    for (int i=0; i<m("nJet");i++) {
+        if (m("Jet_pt",i)>30. && m("Jet_lepFilter",i) && m("Jet_puId",i)) {
+            *f["htJet30"] = *f["htJet30"] + m("Jet_pt",i);
+        }   
+    }
+    for (int i=0; i<m("nMuon"); i++) {
+        if (m("Muon_pt",i)>5 && m("Muon_pfRelIso04_all",i)<0.4) {
+            *f["htJet30"] = *f["htJet30"] + m("Muon_pt",i);
+        }
+    }
+    for (int i=0; i<m("nElectron"); i++) {
+        if (m("Electron_pt",i)>5 && m("Electron_pfRelIso03_all",i)<0.4) {
+            *f["htJet30"] = *f["htJet30"] + m("Electron_pt",i);
+        }
+    }
+
     if (base1LepCSSelection) {
         if (maxCSV > CSVAT){ //ttbar or W+HF
-            if (*in["nAddJets252p9_puid"] > 1.5) { //ttbar
+            if (m("nAddJets252p9_puid") > 1.5) { //ttbar
                 *in["controlSample"] = 11;
-            } else if (*in["nAddJets252p9_puid"] < 0.5 && *f["MET_pt"]/sqrt(*f["htJet30"]) > 2.) { //W+HF // remove mass window so we can use the same ntuple for VV, just be careful that we always avoid overlap with SR
+            } else if (m("nAddJets252p9_puid") < 0.5 && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+HF // remove mass window so we can use the same ntuple for VV, just be careful that we always avoid overlap with SR
                 *in["controlSample"] = 13;
             }
-        } else if (maxCSV > CSVAL && maxCSV < CSVAM && *f["MET_pt"]/sqrt(*f["htJet30"]) > 2.) { //W+LF
+        } else if (maxCSV > CSVAL && maxCSV < CSVAM && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+LF
             *in["controlSample"] = 12;
         }
 
@@ -1062,9 +1080,9 @@ bool VHbbAnalysis::Analyze() {
             std::cout << "data CS event " << *in["controlSample"]
                       << " maxCSV " << maxCSV
                       << " nAddJets252p9_puid " << *in["nAddJets252p9_puid"]
-                      << " MET_pt " << *f["MET_pt"]
-                      << " MET_sumEt " << *f["MET_sumEt"]
-                      << " H_mass " << *f["H_mass"]
+                      << " MET_pt " << m("MET_pt")
+                      << " MET_sumEt " << m("MET_sumEt")
+                      << " H_mass " << m("H_mass")
                       << std::endl;
         }
     }
