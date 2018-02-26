@@ -288,6 +288,23 @@ def MakeSampleMap(lines,samplesToRun):
     if debug > 100: print "Reading samples"
     samples={}
 
+    globalPrefix=""
+    
+    for line in lines:
+        if line.find("prefix=") is 0:
+            print "Found a globalPrefix", line
+            if not globalPrefix:
+                items=line.split("=")
+                globalPrefix=items[1]
+            else:
+                print "found second prefix... I don't know how to choose and I don't like the pressure."
+                sys.exit()
+    if globalPrefix:
+        lastChar=globalPrefix[-1]
+        if lastChar.find("/") is -1:
+            print "adding a slash to",globalPrefix
+            globalPrefix=globalPrefix+"/"
+
     for line in lines:
         #print line
         samplename=""
@@ -312,7 +329,7 @@ def MakeSampleMap(lines,samplesToRun):
             if name.find("name") is 0:
                 sample["name"]=str(value)
             if name.find("file") is 0:
-                samplepaths.append(str(value))
+                samplepaths.append(globalPrefix+str(value))
             if name.find("dir") is 0:
                 site = "FNAL"
                 if value.find("CERN") is 0:
@@ -320,9 +337,9 @@ def MakeSampleMap(lines,samplesToRun):
                     value = value.replace("CERN:","")
                 if value.find(',') is not 0:
                     for dirname in value.split(','):
-                        samplepaths.extend(findAllRootFiles(dirname,site))
+                        samplepaths.extend(findAllRootFiles(globalPrefix+dirname,site))
                 else:
-                    samplepaths = findAllRootFiles(value,site)
+                    samplepaths = findAllRootFiles(globalPrefix+value,site)
                 #print value
                 #if value.find("/store") is 0:
                 #    import subprocess
