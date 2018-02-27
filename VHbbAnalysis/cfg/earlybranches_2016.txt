@@ -1,0 +1,168 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+#type=2  name=json
+type=1  name=event
+type=1  name=Vtype
+type=1  name=nJet
+type=7  name=Jet_pt           max=100     lengthBranch=nJet
+type=7  name=Jet_Pt           max=100     lengthBranch=nJet
+type=7  name=Jet_bReg         max=100     lengthBranch=nJet
+type=2  name=LHE_HT           onlyMC=1
+type=1  name=LHE_Nb           onlyMC=1
+type=2  name=LHE_Vpt          onlyMC=1
+#type=1  name=nGenStatus2bHad  onlyMC=1
+type=2  name=MET_pt
+type=2  name=MET_phi
+type=7  name=Jet_btagDeepB                    max=100     lengthBranch=nJet
+type=7  name=Jet_btagCSVV2                    max=100     lengthBranch=nJet
+type=7  name=Jet_btagCMVA                     max=100     lengthBranch=nJet
+type=2  name=V_pt
+
+#type=4  name=HLT_PFMET110_PFMHT110_IDTight  
+#type=4  name=HLT_PFMET120_PFMHT120_IDTight
+#type=4  name=HLT_Ele32_WPTight_Gsf_L1DoubleEG
+#type=4  name=HLT_Ele32_WPTight_Gsf
+#type=4  name=HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL
+#type=4  name=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL
+#type=4  name=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ
+#type=4  name=HLT_IsoMu24
+#type=4  name=HLT_PFMETTypeOne120_PFMHT120_IDTight
+#type=4  name=HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ
+
+# 2016
+type=4  name=HLT_PFMET110_PFMHT110_IDTight  
+type=4  name=HLT_PFMET120_PFMHT120_IDTight
+type=4  name=HLT_PFMET170_NoiseCleaned        
+type=4  name=HLT_PFMET170_BeamHaloCleaned
+type=4  name=HLT_PFMET170_HBHECleaned         
+type=4  name=HLT_Ele27_eta2p1_WPTight_Gsf
+type=4  name=HLT_IsoMu24
+type=4  name=HLT_IsoTkMu24
+type=4  name=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL
+type=4  name=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ
+type=4  name=HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL  
+type=4  name=HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ
+type=4  name=HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ
+
+
+##type=7  name=Jet_corr                         max=100     lengthBranch=nJet
+##type=7  name=Jet_corr_JERUp                         max=100     lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_JERDown                         max=100     lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_JECUp                         max=100     lengthBranch=nJet
+##type=7  name=Jet_corr_JECDown                         max=100     lengthBranch=nJet
+##type=7  name=Jet_corr_JER                     max=100     lengthBranch=nJet  onlyMC=1
+##type=7  name=Jet_pt_reg_corrJECUp             max=100     lengthBranch=nJet
+##type=7  name=Jet_pt_reg_corrJECDown           max=100     lengthBranch=nJet
+##type=7  name=Jet_pt_reg_corrJERUp             max=100     lengthBranch=nJet
+##type=7  name=Jet_pt_reg_corrJERDown           max=100     lengthBranch=nJet
+##
+##type=7  name=Jet_corr_AbsoluteStatUp          max=100     lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_AbsoluteStatDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_AbsoluteScaleUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_AbsoluteScaleDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_AbsoluteFlavMapUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_AbsoluteFlavMapDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_AbsoluteMPFBiasUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_AbsoluteMPFBiasDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FragmentationUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FragmentationDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SinglePionECALUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SinglePionECALDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SinglePionHCALUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SinglePionHCALDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorQCDUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorQCDDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimePtEtaUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimePtEtaDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeJEREC1Up        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeJEREC1Down        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeJEREC2Up        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeJEREC2Down        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeJERHFUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeJERHFDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtBBUp        max=100   lengthBranch=nJet onlyMC=1type=7  name=Jet_corr_RelativePtBBDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtBBDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtEC1Up        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtEC1Down        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtEC2Up        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtEC2Down        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtHFUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativePtHFDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeBalUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeBalDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeFSRUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeFSRDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeStatFSRUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeStatFSRDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeStatECUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeStatECDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeStatHFUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_RelativeStatHFDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpDataMCUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpDataMCDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtRefUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtRefDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtBBUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtBBDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtEC1Up        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtEC1Down        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtEC2Up        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtEC2Down        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtHFUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpPtHFDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpMuZeroUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpMuZeroDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpEnvelopeUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_PileUpEnvelopeDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalPileUpUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalPileUpDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalRelativeUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalRelativeDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalPtUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalPtDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalScaleUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalScaleDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalAbsoluteUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalAbsoluteDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalMCUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_SubTotalMCDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TotalUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TotalDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorZJetUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorZJetDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPhotonJetUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPhotonJetDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureGluonUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureGluonDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureQuarkUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureQuarkDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureCharmUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureCharmDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureBottomUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_FlavorPureBottomDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunBCDUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunBCDDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunEFUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunEFDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunGUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunGDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunHUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_TimeRunHDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupMPFInSituUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupMPFInSituDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupIntercalibrationUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupIntercalibrationDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupbJESUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupbJESDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupFlavorUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupFlavorDown        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupUncorrelatedUp        max=100   lengthBranch=nJet onlyMC=1
+##type=7  name=Jet_corr_CorrelationGroupUncorrelatedDown        max=100   lengthBranch=nJet onlyMC=1
+
+
+type=6  name=Jet_puId                         max=100     lengthBranch=nJet
+type=7  name=Jet_eta                          max=100     lengthBranch=nJet
+type=7  name=Jet_mass                         max=100     lengthBranch=nJet
+type=7  name=Jet_phi                          max=100     lengthBranch=nJet
+type=9  name=Jet_lepFilter                        max=100     lengthBranch=nJet

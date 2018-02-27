@@ -1,0 +1,16 @@
+analysis=VHbbAnalysis
+outputname=output
+
+samples=cfg/samples_2016.txt
+
+earlybranches=cfg/earlybranches_2016.txt
+existingbranches=cfg/existingbranches_2016.txt
+newbranches=cfg/newbranches.txt
+
+bdtsettings=cfg/bdtsettings.txt
+reg1settings=cfg/reg1_settings.txt
+reg2settings=cfg/reg2_settings.txt
+settings=cfg/settings_2016.txt
+
+systematics=cfg/systematics.txt
+scalefactors=cfg/scalefactors.txt

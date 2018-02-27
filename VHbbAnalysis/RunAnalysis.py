@@ -15,6 +15,7 @@ parser.add_option("-n", "--jobName", dest="jobName", default="condor_jobs",
                   help="Specify label for condor jobs. Only to be used when running batch jobs"
 )
 parser.add_option("-f", "--nFilesPerJob", dest="nFilesPerJob", default=10, type=int, help="Number of input files per batch job")
+parser.add_option("-o", "--outputDir",    dest="outputDir",    default="", type=str, help="Output directory for the jobs")
 parser.add_option("-s","--sample", dest="sample", default="", type=str, help="Run on only a specific sample (can be comma-separated list)")
 parser.add_option("-d","--doData", dest="doData", default=-1, type=int, help="If -1 run all samples, if 0 run only MC, if 1 run only data")
 parser.add_option("--site","--site", dest="site", default="FNAL", type=str, help="If running on lxplus include option --site CERN, otherwise assumes you are running on FNAL")
@@ -79,6 +80,11 @@ else:
         output_dir = "/nfs/dust/cms/user/%s/VHbbAnalysisNtuples" % os.getlogin()
     if doSkim:
         output_dir = output_dir.replace("VHbbAnalysisNtuples","SkimmedAnalysisNtuples")
+
+    if options.outputDir:
+        print "changing output_dir to",options.outputDir
+        output_dir = options.outputDir
+
 
     #if os.path.exists(jobName):
     #    print "Attempting to create jobs under jobName %s, which already exists!" % jobName

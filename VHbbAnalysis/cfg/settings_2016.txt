@@ -1,0 +1,105 @@
+# types:  unsigned int=0, int=1, float=2, double=3, bool=4
+#     array +5;   vector +10;
+
+# ONLY USE FLOATS
+type=2  name=vetolep            val=1
+type=2  name=intL               val=35900 # 1/pb
+type=2  name=doCutFlow          val=0    # negative number will activate cutflow for preselection
+type=2  name=doOnlySignalRegion val=0
+type=2  name=onlyEvenEvents     val=0
+type=2  name=onlyOddEvents      val=0
+type=2  name=do2015             val=0
+type=2  name=dataYear           val=2016
+type=2  name=doReg              val=1
+type=2  name=smearJets          val=0
+type=2  name=JERScale           val=1.0
+type=2  name=doBoost            val=0
+type=2  name=doCMVA             val=1
+type=2  name=doICHEP            val=0
+type=2  name=reReg              val=0
+type=2  name=reVType            val=0
+type=2  name=doVPtReweighting   val=0
+
+type=2  name=j1ptCut_0lepchan   val=60
+type=2  name=j1ptCut_1lepchan   val=25
+type=2  name=j1ptCut_2lepchan   val=20
+type=2  name=j1ptCut            val=25
+
+type=2  name=j2ptCut_0lepchan   val=35
+type=2  name=j2ptCut_1lepchan   val=25
+type=2  name=j2ptCut_2lepchan   val=20
+type=2  name=j2ptCut            val=25
+
+type=2  name=j1ptCSV_0lepchan   val=0.9432
+type=2  name=j1ptCSV_1lepchan   val=0.9432
+type=2  name=j1ptCSV_2lepchan   val=-0.5884
+type=2  name=j1ptCSV            val=-0.5884
+type=2  name=j2ptCSV            val=-0.5884
+type=2  name=j1etaCut           val=2.5
+type=2  name=j2etaCut           val=2.5
+
+type=2  name=JetPtPresel        val=20
+type=2  name=LepPtPresel        val=20
+
+
+type=2  name=elptcut_1lepchan     val=30
+type=2  name=elptcut_2lepchan     val=20
+# type=2  name=eptcut             val=30
+# type=2  name=e1ptcut            val=25
+# type=2  name=e2ptcut            val=17
+
+type=2  name=muptcut_1lepchan   val=25
+type=2  name=muptcut_2lepchan   val=20
+# type=2  name=muptcut            val=25
+# type=2  name=mu1ptcut           val=25
+# type=2  name=mu2ptcut           val=15
+
+type=2  name=eletacut           val=2.5
+type=2  name=muetacut           val=2.4
+
+type=2  name=metcut_0lepchan    val=170
+type=2  name=metcut_1lepchan    val=100
+
+# type=2  name=erelisocut         val=0.06
+type=2  name=elrelisocut_1lepchan val=0.06
+type=2  name=elrelisocut_2lepchan val=0.15
+
+#type=2  name=murelisocut        val=0.06
+type=2  name=murelisocut_1lepchan val=0.06
+type=2  name=murelisocut_2lepchan val=0.25
+
+type=2  name=elMetDPhiCut       val=2.0
+type=2  name=muMetDPhiCut       val=2.0
+
+type=2  name=elidcut_1lepchan   val=2
+type=2  name=elidcut_2lepchan   val=1
+type=2  name=muidcut            val=1
+
+
+type=2  name=HVDPhiCut_0lepchan val=2.0
+type=2  name=HVDPhiCut_1lepchan val=2.5
+type=2  name=HVDPhiCut_2lepchan val=2.5
+type=2  name=hptcut_0lepchan    val=120
+type=2  name=hptcut_1lepchan    val=100
+type=2  name=vptcut             val=100 # use eventClass variable instead
+type=2  name=vptPreselCut       val=50
+type=2  name=zmasslow           val=75 # for Z(ll) channel
+type=2  name=zmasshigh          val=105 # for Z(ll) channel
+
+# events must have number of add. jets/leptons < this value
+type=2  name=nAddJetsCut        val=2
+type=2  name=nAddLeptonsCut     val=1
+
+type=2  name=SF_Wj0b            val=1.01
+type=2  name=SF_Wj1b            val=1.49
+type=2  name=SF_Wj2b            val=1.94
+type=2  name=SF_TT              val=0.84
+
+#type=2  name=SF_Wj0b            val=1.03
+##type=2  name=SF_WHF             val=1.65
+#type=2  name=SF_Wj1b            val=1.62
+#type=2  name=SF_Wj2b            val=1.03
+#type=2  name=SF_TT              val=0.99
+
+type=2  name=minMetjDPhiCut      val=0.5
+type=2  name=MetTkMetDPhiCut     val=0.5

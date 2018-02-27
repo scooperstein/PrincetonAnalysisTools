@@ -29,7 +29,7 @@ void VHbbAnalysis::InitAnalysis() {
 bool VHbbAnalysis::Preselection() {
     bool doCutFlowInPresel = int(*f["doCutFlow"]) < 0;
 
-    if (*f["onlyEvenEvents"] && *f["onlyOddEvents"]) {
+    if (m("onlyEvenEvents") && m("onlyOddEvents")) {
         std::cout << "Cannot set both onlyEvenEvents and onlyOddEvents to true!!" << std::endl;
         return false;
     }
@@ -67,19 +67,21 @@ bool VHbbAnalysis::Preselection() {
         //if (*f["LHE_Vpt"] < 200 || *in["nGenStatus2bHad"] == 0) return false;
     }
 
-    if (cursample->sampleNum == 0) {
-        //if (*f["json"] != 1 && !doCutFlowInPresel) return false;
-        if (!doCutFlowInPresel) return false;
-    }
+    //if (cursample->sampleNum == 0) {
+    //    //if (*f["json"] != 1 && !doCutFlowInPresel) return false;
+    //    if (!doCutFlowInPresel) return false;
+    //}
 
     // Trigger Selections
-    if(*f["reVType"]){
+    if(m("reVType")){
         *in["Vtype"]= UpdatedVType();
     }
 
-    if (!PassVTypeAndTrigger(*in["Vtype"]) && !doCutFlowInPresel) {
-        *in["controlSample"] = -1;
-    }
+    
+    //if (!PassVTypeAndTrigger(*in["Vtype"]) && !doCutFlowInPresel) {
+    //    *in["controlSample"] = -1;
+    //}
+
 
     if (*in["Vtype"]<2) {
         if (*f["V_pt"] < *f["vptPreselCut"] && !doCutFlowInPresel) { // preserve 50 < Vpt < 100 for the 2-lepton channels
@@ -174,23 +176,26 @@ bool VHbbAnalysis::Analyze() {
 
     // move fast requirements to the front
     if (debug > 1000) std::cout << "Imposing json and trigger requirements" << std::endl;
-    if (*in["sampleIndex"] == 0) {
-        *in["controlSample"] = -1;
-    }
+    //if (*in["sampleIndex"] == 0) {
+    //    *in["controlSample"] = -1;
+    //}
 
-    // asking for doCutFlow instead of doOnlySignalRegion, as events with bad json will not go into CR
-    if (!doCutFlow && *in["controlSample"] < 0) {
-        return false;
-    }
+    // What would we need this for?
+    //// asking for doCutFlow instead of doOnlySignalRegion, as events with bad json will not go into CR
+    //if (!doCutFlow && m("controlSample") < 0) {
+    //    if(debug>1000) std::cout<<"cut by cms data certification"<<std::endl;
+    //    return false;
+    //}
 
     if (!PassVTypeAndTrigger(*in["Vtype"])) {
         *in["controlSample"] = -1;
     }
 
-    // asking for doCutFlow instead of doOnlySignalRegion, as events with bad trigger will not go into CR
-    if (!doCutFlow && *in["controlSample"] < 0) {
-        return false;
-    }
+    //// asking for doCutFlow instead of doOnlySignalRegion, as events with bad trigger will not go into CR
+    //if (!doCutFlow && *in["controlSample"] < 0) {
+    //    if(debug>1000) std::cout<<"cut by trigger"<<std::endl;
+    //    return false;
+    //}
 
     if (sel && *in["controlSample"] > -1) {
         *in["cutFlow"] += 1; // json and trigger selection
@@ -303,13 +308,14 @@ bool VHbbAnalysis::Analyze() {
 
 
     if (debug > 1000) {
-        std::cout << "Vtype isZnn isWmunu isWenu isZmm isZee ";
+        std::cout << "Vtype isZnn isWmunu isWenu isZmm isZee controlSample ";
         std::cout << *in["Vtype"] << " "
                   << *in["isZnn"] << " "
                   << *in["isWmunu"] << " "
                   << *in["isWenu"] << " "
                   << *in["isZmm"] << " "
-                  << *in["isZee"]
+                  << *in["isZee"] << " "
+                  << *in["controlSample"]
                   << std::endl;
     }
 
@@ -1076,7 +1082,7 @@ bool VHbbAnalysis::Analyze() {
             *in["controlSample"] = 12;
         }
 
-        if (*in["sampleIndex"] == 0) {
+        if (*in["sampleIndex"] == 0 && debug>10) {
             std::cout << "data CS event " << *in["controlSample"]
                       << " maxCSV " << maxCSV
                       << " nAddJets252p9_puid " << *in["nAddJets252p9_puid"]
@@ -2051,6 +2057,7 @@ bool VHbbAnalysis::MuonSelection(int nLep){
 
 int VHbbAnalysis::UpdatedVType() {
 
+    m("Vtype_new");
     *f["Vtype_new"] = *in["Vtype"];
 
     // muon channels are good
@@ -2133,29 +2140,29 @@ bool VHbbAnalysis::PassVTypeAndTrigger(int vtype) {
     } else if (m("dataYear") == 2016) {
         // 0-lepton
         if (vtype == 4
-            && *b["HLT_PFMET110_PFMHT110_IDTight"] != 1
-            && *b["HLT_PFMET120_PFMHT120_IDTight"] != 1
-            //&& *b["HLT_PFMET170_NoiseCleaned"] != 1
-            //&& *b["HLT_PFMET170_HBHE_BeamHaloCleaned"] != 1
-            //&& *b["HLT_PFMET170_HBHECleaned"] != 1
+            && m("HLT_PFMET110_PFMHT110_IDTight")     != 1
+            && m("HLT_PFMET120_PFMHT120_IDTight")     != 1
+            && m("HLT_PFMET170_NoiseCleaned")         != 1
+            && m("HLT_PFMET170_BeamHaloCleaned")      != 1
+            && m("HLT_PFMET170_HBHECleaned")          != 1
            ) {
             return false;
         }
         // 1-lepton
         if ((vtype == 2 || vtype == 3)
-            //&& *b["HLT_Ele27_eta2p1_WPTight_Gsf"] != 1
-            && *b["HLT_IsoMu24"] != 1
-            //&& *b["HLT_IsoTkMu24"] != 1
+            && m("HLT_Ele27_eta2p1_WPTight_Gsf")!= 1
+            && m("HLT_IsoMu24")                 != 1
+            && m("HLT_IsoTkMu24")               != 1
            ) {
             return false;
         }
         // 2-lepton
         if ((vtype == 0 || vtype == 1)
-            && *b["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL"] != 1
-            && *b["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"] != 1
-            //&& *b["HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL"] != 1
-            //&& *b["HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"] != 1
-            && *b["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"] != 1
+            && m("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL")          != 1
+            && m("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ")       != 1
+            && m("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL")        != 1
+            && m("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ")     != 1
+            && m("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") != 1
            ) {
             return false;
         }
