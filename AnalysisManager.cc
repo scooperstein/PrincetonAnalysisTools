@@ -28,7 +28,7 @@ void AnalysisManager::Initialize(std::string filename) {
     f.clear();
     d.clear();
     b.clear();
-    
+
     branches.clear();
     branchInfos.clear();
 
@@ -37,7 +37,7 @@ void AnalysisManager::Initialize(std::string filename) {
         outputTreeName="condensed_tree";
     }
     safemode=1;
-    
+
     return;
 }
 
@@ -67,7 +67,7 @@ AnalysisManager::~AnalysisManager()
         if(debug>1000) std::cout<<"I'm deleting "<<fit->first<<std::endl;
         delete fit->second;
     }
-    
+
     if(debug>10000) std::cout<<"doubles"<<std::endl;
     for(std::map<std::string,double*>::iterator dit=d.begin();
             dit!=d.end();  ++dit){
@@ -81,7 +81,7 @@ AnalysisManager::~AnalysisManager()
         if(debug>1000) std::cout<<"I'm deleting "<<bit->first<<std::endl;
         delete bit->second;
     }
-    
+
     //if(debug>1000) std::cout<<"deleting settingsTree"<<std::endl;
     //delete settingsTree;
 }
@@ -101,6 +101,20 @@ void AnalysisManager::AddScaleFactor(SFContainer sf) {
     float sf_err = 1.0;
     float sfac = sf.getScaleFactor(100.,1.2,sf_err);
     std::cout<<sfac<<std::endl;
+}
+
+void AnalysisManager::InitializeBTagSF(const std::string & bTagCalibFile) {
+
+    // TODO uncertainties:
+    // lf: {"up_jes", "down_jes", "up_hf", "down_hf", "up_lfstats1", "down_lfstats1", "up_lfstats2", "down_lfstats2"}
+    // c:  {"up_cferr1", "down_cferr1", "up_cferr2", "down_cferr2"}
+    // hf: {"up_jes", "down_jes", "up_lf", "down_lf", "up_hfstats1", "down_hfstats1", "up_hfstats2", "down_hfstats2"}
+
+    BTagCalibration calib("taggernamedoesntmatter", bTagCalibFile);
+    bTagCalibReader.reset(new BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central"));
+    bTagCalibReader->load(calib, BTagEntry::FLAV_B,     "iterativeFit");
+    bTagCalibReader->load(calib, BTagEntry::FLAV_C,     "iterativeFit");
+    bTagCalibReader->load(calib, BTagEntry::FLAV_UDSG,  "iterativeFit");
 }
 
 void AnalysisManager::AddBDT(BDTInfo bdt) {
@@ -191,7 +205,7 @@ void AnalysisManager::InitChain(std::string filename)
 void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov, std::string lengthBranch){
     branches[name] = new TBranch;
     if(debug>10000) std::cout<<"new TBranch"<<std::endl;
-    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov,-999.,lengthBranch); 
+    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov,-999.,lengthBranch);
     if(debug>10000) std::cout<<"new BranchInfo"<<std::endl;
 
     // Only 0-9 are setup with types for the moment.
@@ -218,7 +232,7 @@ void AnalysisManager::SetupBranch(std::string name, int type, int length, int on
         fChain->SetBranchAddress(name.c_str(), b[name], &branches[name]);
     }
 
-    
+
     if(type>4 && type<10 && length<0) {
         std::cout<<"Types 5-9 are arrays and need a length greater than 0... not "
             <<length<<" name "<<name.c_str()<<std::endl;
@@ -257,7 +271,7 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
         std::cout<<"SetupNewBranch "<<name<<std::endl;
         std::cout<<"treetype name type length val \t"<<treetype<<" "<<name<<" "<<type<<" "<<length<<" "<<val<<std::endl;
     }
-    
+
     TTree* treeptr;
     if(treetype=="output") { // outputtree
         treeptr=outputTree;
@@ -267,7 +281,7 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
         std::cout<<"treetype "<<treetype<<" is unknown.  Not setting up "<<name<<std::endl;
         return;
     }
-    
+
     if(newmem) {
         if(treetype=="output") { // outputtree
             branchInfos[name] = new BranchInfo(name,type,length,false,"new");
@@ -275,8 +289,8 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
             branchInfos[name] = new BranchInfo(name,type,length,false,"settings",val);
         }
     }
-    if(debug>1000) std::cout<<"BranchInfo instaniated"<<std::endl; 
-       
+    if(debug>1000) std::cout<<"BranchInfo instaniated"<<std::endl;
+
 
     if(type>9 || type<0) {
         std::cout<<"New Branch "<<name<<" cannot be set to type "<<type<<std::endl;
@@ -328,7 +342,7 @@ void AnalysisManager::SetupNewBranch(std::string name, int type, int length, boo
 }
 
 void AnalysisManager::ResetBranches(){
-    
+
     for(std::map<std::string,BranchInfo*>::iterator biit=branchInfos.begin();
             biit!=branchInfos.end(); ++biit) {
         if(debug>100) std::cout<<"Branch "<<biit->second->name<<" of type, prov "<<biit->second->type<<" "<<biit->second->prov<<std::endl;
@@ -348,7 +362,7 @@ void AnalysisManager::ResetBranches(){
                 fChain->SetBranchAddress(name.c_str(), d[name], &branches[name]);
             } else if(biit->second->type%5==4) {
                 fChain->SetBranchAddress(name.c_str(), b[name], &branches[name]);
-            } 
+            }
         }
     }
 }
@@ -356,7 +370,7 @@ void AnalysisManager::ResetBranches(){
 
 void AnalysisManager::PrintBranches(){
     std::cout<<"Branches in branch map"<<std::endl;
-    for(std::map<std::string,TBranch*>::iterator ibranch=branches.begin(); 
+    for(std::map<std::string,TBranch*>::iterator ibranch=branches.begin();
             ibranch!=branches.end(); ++ibranch){
         std::cout<<ibranch->first<<" "<<branchInfos[ibranch->first]->prov<<std::endl;
     }
@@ -367,22 +381,22 @@ void AnalysisManager::SetBranches(){
     // only copy branches specified
     if(debug>10) std::cout<<"SetBranchStatus of existing branches"<<std::endl;
     fChain->SetBranchStatus("*", 0);
-    for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
+    for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin();
             ibranch!=branchInfos.end(); ++ibranch){
         if(ibranch->second->prov == "existing" || ibranch->second->prov == "early") {
             if(debug>100) std::cout<<"fChain->SetBranchStatus("<<ibranch->first.c_str()<<", 1);"<<std::endl;
             fChain->SetBranchStatus(ibranch->first.c_str(), 1);
         }
         if(ibranch->second->prov == "new") {
-            
+
         }
     }
 }
 
 void AnalysisManager::SetNewBranches(){
-    //  
+    //
     if(debug>10) std::cout<<"SetupNewBranches"<<std::endl;
-    for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
+    for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin();
             ibranch!=branchInfos.end(); ++ibranch){
         if(ibranch->second->prov == "new") {
             if(debug>100) std::cout<<"SetupNewBranch "<<ibranch->first.c_str()<<std::endl;
@@ -400,7 +414,7 @@ void AnalysisManager::SetNewBranches(){
 }
 
 void AnalysisManager::GetEarlyEntries(Long64_t entry, bool isData){
-    for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin(); 
+    for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin();
             ibranch!=branchInfos.end(); ++ibranch){
         if(ibranch->second->prov == "early" && !(isData && ibranch->second->onlyMC)) {
             if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
@@ -470,7 +484,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 samples.clear();
                 samples.push_back(*onlySample);
                 break;
-            } 
+            }
         }
         if(!sampleFound) {
             std::cout<<"Analysis Manager tried to loop over the individual sample "<<sampleName<<", but this sample is not in the samples list. Skipping..."<<std::endl;
@@ -483,19 +497,19 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
 
     if(debug>10) std::cout<<"Starting Loop"<<std::endl;
     SetBranches();
-    
+
     // add new branches
     ofile->cd();
     //TTree *newtree = fChain->CloneTree(0);
     // for now we will use a default file to set the structure for the output tree
-    outputTree = new TTree(); 
-    outputTree = fChain->CloneTree(0); // need this one to only keep the branches you want 
-    
+    outputTree = new TTree();
+    outputTree = fChain->CloneTree(0); // need this one to only keep the branches you want
+
     // it would probably be smarter to check also if SetupBranch() has been called since the last time outputTree was initialized
     //if (!outputTree) {
     //    std::cout<<"Did not call ConfigureOutputTree() before Loop(). Assuming there are no new branches..."<<std::endl;
     //    outputTree = fChain->CloneTree(0);
-    //}  
+    //}
     // let's add some of our own branches
     SetNewBranches();
     SetupSystematicsBranches();
@@ -504,18 +518,18 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
     settingsTree->Fill();
     settingsTree->Write();
     delete settingsTree;
- 
-    
+
+
     if(debug>10) std::cout<<"Done setting up branches; about to Init"<<std::endl;
     InitAnalysis();
-    
-    
+
+
     if(debug>10) std::cout<<"About to loop over samples"<<std::endl;
     // loop through one sample at a time
-    for (int i = 0; i < (int)samples.size(); i++) { 
+    for (int i = 0; i < (int)samples.size(); i++) {
         cursample = &samples[i];
         cursample->ComputeWeight(*f["intL"]);
-         
+
         for(int ifile=0; ifile<(int)(cursample->files.size()); ifile++){
             if(std::find(readFiles.begin(), readFiles.end(), cursample->files[ifile]) != readFiles.end() ) {
                 // file has already been processed, skip it
@@ -524,7 +538,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
             readFiles.push_back(cursample->files[ifile]);
             // set fChain to the TChain for the current sample
             InitChain(cursample->files[ifile]);
-    
+
             // FIXME should have a sample name, but doesn't right now
             if(debug>0) std::cout<<"About to loop over events in "<<cursample->files[ifile]<<std::endl;
             // loop through the events
@@ -536,8 +550,8 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
             for (Long64_t jentry=0; jentry<nentries;jentry++) {
                 if((jentry%1000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
                 //if((jentry%10000==0 && debug>0) || debug>100000)  std::cout<<"entry saved weighted "<<jentry<<" "<<saved<<" "<<saved*cursample->intWeight<<std::endl;
-                
-                
+
+
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
                 bool anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
@@ -549,21 +563,21 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     bool presel = Preselection();
                     if(presel) anyPassing=true;
                 }
-                
+
                 if(!anyPassing) continue;
-  
+
 
                 if(debug>1000) std::cout<<"passed presel; Loading tree"<<std::endl;
                 Long64_t ientry = LoadTree(jentry);
                 if (ientry < 0) break;
-                //nb = fChain->GetEntry(jentry);   
+                //nb = fChain->GetEntry(jentry);
                 //nbytes += nb;
-                
+
                 anyPassing=false;
                 for(int iSyst=0; iSyst<systematics.size(); iSyst++){
-                    nb = fChain->GetEntry(jentry);   
+                    nb = fChain->GetEntry(jentry);
                     nbytes += nb;
-                    
+
                     if (!doSkim) {
 
                         cursyst=&(systematics[iSyst]);
@@ -572,7 +586,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                         if(debug>1000) std::cout<<"running analysis"<<std::endl;
                         bool select = Analyze();
                         *b[Form("Pass_%s",cursyst->name.c_str())] = false;
-                        if(select) { 
+                        if(select) {
                             anyPassing=true;
                             *b[Form("Pass_%s",cursyst->name.c_str())] = true;
                         }
@@ -589,17 +603,17 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                             //            else {
                             //                 f[sf.branchname][j] = sf.getScaleFactor(fabs(f[sf.branches[0]][j]), fabs(f[sf.branches[1]][j]), sf_err);
                             //            }
-                            //            f[Form("%s_err",sf.branchname.c_str())][j] = sf_err; 
+                            //            f[Form("%s_err",sf.branchname.c_str())][j] = sf_err;
                             //        }
                             //    }
                             //    else {
                             //        // data event, scale factor should just be 1.0
                             //        for (int j=0; j < *in[sf.length]; j++) {
                             //            f[sf.branchname][j] = 1.0;
-                            //            f[Form("%s_err",sf.branchname.c_str())][j] = 0.0; 
+                            //            f[Form("%s_err",sf.branchname.c_str())][j] = 0.0;
                             //        }
                             //    }
-                            //    
+                            //
                             //}
                             FinishEvent();
                             if(cursyst->name=="nominal") saved++;
@@ -629,8 +643,8 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
         }
     } // end sample loop
     if(debug>1000) std::cout<<"Finished looping"<<std::endl;
-    
-    
+
+
     TermAnalysis();
 }
 
@@ -644,7 +658,7 @@ bool AnalysisManager::Preselection(){
     bool sel=false;
     if(1) sel=true;
     return sel;
-} 
+}
 
 
 bool AnalysisManager::Analyze(){
@@ -652,10 +666,10 @@ bool AnalysisManager::Analyze(){
     return sel;
 }
 
-            
+
 void AnalysisManager::FinishEvent(){
     //need to fill the tree, hist, or whatever here.
-  
+
     // FIXME nominal must be last!
     if(cursyst->name=="nominal"){
         ofile->cd();
@@ -676,7 +690,7 @@ void AnalysisManager::TermAnalysis() {
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
 void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
     //TMVA::Reader *thereader = bdtInfo.reader;
-    
+
     for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
         BDTVariable bdtvar = bdtInfo.bdtVars[i];
         if (!bdtvar.isSpec) {
@@ -704,7 +718,7 @@ void AnalysisManager::SetupSystematicsBranches(){
                 <<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type<<", "
                 <<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length<<std::endl;
                 //<<branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length<<" "
-            SetupNewBranch(newName, 
+            SetupNewBranch(newName,
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type,
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length);
         }
@@ -782,8 +796,8 @@ void AnalysisManager::ApplySystematics(bool early){
                     //std::cout<<"Jet pt, eta: "<<f["Jet_pt_reg"][ind]<<", "<<f["Jet_eta"][ind]<<std::endl;
                     //std::cout<<"old val "<<f[oldBranchName.c_str()][ind]<<std::endl;
                     // FIXME: we are assuming that the only array variables we scale are jet variables, we should in principle make this more generic
-                    if (ptSplit==0 || (ptSplit==1 && f["Jet_pt_reg"][ind]<jetPtSplit) || (ptSplit==2 && f["Jet_pt_reg"][ind]>jetPtSplit)) { 
-                        if (etaSplit==0 || (etaSplit==1 && fabs(f["Jet_eta"][ind])<jetEtaSplit) || (etaSplit==2 && fabs(f["Jet_eta"][ind])>jetEtaSplit)) { 
+                    if (ptSplit==0 || (ptSplit==1 && f["Jet_pt_reg"][ind]<jetPtSplit) || (ptSplit==2 && f["Jet_pt_reg"][ind]>jetPtSplit)) {
+                        if (etaSplit==0 || (etaSplit==1 && fabs(f["Jet_eta"][ind])<jetEtaSplit) || (etaSplit==2 && fabs(f["Jet_eta"][ind])>jetEtaSplit)) {
                             //std::cout<<"got through"<<std::endl;
                             if (cursyst->scaleVar[iBrnch] == "") {
                                 // flat scaling
@@ -836,34 +850,34 @@ double AnalysisManager::m(std::string key, int index){
         switch(branchInfos[key]->type)
         {
         case 0:
-            if(debug>1000) std::cout<<"unsigned int "<<*ui[key]<<std::endl; 
+            if(debug>1000) std::cout<<"unsigned int "<<*ui[key]<<std::endl;
             return (double)*ui[key];
         case 1:
-            if(debug>1000) std::cout<<"int "<<*in[key]<<std::endl; 
+            if(debug>1000) std::cout<<"int "<<*in[key]<<std::endl;
             return (double)*in[key];
         case 2:
-            if(debug>1000) std::cout<<"float "<<*f[key]<<std::endl; 
+            if(debug>1000) std::cout<<"float "<<*f[key]<<std::endl;
             return (double)*f[key];
         case 3:
-            if(debug>1000) std::cout<<"double "<<*d[key]<<std::endl; 
+            if(debug>1000) std::cout<<"double "<<*d[key]<<std::endl;
             return (double)*d[key];
         case 4:
-            if(debug>1000) std::cout<<"boolean "<<*b[key]<<std::endl; 
+            if(debug>1000) std::cout<<"boolean "<<*b[key]<<std::endl;
             return (double)*b[key];
         case 5:
-            if(debug>1000) std::cout<<"unsigned int "<<ui[key][index]<<std::endl; 
+            if(debug>1000) std::cout<<"unsigned int "<<ui[key][index]<<std::endl;
             return (double)ui[key][index];
         case 6:
-            if(debug>1000) std::cout<<"int "<<in[key][index]<<std::endl; 
+            if(debug>1000) std::cout<<"int "<<in[key][index]<<std::endl;
             return (double)in[key][index];
         case 7:
-            if(debug>1000) std::cout<<"float "<<f[key][index]<<std::endl; 
+            if(debug>1000) std::cout<<"float "<<f[key][index]<<std::endl;
             return (double)f[key][index];
         case 8:
-            if(debug>1000) std::cout<<"double "<<d[key][index]<<std::endl; 
+            if(debug>1000) std::cout<<"double "<<d[key][index]<<std::endl;
             return (double)d[key][index];
         case 9:
-            if(debug>1000) std::cout<<"boolean "<<b[key][index]<<std::endl; 
+            if(debug>1000) std::cout<<"boolean "<<b[key][index]<<std::endl;
             return (double)b[key][index];
         default:
             if(debug>10) std::cout<<"I don't know type "<<branchInfos[key]->type<<" yet..."<<std::endl;
@@ -879,7 +893,7 @@ double AnalysisManager::EvalDeltaPhi(double phi0, double phi1){
 
     if(dPhi > PI)
         dPhi = 2.0*PI - dPhi;
-    
+
     return dPhi;
 }
 

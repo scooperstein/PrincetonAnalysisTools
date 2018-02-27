@@ -14,3 +14,4 @@ settings=cfg/settings.txt
 
 systematics=cfg/systematics.txt
 scalefactors=cfg/scalefactors.txt
+btagscalefactors=aux/DeepCSV_94XSF_V1_B_F.csv

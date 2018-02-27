@@ -1,5 +1,5 @@
 #ifdef __CINT__
- 
+
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
@@ -16,5 +16,6 @@
 #pragma link C++ defined_in "plugins/EWKAnalysis.h";
 #pragma link C++ defined_in "AnalysisManager.h";
 #pragma link C++ defined_in "plugins/WorkspaceAnalysis.h";
- 
+#pragma link C++ defined_in "HelperClasses/BTagCalibrationStandalone.h";
+
 #endif

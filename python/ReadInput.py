@@ -140,13 +140,13 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
             print "There are no existing branches in the config file."
 
         am.ConfigureOutputTree()
-        if am.debug>10: 
+        if am.debug>10:
             print "output tree configured"
 
         if settings.has_key("newbranches"):
             branches=ReadTextFile(settings["newbranches"], "branchlist",list())
             for branch in branches:
-                if am.debug>100: 
+                if am.debug>100:
                     print(branch,branches[branch][0], branches[branch][1])
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1])
         else:
@@ -223,6 +223,10 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                 am.SetupNewBranch(sf.branchname, 7, 10)
                 am.SetupNewBranch(sf.branchname+"_err", 7, 10)
                 print "added scale factor"
+
+        if settings.has_key("btagscalefactors"):
+            print "adding btag scale factors"
+            am.InitializeBTagSF(settings["btagscalefactors"])
 
         return am
     elif filetype is "samplefile":

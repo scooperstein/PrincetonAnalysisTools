@@ -23,10 +23,12 @@
 #include "HelperClasses/SystematicContainer.cc"
 #include "HelperClasses/SampleContainer.cc"
 #include "HelperClasses/SFContainer.cc"
+#include "HelperClasses/BTagCalibrationStandalone.h"
 
 //#include "HelperClasses/BaseAnalysis.h"
 
 #include <string>
+#include <memory>
 
 struct Value
 {
@@ -48,9 +50,9 @@ class AnalysisManager {
 public :
     AnalysisManager();
     virtual ~AnalysisManager();
-    
+
     void Initialize(std::string filename);
-    
+
     //File management
     TChain                          *fChain;        //!pointer to the analyzed TTree or TChain
     Int_t                           fCurrent;       //!current Tree number in a TChain
@@ -66,14 +68,16 @@ public :
     bool                            BDTisSet;
     bool                            jet1EnergyRegressionIsSet;
     bool                            jet2EnergyRegressionIsSet;
-    std::vector<SampleContainer>    samples; 
-    SampleContainer*                cursample; 
+    std::vector<SampleContainer>    samples;
+    SampleContainer*                cursample;
     void                            AddSample(SampleContainer sample);
     std::vector<SystematicContainer>  systematics;
-    SystematicContainer*            cursyst; 
-    std::vector<SFContainer>        scaleFactors;
+    SystematicContainer*            cursyst;
     void                            AddSystematic(SystematicContainer syst);
+    std::vector<SFContainer>        scaleFactors;
     void                            AddScaleFactor(SFContainer sf);
+    std::unique_ptr<BTagCalibrationReader> bTagCalibReader;
+    void                            InitializeBTagSF(const std::string & bTagCalibFile);
     void                            AddBDT(BDTInfo bdtInfo);
     void                            SetJet1EnergyRegression(BDTInfo reg1);
     void                            SetJet2EnergyRegression(BDTInfo reg2);
@@ -88,7 +92,7 @@ public :
 
     //Branch management
     std::map<std::string,BranchInfo* > branchInfos;
-    
+
     std::map<std::string,TBranch*> branches;
 
     std::map<std::string,unsigned int*> ui;
@@ -104,15 +108,15 @@ public :
     HiggsInfo H;
     TrackInfo V;
     METInfo METtype1corr;
-   
+
     TBranch* b_H;
     TBranch* b_V;
     TBranch* b_METtype1corr;
- 
+
     Int_t           GetEntry(Long64_t entry);
     Long64_t        LoadTree(Long64_t entry);
     void            InitChain(std::string filename);
-    
+
     void            SetupBranch(std::string name, int type, int length=-1, int onlyMC=0, std::string prov="existing", std::string lengthBranch="");
     void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true, std::string treetype="output", float val=-999);
     void            SetNewBranches();
@@ -122,12 +126,12 @@ public :
     void            GetEarlyEntries(Long64_t entry,bool isData=false);
     std::vector<std::string>      ListSampleNames();
     void            PrintBDTInfoValues(BDTInfo bdt);
-    
+
     //void            Loop(std::string sampleName="", std::string filename="", int fNum=1 );
     void            Loop(std::string sampleName="", std::string filename="", std::string ofilename="", bool doSkim=false );
     //virtual void     WriteBDTs(std::string indirname, std::string infilename, std::string outdirname, std::string outfilename, std::string cutstring);
     //Value            RetrieveValue(std::string key);
-    
+
 
     //AnalysisFuctions
     //BaseAnalysis    *analysis;
@@ -139,8 +143,8 @@ public :
     virtual void    TermAnalysis();
 
     // general use functions
-    double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1); 
-    double          EvalDeltaPhi(double phi0, double phi1); 
+    double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1);
+    double          EvalDeltaPhi(double phi0, double phi1);
     void            SetupBDT(BDTInfo bdtInfo);
     void            SetupSystematicsBranches();
     void            ApplySystematics(bool early=false);

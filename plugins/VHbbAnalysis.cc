@@ -76,7 +76,7 @@ bool VHbbAnalysis::Preselection() {
     if(*f["reVType"]){
         *in["Vtype"]= UpdatedVType();
     }
-    
+
     if (!PassVTypeAndTrigger(*in["Vtype"]) && !doCutFlowInPresel) {
         *in["controlSample"] = -1;
     }
@@ -98,8 +98,8 @@ bool VHbbAnalysis::Preselection() {
     //        f["Jet_btagCSVV2"][i] = f["Jet_btagCMVA"][i];
     //    }
 
-    
-    if (*f["smearJets"]) { 
+
+    if (*f["smearJets"]) {
         for (int i = 0; i < *in["nJet"]; i++) {
             float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
             if (JERScale != 1.0) {
@@ -117,7 +117,7 @@ bool VHbbAnalysis::Preselection() {
             //f["Jet_pt_reg_corrJERDown_ratio"][i] = f["Jet_pt_reg_corrJERDown"][i] / f["Jet_bReg"][i] ;
         }
     }
-    
+
     if (*f["reReg"]) {
         for (int i = 0; i < *in["nJet"]; i++) {
             f["Jet_bReg"][i] = evaluateRegression(i);
@@ -999,7 +999,7 @@ bool VHbbAnalysis::Analyze() {
         && m("Flag_HBHENoiseIsoFilter")
         && m("Flag_EcalDeadCellTriggerPrimitiveFilter")
     );
-    
+
 
     if (base0LepCSSelection) {
         // if (*f["Vtype"] == 2 || *f["Vtype"] == 3) {
@@ -1052,7 +1052,7 @@ bool VHbbAnalysis::Analyze() {
     for (int i=0; i<m("nJet");i++) {
         if (m("Jet_pt",i)>30. && m("Jet_lepFilter",i) && m("Jet_puId",i)) {
             *f["htJet30"] = *f["htJet30"] + m("Jet_pt",i);
-        }   
+        }
     }
     for (int i=0; i<m("nMuon"); i++) {
         if (m("Muon_pt",i)>5 && m("Muon_pfRelIso04_all",i)<0.4) {
@@ -1131,7 +1131,37 @@ bool VHbbAnalysis::Analyze() {
     }
 }
 
+
 void VHbbAnalysis::FinishEvent() {
+
+    // b tag weights
+    if (bTagCalibReader) {
+
+        if (debug>101) std::cout<<"evaluating btag scale factors"<<std::endl;
+
+        // TODO uncertainties
+        float bTagWeight = 1.;
+        for (int i=0; i<m("nJet"); i++)
+        {
+            if (m("Jet_puId", i) > 0
+                && fabs(m("Jet_eta", i))<=m("JetEtaCut")
+                && m("Jet_pt", i)>m("JetPtPresel"))
+            {
+                int hadron_flav = m("Jet_hadronFlavour", i);
+                auto flav = (hadron_flav==5) ? BTagEntry::FLAV_B :
+                            (hadron_flav==4) ? BTagEntry::FLAV_C :
+                            BTagEntry::FLAV_UDSG;
+                bTagWeight *= bTagCalibReader->eval_auto_bounds(
+                    "central",
+                    flav,
+                    fabs(m("Jet_eta", i)),
+                    m("Jet_pt", i),
+                    m("Jet_btagDeepB", i)
+                );
+            }
+        }
+        *f["bTagWeight"] = bTagWeight;
+    }
 
     //if (bool(*f["doCutFlow"])) {
     //    ofile->cd();
@@ -1188,9 +1218,9 @@ void VHbbAnalysis::FinishEvent() {
         outputTree->Fill();
     }
     return;
-   
+
     // FIXME ... um... ignoring everything?
-    
+
     if(*in["sampleIndex"]!=0){
         if (*f["doICHEP"] != 1) {
             *f["weight_PU"] = *f["puWeight"];
@@ -1832,6 +1862,7 @@ void VHbbAnalysis::FinishEvent() {
         if (debug>10000) std::cout<<"filling output tree"<<std::endl;
         outputTree->Fill();
     }
+
     if(debug>100) std::cout<<"Ending FinishEvent()"<<std::endl;
     return;
 }
@@ -2163,7 +2194,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] > 0
             && f["Jet_bReg"][i]>*f["j1ptCut"]
-            && f["Jet_btagCSVV2"][i]>*f["j1ptCSV"]&&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
+            && f["Jet_btagCSVV2"][i]>*f["j1ptCSV"]&&fabs(f["Jet_eta"][i])<=*f["JetEtaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
             } else if(f["Jet_bReg"][pair.first]<f["Jet_pt"][i]){
@@ -2176,7 +2207,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] > 0
             && f["Jet_bReg"][i]>*f["j2ptCut"]
-            && f["Jet_btagCSVV2"][i]>*f["j2ptCSV"]&&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
+            && f["Jet_btagCSVV2"][i]>*f["j2ptCSV"]&&fabs(f["Jet_eta"][i])<*f["JetEtaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
             } else if(f["Jet_bReg"][pair.second]<f["Jet_pt"][i]){
@@ -2195,7 +2226,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(float j1ptCut, float j2ptCut){
     for(int i=0; i<*in["nJet"]; i++){
         if(in["Jet_puId"][i] > 0
             && f["Jet_bReg"][i]>j1ptCut
-            &&fabs(f["Jet_eta"][i])<=*f["j1etaCut"]) {
+            &&fabs(f["Jet_eta"][i])<=*f["JetEtaCut"]) {
             if( pair.first == -1 ) {
                 pair.first = i;
             } else if(f["Jet_btagCSVV2"][pair.first]<f["Jet_btagCSVV2"][i]){
@@ -2208,7 +2239,7 @@ std::pair<int,int> VHbbAnalysis::HighestCSVBJets(float j1ptCut, float j2ptCut){
         if(i==pair.first) continue;
         if(in["Jet_puId"][i] > 0
             && f["Jet_bReg"][i]>j2ptCut
-            &&fabs(f["Jet_eta"][i])<*f["j2etaCut"]) {
+            &&fabs(f["Jet_eta"][i])<*f["JetEtaCut"]) {
             if( pair.second == -1 ) {
                 pair.second = i;
             } else if(f["Jet_btagCSVV2"][pair.second]<f["Jet_btagCSVV2"][i]){
@@ -2233,14 +2264,14 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
     for (int i=0; i<*in["nJet"]; i++) {
         if(in["Jet_puId"][i] > 0
             && f["Jet_bReg"][i]>*f["j1ptCut"]
-            && fabs(f["Jet_eta"][i])<*f["j1etaCut"]) {
+            && fabs(f["Jet_eta"][i])<*f["JetEtaCut"]) {
             TLorentzVector jet1;
             jet1.SetPtEtaPhiM(f["Jet_bReg"][i],f["Jet_eta"][i],f["Jet_phi"][i],f["Jet_mass"][i] * (f["Jet_bReg"][i] / f["Jet_pt"][i] ) );
             for (int j=0; j<*in["nJet"]; j++) {
                 if (i == j) continue;
                 if(in["Jet_puId"][j] > 0
                     && f["Jet_bReg"][j]>*f["j2ptCut"]
-                    && fabs(f["Jet_eta"][j])<*f["j2etaCut"]) {
+                    && fabs(f["Jet_eta"][j])<*f["JetEtaCut"]) {
                     TLorentzVector jet2;
                     jet2.SetPtEtaPhiM(f["Jet_bReg"][j],f["Jet_eta"][j],f["Jet_phi"][j],f["Jet_mass"][j] * (f["Jet_bReg"][j] / f["Jet_pt"][j] ) );
                     TLorentzVector jj = jet1 + jet2;
@@ -2311,7 +2342,7 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
     //    }
     //    else return -999;
     //}
-    //else 
+    //else
     // find closest jet to the given lepton
     float thisPT=0;
     for (int i=0; i<*in["nJet"]; i++) {
@@ -2338,7 +2369,7 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
             Obj2.SetPtEtaPhiM(thisPT, f["Jet_eta"][ObjClosestIndex], f["Jet_phi"][ObjClosestIndex], f["Jet_mass"][ObjClosestIndex]);
         }
     } else return -999;
-    
+
 
     if (useMET==0) {
         Top = Obj + Obj2;
