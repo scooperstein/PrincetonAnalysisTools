@@ -101,6 +101,7 @@ public :
     std::map<std::string,double*> d;
     std::map<std::string,bool*> b;
     double m(std::string key,int index=-1); // scaffold for function to get values from maps
+    int mInt(std::string key,int index=-1); 
 
     //Special branches
     // derived variables used in BDT training
