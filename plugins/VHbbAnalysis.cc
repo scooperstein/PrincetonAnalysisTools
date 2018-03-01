@@ -77,7 +77,7 @@ bool VHbbAnalysis::Preselection() {
         *in["Vtype"]= UpdatedVType();
     }
 
-    
+
     //if (!PassVTypeAndTrigger(*in["Vtype"]) && !doCutFlowInPresel) {
     //    *in["controlSample"] = -1;
     //}
@@ -1150,9 +1150,10 @@ void VHbbAnalysis::FinishEvent() {
         for (int i=0; i<m("nJet"); i++)
         {
             if (m("Jet_puId", i) > 0
+                && m("Jet_lepFilter", i) > 0
+                && m("Jet_pt", i)>m("JetPtPresel")
                 && fabs(m("Jet_eta", i))<=m("JetEtaCut")
-                && m("Jet_pt", i)>m("JetPtPresel"))
-            {
+            ) {
                 int hadron_flav = m("Jet_hadronFlavour", i);
                 auto flav = (hadron_flav==5) ? BTagEntry::FLAV_B :
                             (hadron_flav==4) ? BTagEntry::FLAV_C :
