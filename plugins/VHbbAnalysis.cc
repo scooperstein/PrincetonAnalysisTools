@@ -2177,18 +2177,23 @@ bool VHbbAnalysis::PassVTypeAndTrigger(int vtype) {
         // 1-lepton
         if ((vtype == 2 || vtype == 3)
             && *b["HLT_Ele32_WPTight_Gsf_L1DoubleEG"] != 1
-            && *b["HLT_Ele32_WPTight_Gsf"] != 1
             && *b["HLT_IsoMu24"] != 1
            ) {
             return false;
         }
         // 2-lepton
         if ((vtype == 0 || vtype == 1)
-            && *b["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL"] != 1
+            && *b["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"] != 1
             && *b["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"] != 1
            ) {
             return false;
         }
+       // if ((vtype == 0 || vtype == 1)
+       //     && *b["HLT_IsoMu27"] != 1
+       //     && *b["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"] != 1
+       //    ) {
+       //     return false;
+        //}
     } else {
         std::cout<<"What is this?  Run 1?  Run 3?  2018? "<<std::endl;
     }
