@@ -22,11 +22,13 @@ type=2  name=V_pt
 type=4  name=HLT_PFMET110_PFMHT110_IDTight  
 type=4  name=HLT_PFMET120_PFMHT120_IDTight
 type=4  name=HLT_Ele32_WPTight_Gsf_L1DoubleEG
-type=4  name=HLT_Ele32_WPTight_Gsf
+##type=4  name=HLT_Ele32_WPTight_Gsf
 type=4  name=HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL
 type=4  name=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL
 type=4  name=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ
+type=4  name=HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8
 type=4  name=HLT_IsoMu24
+type=4  name=HLT_IsoMu27
 type=4  name=HLT_PFMET110_PFMHT110_IDTight
 type=4  name=HLT_PFMETTypeOne120_PFMHT120_IDTight
 type=4  name=HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ
