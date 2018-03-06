@@ -1058,7 +1058,7 @@ bool VHbbAnalysis::Analyze() {
     for (int i=0; i<m("nJet");i++) {
         if (m("Jet_pt",i)>30. && m("Jet_lepFilter",i) && m("Jet_puId",i)) {
             *f["htJet30"] = *f["htJet30"] + m("Jet_pt",i);
-        }
+        }   
     }
     for (int i=0; i<m("nMuon"); i++) {
         if (m("Muon_pt",i)>5 && m("Muon_pfRelIso04_all",i)<0.4) {
