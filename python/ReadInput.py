@@ -293,16 +293,26 @@ def MakeSampleMap(lines,samplesToRun):
     samples={}
 
     globalPrefix=""
-    
-    for line in lines:
-        if line.find("prefix=") is 0:
-            print "Found a globalPrefix", line
-            if not globalPrefix:
-                items=line.split("=")
-                globalPrefix=items[1]
-            else:
-                print "found second prefix... I don't know how to choose and I don't like the pressure."
-                sys.exit()
+    prefix_lines = dict(
+        l.split('=')
+        for l in lines
+        if l.startswith('prefix')
+    )
+    import socket
+    hostname = socket.gethostname()
+    if hostname.endswith('.desy.de') and 'prefix_desy' in prefix_lines:
+        globalPrefix = prefix_lines['prefix_desy']
+        print "Using globalPrefix for DESY", globalPrefix
+    elif hostname.endswith('.cern.ch') and 'prefix_cern' in prefix_lines:
+        globalPrefix = prefix_lines['prefix_cern']
+        print "Using globalPrefix for CERN", globalPrefix
+    elif hostname.endswith('.fnal.gov') and 'prefix_fnal' in prefix_lines:
+        globalPrefix = prefix_lines['prefix_fnal']
+        print "Using globalPrefix for FNAL", globalPrefix
+    elif 'prefix' in prefix_lines:
+        globalPrefix = prefix_lines['prefix']
+        print "Found a globalPrefix", globalPrefix
+
     if globalPrefix:
         lastChar=globalPrefix[-1]
         if lastChar.find("/") is -1:
