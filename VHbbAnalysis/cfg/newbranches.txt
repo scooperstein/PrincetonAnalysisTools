@@ -4,6 +4,7 @@
 type=2  name=minMetjDPhi
 type=2  name=MetTkMetDPhi
 
+type=1  name=nGenStatus2bHad
 type=1  name=hJetInd1
 type=1  name=hJetInd1_bestCSV
 type=1  name=hJetInd1_highestPt
