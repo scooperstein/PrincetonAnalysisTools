@@ -158,10 +158,17 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                 am.SetupNewBranch(branch,branches[branch][0], branches[branch][1], True, "settings", branches[branch][2])
         else:
             print "There are no settings branches in the config file."
+      
+        #find BDT settings
+        bdtsettings=[]
+        for key in settings:
+            if key.find("bdt") != -1:
+                bdtsettings.append(key)
 
-        if settings.has_key("bdtsettings"):
-            print "Adding a BDT configuration..."
-            bdtInfo=ReadTextFile(settings["bdtsettings"], "bdt",list())
+
+        for bdtsetting in bdtsettings:
+            print "Adding a BDT configuration...",bdtsetting
+            bdtInfo=ReadTextFile(settings[bdtsetting], "bdt",list())
             print "read the BDT settings text file for BDT %s" % bdtInfo.bdtname
             # now set up any of the branches if they don't exist yet (must be floats for BDT)
             for bdtvar in bdtInfo.bdtVars:
@@ -169,44 +176,20 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                     am.SetupBranch(bdtvar.localVarName, 2, -1, 0, "early")
                 else:
                     am.SetupNewBranch(bdtvar.localVarName, 2)
-            am.SetupNewBranch(bdtInfo.bdtname, 2)
-            am.AddBDT(bdtInfo)
-            print "added BDT to analysis manager"
-        if settings.has_key("bdtsettings_vv"):
-            print "Adding a VV BDT configuration..."
-            bdtInfo=ReadTextFile(settings["bdtsettings_vv"], "bdt",list())
-            print "read the VV BDT settings text file for BDT %s" % bdtInfo.bdtname
-            # now set up any of the branches if they don't exist yet (must be floats for BDT)
-            for bdtvar in bdtInfo.bdtVars:
-                if (bdtvar.isExisting):
-                    am.SetupBranch(bdtvar.localVarName, 2, -1 ,0, "early")
-                elif not doSkim:
-                    am.SetupNewBranch(bdtvar.localVarName, 2)
-            am.SetupNewBranch(bdtInfo.bdtname, 2)
-            am.AddBDT(bdtInfo)
-            print "added VV BDT to analysis manager"
-        if settings.has_key("reg1settings"):
-            print "Adding a Jet 1 Energy Regresion..."
-            reg1 = ReadTextFile(settings["reg1settings"], "bdt",list())
-            for bdtvar in reg1.bdtVars:
-                if (bdtvar.isExisting):
-                    am.SetupBranch(bdtvar.localVarName, 2, -1, 0, "early")
-                #elif not doSkim:
-                else:
-                    print "setting up new branch: ",bdtvar.localVarName
-                    am.SetupNewBranch(bdtvar.localVarName, 2)
-            am.SetJet1EnergyRegression(reg1)
-        if settings.has_key("reg2settings"):
-            print "Adding a Jet 2 Energy Regresion..."
-            reg2 = ReadTextFile(settings["reg2settings"], "bdt",list())
-            for bdtvar in reg2.bdtVars:
-                if (bdtvar.isExisting):
-                    am.SetupBranch(bdtvar.localVarName, 2, -1 ,0, "early")
-                #elif not doSkim:
-                else:
-                    am.SetupNewBranch(bdtvar.localVarName, 2)
-            am.SetJet2EnergyRegression(reg2)
 
+            # create new branches for all inputs
+            iBDTvar=0
+            for bdtvar in bdtInfo.bdtVars:
+                bdtVarPrefix="bdtInput_"+bdtInfo.bdtname+"_"
+                am.SetupNewBranch(bdtVarPrefix+bdtvar.localVarName, 2)
+                #bdtInfo.bdtVars[iBDTvar].localVarName=bdtVarPrefix+bdtvar.localVarName
+                #bdtInfo.bdtVars[iBDTvar].isExisting=False
+                iBDTvar=iBDTvar+1
+            am.SetupNewBranch(bdtInfo.bdtname, 2)
+            am.SetupNewBranch(bdtsetting, 2, -1, 1, "settings", 1)
+            am.AddBDT(bdtsetting, bdtInfo)
+            print "added BDT to analysis manager"
+        
         if settings.has_key("systematics"):
             systs = ReadTextFile(settings["systematics"], "systematics")
             for syst in systs:
@@ -432,7 +415,7 @@ def MakeBranchMap(lines):
 
 def SetupBDT(lines):
     bdtname = ""
-    bdtmethod = ""
+    methodName = ""
     xmlFile = ""
     inputNames = []
     localVarNames = []
@@ -449,8 +432,8 @@ def SetupBDT(lines):
             if name.find("bdtname") is 0:
                 bdtname=value
                 break
-            if name.find("bdtmethod") is 0:
-                bdtmethod=value
+            if name.find("methodName") is 0:
+                methodName=value
                 break
             #if name.find("method") is 0:
             #    method=value.replace('@', ' ')
@@ -471,7 +454,7 @@ def SetupBDT(lines):
                 if (int(value) == 1): isExisting = True
         vars[order] = (inputName,localVarName,isExisting,isSpec)
 
-    bdt = ROOT.BDTInfo(bdtmethod, bdtname, xmlFile)
+    bdt = ROOT.BDTInfo(methodName, bdtname, xmlFile)
 
     keys = vars.keys()
     keys.sort()

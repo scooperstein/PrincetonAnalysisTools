@@ -2,14 +2,12 @@
 # isSpec 0 -> Variable used in BDT training
 
 bdtmethod=BDT
-#bdtname=BDT_13TeV_H125Sig_0b1b2bWjetsTTbarBkg_Mjj
 bdtname=CMS_vhbb_BDT_Wln_13TeV
-xmlFile=aux/TMVA_13TeV_V25_March27_400_5_H125Sig_0b1b2bWjetsTTbarBkg_Mjj_BDT.weights.xml
+xmlFile=aux/TMVA_13TeV_VHbb_1lep_HIG16044_BDT.weights.xml
 
 name=H_mass                 lname=H_mass                      isEx=1 isSpec=0 order=1
 name=H_pt                   lname=H_pt                        isEx=1 isSpec=0 order=2
 name=V_pt                   lname=V_pt                        isEx=1 isSpec=0 order=3
-#name=Jet_btagCSV[hJetInd2]  lname=hJets_btagCSV_1             isEx=0 isSpec=0 order=4
 name=hJets_btagCSV_1        lname=hJets_btagCSV_1             isEx=0 isSpec=0 order=4
 name=Top1_mass_fromLepton_regPT_w4MET lname=Top1_mass_fromLepton_regPT_w4MET isEx=0 isSpec=0 order=5
 name=HVdPhi                 lname=HVdPhi                      isEx=0 isSpec=0 order=6

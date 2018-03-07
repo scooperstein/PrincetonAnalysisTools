@@ -1139,6 +1139,10 @@ bool VHbbAnalysis::Analyze() {
 
 
 void VHbbAnalysis::FinishEvent() {
+    
+    for(std::map<std::string,BDTInfo*>::iterator itBDTInfo=bdtInfos.begin(); itBDTInfo!=bdtInfos.end(); itBDTInfo++){
+        *f[itBDTInfo->second->bdtname] = -2;
+    }
 
     // b tag weights
     if (bTagCalibReader) {
@@ -1218,15 +1222,6 @@ void VHbbAnalysis::FinishEvent() {
 
     *f["weight_ptQCD"] = 1.0;
     *f["weight_ptEWK"] = 1.0;
-    // FIXME nominal must be last
-    if(cursyst->name=="nominal"){
-        ofile->cd();
-        if (debug>10000) std::cout<<"filling output tree"<<std::endl;
-        outputTree->Fill();
-    }
-    return;
-
-    // FIXME ... um... ignoring everything?
 
     if(mInt("sampleIndex")!=0){
         if (m("doICHEP") != 1) {
@@ -1575,44 +1570,44 @@ void VHbbAnalysis::FinishEvent() {
         else *in["eventClass"] += 4;
     }
 
-    if (mInt("isWmunu")) {
-        *f["selLeptons_relIso_0"] = m("selLeptons_relIso04",mInt("lepInd1"));
-    }
-    else if (mInt("isWenu")) {
-        *f["selLeptons_relIso_0"] = m("selLeptons_relIso03",mInt("lepInd1"));
-    }
-    else if (mInt("isZmm")) {
-        *f["selLeptons_relIso_0"] = m("selLeptons_relIso04",mInt("lepInd1"));
-        *f["selLeptons_relIso_1"] = m("selLeptons_relIso04",mInt("lepInd2"));
-    }
-    else if (mInt("isZee")) {
-        *f["selLeptons_relIso_0"] = m("selLeptons_relIso03",mInt("lepInd1"));
-        *f["selLeptons_relIso_1"] = m("selLeptons_relIso03",mInt("lepInd2"));
-    }
+    //if (mInt("isWmunu")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso04",mInt("lepInd1"));
+    //}
+    //else if (mInt("isWenu")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso03",mInt("lepInd1"));
+    //}
+    //else if (mInt("isZmm")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso04",mInt("lepInd1"));
+    //    *f["selLeptons_relIso_1"] = m("selLeptons_relIso04",mInt("lepInd2"));
+    //}
+    //else if (mInt("isZee")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso03",mInt("lepInd1"));
+    //    *f["selLeptons_relIso_1"] = m("selLeptons_relIso03",mInt("lepInd2"));
+    //}
 
 
-    if(mInt("sampleIndex")!=0){
-        if (mInt("nGenLep") == 0) {
-            // gen lep is originally a tau?
-            *f["selLeptons_genLepDR_0"] = -1;
-        } else {
-            TLorentzVector GenLep, El;
-            GenLep.SetPtEtaPhiM(m("GenLep_pt",0),m("GenLep_eta",0),m("GenLep_phi",0),m("GenLep_mass",0));
-            El.SetPtEtaPhiM(m("selLeptons_pt",mInt("lepInd1")), m("selLeptons_eta",mInt("lepInd1")), m("selLeptons_phi",mInt("lepInd1")), m("selLeptons_mass",mInt("lepInd1")));
-            *f["selLeptons_genLepDR_0"] = El.DeltaR(GenLep);
-        }
-    }
+    //if(mInt("sampleIndex")!=0){
+    //    if (mInt("nGenLep") == 0) {
+    //        // gen lep is originally a tau?
+    //        *f["selLeptons_genLepDR_0"] = -1;
+    //    } else {
+    //        TLorentzVector GenLep, El;
+    //        GenLep.SetPtEtaPhiM(m("GenLep_pt",0),m("GenLep_eta",0),m("GenLep_phi",0),m("GenLep_mass",0));
+    //        El.SetPtEtaPhiM(m("selLeptons_pt",mInt("lepInd1")), m("selLeptons_eta",mInt("lepInd1")), m("selLeptons_phi",mInt("lepInd1")), m("selLeptons_mass",mInt("lepInd1")));
+    //        *f["selLeptons_genLepDR_0"] = El.DeltaR(GenLep);
+    //    }
+    //}
 
-    // Reconstruct Higgs and W and recalculate variables ourselves
-    if(debug>1000) std::cout<<"Making composite candidates"<<std::endl;
-    TLorentzVector MET,Lep,W,HJ1,HJ2,Hbb;
-    MET.SetPtEtaPhiM(m("MET_pt"), 0., m("MET_phi"), 0.); // Eta/M don't affect calculation of W.pt and W.phi
-    Lep.SetPtEtaPhiM(m("selLeptons_pt",mInt("lepInd1")), m("selLeptons_eta",mInt("lepInd1")), m("selLeptons_phi",mInt("lepInd1")), m("selLeptons_mass",mInt("lepInd1")));
-    W = MET + Lep;
+    //// Reconstruct Higgs and W and recalculate variables ourselves
+    //if(debug>1000) std::cout<<"Making composite candidates"<<std::endl;
+    //TLorentzVector MET,Lep,W,HJ1,HJ2,Hbb;
+    //MET.SetPtEtaPhiM(m("MET_pt"), 0., m("MET_phi"), 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    //Lep.SetPtEtaPhiM(m("selLeptons_pt",mInt("lepInd1")), m("selLeptons_eta",mInt("lepInd1")), m("selLeptons_phi",mInt("lepInd1")), m("selLeptons_mass",mInt("lepInd1")));
+    //W = MET + Lep;
 
-    HJ1.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd1")), m("Jet_eta",mInt("hJetInd1")), m("Jet_phi",mInt("hJetInd1")), m("Jet_mass",mInt("hJetInd1")) * (m("Jet_bReg",mInt("hJetInd1")) / m("Jet_pt",mInt("hJetInd1")) ) );
-    HJ2.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd2")), m("Jet_eta",mInt("hJetInd2")), m("Jet_phi",mInt("hJetInd2")), m("Jet_mass",mInt("hJetInd2")) * (m("Jet_bReg",mInt("hJetInd2")) / m("Jet_pt",mInt("hJetInd2")) ) );
-    Hbb = HJ1 + HJ2;
+    //HJ1.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd1")), m("Jet_eta",mInt("hJetInd1")), m("Jet_phi",mInt("hJetInd1")), m("Jet_mass",mInt("hJetInd1")) * (m("Jet_bReg",mInt("hJetInd1")) / m("Jet_pt",mInt("hJetInd1")) ) );
+    //HJ2.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd2")), m("Jet_eta",mInt("hJetInd2")), m("Jet_phi",mInt("hJetInd2")), m("Jet_mass",mInt("hJetInd2")) * (m("Jet_bReg",mInt("hJetInd2")) / m("Jet_pt",mInt("hJetInd2")) ) );
+    //Hbb = HJ1 + HJ2;
 
     // We already calculate these in Analyze()
     //*d["H_mass"] = Hbb.M();
@@ -1640,40 +1635,41 @@ void VHbbAnalysis::FinishEvent() {
     *f["nAddLep_f"] = (float) mInt("nAddLeptons");
     *f["isWenu_f"] = (float) mInt("isWenu");
     *f["isWmunu_f"] = (float) mInt("isWmunu");
-    *f["softActivityVH_njets5_f"] = (float) mInt("softActivityVH_njets5");
-    //*f["nPVs_f"] = (float) *in["nPVs"];
+    //*f["softActivityVH_njets5_f"] = (float) mInt("SoftActivityJetNjets5");
+    *f["softActivityVH_njets5_f"] = (float) m("SA5");
 
-    if (BDTisSet) {
-        if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
-        for (unsigned int i=0; i<bdtInfos.size(); i++) {
+    if (f.count("bdt_1lep")>0) {
+        if(debug>5000) {
+            std::cout<<"Evaluating BDT..."<<std::endl;
+            PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
+            std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
+        }
+        std::vector<std::string> bdtNames;
+        bdtNames.clear();
+        thisBDTInfo = bdtInfos.find("bdt_1lep");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_1lep");
+        }
+        
+        thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_1lep_vzbb");
+        }
 
-            BDTInfo tmpBDT = bdtInfos[i];
-            if(debug>5000) {
-                PrintBDTInfoValues(tmpBDT);
-                std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
-            }
-            std::string bdtname(tmpBDT.bdtname);
+        for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
+            std::string bdtname(bdtNames[iBDT]);
             if (cursyst->name != "nominal") {
                 bdtname.append("_");
                 bdtname.append(cursyst->name);
             }
-            if (m("doVPtReweighting") > 0) {
-                float V_pt_nom = m("V_pt");
-                *f["V_pt"] = m("V_pt_VPtCorrUp");
-                *f[bdtname+"_VPtCorrUp"] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
-                *f["V_pt"] = m("V_pt_VPtCorrDown");
-                *f[bdtname+"_VPtCorrDown"] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
-                *f["V_pt"] = V_pt_nom;
-            }
-            *f[bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
+            *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
         }
     }
 
-    if(jet1EnergyRegressionIsSet && jet2EnergyRegressionIsSet) {
+    if (f.count("bdt_bjetreg")>0) {
         if(debug>10000) {
             std::cout<<"Evaluating the Jet Energy Regression..."<<std::endl;
-            PrintBDTInfoValues(jet1EnergyRegression);
-            PrintBDTInfoValues(jet2EnergyRegression);
+            PrintBDTInfoValues(bdtInfos["bdt_bjetreg"]);
         }
         double r1Pt = evaluateRegression(mInt("hJetInd1"));
         double r2Pt = evaluateRegression(mInt("hJetInd2"));
@@ -1871,6 +1867,12 @@ void VHbbAnalysis::FinishEvent() {
     }
 
     if(debug>100) std::cout<<"Ending FinishEvent()"<<std::endl;
+    // FIXME nominal must be last
+    if(cursyst->name=="nominal"){
+        ofile->cd();
+        if (debug>10000) std::cout<<"filling output tree"<<std::endl;
+        outputTree->Fill();
+    }
     return;
 }
 
@@ -2319,8 +2321,16 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
         }
     }
     // important to cut on CSV here to kill TTbar
-    if (m("Jet_btagCSVV2",pair.first) < m("j1ptCSV")) pair.first = -1;
-    if (m("Jet_btagCSVV2",pair.second) < m("j2ptCSV")) pair.second = -1;
+    if(pair.first != -1){
+        if (m("Jet_btagCSVV2",pair.first) < m("j1ptCSV")) {
+            pair.first = -1;
+        }
+    }
+    if(pair.second != -1){
+        if (m("Jet_btagCSVV2",pair.second) < m("j2ptCSV")) {
+            pair.second = -1;
+        }
+    }
     return pair;
 }
 
@@ -2971,9 +2981,7 @@ float VHbbAnalysis::evaluateRegression(int i) {
     }else {
         *f["hJets_vtx3deL_0"] = 0;
     }
-    //*f["nPVs_f"] = (float) *in["nPVs"];
-    //PrintBDTInfoValues(jet1EnergyRegression);
-    return jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtmethod)[0];
+    return EvaluateRegression(bdtInfos["bdt_bjetreg"]);
 
 }
 

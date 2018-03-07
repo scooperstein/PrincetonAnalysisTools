@@ -61,13 +61,8 @@ public :
     TTree                           *settingsTree;  // contains analysis settings
     std::string                     outputTreeName;
     std::vector<std::string>        readFiles;       // keep track of which files we've already read
-    //TMVA::Reader                    *thereader;     // for evaluating the BDT
-    std::vector<BDTInfo>            bdtInfos;
-    BDTInfo                         jet1EnergyRegression;
-    BDTInfo                         jet2EnergyRegression;
-    bool                            BDTisSet;
-    bool                            jet1EnergyRegressionIsSet;
-    bool                            jet2EnergyRegressionIsSet;
+    std::map<std::string,BDTInfo*>  bdtInfos;
+    std::map<std::string,BDTInfo*>::iterator  thisBDTInfo;
     std::vector<SampleContainer>    samples;
     SampleContainer*                cursample;
     void                            AddSample(SampleContainer sample);
@@ -78,9 +73,8 @@ public :
     void                            AddScaleFactor(SFContainer sf);
     std::unique_ptr<BTagCalibrationReader> bTagCalibReader;
     void                            InitializeBTagSF(const std::string & bTagCalibFile);
-    void                            AddBDT(BDTInfo bdtInfo);
+    void                            AddBDT(std::string name, BDTInfo bdtInfo);
     void                            SetJet1EnergyRegression(BDTInfo reg1);
-    void                            SetJet2EnergyRegression(BDTInfo reg2);
     void                            ConfigureOutputTree();
 
     //General Physics Information
@@ -126,7 +120,7 @@ public :
     void            PrintBranches();
     void            GetEarlyEntries(Long64_t entry,bool isData=false);
     std::vector<std::string>      ListSampleNames();
-    void            PrintBDTInfoValues(BDTInfo bdt);
+    void            PrintBDTInfoValues(BDTInfo* bdt);
 
     //void            Loop(std::string sampleName="", std::string filename="", int fNum=1 );
     void            Loop(std::string sampleName="", std::string filename="", std::string ofilename="test.root", bool doSkim=false );
@@ -146,7 +140,10 @@ public :
     // general use functions
     double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1);
     double          EvalDeltaPhi(double phi0, double phi1);
-    void            SetupBDT(BDTInfo bdtInfo);
+    void            SetupBDT(BDTInfo* bdtInfo);
+    void            SetBDTVariables(BDTInfo* bdtInfo);
+    float           EvaluateMVA(BDTInfo* bdtInfo);
+    float           EvaluateRegression(BDTInfo* bdtInfo);
     void            SetupSystematicsBranches();
     void            ApplySystematics(bool early=false);
 
