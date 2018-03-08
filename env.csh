@@ -2,3 +2,4 @@
 setenv PYTHONPATH $PWD/python:$PYTHONPATH
 setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$PWD
 setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$PWD/HelperClasses:$PWD/plugins:$PWD/python
+setenv PYTHONPATH "$PWD/Varial:$PYTHONPATH"

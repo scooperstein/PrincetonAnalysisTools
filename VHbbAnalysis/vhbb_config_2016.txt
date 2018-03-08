@@ -14,3 +14,4 @@ settings=cfg/settings_2016.txt
 
 systematics=cfg/systematics.txt
 scalefactors=cfg/scalefactors.txt
+btagscalefactors=aux/cMVAv2_Moriond17_B_H.csv

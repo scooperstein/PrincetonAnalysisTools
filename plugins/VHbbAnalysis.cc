@@ -1228,6 +1228,7 @@ void VHbbAnalysis::FinishEvent() {
     }
 
     // b tag weights
+    *f["bTagWeight"] = 1.0; // we still need a default value of this even if we don't evaluate it
     if (bTagCalibReader) {
 
         if (debug>101) std::cout<<"evaluating btag scale factors"<<std::endl;
@@ -1242,6 +1243,10 @@ void VHbbAnalysis::FinishEvent() {
                 && fabs(m("Jet_eta", i))<=m("JetEtaCut"))
             {
                 int hadron_flav = mInt("Jet_hadronFlavour", i);
+                float bDiscValue = m("Jet_btagCMVA",i);
+                if (m("dataYear") == 2017) {
+                    bDiscValue = m("Jet_btagDeepB",i);
+                }
                 auto flav = (hadron_flav==5) ? BTagEntry::FLAV_B :
                             (hadron_flav==4) ? BTagEntry::FLAV_C :
                             BTagEntry::FLAV_UDSG;
@@ -1250,7 +1255,7 @@ void VHbbAnalysis::FinishEvent() {
                     flav,
                     fabs(m("Jet_eta", i)),
                     m("Jet_pt", i),
-                    m("Jet_btagDeepB", i)
+                    bDiscValue
                 );
             }
         }
@@ -1322,11 +1327,11 @@ void VHbbAnalysis::FinishEvent() {
             *f["weight_PUUp"]=(puWeight_ichep_up(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PUDown"]=(puWeight_ichep_down(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
         }
-        if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
-            // only apply to Z/W+jet samples
-            *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("GenVbosons_pdgId",0));
-            *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("GenVbosons_pt",0), m("Vtype"), mInt("GenVbosons_pdgId",0));
-	}
+        //if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
+        //    // only apply to Z/W+jet samples
+        //    *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("GenVbosons_pdgId",0));
+        //    *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("GenVbosons_pt",0), m("Vtype"), mInt("GenVbosons_pdgId",0));
+	//}
     } else {
         *f["weight_PU"]=1;
         *f["weight_PUUp"]=1;
@@ -1850,8 +1855,8 @@ void VHbbAnalysis::FinishEvent() {
                *f["LepFail_SF"] = 1.0;
                *f["LepFail_SFUp"] = 1.0;
                *f["LepFail_SFDown"] = 1.0;
-               if (*in["nselLeptons"] > 1) {
-                   for (int i=0; i < mInt("nselLeptons"); i++) {
+               if (mInt("nElectron") > 1) {
+                   for (int i=0; i < mInt("nElectron"); i++) {
                        if (i == mInt("lepInd1")) continue;
                        *f["LepFail_SF"] = m("SF_EleVeto",i);
                        *f["LepFail_SFUp"] = m("SF_EleVeto",i) + m("SF_EleVeto_err",i);
@@ -1866,63 +1871,12 @@ void VHbbAnalysis::FinishEvent() {
                //*f["Lep_SF"] = 1.0;
            }
         }
-        // in V23 for 2016 they changed the names of all the btag weights x.x
-        if (m("do2015") != 1) {
-            if (int(m("doCMVA")) == 0) {
-                *f["bTagWeight"] = m("btagWeightCSV");
-                *f["bTagWeight_JESUp"] = m("btagWeightCSV_up_jes");
-                *f["bTagWeight_JESDown"] = m("btagWeightCSV_down_jes");
-                *f["bTagWeight_HFUp"] = m("btagWeightCSV_up_hf");
-                *f["bTagWeight_HFDown"] = m("btagWeightCSV_down_hf");
-                *f["bTagWeight_LFUp"] = m("btagWeightCSV_up_lf");
-                *f["bTagWeight_LFDown"] = m("btagWeightCSV_down_lf");
-                *f["bTagWeight_HFStats1Up"] = m("btagWeightCSV_up_hfstats1");
-                *f["bTagWeight_HFStats1Down"] = m("btagWeightCSV_down_hfstats1");
-                *f["bTagWeight_LFStats1Up"] = m("btagWeightCSV_up_lfstats1");
-                *f["bTagWeight_LFStats1Down"] = m("btagWeightCSV_down_lfstats1");
-                *f["bTagWeight_HFStats2Up"] = m("btagWeightCSV_up_hfstats2");
-                *f["bTagWeight_HFStats2Down"] = m("btagWeightCSV_down_hfstats2");
-                *f["bTagWeight_LFStats2Up"] = m("btagWeightCSV_up_lfstats2");
-                *f["bTagWeight_LFStats2Down"] = m("btagWeightCSV_down_lfstats2");
-                *f["bTagWeight_cErr1Up"] = m("btagWeightCSV_up_cferr1");
-                *f["bTagWeight_cErr1Down"] = m("btagWeightCSV_down_cferr1");
-                *f["bTagWeight_cErr2Up"] = m("btagWeightCSV_up_cferr2");
-                *f["bTagWeight_cErr2Down"] = m("btagWeightCSV_down_cferr2");
-            }
-            else {
-                *f["bTagWeight"] = m("btagWeightCMVAV2");
-                *f["bTagWeight_JESUp"] = m("btagWeightCMVAV2_up_jes");
-                *f["bTagWeight_JESDown"] = m("btagWeightCMVAV2_down_jes");
-                *f["bTagWeight_HFUp"] = m("btagWeightCMVAV2_up_hf");
-                *f["bTagWeight_HFDown"] = m("btagWeightCMVAV2_down_hf");
-                *f["bTagWeight_LFUp"] = m("btagWeightCMVAV2_up_lf");
-                *f["bTagWeight_LFDown"] = m("btagWeightCMVAV2_down_lf");
-                *f["bTagWeight_HFStats1Up"] = m("btagWeightCMVAV2_up_hfstats1");
-                *f["bTagWeight_HFStats1Down"] = m("btagWeightCMVAV2_down_hfstats1");
-                *f["bTagWeight_LFStats1Up"] = m("btagWeightCMVAV2_up_lfstats1");
-                *f["bTagWeight_LFStats1Down"] = m("btagWeightCMVAV2_down_lfstats1");
-                *f["bTagWeight_HFStats2Up"] = m("btagWeightCMVAV2_up_hfstats2");
-                *f["bTagWeight_HFStats2Down"] = m("btagWeightCMVAV2_down_hfstats2");
-                *f["bTagWeight_LFStats2Up"] = m("btagWeightCMVAV2_up_lfstats2");
-                *f["bTagWeight_LFStats2Down"] = m("btagWeightCMVAV2_down_lfstats2");
-                *f["bTagWeight_cErr1Up"] = m("btagWeightCMVAV2_up_cferr1");
-                *f["bTagWeight_cErr1Down"] = m("btagWeightCMVAV2_down_cferr1");
-                *f["bTagWeight_cErr2Up"] = m("btagWeightCMVAV2_up_cferr2");
-                *f["bTagWeight_cErr2Down"] = m("btagWeightCMVAV2_down_cferr2");
-            }
-        }
 
         if (m("doCutFlow")>0 && m("cutFlow")<5) {
             // lepton scale factor calculation will break for some events in the cutflow before lepton selection
             *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK");
         }
-        else if (m("do2015")==1 || m("doICHEP")==1){
-            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
-        }
-        else {
-            // bTagWeight is broken in V25 Heppy ntuples
-            *f["weight"] = m("weight") * m("weight_PU") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
-        }
+        *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
 
         // Add NLO to LO W+jet re-weighting from Z(ll)H(bb)
         float deta_bb = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
