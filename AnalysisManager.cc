@@ -14,9 +14,6 @@ AnalysisManager::AnalysisManager(){
     intL=20000; // pb^-1
     settingsTree = new TTree("settings","settings");
     debug = 0;
-    BDTisSet = false;
-    jet1EnergyRegressionIsSet = false;
-    jet2EnergyRegressionIsSet = false;
 }
 
 void AnalysisManager::Initialize(std::string filename) {
@@ -84,6 +81,11 @@ AnalysisManager::~AnalysisManager()
 
     //if(debug>1000) std::cout<<"deleting settingsTree"<<std::endl;
     //delete settingsTree;
+    for(std::map<std::string,BDTInfo*>::iterator iterBDT=bdtInfos.begin();
+           iterBDT!=bdtInfos.end(); iterBDT++){
+        if(debug>1000) std::cout<<"I'm deleting "<<iterBDT->first<<std::endl;
+        delete iterBDT->second;;
+    }
 }
 
 
@@ -117,41 +119,18 @@ void AnalysisManager::InitializeBTagSF(const std::string & bTagCalibFile) {
     bTagCalibReader->load(calib, BTagEntry::FLAV_UDSG,  "iterativeFit");
 }
 
-void AnalysisManager::AddBDT(BDTInfo bdt) {
-    BDTisSet = true;
-    bdtInfos.push_back(bdt);
-    SetupBDT(bdt);
+void AnalysisManager::AddBDT(std::string settingName, BDTInfo bdt) {
+    bdtInfos[settingName]=new BDTInfo(bdt);
+    SetupBDT(bdtInfos[settingName]);
 }
 
-void AnalysisManager::SetJet1EnergyRegression(BDTInfo reg1) {
-    jet1EnergyRegression = reg1;
-    jet1EnergyRegressionIsSet = true;
-    if(debug>10000) {
-        PrintBDTInfoValues(reg1);
-    }
-    SetupBDT(reg1);
-}
-void AnalysisManager::SetJet2EnergyRegression(BDTInfo reg2) {
-    jet2EnergyRegression = reg2;
-    jet2EnergyRegressionIsSet = true;
-    if(debug>10000) {
-        PrintBDTInfoValues(reg2);
-    }
-    SetupBDT(reg2);
-}
 
-void AnalysisManager::PrintBDTInfoValues(BDTInfo bdt) {
-    std::cout<<"Printing information for BDT "<<bdt.bdtname<<"..."<<std::endl;
-    /*for (unsigned int i=0; i<bdt.inputNames.size(); i++) {
-         std::cout<<"Input variable: "<<bdt.inputNames[i].c_str()<<", reference in tree: "<<bdt.localVarNames[i].c_str()<<", current value: "<<*f[bdt.localVarNames[i]]<<std::endl;
-     }
-     for (unsigned int i=0; i<bdt.inputSpectatorNames.size(); i++) {
-         std::cout<<"Spectator variable: "<<bdt.inputSpectatorNames[i].c_str()<<", reference in tree: "<<bdt.localSpectatorVarNames[i].c_str()<<", current value: "<<*f[bdt.localSpectatorVarNames[i]]<<std::endl;
-     }*/
-     for (unsigned int i=0; i < bdt.bdtVars.size(); i++) {
-         BDTVariable bdtvar = bdt.bdtVars[i];
-         std::cout<<"Input variable: "<<bdtvar.varName.c_str()<<", reference in tree: "<<bdtvar.localVarName.c_str()<<", current value: "<<*f[bdtvar.localVarName]<<", isSpec: "<<bdtvar.isSpec<<std::endl;
-     }
+void AnalysisManager::PrintBDTInfoValues(BDTInfo* bdt) {
+    std::cout<<"Printing information for BDT "<<bdt->bdtname<<"..."<<std::endl;
+    for (unsigned int i=0; i < bdt->bdtVars.size(); i++) {
+        BDTVariable bdtvar = bdt->bdtVars[i];
+        std::cout<<"Input variable: "<<bdtvar.varName.c_str()<<", reference in tree: "<<bdtvar.localVarName.c_str()<<", current value: "<<*f[bdtvar.localVarName]<<", isSpec: "<<bdtvar.isSpec<<std::endl;
+    }
 }
 
 Int_t AnalysisManager::GetEntry(Long64_t entry)
@@ -688,22 +667,46 @@ void AnalysisManager::TermAnalysis() {
 
 
 // Set up all the BDT branches and configure the BDT's with the same input variables as used in training. Run before looping over events.
-void AnalysisManager::SetupBDT(BDTInfo bdtInfo) {
-    //TMVA::Reader *thereader = bdtInfo.reader;
+void AnalysisManager::SetupBDT(BDTInfo* bdtInfo) {
 
-    for (unsigned int i=0; i < bdtInfo.bdtVars.size(); i++) {
-        BDTVariable bdtvar = bdtInfo.bdtVars[i];
+    for (unsigned int i=0; i < bdtInfo->bdtVars.size(); i++) {
+        BDTVariable bdtvar = bdtInfo->bdtVars[i];
+        std::string thisVar("bdtInput_");
+        thisVar.append(bdtInfo->bdtname);
+        thisVar.append("_");
+        thisVar.append(bdtvar.localVarName);
         if (!bdtvar.isSpec) {
-            bdtInfo.reader->AddVariable(bdtvar.varName, f[bdtvar.localVarName]);
+            bdtInfo->reader->AddVariable( bdtvar.varName, f[thisVar]);
         } else {
-            bdtInfo.reader->AddSpectator(bdtvar.varName, f[bdtvar.localVarName]);
+            bdtInfo->reader->AddSpectator(bdtvar.varName, f[thisVar]);
         }
     }
 
-    std::cout<<"booking MVA for bdt with name...  "<<bdtInfo.bdtname<<std::endl;
-    bdtInfo.reader->BookMVA(bdtInfo.bdtmethod, bdtInfo.xmlFile);
+    std::cout<<"booking MVA for bdt with name...  "<<bdtInfo->bdtname<<std::endl;
+    //bdtInfo->reader->BookMVA(bdtInfo->bdtmethod, bdtInfo->xmlFile);
+    bdtInfo->BookMVA();
 }
 
+void AnalysisManager::SetBDTVariables(BDTInfo* bdtInfo){
+    for (unsigned int i=0; i < bdtInfo->bdtVars.size(); i++) {
+        BDTVariable bdtvar = bdtInfo->bdtVars[i];
+        std::string thisVar("bdtInput_");
+        thisVar.append(bdtInfo->bdtname);
+        thisVar.append("_");
+        thisVar.append(bdtvar.localVarName);
+        *f[thisVar]=*f[bdtvar.localVarName];
+    }
+}
+
+float AnalysisManager::EvaluateMVA(BDTInfo* bdtInfo){
+    SetBDTVariables(bdtInfo);
+    return bdtInfo->reader->EvaluateMVA(bdtInfo->methodName);
+}
+
+float AnalysisManager::EvaluateRegression(BDTInfo* bdtInfo){
+    SetBDTVariables(bdtInfo);
+    return bdtInfo->reader->EvaluateRegression(bdtInfo->methodName)[0];
+}
 
 void AnalysisManager::SetupSystematicsBranches(){
     std::cout<<"loop through systematics "<<systematics.size()<<std::endl;
@@ -722,8 +725,9 @@ void AnalysisManager::SetupSystematicsBranches(){
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->type,
                 branchInfos[systematics[iSyst].branchesToEdit[iBrnch]]->length);
         }
-        for(int iBDT=0; iBDT<bdtInfos.size(); iBDT++) {
-            std::string bdtname(bdtInfos[iBDT].bdtname);
+        for(std::map<std::string,BDTInfo*>::iterator iterBDT=bdtInfos.begin();
+              iterBDT!=bdtInfos.end(); iterBDT++){
+            std::string bdtname(iterBDT->second->bdtname);
             if (systematics[iSyst].name != "nominal") {
                 bdtname.append("_");
                 bdtname.append(systematics[iSyst].name);
@@ -847,6 +851,11 @@ double AnalysisManager::m(std::string key, int index){
         }
     } else {
         if(debug>1000) std::cout<<"here is where I should return the right branch value"<<std::endl;
+        if(branchInfos[key]->type>4&&index<0){
+            std::cout<<"No valid index ("<<index<<") specified for branch "<<key<<std::endl;
+            std::cout<<"Exiting..."<<std::endl;
+            std::exit(0);
+        }
         switch(branchInfos[key]->type)
         {
         case 0:
@@ -879,6 +888,56 @@ double AnalysisManager::m(std::string key, int index){
         case 9:
             if(debug>1000) std::cout<<"boolean "<<b[key][index]<<std::endl;
             return (double)b[key][index];
+        default:
+            if(debug>10) std::cout<<"I don't know type "<<branchInfos[key]->type<<" yet..."<<std::endl;
+            return -999;
+        }
+    }
+}
+
+int AnalysisManager::mInt(std::string key, int index){
+    if(debug>1000) std::cout<<"looking for key "<<key<<" with index "<<index<<std::endl;
+    if(branchInfos.count(key)==0){
+        std::cout<<"There is no branch with name "<<key<<std::endl;
+        if(safemode){
+            std::cout<<"The program must be terminated..."<<std::endl;
+            std::exit(0);
+        } else {
+            if(debug>1) std::cout<<"Returning -999 and hoping for the best."<<std::endl;
+            return -999;
+        }
+    } else {
+        if(debug>1000) std::cout<<"here is where I should return the right branch value"<<std::endl;
+        if(branchInfos[key]->type%5==2 || branchInfos[key]->type%5==3){
+            std::cout<<"Key "<<key<<" of type "<<branchInfos[key]->type<<", please use AnalysisManager::m() instead."<<std::endl;
+            std::cout<<"Exiting"<<std::endl;
+            std::exit(0); 
+        }
+        if(branchInfos[key]->type>4&&index<0){
+            std::cout<<"No valid index specified for branch "<<key<<std::endl;
+            std::cout<<"Exiting..."<<std::endl;
+            std::exit(0);
+        }
+        switch(branchInfos[key]->type)
+        {
+        case 0:
+            if(debug>1000) std::cout<<"unsigned int "<<*ui[key]<<std::endl;
+            return (int)*ui[key];
+        case 1:
+            if(debug>1000) std::cout<<"int "<<*in[key]<<std::endl;
+            return (int)*in[key];
+        case 4:
+            if(debug>1000) std::cout<<"boolean "<<*b[key]<<std::endl;
+            return (int)*b[key];
+        case 5:
+            if(debug>1000) std::cout<<"unsigned int "<<ui[key][index]<<std::endl;
+            return (int)ui[key][index];
+        case 6:
+            if(debug>1000) std::cout<<"int "<<in[key][index]<<std::endl;
+            return (int)in[key][index];
+        case 9:
+            if(debug>1000) std::cout<<"boolean "<<b[key][index]<<std::endl;
+            return (int)b[key][index];
         default:
             if(debug>10) std::cout<<"I don't know type "<<branchInfos[key]->type<<" yet..."<<std::endl;
             return -999;

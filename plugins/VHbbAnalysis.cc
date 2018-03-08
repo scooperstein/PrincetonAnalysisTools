@@ -27,44 +27,53 @@ void VHbbAnalysis::InitAnalysis() {
 // Check if events pass preselection.
 // Returns true for events passing the preselection and false otherwise.
 bool VHbbAnalysis::Preselection() {
-    bool doCutFlowInPresel = int(*f["doCutFlow"]) < 0;
+    bool doCutFlowInPresel = int(m("doCutFlow")) < 0;
 
     if (m("onlyEvenEvents") && m("onlyOddEvents")) {
         std::cout << "Cannot set both onlyEvenEvents and onlyOddEvents to true!!" << std::endl;
         return false;
     }
 
-    if (*f["onlyEvenEvents"]) {
-        if (*in["event"] % 2 == 1) return false;
-    } else if (*f["onlyOddEvents"]) {
-        if (*in["event"] % 2 == 0) return false;
+    if (m("onlyEvenEvents")) {
+        if (mInt("event") % 2 == 1) return false;
+    } else if (m("onlyOddEvents")) {
+        if (mInt("event") % 2 == 0) return false;
     }
 
     // stitch WJets inclusive sample to HT-binned samples
-    if (cursample->sampleNum == 22 && *f["LHE_HT"] > 100) return false;
+    if (cursample->sampleNum == 22 && m("LHE_HT") > 100) return false;
     // stitch ZJets inclusive sample to HT-binned samples
-    if (cursample->sampleNum == 23 && *f["LHE_HT"] > 100) return false;
+    if (cursample->sampleNum == 23 && m("LHE_HT") > 100) return false;
 
-    // FIXME missing nGenStatus2bHad (must add gen particle loop--eventually push to post-processor)
+    // Store number of gen b hadrons with status 2:
+    if (cursample->sampleNum != 0) {
+        *in["nGenStatus2bHad"] = 0;
+        for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+            if(mInt("GenPart_status",indGP)!=2) continue;
+            if(((std::abs(mInt("GenPart_pdgId",indGP))/100)%10 ==5) || ((std::abs(mInt("GenPart_pdgId",indGP))/100)%10==5)){
+              *in["nGenStatus2bHad"]=mInt("nGenStatus2bHad")+1;
+            }
+        }
+    }
+      
     // use W+jets b-enriched samples but make sure all samples are orthogonal
     if (   cursample->sampleNum == 22 || cursample->sampleNum == 41 || cursample->sampleNum == 42
         || cursample->sampleNum == 43 || cursample->sampleNum == 44 || cursample->sampleNum == 45
         || cursample->sampleNum == 46 || cursample->sampleNum == 47
        ) {
-        if (*f["LHE_Vpt"] > 100) {
-            if (*in["LHE_Nb"] != 0) return false;
-            //if (*in["LHE_Nb"] != 0 || *in["nGenStatus2bHad"] != 0) return false;
+        if (m("LHE_Vpt") > 100) {
+            if (mInt("LHE_Nb") != 0 || mInt("nGenStatus2bHad") != 0) return false;
         }
     } else if (cursample->sampleNum == 48) {
-        if (*f["LHE_Vpt"] < 100 || *f["LHE_Vpt"] > 200 || *in["LHE_Nb"] == 0) return false;
+        if (m("LHE_Vpt") < 100 || m("LHE_Vpt") > 200 || mInt("LHE_Nb") == 0) return false;
     } else if (cursample->sampleNum == 481) {
-        if (*f["LHE_Vpt"] < 200 || *in["LHE_Nb"] == 0) return false;
+        if (m("LHE_Vpt") < 200 || mInt("LHE_Nb") == 0) return false;
     } else if (cursample->sampleNum == 49) {
-        if (*f["LHE_Vpt"] < 100 || *f["LHE_Vpt"] > 200 ) return false;
-        //if (*f["LHE_Vpt"] < 100 || *f["LHE_Vpt"] > 200 || *in["nGenStatus2bHad"] == 0) return false;
+        //if (m("LHE_Vpt") < 100 || m("LHE_Vpt") > 200 ) return false;
+        if (m("LHE_Vpt") < 100 || m("LHE_Vpt") > 200 || mInt("nGenStatus2bHad") == 0) return false;
     } else if (cursample->sampleNum == 491) {
-        if (*f["LHE_Vpt"] < 200) return false;
-        //if (*f["LHE_Vpt"] < 200 || *in["nGenStatus2bHad"] == 0) return false;
+        //if (m("LHE_Vpt") < 200) return false;
+        if (m("LHE_Vpt") < 200 || mInt("nGenStatus2bHad") == 0) return false;
     }
 
     //if (cursample->sampleNum == 0) {
@@ -77,17 +86,17 @@ bool VHbbAnalysis::Preselection() {
         *in["Vtype"]= UpdatedVType();
     }
 
-    
+
     //if (!PassVTypeAndTrigger(*in["Vtype"]) && !doCutFlowInPresel) {
     //    *in["controlSample"] = -1;
     //}
 
 
-    if (*in["Vtype"]<2) {
-        if (*f["V_pt"] < *f["vptPreselCut"] && !doCutFlowInPresel) { // preserve 50 < Vpt < 100 for the 2-lepton channels
+    if (mInt("Vtype")<2) {
+        if (m("V_pt") < m("vptPreselCut") && !doCutFlowInPresel) { // preserve 50 < Vpt < 100 for the 2-lepton channels
             return false;
         }
-    } else if (*f["V_pt"] < *f["vptcut"] && !doCutFlowInPresel) {    // else cut away Vpt < 100
+    } else if (m("V_pt") < m("vptcut") && !doCutFlowInPresel) {    // else cut away Vpt < 100
         return false;
     }
 
@@ -101,9 +110,9 @@ bool VHbbAnalysis::Preselection() {
     //    }
 
 
-    if (*f["smearJets"]) {
-        for (int i = 0; i < *in["nJet"]; i++) {
-            float JERScale = *f["JERScale"]; // apply JER smearing x times the nominal smearing amount
+    if (m("smearJets")) {
+        for (int i = 0; i < mInt("nJet"); i++) {
+            float JERScale = m("JERScale"); // apply JER smearing x times the nominal smearing amount
             if (JERScale != 1.0) {
                 smearJets(JERScale);
             }
@@ -120,15 +129,15 @@ bool VHbbAnalysis::Preselection() {
         }
     }
 
-    if (*f["reReg"]) {
-        for (int i = 0; i < *in["nJet"]; i++) {
+    if (m("reReg")) {
+        for (int i = 0; i < mInt("nJet"); i++) {
             f["Jet_bReg"][i] = evaluateRegression(i);
         }
     }
 
     // add smearing on top of regression-->replace Jet_bReg
-    for (int i = 0; i < *in["nJet"]; i++) {
-        f["Jet_bReg"][i] = f["Jet_bReg"][i] * f["Jet_Pt"][i]/ f["Jet_pt"][i];
+    for (int i = 0; i < mInt("nJet"); i++) {
+        f["Jet_bReg"][i] = m("Jet_bReg",i) * m("Jet_Pt",i)/ m("Jet_pt",i);
     }
 
     // FIXME why removed?
@@ -140,8 +149,8 @@ bool VHbbAnalysis::Preselection() {
 
     // Preselect for two jets and one lepton which pass some minimum pt threshold
     int nPreselJets = 0;
-    for (int i = 0; i < *in["nJet"]; i++) {
-        if (f["Jet_bReg"][i] > *f["JetPtPresel"] && in["Jet_puId"][i] > 0 && b["Jet_lepFilter"][i]) nPreselJets++;
+    for (int i = 0; i < mInt("nJet"); i++) {
+        if (m("Jet_bReg",i) > m("JetPtPresel") && mInt("Jet_puId",i) > 0 && mInt("Jet_lepFilter",i)) nPreselJets++;
     }
 
     // int nPreselLep = 0; // FIXME needs to be configurable or possibly removed
@@ -156,7 +165,7 @@ bool VHbbAnalysis::Preselection() {
 
     // remove nPreselLep cut for now since we want to pre-select for all channels
     // FIXME add boosted analyses and BDTs
-    if (int(*f["doBoost"]) == 0) {
+    if (int(m("doBoost")) == 0) {
         if (nPreselJets < 2) return false;
     //    if (nPreselJets < 2 && !doCutFlowInPresel) return false;
     //} else {
@@ -169,8 +178,8 @@ bool VHbbAnalysis::Preselection() {
 bool VHbbAnalysis::Analyze() {
     *in["sampleIndex"] = cursample->sampleNum;
     bool sel = true;
-    bool doCutFlow = int(*f["doCutFlow"]) != 0;
-    bool doOnlySignalRegion = bool(*f["doOnlySignalRegion"]);
+    bool doCutFlow = int(m("doCutFlow")) != 0;
+    bool doOnlySignalRegion = bool(m("doOnlySignalRegion"));
     *in["controlSample"] = 0;
     *in["cutFlow"] = 0;
 
@@ -187,7 +196,7 @@ bool VHbbAnalysis::Analyze() {
     //    return false;
     //}
 
-    if (!PassVTypeAndTrigger(*in["Vtype"])) {
+    if (!PassVTypeAndTrigger(mInt("Vtype"))) {
         *in["controlSample"] = -1;
     }
 
@@ -197,7 +206,7 @@ bool VHbbAnalysis::Analyze() {
     //    return false;
     //}
 
-    if (sel && *in["controlSample"] > -1) {
+    if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // json and trigger selection
     }
 
@@ -255,7 +264,7 @@ bool VHbbAnalysis::Analyze() {
         return false;  // TODO no channel selected => can return here  CORRECT??
     }
 */
-    if (*in["Vtype"] == 0 && (cursample->lepFlav == -1 || cursample->lepFlav == 0)) {
+    if (mInt("Vtype") == 0 && (cursample->lepFlav == -1 || cursample->lepFlav == 0)) {
         std::pair<int,int> good_muons_2lep = HighestPtGoodMuonsOppCharge(    m("muptcut_2lepchan"), m("murelisocut_2lepchan"));
         if (good_muons_2lep.second > -1) {
             *in["isZmm"] = 1;
@@ -264,7 +273,7 @@ bool VHbbAnalysis::Analyze() {
         } else {
             *in["controlSample"] = -1;
         }
-    } else if (*in["Vtype"] == 1 && (cursample->lepFlav == -1 || cursample->lepFlav == 1)) {
+    } else if (mInt("Vtype") == 1 && (cursample->lepFlav == -1 || cursample->lepFlav == 1)) {
         std::pair<int,int> good_elecs_2lep = HighestPtGoodElectronsOppCharge(m("elptcut_2lepchan"), m("elrelisocut_2lepchan"), m("elidcut_2lepchan"));
         if (good_elecs_2lep.second > -1) {
             *in["isZee"] = 1;
@@ -273,8 +282,8 @@ bool VHbbAnalysis::Analyze() {
         } else {
             *in["controlSample"] = -1;
         }
-    } else if (*in["Vtype"] == 2 && (cursample->lepFlav == -1 || cursample->lepFlav == 0)) {
-        std::pair<int,int> good_muons_1lep = HighestPtGoodMuonsOppCharge(    *f["muptcut_1lepchan"], *f["murelisocut_1lepchan"]);
+    } else if (mInt("Vtype") == 2 && (cursample->lepFlav == -1 || cursample->lepFlav == 0)) {
+        std::pair<int,int> good_muons_1lep = HighestPtGoodMuonsOppCharge(    m("muptcut_1lepchan"), m("murelisocut_1lepchan"));
         if (good_muons_1lep.first > -1) {
             *in["isWmunu"] = 1;
             *in["eventClass"] = 0;      // TODO is this still needed????
@@ -282,8 +291,8 @@ bool VHbbAnalysis::Analyze() {
         } else {
             *in["controlSample"] = -1;
         }
-    } else if (*in["Vtype"] == 3 && (cursample->lepFlav == -1 || cursample->lepFlav == 1)) {
-        std::pair<int,int> good_elecs_1lep = HighestPtGoodElectronsOppCharge(*f["elptcut_1lepchan"], *f["elrelisocut_1lepchan"], *f["elidcut_1lepchan"]);
+    } else if (mInt("Vtype") == 3 && (cursample->lepFlav == -1 || cursample->lepFlav == 1)) {
+        std::pair<int,int> good_elecs_1lep = HighestPtGoodElectronsOppCharge(m("elptcut_1lepchan"), m("elrelisocut_1lepchan"), m("elidcut_1lepchan"));
         if (good_elecs_1lep.first > -1) {
             *in["isWenu"] = 1;
             *in["eventClass"] = 1000;   // TODO is this still needed????
@@ -291,13 +300,13 @@ bool VHbbAnalysis::Analyze() {
         } else {
             *in["controlSample"] = -1;
         }
-    } else if (*in["Vtype"] == 4) {
-        if (*f["MET_pt"] > *f["metcut_0lepchan"]
-            && *b["Flag_goodVertices"]
-            && *b["Flag_globalTightHalo2016Filter"]
-            && *b["Flag_HBHENoiseFilter"]
-            && *b["Flag_HBHENoiseIsoFilter"]
-            && *b["Flag_EcalDeadCellTriggerPrimitiveFilter"]) {
+    } else if (mInt("Vtype") == 4) {
+        if (m("MET_pt") > m("metcut_0lepchan")
+            && m("Flag_goodVertices")
+            && m("Flag_globalTightHalo2016Filter")
+            && m("Flag_HBHENoiseFilter")
+            && m("Flag_HBHENoiseIsoFilter")
+            && m("Flag_EcalDeadCellTriggerPrimitiveFilter")) {
             *in["isZnn"] = 1;
         } else {
             *in["controlSample"] = -1;
@@ -309,22 +318,22 @@ bool VHbbAnalysis::Analyze() {
 
     if (debug > 1000) {
         std::cout << "Vtype isZnn isWmunu isWenu isZmm isZee controlSample ";
-        std::cout << *in["Vtype"] << " "
-                  << *in["isZnn"] << " "
-                  << *in["isWmunu"] << " "
-                  << *in["isWenu"] << " "
-                  << *in["isZmm"] << " "
-                  << *in["isZee"] << " "
-                  << *in["controlSample"]
+        std::cout << mInt("Vtype") << " "
+                  << mInt("isZnn") << " "
+                  << mInt("isWmunu") << " "
+                  << mInt("isWenu") << " "
+                  << mInt("isZmm") << " "
+                  << mInt("isZee") << " "
+                  << mInt("controlSample")
                   << std::endl;
     }
 
-    if (sel && *in["controlSample"] > -1) {
+    if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // lepton selection
     }
 
     // asking for doCutFlow instead of doOnlySignalRegion, as events with bad leptons will not go into CR
-    if (!doCutFlow && *in["controlSample"] < 0) {
+    if (!doCutFlow && mInt("controlSample") < 0) {
         return false;
     }
 
@@ -340,20 +349,20 @@ bool VHbbAnalysis::Analyze() {
 
     // leptons had to be selected before bjets, since we need to know which channel we're in
     if (debug > 1000) std::cout << "Looping over jets" << std::endl;
-    for (int i = 0; i < *in["nJet"]; i++) {
-        if (int(*f["doReg"]) == 0) {
+    for (int i = 0; i < mInt("nJet"); i++) {
+        if (int(m("doReg")) == 0) {
             // don't apply the regression. The easiest way to do this is to just reset the value of
             // the regressed jet pt to the nominal jet pt, since we build everything later from the
             // jet pt's
-            f["Jet_bReg"][i] = f["Jet_Pt"][i];
+            f["Jet_bReg"][i] = m("Jet_Pt",i);
         } else {
             // add smearing on top of regression-->replace Jet_bReg
-            f["Jet_bReg"][i] = f["Jet_bReg"][i] * f["Jet_Pt"][i]/ f["Jet_pt"][i];
+            f["Jet_bReg"][i] = m("Jet_bReg",i) * m("Jet_Pt",i)/ m("Jet_pt",i);
         }
 
-        if (int(*f["doCMVA"]) != 0) {
+        if (int(m("doCMVA")) != 0) {
            // use CMVAv2 discriminator instead of CSV
-           f["Jet_btagCSVV2"][i] = f["Jet_btagCMVA"][i];
+           f["Jet_btagCSVV2"][i] = m("Jet_btagCMVA",i);
         }
 
         // Do this in pre-selection
@@ -368,20 +377,23 @@ bool VHbbAnalysis::Analyze() {
 
     // keep track of each jet selection method separately
     float j1ptCut, j2ptCut, j1ptCSV;
-    if (*in["isZnn"]) {
-        j1ptCut = *f["j1ptCut_0lepchan"];
-        j2ptCut = *f["j2ptCut_0lepchan"];
-        j1ptCSV = *f["j1ptCSV_0lepchan"];
-    } else if (*in["isWmunu"] || *in["isWenu"]) {
-        j1ptCut = *f["j1ptCut_1lepchan"];
-        j2ptCut = *f["j2ptCut_1lepchan"];
-        j1ptCSV = *f["j1ptCSV_1lepchan"];
-    } else if (*in["isZmm"] || *in["isZee"]) {
-        j1ptCut = *f["j1ptCut_2lepchan"];
-        j2ptCut = *f["j2ptCut_2lepchan"];
-        j1ptCSV = *f["j1ptCSV_2lepchan"];
+    if (mInt("isZnn")) {
+        j1ptCut = m("j1ptCut_0lepchan");
+        j2ptCut = m("j2ptCut_0lepchan");
+        j1ptCSV = m("j1ptCSV_0lepchan");
+    } else if (mInt("isWmunu") || mInt("isWenu")) {
+        j1ptCut = m("j1ptCut_1lepchan");
+        j2ptCut = m("j2ptCut_1lepchan");
+        j1ptCSV = m("j1ptCSV_1lepchan");
+    } else if (mInt("isZmm") || mInt("isZee")) {
+        j1ptCut = m("j1ptCut_2lepchan");
+        j2ptCut = m("j2ptCut_2lepchan");
+        j1ptCSV = m("j1ptCSV_2lepchan");
     }
 
+    std::pair<int,int> bjets_bestCMVA = HighestCMVABJets(j1ptCut, j2ptCut);
+    *in["hJetInd1_bestCMVA"] = bjets_bestCMVA.first;
+    *in["hJetInd2_bestCMVA"] = bjets_bestCMVA.second;
     std::pair<int,int> bjets_bestCSV = HighestCSVBJets(j1ptCut, j2ptCut);
     *in["hJetInd1_bestCSV"] = bjets_bestCSV.first;
     *in["hJetInd2_bestCSV"] = bjets_bestCSV.second;
@@ -393,22 +405,22 @@ bool VHbbAnalysis::Analyze() {
     *in["hJetInd2_highestPtJJ"] = bjets_highestPtJJ.second;
 
     // the jet selection algorithm we actually use for the rest of the analysis chain
-    std::pair<int,int> bjets = HighestCSVBJets(j1ptCut, j2ptCut);
+    std::pair<int,int> bjets = HighestCMVABJets(j1ptCut, j2ptCut);
 
     // put CMVA cuts out of selection functions
     if (bjets.first != -1 && bjets.second != -1) {
-        if (f["Jet_btagCMVA"][bjets.first] < j1ptCSV) {
+        if (m("Jet_btagCMVA",bjets.first) < j1ptCSV) {
             *in["controlSample"] = -1;
-        } else if (f["Jet_btagCMVA"][bjets.second] < *f["j2ptCSV"]) {  // 2nd jet CSV is the same in all SR's
+        } else if (m("Jet_btagCMVA",bjets.second) < m("j2ptCSV")) {  // 2nd jet CSV is the same in all SR's
             *in["controlSample"] = -1;
         }
     }
-    if (doOnlySignalRegion && *in["controlSample"] < 0) {
+    if (doOnlySignalRegion && mInt("controlSample") < 0) {
         return false;
     }
 
     if (bjets.first == -1) {
-        if (int(*f["doBoost"]) == 0) {
+        if (int(m("doBoost")) == 0) {
             return false;  // TODO this must be the same for signal and control regions?
         }
         *in["hJetInd1"] = 0;
@@ -417,10 +429,10 @@ bool VHbbAnalysis::Analyze() {
     }
 
     if (bjets.second == -1) {
-        if (int(*f["doBoost"]) == 0) {
+        if (int(m("doBoost")) == 0) {
             return false;  // TODO this must be the same for signal and control regions?
             *in["hJetInd2"] = 1;
-        } else if (*in["nJet"] < 2) {
+        } else if (mInt("nJet") < 2) {
             // assume nJet (AK4 jets) > 0 even for boosted events.
             // Is this reasonable? If not code needs some overhaul to handle boosted analysis.
             *in["hJetInd2"] = 0;
@@ -429,17 +441,17 @@ bool VHbbAnalysis::Analyze() {
         *in["hJetInd2"] = bjets.second;
     }
 
-    if (int(*f["doBoost"]) != 0) {
+    if (int(m("doBoost")) != 0) {
         // need to do some filtering on b-tagging for events that we won't use in the boosted analysis
         // (i.e. there is no fat jet) or file size for W+jets is ridiculous for boosted analysis
-        if (*ui["nFatJet"] < 1) {
-            if (f["Jet_btagCMVA"][*in["hJetInd1"]] < *f["j1ptCSV"] || f["Jet_btagCMVA"][*in["hJetInd2"]] < *f["j2ptCSV"]) {
+        if (mInt("nFatJet") < 1) {
+            if (m("Jet_btagCMVA",mInt("hJetInd1")) < m("j1ptCSV") || m("Jet_btagCMVA",mInt("hJetInd2")) < m("j2ptCSV")) {
                 return false;  // TODO this must be the same for signal and control regions?
             }
         }
     }
 
-    if (sel && *in["controlSample"] > -1) {
+    if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // selected jets
     }
 
@@ -454,26 +466,26 @@ bool VHbbAnalysis::Analyze() {
 
 
     if (debug > 1000) {
-        std::cout << "nJet = " << *in["nJet"] << std::endl;
-        std::cout << "hJetInd1 = " << *in["hJetInd1"] << std::endl;
-        std::cout << "hJetInd2 = " << *in["hJetInd2"] << std::endl;
+        std::cout << "nJet = " << mInt("nJet") << std::endl;
+        std::cout << "hJetInd1 = " << mInt("hJetInd1") << std::endl;
+        std::cout << "hJetInd2 = " << mInt("hJetInd2") << std::endl;
         std::cout << "found two bjets with pt and CSV "
-                  << f["Jet_bReg"][*in["hJetInd1"]] << " "
-                  << f["Jet_btagCSVV2"][*in["hJetInd1"]] << " "
-                  << f["Jet_bReg"][*in["hJetInd2"]] << " "
-                  << f["Jet_btagCSVV2"][*in["hJetInd2"]] << " "
+                  << m("Jet_bReg",mInt("hJetInd1")) << " "
+                  << m("Jet_btagCSVV2",mInt("hJetInd1")) << " "
+                  << m("Jet_bReg",mInt("hJetInd2")) << " "
+                  << m("Jet_btagCSVV2",mInt("hJetInd2")) << " "
                   << std::endl;
     }
 
     // Reconstruct Higgs
     TLorentzVector HJ1, HJ2, Hbb;
-    HJ1.SetPtEtaPhiM(f["Jet_bReg"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]] * (f["Jet_bReg"][*in["hJetInd1"]] / f["Jet_pt"][*in["hJetInd1"]]));
-    HJ2.SetPtEtaPhiM(f["Jet_bReg"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]] * (f["Jet_bReg"][*in["hJetInd2"]] / f["Jet_pt"][*in["hJetInd2"]]));
+    HJ1.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd1")), m("Jet_eta",mInt("hJetInd1")), m("Jet_phi",mInt("hJetInd1")), m("Jet_mass",mInt("hJetInd1")) * (m("Jet_bReg",mInt("hJetInd1")) / m("Jet_pt",mInt("hJetInd1"))));
+    HJ2.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd2")), m("Jet_eta",mInt("hJetInd2")), m("Jet_phi",mInt("hJetInd2")), m("Jet_mass",mInt("hJetInd2")) * (m("Jet_bReg",mInt("hJetInd2")) / m("Jet_pt",mInt("hJetInd2"))));
     Hbb = HJ1 + HJ2;
 
     TLorentzVector HJ1_noreg, HJ2_noreg, Hbb_noreg;
-    HJ1_noreg.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]]);
-    HJ2_noreg.SetPtEtaPhiM(f["Jet_pt"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]]);
+    HJ1_noreg.SetPtEtaPhiM(m("Jet_pt",mInt("hJetInd1")), m("Jet_eta",mInt("hJetInd1")), m("Jet_phi",mInt("hJetInd1")), m("Jet_mass",mInt("hJetInd1")));
+    HJ2_noreg.SetPtEtaPhiM(m("Jet_pt",mInt("hJetInd2")), m("Jet_eta",mInt("hJetInd2")), m("Jet_phi",mInt("hJetInd2")), m("Jet_mass",mInt("hJetInd2")));
     Hbb_noreg = HJ1_noreg + HJ2_noreg;
 
     *f["H_pt"] = Hbb.Pt();
@@ -482,16 +494,16 @@ bool VHbbAnalysis::Analyze() {
     m("H_pt");
     m("hptcut_1lepchan");
     m("controlSample");
-    if (*in["isZnn"] && *f["H_pt"] < *f["hptcut_0lepchan"]) {
+    if (mInt("isZnn") && m("H_pt") < m("hptcut_0lepchan")) {
         *in["controlSample"] = -1;
     } else if ((m("isWmunu") || m("isWenu")) && m("H_pt") < m("hptcut_1lepchan")) {
         *in["controlSample"] = -1;
-    } else if (sel && *in["controlSample"] > -1) {
+    } else if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // pT(jj) cut
     }
 
-    if(debug>1000) std::cout<<"doOnlySignalRegion controlSample "<<doOnlySignalRegion<<" "<<*in["controlSample"]<<std::endl;
-    if (doOnlySignalRegion && *in["controlSample"] < 0) {
+    if(debug>1000) std::cout<<"doOnlySignalRegion controlSample "<<doOnlySignalRegion<<" "<<mInt("controlSample")<<std::endl;
+    if (doOnlySignalRegion && mInt("controlSample") < 0) {
         return false;
     }
 
@@ -507,74 +519,74 @@ bool VHbbAnalysis::Analyze() {
     TLorentzVector V, GenBJ1, GenBJ2, GenBJJ;
     TLorentzVector W_withNuFromMWCon;
 
-    if (*in["isZee"] == 1 || *in["isZmm"] == 1) {
+    if (mInt("isZee") == 1 || mInt("isZmm") == 1) {
         TLorentzVector lep1, lep2;
-        if (*in["isZee"] == 1){
-            lep1.SetPtEtaPhiM(f["Electron_pt"][*in["lepInd1"]], f["Electron_eta"][*in["lepInd1"]], f["Electron_phi"][*in["lepInd1"]], f["Electron_mass"][*in["lepInd1"]]);
-            lep2.SetPtEtaPhiM(f["Electron_pt"][*in["lepInd2"]], f["Electron_eta"][*in["lepInd2"]], f["Electron_phi"][*in["lepInd2"]], f["Electron_mass"][*in["lepInd2"]]);
-        } else if (*in["isZmm"] == 1){
-            lep1.SetPtEtaPhiM(f["Muon_pt"][*in["lepInd1"]], f["Muon_eta"][*in["lepInd1"]], f["Muon_phi"][*in["lepInd1"]], f["Muon_mass"][*in["lepInd1"]]);
-            lep2.SetPtEtaPhiM(f["Muon_pt"][*in["lepInd2"]], f["Muon_eta"][*in["lepInd2"]], f["Muon_phi"][*in["lepInd2"]], f["Muon_mass"][*in["lepInd2"]]);
+        if (mInt("isZee") == 1){
+            lep1.SetPtEtaPhiM(m("Electron_pt",mInt("lepInd1")), m("Electron_eta",mInt("lepInd1")), m("Electron_phi",mInt("lepInd1")), m("Electron_mass",mInt("lepInd1")));
+            lep2.SetPtEtaPhiM(m("Electron_pt",mInt("lepInd2")), m("Electron_eta",mInt("lepInd2")), m("Electron_phi",mInt("lepInd2")), m("Electron_mass",mInt("lepInd2")));
+        } else if (mInt("isZmm") == 1){
+            lep1.SetPtEtaPhiM(m("Muon_pt",mInt("lepInd1")), m("Muon_eta",mInt("lepInd1")), m("Muon_phi",mInt("lepInd1")), m("Muon_mass",mInt("lepInd1")));
+            lep2.SetPtEtaPhiM(m("Muon_pt",mInt("lepInd2")), m("Muon_eta",mInt("lepInd2")), m("Muon_phi",mInt("lepInd2")), m("Muon_mass",mInt("lepInd2")));
         } else {
-            std::cout<<"This shouldn't happen.  isZee  isZmm "<<*in["isZee"]<<" "<<*in["isZmm"]<<std::endl;
+            std::cout<<"This shouldn't happen.  isZee  isZmm "<<mInt("isZee")<<" "<<mInt("isZmm")<<std::endl;
         }
         V = lep1 + lep2;
-    } else if (*in["isWenu"] == 1 || *in["isWmunu"] == 1) {
-        if (*in["isWenu"] == 1){
-            *f["selLeptons_pt_0"] = f["Electron_pt"][*in["lepInd1"]];
-            *f["selLeptons_eta_0"] = f["Electron_eta"][*in["lepInd1"]];
-            *f["selLeptons_phi_0"] = f["Electron_phi"][*in["lepInd1"]];
-            *f["selLeptons_mass_0"] = f["Electron_mass"][*in["lepInd1"]];
-            *in["selLeptons_pdgId_0"] = in["Electron_charge"][*in["lepInd1"]]*11;
-        } else if (*in["isWmunu"] == 1){
-            *f["selLeptons_pt_0"] = f["Muon_pt"][*in["lepInd1"]];
-            *f["selLeptons_eta_0"] = f["Muon_eta"][*in["lepInd1"]];
-            *f["selLeptons_phi_0"] = f["Muon_phi"][*in["lepInd1"]];
-            *f["selLeptons_mass_0"] = f["Muon_mass"][*in["lepInd1"]];
-            *in["selLeptons_pdgId_0"] = in["Muon_charge"][*in["lepInd1"]]*13;
+    } else if (mInt("isWenu") == 1 || mInt("isWmunu") == 1) {
+        if (mInt("isWenu") == 1){
+            *f["selLeptons_pt_0"] = m("Electron_pt",mInt("lepInd1"));
+            *f["selLeptons_eta_0"] = m("Electron_eta",mInt("lepInd1"));
+            *f["selLeptons_phi_0"] = m("Electron_phi",mInt("lepInd1"));
+            *f["selLeptons_mass_0"] = m("Electron_mass",mInt("lepInd1"));
+            *in["selLeptons_pdgId_0"] = mInt("Electron_charge",mInt("lepInd1"))*11;
+        } else if (mInt("isWmunu") == 1){
+            *f["selLeptons_pt_0"] = m("Muon_pt",mInt("lepInd1"));
+            *f["selLeptons_eta_0"] = m("Muon_eta",mInt("lepInd1"));
+            *f["selLeptons_phi_0"] = m("Muon_phi",mInt("lepInd1"));
+            *f["selLeptons_mass_0"] = m("Muon_mass",mInt("lepInd1"));
+            *in["selLeptons_pdgId_0"] = m("Muon_charge",mInt("lepInd1"))*13;
         } else {
-            std::cout<<"This shouldn't happen.  isWenu  isWmunu "<<*in["isWenu"]<<" "<<*in["isWmunu"]<<std::endl;
+            std::cout<<"This shouldn't happen.  isWenu  isWmunu "<<mInt("isWenu")<<" "<<mInt("isWmunu")<<std::endl;
         }
 
         //FIXME why do we do this?  Cut-flow?  CP
-        if (*in["lepInd1"] == -1) {
+        if (mInt("lepInd1") == -1) {
             // not Wenu or Wmunu, use preselected lepton
             *in["lepInd1"] = 0;
         }
 
         if (debug > 1000) {
             std::cout << "cutting on dphi(lep, met)" << std::endl;
-            std::cout << *in["lepInd1"] << " "
+            std::cout << mInt("lepInd1") << " "
             //          << f["selLeptons_phi"][*in["lepInd1"]] << " "
             //          << f["selLeptons_eta"][*in["lepInd1"]] << " "
             //          << f["selLeptons_mass"][*in["lepInd1"]]
                       << std::endl;
         }
 
-        *f["lepMetDPhi"] = fabs(EvalDeltaPhi(*f["selLeptons_phi_0"], *f["MET_phi"]));
+        *f["lepMetDPhi"] = fabs(EvalDeltaPhi(m("selLeptons_phi_0"), m("MET_phi")));
 
-        if (*in["isWmunu"] && *f["lepMetDPhi"] > *f["muMetDPhiCut"]) {
+        if (mInt("isWmunu") && m("lepMetDPhi") > m("muMetDPhiCut")) {
             *in["controlSample"] = -1;
-        } else if (*in["isWenu"] && *f["lepMetDPhi"] > *f["elMetDPhiCut"]) {
+        } else if (mInt("isWenu") && m("lepMetDPhi") > m("elMetDPhiCut")) {
             *in["controlSample"] = -1;
         }
 
-        if (doOnlySignalRegion && *in["controlSample"] < 0) {
+        if (doOnlySignalRegion && mInt("controlSample") < 0) {
             return false;
         }
 
-        if (sel && *in["controlSample"] > -1) {
+        if (sel && mInt("controlSample") > -1) {
             *in["cutFlow"] += 1;
         }
 
         TLorentzVector Lep, MET;
         // Reconstruct W
         if (debug > 1000) {
-            std::cout << "met " << *f["MET_pt"] << " " << *f["MET_phi"] << std::endl;
+            std::cout << "met " << m("MET_pt") << " " << m("MET_phi") << std::endl;
         }
 
-        MET.SetPtEtaPhiM(*f["MET_pt"], 0., *f["MET_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-        Lep.SetPtEtaPhiM(*f["selLeptons_pt_0"], *f["selLeptons_eta_0"], *f["selLeptons_phi_0"], *f["selLeptons_mass_0"]);
+        MET.SetPtEtaPhiM(m("MET_pt"), 0., m("MET_phi"), 0.); // Eta/M don't affect calculation of W.pt and W.phi
+        Lep.SetPtEtaPhiM(m("selLeptons_pt_0"), m("selLeptons_eta_0"), m("selLeptons_phi_0"), m("selLeptons_mass_0"));
         double cosPhi12 = (Lep.Px()*MET.Px() + Lep.Py()*MET.Py()) / (Lep.Pt() * MET.Pt()); // cos of the angle between the lepton and the missing energy
         *f["V_mt"] = TMath::Sqrt(2*Lep.Pt()*MET.Pt() * (1 - cosPhi12));
         *f["Lep_HJ1_dPhi"] = Lep.DeltaPhi(HJ1);
@@ -589,9 +601,9 @@ bool VHbbAnalysis::Analyze() {
         *f["Top1_mass_fromLepton_regPT"] = GetRecoTopMass(Lep, false, 0, true); // construct top mass from closest jet to lepton
         *f["Top1_mass_fromLepton_regPT_wMET"] = GetRecoTopMass(Lep, false, 1, true); // construct top mass from closest jet to lepton
         *f["Top1_mass_fromLepton_regPT_w4MET"] = GetRecoTopMass(Lep, false, 2, true); // construct top mass from closest jet to lepton
-    } else if (*in["isZnn"] == 1) {
+    } else if (mInt("isZnn") == 1) {
         TLorentzVector MET;
-        MET.SetPtEtaPhiM(*f["MET_pt"], 0., *f["MET_phi"], 0.); // Eta/M don't affect calculation of V.pt and V.phi
+        MET.SetPtEtaPhiM(m("MET_pt"), 0., m("MET_phi"), 0.); // Eta/M don't affect calculation of V.pt and V.phi
         V = MET;
     } else {
         std::cerr << "not any selection... can I go now?" << std::endl;  // haha, this is a good one.
@@ -609,20 +621,20 @@ bool VHbbAnalysis::Analyze() {
 
     *f["V_pt"] = V.Pt();
 
-    if (*f["V_pt"] < *f["vptcut"]) {
+    if (m("V_pt") < m("vptcut")) {
         *in["controlSample"] = -1;
-    } else if (sel && *in["controlSample"] > -1) {
+    } else if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // pT(W) cut
     }
 
-    if (*in["isZee"] == 1 || *in["isZmm"] == 1) {
+    if (mInt("isZee") == 1 || mInt("isZmm") == 1) {
         *f["V_mass"] = V.M();
-        if (*f["V_mass"] < *f["zmasslow"] || *f["V_mass"] > *f["zmasshigh"]) {
+        if (m("V_mass") < m("zmasslow")|| m("V_mass") > m("zmasshigh")) {
             *in["controlSample"] = -1;
         }
     }
 
-    if (doOnlySignalRegion && *in["controlSample"] < 0) {
+    if (doOnlySignalRegion && mInt("controlSample") < 0) {
         return false;
     }
 
@@ -630,27 +642,27 @@ bool VHbbAnalysis::Analyze() {
     *f["HJ1_HJ2_dPhi"] = HJ1.DeltaPhi(HJ2);
     *f["HJ1_HJ2_dEta"] = fabs(HJ1.Eta() - HJ2.Eta());
     *f["HJ1_HJ2_dR"] = HJ1.DeltaR(HJ2);
-    *f["JJEtaBal"] = (fabs(f["Jet_eta"][*in["hJetInd1"]] + f["Jet_eta"][*in["hJetInd2"]])) / (fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]));
-    *f["H_mass_step2"] = *f["H_mass"];
+    *f["JJEtaBal"] = (fabs(m("Jet_eta",mInt("hJetInd1")) + m("Jet_eta",mInt("hJetInd2")))) / (fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2"))));
+    *f["H_mass_step2"] = m("H_mass");
     *f["H_mass_noreg"] = Hbb_noreg.M();
     *f["H_mass"] = Hbb.M(); // mass window cut? regression applied in FinishEvent
     if (cursyst->name != "nominal") {
         *f[Form("H_mass_%s", cursyst->name.c_str())] = Hbb.M();
         *f[Form("H_pt_%s", cursyst->name.c_str())] = Hbb.Pt();
-        *in[Form("nAddJets252p9_puid_%s", cursyst->name.c_str())] = *in["nAddJets252p9_puid"];
+        *in[Form("nAddJets252p9_puid_%s", cursyst->name.c_str())] = mInt("nAddJets252p9_puid");
     }
 
     if (cursyst->name != "nominal") {
-        for (int i = 0; i < *in["nJet"]; i++) {
-            f[Form("Jet_btagCMVA_%s", cursyst->name.c_str())][i] = f["Jet_btagCMVA"][i];
+        for (int i = 0; i < mInt("nJet"); i++) {
+            f[Form("Jet_btagCMVA_%s", cursyst->name.c_str())][i] = m("Jet_btagCMVA",i);
         }
     }
 
     // Now we can calculate whatever we want (transverse) with V and H four-vectors
-    *f["jjVPtRatio"] = *f["H_pt"] / *f["V_pt"];
+    *f["jjVPtRatio"] = m("H_pt") / m("V_pt");
     *f["HVdPhi"] = fabs(Hbb.DeltaPhi(V));
     *f["HVdEta"] = fabs(Hbb.Eta() - V.Eta());
-    if (*in["isWmunu"] == 1 || *in["isWenu"] == 1) {
+    if (mInt("isWmunu") == 1 || mInt("isWenu") == 1) {
         *f["HVdEta_4MET"] = fabs(Hbb.Eta() -  W_withNuFromMWCon.Eta());
     }
 
@@ -663,172 +675,243 @@ bool VHbbAnalysis::Analyze() {
 //            _|
 //        _|_|
 
-    // FIXME  for the moment pretty much all the gen stuff is broken
-    // it relies on branches that don't exist anymore
-    //
-    ////// Compare gen kinematics for b jets for signal vs. ttbar
-    ////if (*in["sampleIndex"] != 0) {
-    ////    if (*in["nGenBQuarkFromH"] > 1) {
-    ////        // signal event
-    ////        GenBJ1.SetPtEtaPhiM(f["GenBQuarkFromH_pt"][0], f["GenBQuarkFromH_eta"][0], f["GenBQuarkFromH_phi"][0], f["GenBQuarkFromH_mass"][0]);
-    ////        GenBJ2.SetPtEtaPhiM(f["GenBQuarkFromH_pt"][1], f["GenBQuarkFromH_eta"][1], f["GenBQuarkFromH_phi"][1], f["GenBQuarkFromH_mass"][1]);
-    ////    } else if (*in["nGenBQuarkFromTop"] > 0) {
-    ////        GenBJ1.SetPtEtaPhiM(f["GenBQuarkFromTop_pt"][0], f["GenBQuarkFromTop_eta"][0], f["GenBQuarkFromTop_phi"][0], f["GenBQuarkFromTop_mass"][0]);
-    ////        if (*in["nGenBQuarkFromTop"] > 1) {
-    ////            GenBJ2.SetPtEtaPhiM(f["GenBQuarkFromTop_pt"][1], f["GenBQuarkFromTop_eta"][1], f["GenBQuarkFromTop_phi"][1], f["GenBQuarkFromTop_mass"][1]);
-    ////        }
-    ////    }
+    // Compare gen kinematics for b jets for signal vs. ttbar
+    if (mInt("sampleIndex") != 0) {
+        //first check for Higgs bosons:
+        int mother_index=-1;
+        int dau1_index=-1;
+        int dau2_index=-1;
+        int top_index_1=-1;
+        int top_index_2=-1;
+        for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+            //Check for Higgs boson and make sure it's the last copy -> 8192 = 2^13, 13th bit is IsLastCopy flag:
+            if(fabs(mInt("GenPart_pdgId",indGP))==25 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
+                mother_index=indGP;
+            }
+        }
+        if(mother_index!=-1){
+            for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                //Find b-quarks with a Higgs mother
+                if(mInt("GenPart_genPartIdxMother",indGP)==mother_index && fabs(mInt("GenPart_pdgId",indGP))==5){
+                    if(dau1_index>-1 && dau2_index>-1){
+                        std::cout<<"This isn't supposed to happen!"<<std::endl;
+                    }else if(dau1_index>-1){
+                        dau2_index=indGP;
+                    }else{
+                        dau1_index=indGP;
+                    }
+                }
+            }
+        } else { //can also check for top quarks...
+            for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                if(fabs(mInt("GenPart_pdgId",indGP))==6 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
+                    if(top_index_1>-1&&top_index_2>-1){
+                        std::cout<<"This isn't supposed to happen!"<<std::endl;
+                    } else if(top_index_1>-1){
+                        top_index_2=indGP;
+                    } else {
+                        top_index_1=indGP; 
+                    }
+                }
+            }
+            if(top_index_1!=-1){
+                for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                    if(mInt("GenPart_genPartIdxMother",indGP)==top_index_1 && fabs(mInt("GenPart_pdgId",indGP))==5) dau1_index=indGP;
+                }
+            }
+            if(top_index_2!=-1){
+                for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                    if(mInt("GenPart_genPartIdxMother", indGP)==top_index_2 && fabs(mInt("GenPart_pdgId",indGP))==5){
+                        if(dau1_index>-1) dau2_index=indGP;
+                        else dau1_index=indGP;
+                    }
+                }
+            }
+        }
+        if(dau1_index>-1){
+            GenBJ1.SetPtEtaPhiM(m("GenPart_pt",dau1_index),m("GenPart_eta",dau1_index),m("GenPart_phi",dau1_index),4.2); //Mass only stored in nano if > 10 GeV
+        }
+        if(dau2_index>-1){
+            GenBJ2.SetPtEtaPhiM(m("GenPart_pt",dau2_index),m("GenPart_eta",dau2_index),m("GenPart_phi",dau2_index),4.2);
+        }
 
-    ////    *f["GenBJ1_pt"] = GenBJ1.Pt();
-    ////    *f["GenBJ1_eta"] = GenBJ1.Eta();
-    ////    *f["GenBJ1_phi"] = GenBJ1.Phi();
-    ////    *f["GenBJ1_mass"] = GenBJ1.M();
-    ////    *f["GenBJ2_pt"] = GenBJ2.Pt();
-    ////    *f["GenBJ2_eta"] = GenBJ2.Eta();
-    ////    *f["GenBJ2_phi"] = GenBJ2.Phi();
-    ////    *f["GenBJ2_mass"] = GenBJ2.M();
+     
+       *f["GenBJ1_pt"] = GenBJ1.Pt();
+       *f["GenBJ1_eta"] = GenBJ1.Eta();
+       *f["GenBJ1_phi"] = GenBJ1.Phi();
+       *f["GenBJ1_mass"] = GenBJ1.M();
+       *f["GenBJ2_pt"] = GenBJ2.Pt();
+       *f["GenBJ2_eta"] = GenBJ2.Eta();
+       *f["GenBJ2_phi"] = GenBJ2.Phi();
+       *f["GenBJ2_mass"] = GenBJ2.M();
 
-    ////    GenBJJ = GenBJ1 + GenBJ2;
-    ////    *f["GenBJJ_pt"] = GenBJJ.Pt();
-    ////    *f["GenBJJ_eta"] = GenBJJ.Eta();
-    ////    *f["GenBJJ_phi"] = GenBJJ.Phi();
-    ////    *f["GenBJJ_mass"] = GenBJJ.M();
-    ////    *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
-    ////    *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
-    ////    *f["GenBJJ_dEta"] = fabs(GenBJ1.Eta() - GenBJ2.Eta());
+       GenBJJ = GenBJ1 + GenBJ2;
+       *f["GenBJJ_pt"] = GenBJJ.Pt();
+       *f["GenBJJ_eta"] = GenBJJ.Eta();
+       *f["GenBJJ_phi"] = GenBJJ.Phi();
+       *f["GenBJJ_mass"] = GenBJJ.M();
+       *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
+       *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
+       *f["GenBJJ_dEta"] = fabs(GenBJ1.Eta() - GenBJ2.Eta());
 
-    ////    TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
-    ////    double minDR1 = 999;
-    ////    double minDR2 = 999;
-    ////    double minSecDR2 = 999; //second closest gen lepton to second jet
-    ////    int GenLepIndex1 = -1; // index of the lepton closest to jet 1
-    ////    int GenLepIndex2 = -1; // index of the lepton closest to jet 2
-    ////    int GenLepSecIndex2 = -1; // index of the lepton second closest to jet 2
-    ////    for (int i = 0; i < *in["nGenLep"]; i++) {
-    ////       TLorentzVector gl;
-    ////       gl.SetPtEtaPhiM(f["GenLep_pt"][i], f["GenLep_eta"][i], f["GenLep_phi"][i], f["GenLep_mass"][i] );
-    ////       double DR1 = gl.DeltaR(GenBJ1);
-    ////       double DR2 = gl.DeltaR(GenBJ2);
 
-    ////       if (DR1 <= minDR1) {
-    ////           minDR1 = DR1;
-    ////           GenLepIndex1 = i;
-    ////       }
+       TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
+       double minDR1 = 999;
+       double minDR2 = 999;
+       double minSecDR2 = 999; //second closest gen lepton to second jet
+       double part_mass=0.;
+       int GenLepIndex1 = -1; // index of the lepton closest to jet 1
+       int GenLepIndex2 = -1; // index of the lepton closest to jet 2
+       int GenLepSecIndex2 = -1; // index of the lepton second closest to jet 2
+       for (int i = 0; i < mInt("nGenPart"); i++) {
+           //Continue if not a final-state electron or muon which is either prompt or from a tau decay.
+           if(!((fabs(mInt("GenPart_pdgId",i))==11||fabs(mInt("GenPart_pdgId",i))==13)&& mInt("GenPart_status",i)==1 && ((mInt("GenPart_statusFlags",i)&1)==1 || (mInt("GenPart_statusFlags",i)&32)==32  ))) continue;
+           TLorentzVector gl;
+           if(fabs(mInt("GenPart_pdgId",i))==11) part_mass=0.000511;
+           if(fabs(mInt("GenPart_pdgId",i))==13) part_mass=0.105;
+           gl.SetPtEtaPhiM(m("GenPart_pt",i), m("GenPart_eta",i), m("GenPart_phi",i),part_mass);
+           double DR1 = gl.DeltaR(GenBJ1);
+           double DR2 = gl.DeltaR(GenBJ2);
 
-    ////       if (DR2 <= minDR2) {
-    ////           minSecDR2 = minDR2;
-    ////           GenLepSecIndex2 = GenLepIndex2;
-    ////           minDR2 = DR2;
-    ////           GenLepIndex2 = i;
-    ////       } else if (DR2 < minSecDR2) {
-    ////           minSecDR2 = DR2;
-    ////           GenLepSecIndex2 = i;
-    ////       }
-    ////    }
+           if (DR1 <= minDR1) {
+               minDR1 = DR1;
+               GenLepIndex1 = i;
+           }
 
-    ////    if (GenLepIndex1 == GenLepIndex2) {
-    ////        // don't allow us to use the same lepton for each jet
-    ////        GenLepIndex2 = GenLepSecIndex2;
-    ////    }
+           if (DR2 <= minDR2) {
+               minSecDR2 = minDR2;
+               GenLepSecIndex2 = GenLepIndex2;
+               minDR2 = DR2;
+               GenLepIndex2 = i;
+           } else if (DR2 < minSecDR2) {
+               minSecDR2 = DR2;
+               GenLepSecIndex2 = i;
+           }
+       }
 
-    ////    *in["GenLepIndex1"] = GenLepIndex1;
-    ////    *in["GenLepIndex2"] = GenLepIndex2;
+       if (GenLepIndex1 == GenLepIndex2) {
+           // don't allow us to use the same lepton for each jet
+            GenLepIndex2 = GenLepSecIndex2;
+       }
 
-    ////    if (GenLepIndex1 != -1) {
-    ////        GenLep1.SetPtEtaPhiM(f["GenLep_pt"][GenLepIndex1], f["GenLep_eta"][GenLepIndex1], f["GenLep_phi"][GenLepIndex1], f["GenLep_mass"][GenLepIndex1] );
-    ////        *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
-    ////        *f["GenLep_GenBJ1_dEta"] = fabs(GenLep1.Eta() - GenBJ1.Eta());
-    ////        *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
+       *in["GenLepIndex1"] = GenLepIndex1;
+       *in["GenLepIndex2"] = GenLepIndex2;
 
-    ////        // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
-    ////        TLorentzVector GenTop1 = GenLep1 + GenBJ1;
-    ////        *f["GenTop1_mass"] = GenTop1.M();
-    ////    } else {
-    ////        *f["GenLep_GenBJ1_dR"] = -999;
-    ////        *f["GenLep_GenBJ1_dEta"] = -999;
-    ////        *f["GenLep_GenBJ1_dPhi"] = -999;
-    ////        *f["GenTop1_mass"] = -999;
-    ////    }
+        if (GenLepIndex1 != -1) {
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex1))==11) part_mass=0.000511;
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex1))==13) part_mass=0.105;
+            GenLep1.SetPtEtaPhiM(m("GenPart_pt",GenLepIndex1), m("GenPart_eta",GenLepIndex1), m("GenPart_phi",GenLepIndex1),part_mass);
+            *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
+            *f["GenLep_GenBJ1_dEta"] = fabs(GenLep1.Eta() - GenBJ1.Eta());
+            *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
 
-    ////    if (GenLepIndex2 != -1) {
-    ////        GenLep2.SetPtEtaPhiM(f["GenLep_pt"][GenLepIndex2], f["GenLep_eta"][GenLepIndex2], f["GenLep_phi"][GenLepIndex2], f["GenLep_mass"][GenLepIndex2] );
-    ////        *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
-    ////        *f["GenLep_GenBJ2_dEta"] = (GenLep2.Eta(), GenBJ2.Eta());
-    ////        *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
+            // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+            TLorentzVector GenTop1 = GenLep1 + GenBJ1;
+            *f["GenTop1_mass"] = GenTop1.M();
+        } else {
+            *f["GenLep_GenBJ1_dR"] = -999;
+            *f["GenLep_GenBJ1_dEta"] = -999;
+            *f["GenLep_GenBJ1_dPhi"] = -999;
+            *f["GenTop1_mass"] = -999;
+        }
 
-    ////        // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
-    ////        TLorentzVector GenTop2 = GenLep2 + GenBJ2;
-    ////        *f["GenTop2_mass"] = GenTop2.M();
-    ////    } else {
-    ////        *f["GenLep_GenBJ2_dR"] = -999;
-    ////        *f["GenLep_GenBJ2_dEta"] = -999;
-    ////        *f["GenLep_GenBJ2_dPhi"] = -999;
-    ////        *f["GenTop2_mass"] = -999;
-    ////    }
+        if (GenLepIndex2 != -1) {
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex2))==11) part_mass=0.000511;
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex2))==13) part_mass=0.105;
+            GenLep2.SetPtEtaPhiM(m("GenPart_pt",GenLepIndex2), m("GenPart_eta",GenLepIndex2), m("GenPart_phi",GenLepIndex2),part_mass);
+            *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
+            *f["GenLep_GenBJ2_dEta"] = (GenLep2.Eta(), GenBJ2.Eta());
+            *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
 
-    ////    // construct Gen W
-    ////    TLorentzVector GenW1, GenW2;
-    ////    if (*in["nGenVbosons"] > 0 && fabs(in["GenVbosons_pdgId"][0]) == 24) {
-    ////        GenW1.SetPtEtaPhiM(f["GenVbosons_pt"][0], f["GenVbosons_eta"][0], f["GenVbosons_phi"][0], f["GenVbosons_mass"][0]);
-    ////        *f["GenW_GenBJJ_dPhi"] = GenW1.DeltaPhi(GenBJJ);
-    ////        *f["GenW_GenBJJ_dEta"] = fabs(GenW1.Eta() - GenBJJ.Eta());
-    ////        // grab both W's in ttbar events
-    ////        if (*in["nGenVbosons"] > 1 && fabs(in["GenVbosons_pdgId"][1]) == 24) {
-    ////            GenW2.SetPtEtaPhiM(f["GenVbosons_pt"][1], f["GenVbosons_eta"][1], f["GenVbosons_phi"][1], f["GenVbosons_mass"][1]);
-    ////        }
-    ////    } else {
-    ////        *f["GenW_GenBJJ_dPhi"] = -999;
-    ////        *f["GenW_GenBJJ_dEta"] = -999;
-    ////    }
+           // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+            TLorentzVector GenTop2 = GenLep2 + GenBJ2;
+            *f["GenTop2_mass"] = GenTop2.M();
+        } else {
+            *f["GenLep_GenBJ2_dR"] = -999;
+            *f["GenLep_GenBJ2_dEta"] = -999;
+            *f["GenLep_GenBJ2_dPhi"] = -999;
+            *f["GenTop2_mass"] = -999;
+        }
 
-    ////    std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
-    ////    for (int i = 0; i < *in["nGenWZQuark"]; i++) {
-    ////        TLorentzVector v;
-    ////        v.SetPtEtaPhiM(f["GenWZQuark_pt"][i], f["GenWZQuark_eta"][i], f["GenWZQuark_phi"][i], f["GenWZQuark_mass"][i]);
-    ////        genWQuarks.push_back(v);
-    ////    }
+        // construct Gen W
+        int w_index_1=-1;
+        int w_index_2=-1;
+        TLorentzVector GenW1, GenW2;
+        for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+            //Check for W boson and make sure it's the last copy -> 8192 = 2^13, 13th bit is IsLastCopy flag:
+            if(fabs(mInt("GenPart_pdgId",indGP))==24 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
+                if(w_index_1>-1&&w_index_2>-1){
+                    std::cout<<"This isn't supposed to happen!"<<std::endl;
+                } else if(w_index_1>-1){
+                    w_index_2=indGP;
+                } else w_index_1=indGP;
+            }
+        } 
+        if(w_index_1>-1){
+            GenW1.SetPtEtaPhiM(m("GenPart_pt",w_index_1), m("GenPart_eta",w_index_1), m("GenPart_phi",w_index_1), m("GenPart_mass",w_index_1));
+            *f["GenW_GenBJJ_dPhi"] = GenW1.DeltaPhi(GenBJJ);
+            *f["GenW_GenBJJ_dEta"] = fabs(GenW1.Eta() - GenBJJ.Eta());
+            // grab both W's in ttbar events
+            if (w_index_2>-1){
+                GenW2.SetPtEtaPhiM(m("GenPart_pt",w_index_2), m("GenPart_eta",w_index_2), m("GenPart_phi",w_index_2), m("GenPart_mass",w_index_2));
+            }
+        } else {
+            *f["GenW_GenBJJ_dPhi"] = -999;
+            *f["GenW_GenBJJ_dEta"] = -999;
+        }
 
-    ////    //int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
-    ////    // Match Jets with Gen B Jets from Higgs/Tops
-    ////    for (int i = 0; i < *in["nJet"]; i++) {
-    ////        in["Jet_genJetMatchId"][i] = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 if matched to jet from hadronic W decay
-    ////        TLorentzVector Jet;
-    ////        Jet.SetPtEtaPhiM(f["Jet_bReg"][i], f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i] * (f["Jet_bReg"][i] / f["Jet_pt"][i]));
+        std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
+        if(w_index_1>-1||w_index_2>-1){       
+            for (int i = 0; i < mInt("nGenPart"); i++) {
+                if( ( (w_index_1 > -1 && mInt("GenPart_genPartIdxMother",i)==w_index_1) ||(w_index_2>-1 && mInt("GenPart_genPartIdxMother",i)==w_index_2) ) && fabs(mInt("GenPart_pdgId",i))>=1&&fabs(mInt("GenPart_pdgId",i))<=6){
+                    TLorentzVector v;
+                    v.SetPtEtaPhiM(m("GenPart_pt",i), m("GenPart_eta",i), m("GenPart_phi",i), 0.); //FIXME could try to do something better here...
+                    genWQuarks.push_back(v);
+                }
+            }
+        }
 
-    ////        //double dR1 = Jet.DeltaR(GenHJ1);
-    ////        //double dR2 = Jet.DeltaR(GenHJ2);
-    ////        double dR1 = 999;
-    ////        if (GenBJ1.Pt() > 0) dR1 = Jet.DeltaR(GenBJ1);
-    ////        double dR2 = 999;
-    ////        if (GenBJ2.Pt() > 0) dR2 = Jet.DeltaR(GenBJ2);
+        //int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
+        // Match Jets with Gen B Jets from Higgs/Tops
+        for (int i = 0; i < mInt("nJet"); i++) {
+            in["Jet_genJetMatchId"][i] = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 if matched to jet from hadronic W decay
+            TLorentzVector Jet;
+            Jet.SetPtEtaPhiM(m("Jet_bReg",i), m("Jet_eta",i), m("Jet_phi",i), m("Jet_mass",i) * (m("Jet_bReg",i) / m("Jet_pt",i)));
 
-    ////        // try to match the jet to one of the jets from hadronic W decay
-    ////        double dR3 = 999;
-    ////        for (int j = 0; j < (int) genWQuarks.size(); j++) {
-    ////            double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[j]);
-    ////            if (Jet_genWQuarkDR < dR3) {
-    ////                dR3 = Jet_genWQuarkDR;
-    ////            }
-    ////        }
+            //double dR1 = Jet.DeltaR(GenHJ1);
+            //double dR2 = Jet.DeltaR(GenHJ2);
+            double dR1 = 999;
+            if (GenBJ1.Pt() > 0) dR1 = Jet.DeltaR(GenBJ1);
+            double dR2 = 999;
+            if (GenBJ2.Pt() > 0) dR2 = Jet.DeltaR(GenBJ2);
 
-    ////        f["Jet_genWQuarkDR"][i] = dR3;
-    ////        if (dR3 < std::min(dR1, dR2) && dR3 < 0.5) {
-    ////            in["Jet_genJetMatchId"][i] = 3;
-    ////        } else if (dR1 <= dR2 && dR1 < 0.5) {
-    ////            in["Jet_genJetMatchId"][i] = 1;
-    ////        } else if (dR2 < 0.5) {
-    ////            in["Jet_genJetMatchId"][i] = 2;
-    ////        }
+            // try to match the jet to one of the jets from hadronic W decay
+            double dR3 = 999;
+            for (int j = 0; j < (int) genWQuarks.size(); j++) {
+                double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[j]);
+                if (Jet_genWQuarkDR < dR3) {
+                    dR3 = Jet_genWQuarkDR;
+                }
+            }
 
-    ////        f["Jet_genHJetMinDR"][i] = std::min(dR1, dR2);
+            f["Jet_genWQuarkDR"][i] = dR3;
+            if (dR3 < std::min(dR1, dR2) && dR3 < 0.5) {
+                in["Jet_genJetMatchId"][i] = 3;
+            } else if (dR1 <= dR2 && dR1 < 0.5) {
+                in["Jet_genJetMatchId"][i] = 1;
+            } else if (dR2 < 0.5) {
+                in["Jet_genJetMatchId"][i] = 2;
+            }
 
-    ////        if (i == *in["hJetInd1"]) {
-    ////            *f["hJet1_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
-    ////        } else if (i == *in["hJetInd2"]) {
-    ////            *f["hJet2_matchedMinDR"] = f["Jet_genHJetMinDR"][i];
-    ////        }
-    ////    }
-    ////}
+            f["Jet_genHJetMinDR"][i] = std::min(dR1, dR2);
+
+            if (i == mInt("hJetInd1")) {
+                *f["hJet1_matchedMinDR"] = m("Jet_genHJetMinDR",i);
+            } else if (i == mInt("hJetInd2")) {
+                *f["hJet2_matchedMinDR"] = m("Jet_genHJetMinDR",i);
+            }
+        }
+    }
 
     if (debug > 1000) std::cout << "counting additional jets and leptons" << std::endl;
 
@@ -857,16 +940,16 @@ bool VHbbAnalysis::Analyze() {
             int nAddJet_tmp = 0;
             std::string eta_cut = Form("%.1f", etaCuts[j]); // convert, say, 2.5 to '2p5'
             std::replace(eta_cut.begin(), eta_cut.end(), '.', 'p');
-            for (int k = 0; k < m("nJet"); k++) {
-                if (k == m("hJetInd1") || k == m("hJetInd2")) continue;
+            for (int k = 0; k < mInt("nJet"); k++) {
+                if (k == mInt("hJetInd1") || k == mInt("hJetInd2")) continue;
                 if (m("Jet_bReg",k) > ptCuts[i] && fabs(m("Jet_eta",k)) < etaCuts[j] && m("Jet_puId",k) > 0) {
                     nAddJet_tmp++;
-                    if (f["Jet_bReg"][k] > maxPt) {
-                        maxPt = f["Jet_bReg"][k];
+                    if (m("Jet_bReg",k) > maxPt) {
+                        maxPt = m("Jet_bReg",k);
                         *f[Form("AddJets%i%s_puid_leadJet_pt", ptCuts[i], eta_cut.c_str())] = maxPt;
-                        *f[Form("AddJets%i%s_puid_leadJet_eta", ptCuts[i], eta_cut.c_str())] = f["Jet_eta"][k];
-                        *f[Form("AddJets%i%s_puid_leadJet_phi", ptCuts[i], eta_cut.c_str())] = f["Jet_phi"][k];
-                        *f[Form("AddJets%i%s_puid_leadJet_btagCSV", ptCuts[i], eta_cut.c_str())] = f["Jet_btagCSVV2"][k];
+                        *f[Form("AddJets%i%s_puid_leadJet_eta", ptCuts[i], eta_cut.c_str())] = m("Jet_eta",k);
+                        *f[Form("AddJets%i%s_puid_leadJet_phi", ptCuts[i], eta_cut.c_str())] = m("Jet_phi",k);
+                        *f[Form("AddJets%i%s_puid_leadJet_btagCSV", ptCuts[i], eta_cut.c_str())] = m("Jet_btagCSVV2",k);
                     }
                 }
             }
@@ -875,47 +958,47 @@ bool VHbbAnalysis::Analyze() {
     }
 
     // count additional leptons (check both collections, which are exclusive)
-    for (int i = 0; i < m("nMuon"); i++) {
-        if (i == *in["muInd1"]) continue; // don't look at the lepton we've selected from the W
-        if (i == *in["muInd2"]) continue; // don't look at the lepton we've selected from the Z
-        if (f["Muon_pt"][i] > 15 && fabs(f["Muon_eta"][i]) < 2.5 && f["Muon_pfRelIso04_all"][i] < 0.1) {
+    for (int i = 0; i < mInt("nMuon"); i++) {
+        if (i == mInt("muInd1")) continue; // don't look at the lepton we've selected from the W
+        if (i == mInt("muInd2")) continue; // don't look at the lepton we've selected from the Z
+        if (m("Muon_pt",i) > 15 && fabs(m("Muon_eta",i)) < 2.5 && m("Muon_pfRelIso04_all",i) < 0.1) {
             nAddLep++;
         }
     }
 
-    for (int i = 0; i < m("nElectron"); i++) {
-        if (i == *in["elInd1"]) continue; // don't look at the lepton we've selected from the W
-        if (i == *in["elInd2"]) continue; // don't look at the lepton we've selected from the Z
-        if (f["Electron_pt"][i] > 15 && fabs(f["Electron_eta"][i]) < 2.5 && f["Electron_pfRelIso03_all"][i] < 0.1) {
+    for (int i = 0; i < mInt("nElectron"); i++) {
+        if (i == mInt("elInd1")) continue; // don't look at the lepton we've selected from the W
+        if (i == mInt("elInd2")) continue; // don't look at the lepton we've selected from the Z
+        if (m("Electron_pt",i) > 15 && fabs(m("Electron_eta",i)) < 2.5 && m("Electron_pfRelIso03_all",i) < 0.1) {
             nAddLep++;
         }
     }
 
 
     *in["nAddLeptons"] = nAddLep;
-    if ((*in["isZnn"] || *in["isWmunu"] || *in["isWenu"]) && nAddLep >= m("nAddLeptonsCut")) {
+    if ((mInt("isZnn") || mInt("isWmunu") || mInt("isWenu")) && nAddLep >= m("nAddLeptonsCut")) {
         *in["controlSample"] = -1;
-    } else if (sel && *in["controlSample"] > -1) {
+    } else if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // additional lepton veto
     }
 
-    if ((*in["isZnn"] || *in["isWmunu"] || *in["isWenu"]) && *in["nAddJets252p9_puid"] >= *f["nAddJetsCut"]) {
+    if ((mInt("isZnn") || mInt("isWmunu") || mInt("isWenu")) && mInt("nAddJets252p9_puid") >= m("nAddJetsCut")) {
         *in["controlSample"] = -1;
-    } else if (sel && *in["controlSample"] > -1) {
+    } else if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // additional jet veto
     }
 
-    if (*in["isZnn"] && *f["HVdPhi"] < *f["HVDPhiCut_0lepchan"]) {
+    if (mInt("isZnn") && m("HVdPhi") < m("HVDPhiCut_0lepchan")) {
         *in["controlSample"] = -1;
-    } else if ((*in["isWmunu"] || *in["isWenu"]) && *f["HVdPhi"] < *f["HVDPhiCut_1lepchan"]) {
+    } else if ((m("isWmunu") || m("isWenu")) && m("HVdPhi") < m("HVDPhiCut_1lepchan")) {
         *in["controlSample"] = -1;
-    } else if ((*in["isZmm"] || *in["isZee"]) && m("HVdPhi") < m("HVDPhiCut_2lepchan")) {
+    } else if ((mInt("isZmm") || mInt("isZee")) && m("HVdPhi") < m("HVDPhiCut_2lepchan")) {
         *in["controlSample"] = -1;
-    } else if (sel && *in["controlSample"] > -1) {
+    } else if (sel && mInt("controlSample") > -1) {
         *in["cutFlow"] += 1; // dPhi(jj,W) cut
     }
 
-    if (doOnlySignalRegion && *in["controlSample"] < 0) {
+    if (doOnlySignalRegion && mInt("controlSample") < 0) {
         return false;
     }
 
@@ -924,28 +1007,28 @@ bool VHbbAnalysis::Analyze() {
     // the number of jets azimuthally within 0.5 radians of the reconstructed
     // Z boson (MET). The latter is used to reject QCD events.
     int nJetsCloseToMet = 0, nJetsCentral = 0;
-    for (int i = 0; i < m("nJet"); i++) {
-        if (f["Jet_bReg"][i] > 30 && in["Jet_puId"][i] >= 4) {
-            if (fabs(f["Jet_eta"][i]) < 2.4) {
+    for (int i = 0; i < mInt("nJet"); i++) {
+        if (m("Jet_bReg",i) > 30 && mInt("Jet_puId",i) >= 4) {
+            if (fabs(m("Jet_eta",i)) < 2.4) {
                 nJetsCentral += 1;
             }
-            float absDeltaPhiJetMet = fabs(EvalDeltaPhi(f["Jet_phi"][i], *f["V_phi"]));
+            float absDeltaPhiJetMet = fabs(EvalDeltaPhi(m("Jet_phi",i), m("V_phi")));
             if (absDeltaPhiJetMet < 0.5) {
                 nJetsCloseToMet += 1;
             }
         }
     }
 
-    float absDeltaPhiHiggsJet1Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd1"]], *f["V_phi"]));
-    float absDeltaPhiHiggsJet2Met = fabs(EvalDeltaPhi(f["Jet_phi"][*in["hJetInd2"]], *f["V_phi"]));
+    float absDeltaPhiHiggsJet1Met = fabs(EvalDeltaPhi(m("Jet_phi",mInt("hJetInd1")), m("V_phi")));
+    float absDeltaPhiHiggsJet2Met = fabs(EvalDeltaPhi(m("Jet_phi",mInt("hJetInd2")), m("V_phi")));
     float minAbsDeltaPhiHiggsJetsMet = std::min(absDeltaPhiHiggsJet1Met, absDeltaPhiHiggsJet2Met);
-    float absDeltaPhiMetTrackMet = fabs(EvalDeltaPhi(*f["V_phi"], m("TkMET_phi")));
+    float absDeltaPhiMetTrackMet = fabs(EvalDeltaPhi(m("V_phi"), m("TkMET_phi")));
     *f["minMetjDPhi"] = minAbsDeltaPhiHiggsJetsMet;
     *f["MetTkMetDPhi"] = absDeltaPhiMetTrackMet;
 
-    if (*in["isZnn"] && fabs(m("minMetjDPhi")) < m("minMetjDPhiCut")) {
+    if (mInt("isZnn") && fabs(m("minMetjDPhi")) < m("minMetjDPhiCut")) {
         *in["controlSample"] = -1;
-    } else if (*in["isZnn"] && fabs(m("MetTkMetDPhi")) > m("minMetjDPhiCut")) {
+    } else if (mInt("isZnn")&& fabs(m("MetTkMetDPhi")) > m("minMetjDPhiCut")) {
         *in["controlSample"] = -1;
     }
 
@@ -966,38 +1049,38 @@ bool VHbbAnalysis::Analyze() {
     if(debug>1000) std::cout<<"about to apply control region selection"<<std::endl;
 
     // Control Samples
-    float absDeltaPhiHiggsMet = *f["HVdPhi"];   // fabs(EvalDeltaPhi(*f["HCMVAV2_reg_phi"], *f["V_phi"]));
-    float higgsJet1CMVA = f["Jet_btagCMVA"][*in["hJetInd1"]];
-    float higgsJet2CMVA = f["Jet_btagCMVA"][*in["hJetInd2"]];
+    float absDeltaPhiHiggsMet = m("HVdPhi");   // fabs(EvalDeltaPhi(*f["HCMVAV2_reg_phi"], *f["V_phi"]));
+    float higgsJet1CMVA = m("Jet_btagCMVA",mInt("hJetInd1"));
+    float higgsJet2CMVA = m("Jet_btagCMVA",mInt("hJetInd2"));
     float minCSVA = std::min(higgsJet1CMVA, higgsJet2CMVA);
     float maxCSVA = std::max(higgsJet1CMVA, higgsJet2CMVA);
     float CSVAL = -0.5884, CSVAM = 0.4432, CSVAT = 0.9432;
-    float V_mass = *f["V_mass"], H_mass = *f["H_mass"];
+    float V_mass = m("V_mass"), H_mass = m("H_mass");
 
 
     // 0-lepton
     bool base0LepCSSelection = (
         // Vector Boson Cuts
         // (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
-        (*in["isWmunu"] || *in["isWenu"] || *in["isZnn"])
-        && *in["cutFlow"] >= 2
+        (mInt("isWmunu") || mInt("isWenu") ||mInt("isZnn"))
+        && mInt("cutFlow") >= 2
         && m("V_pt") > 170
         // Higgs Boson Cuts
         && H_mass < 500
         //&& *f["HCMVAV2_pt"] > 120 CP REMOVED
         // Higgs Jet Cuts
-        && f["Jet_bReg"][*in["hJetInd1"]] > 60
-        && f["Jet_bReg"][*in["hJetInd2"]] > 35
+        && m("Jet_bReg",mInt("hJetInd1")) > 60
+        && m("Jet_bReg",mInt("hJetInd2")) > 35
         && higgsJet2CMVA > CSVAL
-        && fabs(f["Jet_eta"][*in["hJetInd1"]]) < 2.4
-        && fabs(f["Jet_eta"][*in["hJetInd2"]]) < 2.4
+        && fabs(m("Jet_eta",mInt("hJetInd1"))) < 2.4
+        && fabs(m("Jet_eta",mInt("hJetInd2"))) < 2.4
         //&& in["Jet_id"][*in["hJetInd1"]] >= 4
         //&& in["Jet_id"][*in["hJetInd2"]] >= 4
-        && in["Jet_puId"][*in["hJetInd1"]] >= 4
-        && in["Jet_puId"][*in["hJetInd2"]] >= 4
+        && mInt("Jet_puId",mInt("hJetInd1")) >= 4
+        && mInt("Jet_puId",mInt("hJetInd2")) >= 4
         // Leading Jet Cuts
         //&& in["Jet_id"][0] >= 4
-        && in["Jet_puId"][0] >= 4
+        && mInt("Jet_puId",0) >= 4
         // MET Filters
         && m("Flag_goodVertices")
         && m("Flag_globalTightHalo2016Filter")
@@ -1009,14 +1092,14 @@ bool VHbbAnalysis::Analyze() {
 
     if (base0LepCSSelection) {
         // if (*f["Vtype"] == 2 || *f["Vtype"] == 3) {
-        if (*in["isWmunu"] || *in["isWenu"]) {
+        if (mInt("isWmunu") || mInt("isWenu")) {
             // FIXME nselLeptons needs to be replaced
             //if (minAbsDeltaPhiHiggsJetsMet < 1.57 && *in["nselLeptons"] >= 1 && higgsJet1CMVA > CSVAM && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
             if (minAbsDeltaPhiHiggsJetsMet < 1.57 && higgsJet1CMVA > CSVAM && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
                 *in["controlSample"] = 1; // TTbar Control Sample Index
             }
         // } else if (*f["Vtype"] == 4) {
-        } else if (*in["isZnn"]) {
+        } else if (mInt("isZnn")) {
             bool vetoHiggsMassWindow = m("H_mass") < 60 || m("H_mass") > 160;
             // FIXME nselLeptons needs to be replaced
             //if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && *in["nselLeptons"] == 0 && absDeltaPhiHiggsMet > 2) {
@@ -1040,52 +1123,52 @@ bool VHbbAnalysis::Analyze() {
             //  || (*in["isWenu"] && *f["lepMetDPhi"] < *f["elMetDPhiCut"]))
     // V_pt > 100 and bb_mass<250
     bool base1LepCSSelection = (
-        *in["cutFlow"] >= 2
-        && (*in["isWmunu"] || *in["isWenu"])
-        && f["Jet_bReg"][*in["hJetInd1"]] > *f["j1ptCut_1lepchan"]
-        && f["Jet_bReg"][*in["hJetInd2"]] > *f["j1ptCut_1lepchan"]
-        && *f["MET_pt"] > *f["metcut_1lepchan"]
-        && *in["nAddLeptons"] == 0
-        && *f["V_pt"] > *f["vptcut"]
+        mInt("cutFlow") >= 2
+        && (mInt("isWmunu") || mInt("isWenu"))
+        && m("Jet_bReg",mInt("hJetInd1")) > m("j1ptCut_1lepchan")
+        && m("Jet_bReg",mInt("hJetInd2")) > m("j1ptCut_1lepchan")
+        && m("MET_pt") > m("metcut_1lepchan")
+        && mInt("nAddLeptons") == 0
+        && m("V_pt") > m("vptcut")
         && H_mass < 250
-        && *f["H_pt"] > *f["hptcut_1lepchan"]
+        && m("H_pt") > m("hptcut_1lepchan")
     );
 
-    float maxCSV = std::max(f["Jet_btagCSVV2"][*in["hJetInd1"]], f["Jet_btagCSVV2"][*in["hJetInd2"]]);
+    float maxCSV = std::max(m("Jet_btagCSVV2",mInt("hJetInd1")), m("Jet_btagCSVV2",mInt("hJetInd2")));
 
     // htJet30 is not currenty in nanoAOD, need to calculate it
     *f["htJet30"] = 0.;
-    for (int i=0; i<m("nJet");i++) {
+    for (int i=0; i<mInt("nJet");i++) {
         if (m("Jet_pt",i)>30. && m("Jet_lepFilter",i) && m("Jet_puId",i)) {
-            *f["htJet30"] = *f["htJet30"] + m("Jet_pt",i);
-        }   
-    }
-    for (int i=0; i<m("nMuon"); i++) {
-        if (m("Muon_pt",i)>5 && m("Muon_pfRelIso04_all",i)<0.4) {
-            *f["htJet30"] = *f["htJet30"] + m("Muon_pt",i);
+            *f["htJet30"] = m("htJet30") + m("Jet_pt",i);
         }
     }
-    for (int i=0; i<m("nElectron"); i++) {
+    for (int i=0; i<mInt("nMuon"); i++) {
+        if (m("Muon_pt",i)>5 && m("Muon_pfRelIso04_all",i)<0.4) {
+            *f["htJet30"] = m("htJet30") + m("Muon_pt",i);
+        }
+    }
+    for (int i=0; i<mInt("nElectron"); i++) {
         if (m("Electron_pt",i)>5 && m("Electron_pfRelIso03_all",i)<0.4) {
-            *f["htJet30"] = *f["htJet30"] + m("Electron_pt",i);
+            *f["htJet30"] = m("htJet30") + m("Electron_pt",i);
         }
     }
 
     if (base1LepCSSelection) {
         if (maxCSV > CSVAT){ //ttbar or W+HF
-            if (m("nAddJets252p9_puid") > 1.5) { //ttbar
+            if (mInt("nAddJets252p9_puid") > 1.5) { //ttbar
                 *in["controlSample"] = 11;
-            } else if (m("nAddJets252p9_puid") < 0.5 && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+HF // remove mass window so we can use the same ntuple for VV, just be careful that we always avoid overlap with SR
+            } else if (mInt("nAddJets252p9_puid") < 0.5 && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+HF // remove mass window so we can use the same ntuple for VV, just be careful that we always avoid overlap with SR
                 *in["controlSample"] = 13;
             }
         } else if (maxCSV > CSVAL && maxCSV < CSVAM && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+LF
             *in["controlSample"] = 12;
         }
 
-        if (*in["sampleIndex"] == 0 && debug>10) {
-            std::cout << "data CS event " << *in["controlSample"]
+        if (mInt("sampleIndex") == 0 && debug>10) {
+            std::cout << "data CS event " << mInt("controlSample")
                       << " maxCSV " << maxCSV
-                      << " nAddJets252p9_puid " << *in["nAddJets252p9_puid"]
+                      << " nAddJets252p9_puid " << mInt("nAddJets252p9_puid")
                       << " MET_pt " << m("MET_pt")
                       << " MET_sumEt " << m("MET_sumEt")
                       << " H_mass " << m("H_mass")
@@ -1095,9 +1178,9 @@ bool VHbbAnalysis::Analyze() {
 
     // 2-lepton
     bool base2LepCSSelection = (    // implementing table 15 of AN2015_168_v12, page 75
-        *in["cutFlow"] >= 2         // require Vtype and trigger
-        && (*in["isZmm"] || *in["isZee"])
-        && *f["V_pt"] > 50
+        mInt("cutFlow") >= 2         // require Vtype and trigger
+        && (mInt("isZmm") || mInt("isZee"))
+        && m("V_pt") > 50
     );
 
     if (base2LepCSSelection) {
@@ -1118,7 +1201,7 @@ bool VHbbAnalysis::Analyze() {
         } else if (/////////////////// Z + HF
             maxCSVA > CSVAT
             && minCSVA > CSVAL
-            && *f["MET_pt"] < 60
+            && m("MET_pt") < 60
             && absDeltaPhiHiggsMet > 2.5
             && (V_mass > 85 && V_mass <= 97)
             && (H_mass <= 90 || H_mass > 150)
@@ -1129,16 +1212,20 @@ bool VHbbAnalysis::Analyze() {
     // end of 2-lepton
 
 
-    if (doCutFlow && *in["cutFlow"] >= *in["doCutFlow"]) {
+    if (doCutFlow && mInt("cutFlow") >= mInt("doCutFlow")) {
         // keep all preselected events for cutflow
         return true;
     } else {
-        return *in["controlSample"] > -1;
+        return mInt("controlSample") > -1;
     }
 }
 
 
 void VHbbAnalysis::FinishEvent() {
+    
+    for(std::map<std::string,BDTInfo*>::iterator itBDTInfo=bdtInfos.begin(); itBDTInfo!=bdtInfos.end(); itBDTInfo++){
+        *f[itBDTInfo->second->bdtname] = -2;
+    }
 
     // b tag weights
     if (bTagCalibReader) {
@@ -1147,13 +1234,14 @@ void VHbbAnalysis::FinishEvent() {
 
         // TODO uncertainties
         float bTagWeight = 1.;
-        for (int i=0; i<m("nJet"); i++)
+        for (int i=0; i<mInt("nJet"); i++)
         {
             if (m("Jet_puId", i) > 0
-                && fabs(m("Jet_eta", i))<=m("JetEtaCut")
-                && m("Jet_pt", i)>m("JetPtPresel"))
+                && m("Jet_lepFilter", i) > 0
+                && m("Jet_pt", i)>m("JetPtPresel")
+                && fabs(m("Jet_eta", i))<=m("JetEtaCut"))
             {
-                int hadron_flav = m("Jet_hadronFlavour", i);
+                int hadron_flav = mInt("Jet_hadronFlavour", i);
                 auto flav = (hadron_flav==5) ? BTagEntry::FLAV_B :
                             (hadron_flav==4) ? BTagEntry::FLAV_C :
                             BTagEntry::FLAV_UDSG;
@@ -1200,15 +1288,15 @@ void VHbbAnalysis::FinishEvent() {
     //}
     //cout<<f["LHE_weights_pdf_normwgt"][5]<<endl;
 
-    if(*in["sampleIndex"]!=0){
-        if (*f["genWeight"] > 0) {
+    if(mInt("sampleIndex")!=0){
+        if (m("genWeight") > 0) {
             *f["weight"] = cursample->intWeight;
         } else {
             *f["weight"] = cursample->intWeight * -1;
         }
         if (cursample->sampleNum == 49 || cursample->sampleNum == 491) {
             // special prescription for WJets_BGenFilter sample
-            *f["weight"] = *f["weight"]*fabs(*f["genWeight"]);
+            *f["weight"] = m("weight")*fabs(m("genWeight"));
         }
     }
     else {
@@ -1217,34 +1305,28 @@ void VHbbAnalysis::FinishEvent() {
 
     *f["weight_ptQCD"] = 1.0;
     *f["weight_ptEWK"] = 1.0;
-    // FIXME nominal must be last
-    if(cursyst->name=="nominal"){
-        ofile->cd();
-        if (debug>10000) std::cout<<"filling output tree"<<std::endl;
-        outputTree->Fill();
-    }
-    return;
 
-    // FIXME ... um... ignoring everything?
-
-    if(*in["sampleIndex"]!=0){
-        if (*f["doICHEP"] != 1) {
-            *f["weight_PU"] = *f["puWeight"];
-            *f["weight_PUUp"] = *f["puWeightUp"] / *f["puWeight"];
-            *f["weight_PUDown"] = *f["puWeightDown"] / *f["puWeight"];
+    if(mInt("sampleIndex")!=0){
+        if (m("doICHEP") != 1) {
+            *f["weight_PU"] = m("puWeight");
+            //TEMPORARY SOLUTION: REMEMBER TO FIX IT BACK ONCE weightUP/DOWN WILL BE IN NANOAOD
+            //  *f["weight_PUUp"] = m("puWeightUp") / m("puWeight");
+	    *f["weight_PUUp"] = m("puWeight");
+	    //  *f["weight_PUDown"] = m("puWeightDown") / m("puWeight");
+            *f["weight_PUDown"] = m("puWeight");
         }
         else {
             //*f["weight_PU"] = *f["puWeight"];
             //*f["weight_PU"]=ReWeightMC(int(*f["nTrueInt"])+0.5); // it is now a float (continuous distribution?) so we round to the nearest int
-            *f["weight_PU"]=puWeight_ichep(int(*f["nTrueInt"])); // it is now a float (continuous distribution?) so we round to the nearest int
-            *f["weight_PUUp"]=(puWeight_ichep_up(int(*f["nTrueInt"]))) / *f["weight_PU"]; // it is now a float (continuous distribution?) so we round to the nearest int
-            *f["weight_PUDown"]=(puWeight_ichep_down(int(*f["nTrueInt"]))) / *f["weight_PU"]; // it is now a float (continuous distribution?) so we round to the nearest int
+            *f["weight_PU"]=puWeight_ichep(int(m("nTrueInt"))); // it is now a float (continuous distribution?) so we round to the nearest int
+            *f["weight_PUUp"]=(puWeight_ichep_up(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
+            *f["weight_PUDown"]=(puWeight_ichep_down(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
         }
-        if (*in["nGenTop"]==0 && *in["nGenVbosons"]>0) {
+        if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
             // only apply to Z/W+jet samples
-            *f["weight_ptQCD"]=ptWeightQCD(*in["nGenVbosons"], *f["LHE_HT"], in["GenVbosons_pdgId"][0]);
-            *f["weight_ptEWK"]=ptWeightEWK(*in["nGenVbosons"], f["GenVbosons_pt"][0], *f["Vtype"], in["GenVbosons_pdgId"][0]);
-        }
+            *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("GenVbosons_pdgId",0));
+            *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("GenVbosons_pt",0), m("Vtype"), mInt("GenVbosons_pdgId",0));
+	}
     } else {
         *f["weight_PU"]=1;
         *f["weight_PUUp"]=1;
@@ -1264,7 +1346,7 @@ void VHbbAnalysis::FinishEvent() {
     float weightWBjetsHT100,weightWBjetsHT200,weightWBjetsHT400,weightWBjetsHT600,weightWBjetsHT800,weightWBjetsHT1200,weightWBjetsHT2500;
     float weightWjetsBgenHT100,weightWjetsBgenHT200,weightWjetsBgenHT400,weightWjetsBgenHT600,weightWjetsBgenHT800,weightWjetsBgenHT1200,weightWjetsBgenHT2500;
 
-    if (*f["do2015"] == 1) {
+    if (int(m("do2015")) == 1) {
         // weights for V21 ntuples (2015 analysis)
         weightWBjetsHT100=    0.22;
         weightWBjetsHT200=    0.34;
@@ -1283,7 +1365,7 @@ void VHbbAnalysis::FinishEvent() {
         weightWjetsBgenHT2500=    0.80;
     }
 
-    else if (*f["doICHEP"] == 1) {
+    else if (int(m("doICHEP")) == 1) {
         // weights for V24 ntuples (2016 analysis, 22/fb)
         weightWBjetsHT100=    0.50;
         weightWBjetsHT200=    0.67;
@@ -1346,8 +1428,8 @@ void VHbbAnalysis::FinishEvent() {
     float WJetStitchWeight = 1.0;
     if (cursample->sampleNum==22 || cursample->sampleNum==44 || cursample->sampleNum==45 || cursample->sampleNum==46 || cursample->sampleNum==47
         || cursample->sampleNum==48 || cursample->sampleNum==49 || cursample->sampleNum==41 || cursample->sampleNum==42 || cursample->sampleNum==43) {
-        if (*f["LHE_HT"]>100 && *f["LHE_HT"]<200) {
-            if (*f["LHE_Vpt"] > WBjets_ptVMin && *f["LHE_Vpt"] < WBjets_ptVMax && *in["LHE_Nb"] > 0) {
+        if (m("LHE_HT")>100 && m("LHE_HT")<200) {
+            if (m("LHE_Vpt") > WBjets_ptVMin && m("LHE_Vpt") < WBjets_ptVMax && mInt("LHE_Nb") > 0) {
                 if (cursample->sampleNum == 48) {
                     WJetStitchWeight = (1 - weightWBjetsHT100);
                 }
@@ -1355,7 +1437,7 @@ void VHbbAnalysis::FinishEvent() {
                     WJetStitchWeight = weightWBjetsHT100;
                 }
             }
-            else if (*f["LHE_Vpt"] > WjetsBgen_ptVMin && *f["LHE_Vpt"] < WjetsBgen_ptVMax && *in["LHE_Nb"] == 0 && *in["nGenStatus2bHad"] > 0) {
+            else if (m("LHE_Vpt") > WjetsBgen_ptVMin && m("LHE_Vpt") < WjetsBgen_ptVMax && mInt("LHE_Nb") == 0 && mInt("nGenStatus2bHad") > 0) {
                 if (cursample->sampleNum == 49) {
                     WJetStitchWeight = (1 - weightWjetsBgenHT100);
                 }
@@ -1364,8 +1446,8 @@ void VHbbAnalysis::FinishEvent() {
                 }
             }
         }
-        if (*f["LHE_HT"]>200 && *f["LHE_HT"]<400) {
-            if (*f["LHE_Vpt"] > WBjets_ptVMin && *f["LHE_Vpt"] < WBjets_ptVMax && *in["LHE_Nb"] > 0) {
+        if (m("LHE_HT")>200 && m("LHE_HT")<400) {
+            if (m("LHE_Vpt") > WBjets_ptVMin && m("LHE_Vpt") < WBjets_ptVMax && mInt("LHE_Nb") > 0) {
                 if (cursample->sampleNum == 48) {
                     WJetStitchWeight = (1 - weightWBjetsHT200);
                 }
@@ -1373,7 +1455,7 @@ void VHbbAnalysis::FinishEvent() {
                     WJetStitchWeight = weightWBjetsHT200;
                 }
             }
-            else if (*f["LHE_Vpt"] > WjetsBgen_ptVMin && *f["LHE_Vpt"] < WjetsBgen_ptVMax && *in["LHE_Nb"] == 0 && *in["nGenStatus2bHad"] > 0) {
+            else if (m("LHE_Vpt") > WjetsBgen_ptVMin && m("LHE_Vpt") < WjetsBgen_ptVMax && mInt("LHE_Nb") == 0 && mInt("nGenStatus2bHad") > 0) {
                 if (cursample->sampleNum == 49) {
                     WJetStitchWeight = (1 - weightWjetsBgenHT200);
                 }
@@ -1382,8 +1464,8 @@ void VHbbAnalysis::FinishEvent() {
                 }
             }
         }
-        if (*f["LHE_HT"]>400 && *f["LHE_HT"]<600) {
-            if (*f["LHE_Vpt"] > WBjets_ptVMin && *f["LHE_Vpt"] < WBjets_ptVMax && *in["LHE_Nb"] > 0) {
+        if (m("LHE_HT")>400 && m("LHE_HT")<600) {
+            if (m("LHE_Vpt") > WBjets_ptVMin && m("LHE_Vpt") < WBjets_ptVMax && mInt("LHE_Nb") > 0) {
                 if (cursample->sampleNum == 48) {
                     WJetStitchWeight = (1 - weightWBjetsHT400);
                 }
@@ -1391,7 +1473,7 @@ void VHbbAnalysis::FinishEvent() {
                     WJetStitchWeight = weightWBjetsHT400;
                 }
             }
-            else if (*f["LHE_Vpt"] > WjetsBgen_ptVMin && *f["LHE_Vpt"] < WjetsBgen_ptVMax && *in["LHE_Nb"] == 0 && *in["nGenStatus2bHad"] > 0) {
+            else if (m("LHE_Vpt") > WjetsBgen_ptVMin && m("LHE_Vpt") < WjetsBgen_ptVMax && mInt("LHE_Nb") == 0 && mInt("nGenStatus2bHad") > 0) {
                 if (cursample->sampleNum == 49) {
                     WJetStitchWeight = (1 - weightWjetsBgenHT400);
                 }
@@ -1400,8 +1482,8 @@ void VHbbAnalysis::FinishEvent() {
                 }
             }
         }
-        if (*f["LHE_HT"]>600 && *f["LHE_HT"]<800) {
-            if (*f["LHE_Vpt"]  > WBjets_ptVMin && *f["LHE_Vpt"] < WBjets_ptVMax && *in["LHE_Nb"] > 0) {
+        if (m("LHE_HT")>600 && m("LHE_HT")<800) {
+            if (m("LHE_Vpt")  > WBjets_ptVMin && m("LHE_Vpt") < WBjets_ptVMax && mInt("LHE_Nb") > 0) {
                 if (cursample->sampleNum == 48) {
                     WJetStitchWeight = (1 - weightWBjetsHT600);
                 }
@@ -1409,7 +1491,7 @@ void VHbbAnalysis::FinishEvent() {
                     WJetStitchWeight = weightWBjetsHT600;
                 }
             }
-        else if (*f["LHE_Vpt"] > WjetsBgen_ptVMin && *f["LHE_Vpt"] < WjetsBgen_ptVMax && *in["LHE_Nb"] == 0 && *in["nGenStatus2bHad"] > 0) {
+        else if (m("LHE_Vpt") > WjetsBgen_ptVMin && m("LHE_Vpt") < WjetsBgen_ptVMax && mInt("LHE_Nb") == 0 && mInt("nGenStatus2bHad") > 0) {
                 if (cursample->sampleNum == 49) {
                     WJetStitchWeight = (1 - weightWjetsBgenHT600);
                 }
@@ -1418,8 +1500,8 @@ void VHbbAnalysis::FinishEvent() {
                 }
             }
         }
-        if (*f["LHE_HT"]>800 && *f["LHE_HT"]<1200) {
-            if (*f["LHE_Vpt"] > WBjets_ptVMin && *f["LHE_Vpt"] < WBjets_ptVMax && *in["LHE_Nb"] > 0) {
+        if (m("LHE_HT")>800 && m("LHE_HT")<1200) {
+            if (m("LHE_Vpt") > WBjets_ptVMin && m("LHE_Vpt") < WBjets_ptVMax && mInt("LHE_Nb") > 0) {
                 if (cursample->sampleNum == 48) {
                     WJetStitchWeight = (1 - weightWBjetsHT800);
                 }
@@ -1427,7 +1509,7 @@ void VHbbAnalysis::FinishEvent() {
                     WJetStitchWeight = weightWBjetsHT800;
                 }
             }
-            else if (*f["LHE_Vpt"] > WjetsBgen_ptVMin && *f["LHE_Vpt"] < WjetsBgen_ptVMax && *in["LHE_Nb"] == 0 && *in["nGenStatus2bHad"] > 0) {
+            else if (m("LHE_Vpt") > WjetsBgen_ptVMin && m("LHE_Vpt") < WjetsBgen_ptVMax && mInt("LHE_Nb") == 0 && mInt("nGenStatus2bHad") > 0) {
                 if (cursample->sampleNum == 49) {
                     WJetStitchWeight = (1 - weightWjetsBgenHT800);
                 }
@@ -1436,8 +1518,8 @@ void VHbbAnalysis::FinishEvent() {
                 }
             }
         }
-        if (*f["LHE_HT"]>1200 && *f["LHE_HT"]<2500) {
-            if (*f["LHE_Vpt"] > WBjets_ptVMin && *f["LHE_Vpt"] < WBjets_ptVMax && *in["LHE_Nb"] > 0) {
+        if (m("LHE_HT")>1200 && m("LHE_HT")<2500) {
+            if (m("LHE_Vpt") > WBjets_ptVMin && m("LHE_Vpt") < WBjets_ptVMax && mInt("LHE_Nb") > 0) {
                 if (cursample->sampleNum == 48) {
                     WJetStitchWeight = (1 - weightWBjetsHT1200);
                 }
@@ -1445,7 +1527,7 @@ void VHbbAnalysis::FinishEvent() {
                     WJetStitchWeight = weightWBjetsHT1200;
                 }
             }
-            else if (*f["LHE_Vpt"] > WjetsBgen_ptVMin && *f["LHE_Vpt"] < WjetsBgen_ptVMax && *in["LHE_Nb"] == 0 && *in["nGenStatus2bHad"] > 0) {
+            else if (m("LHE_Vpt") > WjetsBgen_ptVMin && m("LHE_Vpt") < WjetsBgen_ptVMax && mInt("LHE_Nb") == 0 && mInt("nGenStatus2bHad") > 0) {
                 if (cursample->sampleNum == 49) {
                     WJetStitchWeight = (1 - weightWjetsBgenHT1200);
                 }
@@ -1454,8 +1536,8 @@ void VHbbAnalysis::FinishEvent() {
                 }
             }
         }
-        if (*f["LHE_HT"]>2500) {
-            if (*f["LHE_Vpt"] > WBjets_ptVMin && *f["LHE_Vpt"] < WBjets_ptVMax && *in["LHE_Nb"] > 0) {
+        if (m("LHE_HT")>2500) {
+            if (m("LHE_Vpt") > WBjets_ptVMin && m("LHE_Vpt") < WBjets_ptVMax && mInt("LHE_Nb") > 0) {
                 if (cursample->sampleNum == 48) {
                     WJetStitchWeight = (1 - weightWBjetsHT2500);
                 }
@@ -1463,7 +1545,7 @@ void VHbbAnalysis::FinishEvent() {
                     WJetStitchWeight = weightWBjetsHT2500;
                 }
             }
-            else if (*f["LHE_Vpt"] > WjetsBgen_ptVMin && *f["LHE_Vpt"] < WjetsBgen_ptVMax && *in["LHE_Nb"] == 0 && *in["nGenStatus2bHad"] > 0) {
+            else if (m("LHE_Vpt") > WjetsBgen_ptVMin && m("LHE_Vpt") < WjetsBgen_ptVMax && mInt("LHE_Nb") == 0 && mInt("nGenStatus2bHad") > 0) {
                 if (cursample->sampleNum == 49) {
                     WJetStitchWeight = (1 - weightWjetsBgenHT2500);
                 }
@@ -1482,7 +1564,7 @@ void VHbbAnalysis::FinishEvent() {
     // for the nominal shape
     //if (cursyst->name == "nominal") {
     //    *f["weight"] = *f["weight"] * *f["bTagWeight"];
-    //}
+    //}*/
 
     // Split WJets and ZJets samples by jet parton flavor
     *in["bMCFlavorSum"] = 0;
@@ -1498,31 +1580,33 @@ void VHbbAnalysis::FinishEvent() {
     *in["sampleIndex"];
 
     if (cursample->doJetFlavorSplit) {
-        *in["sampleIndex"] = *in["sampleIndex"]*100;
-        *in["sampleIndex_sel"] = *in["sampleIndex_sel"]*100;
-        *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"]*100;
-        *in["sampleIndex_GenBJetSum"] = *in["sampleIndex_GenBJetSum"]*100;
-        *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"]*100;
+        *in["sampleIndex"] = mInt("sampleIndex")*100;
+        *in["sampleIndex_sel"] = mInt("sampleIndex_sel")*100;
+        *in["sampleIndex_GenJetSum"] = mInt("sampleIndex_GenJetSum")*100;
+        *in["sampleIndex_GenBJetSum"] = mInt("sampleIndex_GenBJetSum")*100;
+        *in["sampleIndex_GenJetSumNB"] = mInt("sampleIndex_GenJetSumNB")*100;
 
-        if (fabs(in["Jet_mcFlavour"][*in["hJetInd1"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
-        if (fabs(in["Jet_mcFlavour"][*in["hJetInd2"]]) == 5)  *in["bMCFlavorSumSelected"]=*in["bMCFlavorSumSelected"]+1;
+        if (fabs(mInt("Jet_hadronFlavour",mInt("hJetInd1"))) == 5)  *in["bMCFlavorSumSelected"]=mInt("bMCFlavorSumSelected")+1;
+        if (fabs(mInt("Jet_hadronFlavour",mInt("hJetInd2"))) == 5)  *in["bMCFlavorSumSelected"]=mInt("bMCFlavorSumSelected")+1;
 
-        for(int iJet=0;iJet<*in["nJet"];iJet++){
-            if(fabs(in["Jet_mcFlavour"][iJet])==5) *in["bMCFlavorSum"]=*in["bMCFlavorSum"]+1;
+        for(int iJet=0;iJet<mInt("nJet");iJet++){
+            if(fabs(mInt("Jet_hadronFlavour",iJet))==5){
+               *in["bMCFlavorSum"]=mInt("bMCFlavorSum")+1;
+            }
         }
 
 
-        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
-            *in["bGenJetSum"]=*in["bGenJetSum"]+1;
+        for(int indGJ=0; indGJ<mInt("nGenJet"); indGJ++){
+            *in["bGenJetSum"]=mInt("bGenJetSum")+1;
         }
 
-        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
-            *in["bGenJetBSum"]=*in["bGenJetBSum"]+in["GenJet_numBHadrons"][indGJ];
-        }
-
-        for(int indGJ=0; indGJ<*in["nGenJet"]; indGJ++){
-            if (in["GenJet_numBHadrons"][indGJ] > 0) {
-                *in["bGenBJetSum"]=*in["bGenBJetSum"] + 1;
+        /*FIXME we might want to add this back in - do the pruned gen parts store enough information to do this?,  
+        for(int indGJ=0; indGJ<mInt("nGenJet"); indGJ++){
+            *in["bGenJetBSum"]=mInt("bGenJetBSum")+mInt("GenJet_numBHadrons",indGJ);
+        }*/
+        for(int indGJ=0; indGJ<mInt("nGenJet"); indGJ++){
+            if (mInt("GenJet_hadronFlavour",indGJ) == 5) {
+                *in["bGenBJetSum"]=mInt("bGenBJetSum") + 1;
             }
         }
 
@@ -1532,86 +1616,86 @@ void VHbbAnalysis::FinishEvent() {
         //    *in["sampleIndex"] = *in["sampleIndex"] + 2;
         //}
 
-        if(*in["bMCFlavorSumSelected"]==1){
-            *in["sampleIndex_sel"] = *in["sampleIndex_sel"] + 1;
-        }else if(*in["bMCFlavorSumSelected"]>1){
-            *in["sampleIndex_sel"] = *in["sampleIndex_sel"] + 2;
+        if(mInt("bMCFlavorSumSelected")==1){
+            *in["sampleIndex_sel"] = mInt("sampleIndex_sel") + 1;
+        }else if(mInt("bMCFlavorSumSelected")>1){
+            *in["sampleIndex_sel"] = mInt("sampleIndex_sel") + 2;
         }
 
-        if(*in["bGenJetBSum"]==1){
-            *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"] + 1;
-        }else if(*in["bGenJetBSum"]>1){
-            *in["sampleIndex_GenJetSum"] = *in["sampleIndex_GenJetSum"] + 2;
+        if(mInt("bGenJetBSum")==1){
+            *in["sampleIndex_GenJetSum"] = mInt("sampleIndex_GenJetSum") + 1;
+        }else if(mInt("bGenJetBSum")>1){
+            *in["sampleIndex_GenJetSum"] = mInt("sampleIndex_GenJetSum") + 2;
         }
 
-        if(*in["bGenBJetSum"]==1){
-            *in["sampleIndex_GenBJetSum"] = *in["sampleIndex_GenBJetSum"] + 1;
-        }else if(*in["bGenBJetSum"]>1){
-            *in["sampleIndex_GenBJetSum"] = *in["sampleIndex_GenBJetSum"] + 2;
+        if(mInt("bGenBJetSum")==1){
+            *in["sampleIndex_GenBJetSum"] = mInt("sampleIndex_GenBJetSum") + 1;
+        }else if(mInt("bGenBJetSum")>1){
+            *in["sampleIndex_GenBJetSum"] = mInt("sampleIndex_GenBJetSum") + 2;
         }
 
-        if(*in["bGenJetSum"]==1){
-            *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"] + 1;
-        }else if(*in["bGenJetSum"]>1){
-            *in["sampleIndex_GenJetSumNB"] = *in["sampleIndex_GenJetSumNB"] + 2;
+        if(mInt("bGenJetSum")==1){
+            *in["sampleIndex_GenJetSumNB"] = mInt("sampleIndex_GenJetSumNB") + 1;
+        }else if(mInt("bGenJetSum")>1){
+            *in["sampleIndex_GenJetSumNB"] = mInt("sampleIndex_GenJetSumNB") + 2;
         }
 
         // default now the number of b's counted
         //*in["sampleIndex"]=*in["sampleIndex_GenJetSum"];
-        *in["sampleIndex"]=*in["sampleIndex_GenBJetSum"];
+        *in["sampleIndex"]=mInt("sampleIndex_GenBJetSum");
     }
 
     // Split by boost category
-    if(*in["isWenu"]) {
-        if(*f["V_pt"] >= 100 && *f["V_pt"] < 150) *in["eventClass"] += 2;
-        else if(*f["V_pt"] >= 150) *in["eventClass"] += 1;
+    if(mInt("isWenu")) {
+        if(m("V_pt") >= 100 && m("V_pt") < 150) *in["eventClass"] += 2;
+        else if(m("V_pt") >= 150) *in["eventClass"] += 1;
         else *in["eventClass"] += 3;
     }
-    else if(*in["isWmunu"]) {
-        if(*f["V_pt"] >= 100 && *f["V_pt"] < 130) *in["eventClass"] += 3;
-        else if(*f["V_pt"] >= 130 && *f["V_pt"] < 180) *in["eventClass"] += 2;
-        else if(*f["V_pt"] >= 180) *in["eventClass"] += 1;
+    else if(mInt("isWmunu")) {
+        if(m("V_pt") >= 100 && m("V_pt") < 130) *in["eventClass"] += 3;
+        else if(m("V_pt") >= 130 && m("V_pt") < 180) *in["eventClass"] += 2;
+        else if(m("V_pt") >= 180) *in["eventClass"] += 1;
         else *in["eventClass"] += 4;
     }
 
-    if (*in["isWmunu"]) {
-        *f["selLeptons_relIso_0"] = f["selLeptons_relIso04"][*in["lepInd1"]];
-    }
-    else if (*in["isWenu"]) {
-        *f["selLeptons_relIso_0"] = f["selLeptons_relIso03"][*in["lepInd1"]];
-    }
-    else if (*in["isZmm"]) {
-        *f["selLeptons_relIso_0"] = f["selLeptons_relIso04"][*in["lepInd1"]];
-        *f["selLeptons_relIso_1"] = f["selLeptons_relIso04"][*in["lepInd2"]];
-    }
-    else if (*in["isZee"]) {
-        *f["selLeptons_relIso_0"] = f["selLeptons_relIso03"][*in["lepInd1"]];
-        *f["selLeptons_relIso_1"] = f["selLeptons_relIso03"][*in["lepInd2"]];
-    }
+    //if (mInt("isWmunu")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso04",mInt("lepInd1"));
+    //}
+    //else if (mInt("isWenu")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso03",mInt("lepInd1"));
+    //}
+    //else if (mInt("isZmm")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso04",mInt("lepInd1"));
+    //    *f["selLeptons_relIso_1"] = m("selLeptons_relIso04",mInt("lepInd2"));
+    //}
+    //else if (mInt("isZee")) {
+    //    *f["selLeptons_relIso_0"] = m("selLeptons_relIso03",mInt("lepInd1"));
+    //    *f["selLeptons_relIso_1"] = m("selLeptons_relIso03",mInt("lepInd2"));
+    //}
 
 
-    if(*in["sampleIndex"]!=0){
-        if (*in["nGenLep"] == 0) {
-            // gen lep is originally a tau?
-            *f["selLeptons_genLepDR_0"] = -1;
-        } else {
-            TLorentzVector GenLep, El;
-            GenLep.SetPtEtaPhiM(f["GenLep_pt"][0],f["GenLep_eta"][0],f["GenLep_phi"][0],f["GenLep_mass"][0]);
-            El.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd1"]], f["selLeptons_eta"][*in["lepInd1"]], f["selLeptons_phi"][*in["lepInd1"]], f["selLeptons_mass"][*in["lepInd1"]]);
-            *f["selLeptons_genLepDR_0"] = El.DeltaR(GenLep);
-        }
-    }
+    //if(mInt("sampleIndex")!=0){
+    //    if (mInt("nGenLep") == 0) {
+    //        // gen lep is originally a tau?
+    //        *f["selLeptons_genLepDR_0"] = -1;
+    //    } else {
+    //        TLorentzVector GenLep, El;
+    //        GenLep.SetPtEtaPhiM(m("GenLep_pt",0),m("GenLep_eta",0),m("GenLep_phi",0),m("GenLep_mass",0));
+    //        El.SetPtEtaPhiM(m("selLeptons_pt",mInt("lepInd1")), m("selLeptons_eta",mInt("lepInd1")), m("selLeptons_phi",mInt("lepInd1")), m("selLeptons_mass",mInt("lepInd1")));
+    //        *f["selLeptons_genLepDR_0"] = El.DeltaR(GenLep);
+    //    }
+    //}
 
-    // Reconstruct Higgs and W and recalculate variables ourselves
-    if(debug>1000) std::cout<<"Making composite candidates"<<std::endl;
-    TLorentzVector MET,Lep,W,HJ1,HJ2,Hbb;
-    MET.SetPtEtaPhiM(*f["MET_pt"], 0., *f["MET_phi"], 0.); // Eta/M don't affect calculation of W.pt and W.phi
-    Lep.SetPtEtaPhiM(f["selLeptons_pt"][*in["lepInd1"]], f["selLeptons_eta"][*in["lepInd1"]], f["selLeptons_phi"][*in["lepInd1"]], f["selLeptons_mass"][*in["lepInd1"]]);
-    W = MET + Lep;
+    //// Reconstruct Higgs and W and recalculate variables ourselves
+    //if(debug>1000) std::cout<<"Making composite candidates"<<std::endl;
+    //TLorentzVector MET,Lep,W,HJ1,HJ2,Hbb;
+    //MET.SetPtEtaPhiM(m("MET_pt"), 0., m("MET_phi"), 0.); // Eta/M don't affect calculation of W.pt and W.phi
+    //Lep.SetPtEtaPhiM(m("selLeptons_pt",mInt("lepInd1")), m("selLeptons_eta",mInt("lepInd1")), m("selLeptons_phi",mInt("lepInd1")), m("selLeptons_mass",mInt("lepInd1")));
+    //W = MET + Lep;
 
-    HJ1.SetPtEtaPhiM(f["Jet_bReg"][*in["hJetInd1"]], f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]] * (f["Jet_bReg"][*in["hJetInd1"]] / f["Jet_pt"][*in["hJetInd1"]] ) );
-    HJ2.SetPtEtaPhiM(f["Jet_bReg"][*in["hJetInd2"]], f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]] * (f["Jet_bReg"][*in["hJetInd2"]] / f["Jet_pt"][*in["hJetInd2"]] ) );
-    Hbb = HJ1 + HJ2;
+    //HJ1.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd1")), m("Jet_eta",mInt("hJetInd1")), m("Jet_phi",mInt("hJetInd1")), m("Jet_mass",mInt("hJetInd1")) * (m("Jet_bReg",mInt("hJetInd1")) / m("Jet_pt",mInt("hJetInd1")) ) );
+    //HJ2.SetPtEtaPhiM(m("Jet_bReg",mInt("hJetInd2")), m("Jet_eta",mInt("hJetInd2")), m("Jet_phi",mInt("hJetInd2")), m("Jet_mass",mInt("hJetInd2")) * (m("Jet_bReg",mInt("hJetInd2")) / m("Jet_pt",mInt("hJetInd2")) ) );
+    //Hbb = HJ1 + HJ2;
 
     // We already calculate these in Analyze()
     //*d["H_mass"] = Hbb.M();
@@ -1623,70 +1707,71 @@ void VHbbAnalysis::FinishEvent() {
     //*f["H_mass_f"] = (float) *f["H_mass"];
     //*f["H_pt_f"] = (float) *f["H_pt"];
     //*f["V_pt_f"] = (float) *f["V_pt"];
-    *f["hJets_btagCSV_0"] = (float) f["Jet_btagCSVV2"][*in["hJetInd1"]];
-    *f["hJets_btagCSV_1"] = (float) f["Jet_btagCSVV2"][*in["hJetInd2"]];
+    *f["hJets_btagCSV_0"] = (float) m("Jet_btagCSVV2",mInt("hJetInd1"));
+    *f["hJets_btagCSV_1"] = (float) m("Jet_btagCSVV2",mInt("hJetInd2"));
     //*f["HVdPhi_f"] = (float) *f["HVdPhi"];
-    *f["H_dEta"] = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
+    *f["H_dEta"] = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
 
     //*f["hJets_mt_0"] = HJ1.Mt();
     //*f["hJets_mt_1"] = HJ2.Mt();
     //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);
     //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
-    *f["hJets_pt_0"] = (float) f["Jet_bReg"][*in["hJetInd1"]];
-    *f["hJets_pt_1"] = (float) f["Jet_bReg"][*in["hJetInd2"]];
+    *f["hJets_pt_0"] = (float) m("Jet_bReg",mInt("hJetInd1"));
+    *f["hJets_pt_1"] = (float) m("Jet_bReg",mInt("hJetInd2"));
     //*f["MET_sumEt_f"] = (float) *f["MET_sumEt"]; // is this the right variable??
-    *f["nAddJet_f"] = (float) *in["nAddJets252p9_puid"];
-    *f["nAddLep_f"] = (float) *in["nAddLeptons"];
-    *f["isWenu_f"] = (float) *in["isWenu"];
-    *f["isWmunu_f"] = (float) *in["isWmunu"];
-    *f["softActivityVH_njets5_f"] = (float) *in["softActivityVH_njets5"];
-    //*f["nPVs_f"] = (float) *in["nPVs"];
+    *f["nAddJet_f"] = (float) mInt("nAddJets252p9_puid");
+    *f["nAddLep_f"] = (float) mInt("nAddLeptons");
+    *f["isWenu_f"] = (float) mInt("isWenu");
+    *f["isWmunu_f"] = (float) mInt("isWmunu");
+    //*f["softActivityVH_njets5_f"] = (float) mInt("SoftActivityJetNjets5");
+    *f["softActivityVH_njets5_f"] = (float) m("SA5");
 
-    if (BDTisSet) {
-        if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
-        for (unsigned int i=0; i<bdtInfos.size(); i++) {
+    if (f.count("bdt_1lep")>0) {
+        if(debug>5000) {
+            std::cout<<"Evaluating BDT..."<<std::endl;
+            PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
+            std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
+        }
+        std::vector<std::string> bdtNames;
+        bdtNames.clear();
+        thisBDTInfo = bdtInfos.find("bdt_1lep");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_1lep");
+        }
+        
+        thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_1lep_vzbb");
+        }
 
-            BDTInfo tmpBDT = bdtInfos[i];
-            if(debug>5000) {
-                PrintBDTInfoValues(tmpBDT);
-                std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
-            }
-            std::string bdtname(tmpBDT.bdtname);
+        for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
+            std::string bdtname(bdtNames[iBDT]);
             if (cursyst->name != "nominal") {
                 bdtname.append("_");
                 bdtname.append(cursyst->name);
             }
-            if (*f["doVPtReweighting"] > 0) {
-                float V_pt_nom = *f["V_pt"];
-                *f["V_pt"] = *f["V_pt_VPtCorrUp"];
-                *f[bdtname+"_VPtCorrUp"] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
-                *f["V_pt"] = *f["V_pt_VPtCorrDown"];
-                *f[bdtname+"_VPtCorrDown"] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
-                *f["V_pt"] = V_pt_nom;
-            }
-            *f[bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
+            *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
         }
     }
 
-    if(jet1EnergyRegressionIsSet && jet2EnergyRegressionIsSet) {
+    if (f.count("bdt_bjetreg")>0) {
         if(debug>10000) {
             std::cout<<"Evaluating the Jet Energy Regression..."<<std::endl;
-            PrintBDTInfoValues(jet1EnergyRegression);
-            PrintBDTInfoValues(jet2EnergyRegression);
+            PrintBDTInfoValues(bdtInfos["bdt_bjetreg"]);
         }
-        double r1Pt = evaluateRegression(*in["hJetInd1"]);
-        double r2Pt = evaluateRegression(*in["hJetInd2"]);
+        double r1Pt = evaluateRegression(mInt("hJetInd1"));
+        double r2Pt = evaluateRegression(mInt("hJetInd2"));
 
-        *f["Jet1_regWeight"] = r1Pt/(*f["hJets_pt_0"]);
-        *f["Jet2_regWeight"] = r2Pt/(*f["hJets_pt_1"]);
+        *f["Jet1_regWeight"] = r1Pt/(m("hJets_pt_0"));
+        *f["Jet2_regWeight"] = r2Pt/(m("hJets_pt_1"));
 
         TLorentzVector hJ1_reg = TLorentzVector();
         TLorentzVector hJ2_reg = TLorentzVector();
 
         *f["Jet1_pt_reg"] = r1Pt;
         *f["Jet2_pt_reg"] = r2Pt;
-        hJ1_reg.SetPtEtaPhiM(r1Pt, f["Jet_eta"][*in["hJetInd1"]], f["Jet_phi"][*in["hJetInd1"]], f["Jet_mass"][*in["hJetInd1"]] * (r1Pt/f["Jet_pt"][*in["hJetInd1"]]) );
-        hJ2_reg.SetPtEtaPhiM(r2Pt, f["Jet_eta"][*in["hJetInd2"]], f["Jet_phi"][*in["hJetInd2"]], f["Jet_mass"][*in["hJetInd2"]] * (r2Pt/f["Jet_pt"][*in["hJetInd2"]]) );
+        hJ1_reg.SetPtEtaPhiM(r1Pt, m("Jet_eta",mInt("hJetInd1")), m("Jet_phi",mInt("hJetInd1")), m("Jet_mass",mInt("hJetInd1")) * (r1Pt/m("Jet_pt",mInt("hJetInd1"))) );
+        hJ2_reg.SetPtEtaPhiM(r2Pt, m("Jet_eta",mInt("hJetInd2")), m("Jet_phi",mInt("hJetInd2")), m("Jet_mass",mInt("hJetInd2")) * (r2Pt/m("Jet_pt",mInt("hJetInd2"))) );
 
         //*f["hJets_mt_0"] = hJ1_reg.Mt();
         //*f["hJets_mt_1"] = hJ2_reg.Mt();
@@ -1703,76 +1788,76 @@ void VHbbAnalysis::FinishEvent() {
 
     // add control sample fitted scale factor (already computed)
     *f["CS_SF"] = 1.0;
-    if (*in["sampleIndex"]==2200 || *in["sampleIndex"]==4400 || *in["sampleIndex"]==4500 || *in["sampleIndex"]==4600 || *in["sampleIndex"]==4700 || *in["sampleIndex"]==4800 || *in["sampleIndex"]==4900 || *in["sampleIndex"] == 48100 || *in["sampleIndex"] == 49100 || *in["sampleIndex"]==4100 || *in["sampleIndex"]==4200 || *in["sampleIndex"]==4300) {
-        *f["CS_SF"] = *f["SF_Wj0b"];
+    if (mInt("sampleIndex")==2200 || mInt("sampleIndex")==4400 || mInt("sampleIndex")==4500 || mInt("sampleIndex")==4600 || mInt("sampleIndex")==4700 || mInt("sampleIndex")==4800 || mInt("sampleIndex")==4900 || mInt("sampleIndex") == 48100 || mInt("sampleIndex") == 49100 || mInt("sampleIndex")==4100 || mInt("sampleIndex")==4200 || mInt("sampleIndex")==4300) {
+        *f["CS_SF"] = m("SF_Wj0b");
     }
     /*else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901 || *in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902) {
         *f["CS_SF"] = *f["SF_WHF"];
     }*/
-    else if (*in["sampleIndex"]==2201 || *in["sampleIndex"]==4401 || *in["sampleIndex"]==4501 || *in["sampleIndex"]==4601 || *in["sampleIndex"]==4701 || *in["sampleIndex"]==4801 || *in["sampleIndex"]==4901 || *in["sampleIndex"] == 48101 || *in["sampleIndex"] == 49101 || *in["sampleIndex"]==4101 || *in["sampleIndex"]==4201 || *in["sampleIndex"]==4301) {
-        *f["CS_SF"] = *f["SF_Wj1b"];
+    else if (mInt("sampleIndex")==2201 || mInt("sampleIndex")==4401 || mInt("sampleIndex")==4501 || mInt("sampleIndex")==4601 || mInt("sampleIndex")==4701 || mInt("sampleIndex")==4801 || mInt("sampleIndex")==4901 || mInt("sampleIndex") == 48101 || mInt("sampleIndex") == 49101 || mInt("sampleIndex")==4101 || mInt("sampleIndex")==4201 || mInt("sampleIndex")==4301) {
+        *f["CS_SF"] = m("SF_Wj1b");
     }
-    else if (*in["sampleIndex"]==2202 || *in["sampleIndex"]==4402 || *in["sampleIndex"]==4502 || *in["sampleIndex"]==4602 || *in["sampleIndex"]==4702 || *in["sampleIndex"]==4802 || *in["sampleIndex"]==4902 || *in["sampleIndex"] == 48102 || *in["sampleIndex"] == 49102 || *in["sampleIndex"]==4102 || *in["sampleIndex"]==4202 || *in["sampleIndex"]==4302) {
-        *f["CS_SF"] = *f["SF_Wj2b"];
+    else if (mInt("sampleIndex")==2202 || mInt("sampleIndex")==4402 || mInt("sampleIndex")==4502 || mInt("sampleIndex")==4602 || mInt("sampleIndex")==4702 || mInt("sampleIndex")==4802 || mInt("sampleIndex")==4902 || mInt("sampleIndex") == 48102 || mInt("sampleIndex") == 49102 || mInt("sampleIndex")==4102 || mInt("sampleIndex")==4202 || mInt("sampleIndex")==4302) {
+        *f["CS_SF"] = m("SF_Wj2b");
     }
-    else if (*in["sampleIndex"]==50 || *in["sampleIndex"]==51 || *in["sampleIndex"]==52 || *in["sampleIndex"]==12 || *in["sampleIndex"]==120 || *in["sampleIndex"]==500) {
-        *f["CS_SF"] = *f["SF_TT"];
+    else if (mInt("sampleIndex")==50 || mInt("sampleIndex")==51 || mInt("sampleIndex")==52 || mInt("sampleIndex")==12 || mInt("sampleIndex")==120 || mInt("sampleIndex")==500) {
+        *f["CS_SF"] = m("SF_TT");
     }
 
-    if (*in["sampleIndex"]!=0) {
+    if (mInt("sampleIndex")!=0) {
         *f["Lep_SF"] = 1.0;
-        if (*in["isWmunu"] == 1) {
-            if (*f["do2015"] == 1) {
+        if (mInt("isWmunu") == 1) {
+            if (m("do2015") == 1) {
                 // used for 2015 analysis
-                *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd1"]] * f["selLeptons_SF_IdCutTight"][*in["lepInd1"]] * f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd1"]];
+                *f["Lep_SF"] = m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_IdCutTight",mInt("lepInd1")) * m("selLeptons_SF_HLT_RunD4p3",mInt("lepInd1"));
             }
             else if (*f["doICHEP"] == 1) {
                 // for 2016 analysis
                 // old V23 prescription
                 //*f["Lep_SF"] = f["SF_MuIDLoose"][*in["lepInd1"]] * f["SF_MuIsoTight"][*in["lepInd1"]] * (0.0673 * f["SF_SMuTrig_Block1"][*in["lepInd1"]] + 0.9327 * f["SF_SMuTrig_Block2"][*in["lepInd1"]] );
 
-                *f["Lep_SF"] = f["selLeptons_SF_IdCutTight"][*in["lepInd1"]] * f["selLeptons_SF_IsoTight"][*in["lepInd1"]] * f["selLeptons_SF_trk_eta"][*in["lepInd1"]] * (0.945*f["selLeptons_SF_HLT_RunD4p3"][*in["lepInd1"]] + 0.055*f["selLeptons_SF_HLT_RunD4p2"][*in["lepInd1"]])  ;
+                *f["Lep_SF"] = m("selLeptons_SF_IdCutTight",mInt("lepInd1")) * m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_trk_eta",mInt("lepInd1")) * (0.945*m("selLeptons_SF_HLT_RunD4p3",mInt("lepInd1")) + 0.055*m("selLeptons_SF_HLT_RunD4p2",mInt("lepInd1")))  ;
 
             }
             else {
                 //*f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd"]] ) ;
-                *f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd1"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd1"]] ) *  ( (20.1/36.4) * f["SF_MuTriggerBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuTriggerGH"][*in["lepInd1"]]) * ( (20.1/36.4) * f["SF_MuTrackerBCDEF"][*in["lepInd1"]] + (16.3/36.4) * f["SF_MuTrackerGH"][*in["lepInd1"]]);
-                *f["Lep_SFUp"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd1"]] + f["SF_MuIDTightBCDEF_err"][*in["lepInd1"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd1"]] + f["SF_MuIDTightGH_err"][*in["lepInd1"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] + f["SF_MuIsoTightBCDEF_err"][*in["lepInd1"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd1"]] + f["SF_MuIsoTightGH_err"][*in["lepInd1"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd1"]] + f["SF_MuTriggerBCDEF_err"][*in["lepInd1"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd1"]]) + f["SF_MuTriggerGH_err"][*in["lepInd1"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd1"]] + f["SF_MuTrackerBCDEF_err"][*in["lepInd1"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd1"]] + f["SF_MuTrackerGH_err"][*in["lepInd1"]] ));
-                *f["Lep_SFUp"] = *f["Lep_SFUp"] / *f["Lep_SF"];
-                *f["Lep_SFDown"] = ( (20.1/36.4) * (f["SF_MuIDTightBCDEF"][*in["lepInd1"]] - f["SF_MuIDTightBCDEF_err"][*in["lepInd1"]]) + (16.3/36.4) * (f["SF_MuIDTightGH"][*in["lepInd1"]] - f["SF_MuIDTightGH_err"][*in["lepInd1"]]) ) * ( (20.1/36.4) * (f["SF_MuIsoTightBCDEF"][*in["lepInd1"]] - f["SF_MuIsoTightBCDEF_err"][*in["lepInd1"]] ) + (16.3/36.4) * (f["SF_MuIsoTightGH"][*in["lepInd1"]] - f["SF_MuIsoTightGH_err"][*in["lepInd1"]]) ) *  ( (20.1/36.4) * (f["SF_MuTriggerBCDEF"][*in["lepInd1"]] - f["SF_MuTriggerBCDEF_err"][*in["lepInd1"]] )+ (16.3/36.4) * (f["SF_MuTriggerGH"][*in["lepInd1"]]) - f["SF_MuTriggerGH_err"][*in["lepInd1"]]) * ( (20.1/36.4) * (f["SF_MuTrackerBCDEF"][*in["lepInd1"]] - f["SF_MuTrackerBCDEF_err"][*in["lepInd1"]])+ (16.3/36.4) * (f["SF_MuTrackerGH"][*in["lepInd1"]] - f["SF_MuTrackerGH_err"][*in["lepInd1"]] ));
-                *f["Lep_SFDown"] = *f["Lep_SFDown"] / *f["Lep_SF"];
+                *f["Lep_SF"] = ( (20.1/36.4) * m("SF_MuIDTightBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuIDTightGH",mInt("lepInd1"))) * ( (20.1/36.4) * m("SF_MuIsoTightBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuIsoTightGH",mInt("lepInd1")) ) *  ( (20.1/36.4) * m("SF_MuTriggerBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuTriggerGH",mInt("lepInd1"))) * ( (20.1/36.4) * m("SF_MuTrackerBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuTrackerGH",mInt("lepInd1")));
+                *f["Lep_SFUp"] = ( (20.1/36.4) * (m("SF_MuIDTightBCDEF",mInt("lepInd1")) + m("SF_MuIDTightBCDEF_err",mInt("lepInd1"))) + (16.3/36.4) * (m("SF_MuIDTightGH",mInt("lepInd1")) + m("SF_MuIDTightGH_err",mInt("lepInd1"))) ) * ( (20.1/36.4) * (m("SF_MuIsoTightBCDEF",mInt("lepInd1")) + m("SF_MuIsoTightBCDEF_err",mInt("lepInd1")) ) + (16.3/36.4) * (m("SF_MuIsoTightGH",mInt("lepInd1")) + m("SF_MuIsoTightGH_err",mInt("lepInd1"))) ) *  ( (20.1/36.4) * (m("SF_MuTriggerBCDEF",mInt("lepInd1")) + m("SF_MuTriggerBCDEF_err",mInt("lepInd1")) )+ (16.3/36.4) * (m("SF_MuTriggerGH",mInt("lepInd1"))) + m("SF_MuTriggerGH_err",mInt("lepInd1"))) * ( (20.1/36.4) * (m("SF_MuTrackerBCDEF",mInt("lepInd1")) + m("SF_MuTrackerBCDEF_err",mInt("lepInd1")))+ (16.3/36.4) * (m("SF_MuTrackerGH",mInt("lepInd1")) + m("SF_MuTrackerGH_err",mInt("lepInd1")) ));
+                *f["Lep_SFUp"] = m("Lep_SFUp")/ m("Lep_SF");
+                *f["Lep_SFDown"] = ( (20.1/36.4) * (m("SF_MuIDTightBCDEF",mInt("lepInd1")) - m("SF_MuIDTightBCDEF_err",mInt("lepInd1"))) + (16.3/36.4) * (m("SF_MuIDTightGH",mInt("lepInd1")) - m("SF_MuIDTightGH_err",mInt("lepInd1"))) ) * ( (20.1/36.4) * (m("SF_MuIsoTightBCDEF",mInt("lepInd1")) - m("SF_MuIsoTightBCDEF_err",mInt("lepInd1")) ) + (16.3/36.4) * (m("SF_MuIsoTightGH",mInt("lepInd1")) - m("SF_MuIsoTightGH_err",mInt("lepInd1"))) ) *  ( (20.1/36.4) * (m("SF_MuTriggerBCDEF",mInt("lepInd1")) - m("SF_MuTriggerBCDEF_err",mInt("lepInd1")) )+ (16.3/36.4) * (m("SF_MuTriggerGH",mInt("lepInd1"))) - m("SF_MuTriggerGH_err",mInt("lepInd1"))) * ( (20.1/36.4) * (m("SF_MuTrackerBCDEF",mInt("lepInd1")) - m("SF_MuTrackerBCDEF_err",mInt("lepInd1")))+ (16.3/36.4) * (m("SF_MuTrackerGH",mInt("lepInd1")) - m("SF_MuTrackerGH_err",mInt("lepInd1")) ));
+                *f["Lep_SFDown"] = m("Lep_SFDown") / m("Lep_SF");
             }
         }
-        else if (*in["isWenu"] == 1) {
-           if (*f["do2015"] == 1) {
+        else if (mInt("isWenu") == 1) {
+           if (m("do2015") == 1) {
                // used for 2015 analysis
-               *f["Lep_SF"] = f["selLeptons_SF_IsoTight"][*in["lepInd1"]] * f["selLeptons_SF_IdMVATight"][*in["lepInd1"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd1"]];
+               *f["Lep_SF"] = m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_IdMVATight",mInt("lepInd1")) * m("SF_HLT_Ele23_WPLoose",mInt("lepInd1"));
            }
-           else if (*f["doICHEP"] ==1) {
+           else if (m("doICHEP") ==1) {
                // for 2016 analysis
                // old for V23
                //*f["Lep_SF"] =   f["SF_ElIdMVATrigWP80"][*in["lepInd1"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd1"]];
-               *f["Lep_SF"] = f["SF_ElIdMVATrigWP80"][*in["lepInd1"]] * f["EffHLT_Ele27_WPLoose_Eta2p1"][*in["lepInd1"]] * f["SF_egammaEffi_tracker"][*in["lepInd1"]];
+               *f["Lep_SF"] = m("SF_ElIdMVATrigWP80",mInt("lepInd1")) * m("EffHLT_Ele27_WPLoose_Eta2p1",mInt("lepInd1")) * m("SF_egammaEffi_tracker",mInt("lepInd1"));
            }
            else {
-               *f["Lep_SF"] = f["SF_SingleElTrigger"][*in["lepInd1"]] * f["SF_ElIdIso"][*in["lepInd1"]] *  f["SF_egammaEffi_tracker"][*in["lepInd1"]];
-               *f["Lep_SFUp"] = (f["SF_SingleElTrigger"][*in["lepInd1"]] + f["SF_SingleElTrigger_err"][*in["lepInd1"]] )* (f["SF_ElIdIso"][*in["lepInd1"]] + f["SF_ElIdIso_err"][*in["lepInd1"]] ) *  (f["SF_egammaEffi_tracker"][*in["lepInd1"]] + f["SF_egammaEffi_tracker_err"][*in["lepInd1"]] );
-                *f["Lep_SFUp"] = *f["Lep_SFUp"] / *f["Lep_SF"];
-               *f["Lep_SFDown"] = (f["SF_SingleElTrigger"][*in["lepInd1"]] - f["SF_SingleElTrigger_err"][*in["lepInd1"]] )* (f["SF_ElIdIso"][*in["lepInd1"]] - f["SF_ElIdIso_err"][*in["lepInd1"]] ) *  (f["SF_egammaEffi_tracker"][*in["lepInd1"]] - f["SF_egammaEffi_tracker_err"][*in["lepInd1"]] );
-                *f["Lep_SFDown"] = *f["Lep_SFDown"] / *f["Lep_SF"];
+               *f["Lep_SF"] = m("SF_SingleElTrigger",mInt("lepInd1")) * m("SF_ElIdIso",mInt("lepInd1")) *  m("SF_egammaEffi_tracker",mInt("lepInd1"));
+               *f["Lep_SFUp"] = (m("SF_SingleElTrigger",mInt("lepInd1")) + m("SF_SingleElTrigger_err",mInt("lepInd1")) )* (m("SF_ElIdIso",mInt("lepInd1")) + m("SF_ElIdIso_err",mInt("lepInd1")) ) *  (m("SF_egammaEffi_tracker",mInt("lepInd1")) + m("SF_egammaEffi_tracker_err",mInt("lepInd1")) );
+                *f["Lep_SFUp"] = m("Lep_SFUp") / m("Lep_SF");
+               *f["Lep_SFDown"] = (m("SF_SingleElTrigger",mInt("lepInd1")) - m("SF_SingleElTrigger_err",mInt("lepInd1")) )* (m("SF_ElIdIso",mInt("lepInd1")) - m("SF_ElIdIso_err",mInt("lepInd1")) ) *  (m("SF_egammaEffi_tracker",mInt("lepInd1")) - m("SF_egammaEffi_tracker_err",mInt("lepInd1")) );
+                *f["Lep_SFDown"] = m("Lep_SFDown") / m("Lep_SF");
 
                // failing SF to correct for data/MC differences in lepton veto yields
                *f["LepFail_SF"] = 1.0;
                *f["LepFail_SFUp"] = 1.0;
                *f["LepFail_SFDown"] = 1.0;
                if (*in["nselLeptons"] > 1) {
-                   for (int i=0; i < *in["nselLeptons"]; i++) {
-                       if (i == *in["lepInd1"]) continue;
-                       *f["LepFail_SF"] = f["SF_EleVeto"][i];
-                       *f["LepFail_SFUp"] = f["SF_EleVeto"][i] + f["SF_EleVeto_err"][i];
-                       *f["LepFail_SFUp"] = *f["LepFail_SFUp"] / *f["LepFail_SF"];
-                       *f["LepFail_SFDown"] = f["SF_EleVeto"][i] - f["SF_EleVeto_err"][i];
-                       *f["LepFail_SFDown"] = *f["LepFail_SFDown"] / *f["LepFail_SF"];
+                   for (int i=0; i < mInt("nselLeptons"); i++) {
+                       if (i == mInt("lepInd1")) continue;
+                       *f["LepFail_SF"] = m("SF_EleVeto",i);
+                       *f["LepFail_SFUp"] = m("SF_EleVeto",i) + m("SF_EleVeto_err",i);
+                       *f["LepFail_SFUp"] = m("LepFail_SFUp") / m("LepFail_SF");
+                       *f["LepFail_SFDown"] = m("SF_EleVeto",i) - m("SF_EleVeto_err",i);
+                       *f["LepFail_SFDown"] = m("LepFail_SFDown") / m("LepFail_SF");
                        break; // apply for highest pT lepton besides selected one
                    }
                }
@@ -1782,68 +1867,68 @@ void VHbbAnalysis::FinishEvent() {
            }
         }
         // in V23 for 2016 they changed the names of all the btag weights x.x
-        if (*f["do2015"] != 1) {
-            if (int(*f["doCMVA"]) == 0) {
-                *f["bTagWeight"] = *f["btagWeightCSV"];
-                *f["bTagWeight_JESUp"] = *f["btagWeightCSV_up_jes"];
-                *f["bTagWeight_JESDown"] = *f["btagWeightCSV_down_jes"];
-                *f["bTagWeight_HFUp"] = *f["btagWeightCSV_up_hf"];
-                *f["bTagWeight_HFDown"] = *f["btagWeightCSV_down_hf"];
-                *f["bTagWeight_LFUp"] = *f["btagWeightCSV_up_lf"];
-                *f["bTagWeight_LFDown"] = *f["btagWeightCSV_down_lf"];
-                *f["bTagWeight_HFStats1Up"] = *f["btagWeightCSV_up_hfstats1"];
-                *f["bTagWeight_HFStats1Down"] = *f["btagWeightCSV_down_hfstats1"];
-                *f["bTagWeight_LFStats1Up"] = *f["btagWeightCSV_up_lfstats1"];
-                *f["bTagWeight_LFStats1Down"] = *f["btagWeightCSV_down_lfstats1"];
-                *f["bTagWeight_HFStats2Up"] = *f["btagWeightCSV_up_hfstats2"];
-                *f["bTagWeight_HFStats2Down"] = *f["btagWeightCSV_down_hfstats2"];
-                *f["bTagWeight_LFStats2Up"] = *f["btagWeightCSV_up_lfstats2"];
-                *f["bTagWeight_LFStats2Down"] = *f["btagWeightCSV_down_lfstats2"];
-                *f["bTagWeight_cErr1Up"] = *f["btagWeightCSV_up_cferr1"];
-                *f["bTagWeight_cErr1Down"] = *f["btagWeightCSV_down_cferr1"];
-                *f["bTagWeight_cErr2Up"] = *f["btagWeightCSV_up_cferr2"];
-                *f["bTagWeight_cErr2Down"] = *f["btagWeightCSV_down_cferr2"];
+        if (m("do2015") != 1) {
+            if (int(m("doCMVA")) == 0) {
+                *f["bTagWeight"] = m("btagWeightCSV");
+                *f["bTagWeight_JESUp"] = m("btagWeightCSV_up_jes");
+                *f["bTagWeight_JESDown"] = m("btagWeightCSV_down_jes");
+                *f["bTagWeight_HFUp"] = m("btagWeightCSV_up_hf");
+                *f["bTagWeight_HFDown"] = m("btagWeightCSV_down_hf");
+                *f["bTagWeight_LFUp"] = m("btagWeightCSV_up_lf");
+                *f["bTagWeight_LFDown"] = m("btagWeightCSV_down_lf");
+                *f["bTagWeight_HFStats1Up"] = m("btagWeightCSV_up_hfstats1");
+                *f["bTagWeight_HFStats1Down"] = m("btagWeightCSV_down_hfstats1");
+                *f["bTagWeight_LFStats1Up"] = m("btagWeightCSV_up_lfstats1");
+                *f["bTagWeight_LFStats1Down"] = m("btagWeightCSV_down_lfstats1");
+                *f["bTagWeight_HFStats2Up"] = m("btagWeightCSV_up_hfstats2");
+                *f["bTagWeight_HFStats2Down"] = m("btagWeightCSV_down_hfstats2");
+                *f["bTagWeight_LFStats2Up"] = m("btagWeightCSV_up_lfstats2");
+                *f["bTagWeight_LFStats2Down"] = m("btagWeightCSV_down_lfstats2");
+                *f["bTagWeight_cErr1Up"] = m("btagWeightCSV_up_cferr1");
+                *f["bTagWeight_cErr1Down"] = m("btagWeightCSV_down_cferr1");
+                *f["bTagWeight_cErr2Up"] = m("btagWeightCSV_up_cferr2");
+                *f["bTagWeight_cErr2Down"] = m("btagWeightCSV_down_cferr2");
             }
             else {
-                *f["bTagWeight"] = *f["btagWeightCMVAV2"];
-                *f["bTagWeight_JESUp"] = *f["btagWeightCMVAV2_up_jes"];
-                *f["bTagWeight_JESDown"] = *f["btagWeightCMVAV2_down_jes"];
-                *f["bTagWeight_HFUp"] = *f["btagWeightCMVAV2_up_hf"];
-                *f["bTagWeight_HFDown"] = *f["btagWeightCMVAV2_down_hf"];
-                *f["bTagWeight_LFUp"] = *f["btagWeightCMVAV2_up_lf"];
-                *f["bTagWeight_LFDown"] = *f["btagWeightCMVAV2_down_lf"];
-                *f["bTagWeight_HFStats1Up"] = *f["btagWeightCMVAV2_up_hfstats1"];
-                *f["bTagWeight_HFStats1Down"] = *f["btagWeightCMVAV2_down_hfstats1"];
-                *f["bTagWeight_LFStats1Up"] = *f["btagWeightCMVAV2_up_lfstats1"];
-                *f["bTagWeight_LFStats1Down"] = *f["btagWeightCMVAV2_down_lfstats1"];
-                *f["bTagWeight_HFStats2Up"] = *f["btagWeightCMVAV2_up_hfstats2"];
-                *f["bTagWeight_HFStats2Down"] = *f["btagWeightCMVAV2_down_hfstats2"];
-                *f["bTagWeight_LFStats2Up"] = *f["btagWeightCMVAV2_up_lfstats2"];
-                *f["bTagWeight_LFStats2Down"] = *f["btagWeightCMVAV2_down_lfstats2"];
-                *f["bTagWeight_cErr1Up"] = *f["btagWeightCMVAV2_up_cferr1"];
-                *f["bTagWeight_cErr1Down"] = *f["btagWeightCMVAV2_down_cferr1"];
-                *f["bTagWeight_cErr2Up"] = *f["btagWeightCMVAV2_up_cferr2"];
-                *f["bTagWeight_cErr2Down"] = *f["btagWeightCMVAV2_down_cferr2"];
+                *f["bTagWeight"] = m("btagWeightCMVAV2");
+                *f["bTagWeight_JESUp"] = m("btagWeightCMVAV2_up_jes");
+                *f["bTagWeight_JESDown"] = m("btagWeightCMVAV2_down_jes");
+                *f["bTagWeight_HFUp"] = m("btagWeightCMVAV2_up_hf");
+                *f["bTagWeight_HFDown"] = m("btagWeightCMVAV2_down_hf");
+                *f["bTagWeight_LFUp"] = m("btagWeightCMVAV2_up_lf");
+                *f["bTagWeight_LFDown"] = m("btagWeightCMVAV2_down_lf");
+                *f["bTagWeight_HFStats1Up"] = m("btagWeightCMVAV2_up_hfstats1");
+                *f["bTagWeight_HFStats1Down"] = m("btagWeightCMVAV2_down_hfstats1");
+                *f["bTagWeight_LFStats1Up"] = m("btagWeightCMVAV2_up_lfstats1");
+                *f["bTagWeight_LFStats1Down"] = m("btagWeightCMVAV2_down_lfstats1");
+                *f["bTagWeight_HFStats2Up"] = m("btagWeightCMVAV2_up_hfstats2");
+                *f["bTagWeight_HFStats2Down"] = m("btagWeightCMVAV2_down_hfstats2");
+                *f["bTagWeight_LFStats2Up"] = m("btagWeightCMVAV2_up_lfstats2");
+                *f["bTagWeight_LFStats2Down"] = m("btagWeightCMVAV2_down_lfstats2");
+                *f["bTagWeight_cErr1Up"] = m("btagWeightCMVAV2_up_cferr1");
+                *f["bTagWeight_cErr1Down"] = m("btagWeightCMVAV2_down_cferr1");
+                *f["bTagWeight_cErr2Up"] = m("btagWeightCMVAV2_up_cferr2");
+                *f["bTagWeight_cErr2Down"] = m("btagWeightCMVAV2_down_cferr2");
             }
         }
 
-        if (*f["doCutFlow"]>0 && *in["cutFlow"]<5) {
+        if (m("doCutFlow")>0 && m("cutFlow")<5) {
             // lepton scale factor calculation will break for some events in the cutflow before lepton selection
-            *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"];
+            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK");
         }
-        else if (*f["do2015"]==1 || *f["doICHEP"]==1){
-            *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["bTagWeight"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"] * *f["Lep_SF"];
+        else if (m("do2015")==1 || m("doICHEP")==1){
+            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
         }
         else {
             // bTagWeight is broken in V25 Heppy ntuples
-            *f["weight"] = *f["weight"] * *f["weight_PU"] * *f["CS_SF"] * *f["weight_ptQCD"] * *f["weight_ptEWK"] * *f["Lep_SF"];
+            *f["weight"] = m("weight") * m("weight_PU") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
         }
 
         // Add NLO to LO W+jet re-weighting from Z(ll)H(bb)
-        float deta_bb = fabs(f["Jet_eta"][*in["hJetInd1"]] - f["Jet_eta"][*in["hJetInd2"]]);
-        int sampleIndex = *in["sampleIndex"];
+        float deta_bb = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
+        int sampleIndex = mInt("sampleIndex");
         float WJetNLOWeight = 1.0;
-        float weight_ptQCD = *f["weight_ptQCD"];
+        float weight_ptQCD = m("weight_ptQCD");
         if (sampleIndex<4100 || sampleIndex>4902) { WJetNLOWeight = 1.0; }
         else if (sampleIndex==4100 || sampleIndex==4200 || sampleIndex==4300 || sampleIndex==4400 || sampleIndex==4500 || sampleIndex==4600 || sampleIndex==4700 || sampleIndex==4800 || sampleIndex==4900 || sampleIndex==48100 || sampleIndex==49100) {
             WJetNLOWeight = LOtoNLOWeightBjetSplitEtabb(deta_bb, 0);
@@ -1857,7 +1942,7 @@ void VHbbAnalysis::FinishEvent() {
             WJetNLOWeight = LOtoNLOWeightBjetSplitEtabb(deta_bb, 2);
             WJetNLOWeight = (WJetNLOWeight/weight_ptQCD)*1.21;
         }
-        *f["weight"] = *f["weight"] * WJetNLOWeight;
+        *f["weight"] = m("weight") * WJetNLOWeight;
         *f["WJetNLOWeight"] = WJetNLOWeight;
 
     }
@@ -1870,6 +1955,12 @@ void VHbbAnalysis::FinishEvent() {
     }
 
     if(debug>100) std::cout<<"Ending FinishEvent()"<<std::endl;
+    // FIXME nominal must be last
+    if(cursyst->name=="nominal"){
+        ofile->cd();
+        if (debug>10000) std::cout<<"filling output tree"<<std::endl;
+        outputTree->Fill();
+    }
     return;
 }
 
@@ -1884,17 +1975,17 @@ void VHbbAnalysis::TermAnalysis(){
 
 std::pair<int,int> VHbbAnalysis::HighestPtGoodElectronsOppCharge(float min_pt, float max_rel_iso, float idcut) {
     int first = -1;
-    for (int i = 0; i<*ui["nElectron"]; i++) {
-        if (fabs(f["Electron_eta"][i]) < *f["eletacut"]
-            && f["Electron_pt"][i] > min_pt
-            && f["Electron_pfRelIso03_all"][i]< max_rel_iso
+    for (int i = 0; i<mInt("nElectron"); i++) {
+        if (fabs(m("Electron_eta",i)) < m("eletacut")
+            && m("Electron_pt",i) > min_pt
+            && m("Electron_pfRelIso03_all",i)< max_rel_iso
             //&& in["selLeptons_eleMVAIdSppring16GenPurp"][i] >= idcut
-            && b["Electron_mvaSpring16GP_WP90"][i] > 0)
+            && m("Electron_mvaSpring16GP_WP90",i) > 0)
         {
             // leptons are pt sorted
             if (first == -1) {
                 first = i;
-            } else if (in["Electron_charge"][i]*in["Electron_charge"][first] < 0) {
+            } else if (mInt("Electron_charge",i)*mInt("Electron_charge",first) < 0) {
                 return std::make_pair(first, i);
             }
         }
@@ -1904,17 +1995,17 @@ std::pair<int,int> VHbbAnalysis::HighestPtGoodElectronsOppCharge(float min_pt, f
 
 std::pair<int,int> VHbbAnalysis::HighestPtGoodMuonsOppCharge(float min_pt, float max_rel_iso) {
     int first = -1;
-    for (int i = 0; i<*ui["nMuon"]; i++) {
-        if (fabs(f["Muon_eta"][i]) < *f["muetacut"]
-            && f["Muon_pt"][i] > min_pt
-            && f["Muon_pfRelIso04_all"][i] < max_rel_iso
+    for (int i = 0; i<mInt("nMuon"); i++) {
+        if (fabs(m("Muon_eta",i)) < m("muetacut")
+            && m("Muon_pt",i) > min_pt
+            && m("Muon_pfRelIso04_all",i) < max_rel_iso
             //&& in["selLeptons_looseIdPOG"][i] >= *f["muidcut"]
-            && b["Muon_mediumId"][i] > 0)
+            && m("Muon_mediumId",i) > 0)
         {
             // leptons are pt sorted
             if (first == -1) {
                 first = i;
-            } else if (in["Muon_charge"][i]*in["Muon_charge"][first] < 0) {
+            } else if (mInt("Muon_charge",i)*mInt("Muon_charge",first) < 0) {
                 return std::make_pair(first, i);
             }
         }
@@ -1942,46 +2033,46 @@ bool VHbbAnalysis::ElectronSelection(int nLep){
     *in["elInd2"] = -1;
     if(nLep==1){
         float elMaxPt = 0; // max pt of the electrons we select
-        for (int i =0; i<*in["nselLeptons"]; i++) {
-            if(fabs(in["selLeptons_pdgId"][i])==11
-                && f["selLeptons_pt"][i]      > *f["eptcut"]
-                && fabs(f["selLeptons_eta"][i]) < *f["eletacut"]
-                && f["selLeptons_relIso03"][i]< *f["erelisocut"]
+        for (int i =0; i<mInt("nselLeptons"); i++) {
+            if(fabs(mInt("selLeptons_pdgId",i))==11
+                && m("selLeptons_pt",i)      > m("eptcut")
+                && fabs(m("selLeptons_eta",i)) < m("eletacut")
+                && m("selLeptons_relIso03",i)< m("erelisocut")
                 //&& in["selLeptons_eleCutIdSpring15_25ns_v1"][i] >= *f["elidcut"]
                 //&& in["selLeptons_tightId"][i] >= *f["elidcut"]
                 //&& in["selLeptons_eleMVAIdSpring15Trig"][i] >= *f["elidcut"]
-                && in["selLeptons_eleMVAIdSppring16GenPurp"][i] >= *f["elidcut"]
+                && m("selLeptons_eleMVAIdSppring16GenPurp",i) >= m("elidcut")
                 ){
-                if (f["selLeptons_pt"][i] > elMaxPt) {
-                    elMaxPt = f["selLeptons_pt"][i];
+                if (m("selLeptons_pt",i) > elMaxPt) {
+                    elMaxPt = m("selLeptons_pt",i);
                     *in["elInd1"] = i;
                 }
             }
         }
-        if (*in["elInd1"] == -1) selectEvent = false;
+        if (mInt("elInd1") == -1) selectEvent = false;
     } else if(nLep==2){
         float elMaxPt = 0; // max pt of the electrons we select
         float elMax2Pt = 0; // 2nd max pt of the electrons we select
-        for (int i =0; i<*in["nselLeptons"]; i++) {
-            if(fabs(in["selLeptons_pdgId"][i])==11
-                && fabs(f["selLeptons_eta"][i]) < *f["eletacut"]
-                && f["selLeptons_relIso03"][i]< *f["erelisocut"]
-                && in["selLeptons_eleMVAIdSppring16GenPurp"][i] >= *f["elidcut"]
+        for (int i =0; i<mInt("nselLeptons"); i++) {
+            if(fabs(mInt("selLeptons_pdgId",i))==11
+                && fabs(m("selLeptons_eta",i)) < m("eletacut")
+                && m("selLeptons_relIso03",i)< m("erelisocut")
+                && mInt("selLeptons_eleMVAIdSppring16GenPurp",i) >= m("elidcut")
                 ){
-                if (f["selLeptons_pt"][i] > elMaxPt &&  f["selLeptons_pt"][i] > *f["e1ptcut"]) {
-                    elMaxPt = f["selLeptons_pt"][i];
+                if (m("selLeptons_pt",i) > elMaxPt &&  m("selLeptons_pt",i) > m("e1ptcut")) {
+                    elMaxPt = m("selLeptons_pt",i);
                     *in["elInd1"] = i;
                 }
-                else if (*in["elInd1"] > -1 && f["selLeptons_pt"][i] > elMax2Pt && (in["selLeptons_charge"][i]*in["selLeptons_charge"][*in["elInd1"]]) < 0) {
-                    elMax2Pt = f["selLeptons_pt"][i];
+                else if (mInt("elInd1") > -1 && m("selLeptons_pt",i) > elMax2Pt && (mInt("selLeptons_charge",i)*mInt("selLeptons_charge",mInt("elInd1"))) < 0) {
+                    elMax2Pt = m("selLeptons_pt",i);
                     *in["elInd2"] = i;
                 }
             }
         }
         if (debug>1000) {
-            std::cout<<"elInd1/2 = "<<*in["elInd1"]<<", "<<*in["elInd2"]<<std::endl;
+            std::cout<<"elInd1/2 = "<<mInt("elInd1")<<", "<<mInt("elInd2")<<std::endl;
         }
-        if (*in["elInd1"] == -1 || *in["elInd2"] == -1) selectEvent = false;
+        if (mInt("elInd1") == -1 || mInt("elInd2") == -1) selectEvent = false;
     } else {
         std::cout<<"nLep is not 1 or 2 "<<nLep<<" - fail it."<<std::endl;
         selectEvent = false;
@@ -2011,42 +2102,42 @@ bool VHbbAnalysis::MuonSelection(int nLep){
     if(nLep==1){
         *in["muInd1"] = -1;
         float muMaxPt = 0; // max pt of the muons we select
-        for (int i=0; i<*in["nselLeptons"]; i++) {
-            if(fabs(in["selLeptons_pdgId"][i])==13
-                && f["selLeptons_pt"][i]      > *f["muptcut"]
-                && fabs(f["selLeptons_eta"][i]) < *f["muetacut"]
-                && f["selLeptons_relIso04"][i]< *f["murelisocut"]
-                && in["selLeptons_tightId"][i] >= *f["muidcut"]
+        for (int i=0; i<mInt("nselLeptons"); i++) {
+            if(fabs(mInt("selLeptons_pdgId",i))==13
+                && m("selLeptons_pt",i)      > m("muptcut")
+                && fabs(m("selLeptons_eta",i)) < m("muetacut")
+                && m("selLeptons_relIso04",i)< m("murelisocut")
+                && mInt("selLeptons_tightId",i) >= m("muidcut")
                 ){
-                if (f["selLeptons_pt"][i] > muMaxPt) {
-                    muMaxPt = f["selLeptons_pt"][i];
+                if (m("selLeptons_pt",i) > muMaxPt) {
+                    muMaxPt = m("selLeptons_pt",i);
                     *in["muInd1"] = i;
                 }
             }
         }
-        if (*in["muInd1"] == -1) selectEvent = false;
+        if (mInt("muInd1") == -1) selectEvent = false;
     } else if(nLep==2) {
         *in["muInd1"] = -1;
         *in["muInd2"] = -1;
         float muMaxPt = 0; // max pt of the muons we select
         float muMax2Pt = 0; // 2nd max pt of the muons we select
-        for (int i=0; i<*in["nselLeptons"]; i++) {
-            if(fabs(in["selLeptons_pdgId"][i])==13
-                && fabs(f["selLeptons_eta"][i]) < *f["muetacut"]
-                && f["selLeptons_relIso04"][i]< *f["murelisocut"]
-                && in["selLeptons_looseIdPOG"][i] >= *f["muidcut"]
+        for (int i=0; i<mInt("nselLeptons"); i++) {
+            if(fabs(mInt("selLeptons_pdgId",i))==13
+                && fabs(m("selLeptons_eta",i)) < m("muetacut")
+                && m("selLeptons_relIso04",i)< m("murelisocut")
+                && mInt("selLeptons_looseIdPOG",i) >= m("muidcut")
                 ){
-                if (f["selLeptons_pt"][i] > muMaxPt &&  f["selLeptons_pt"][i] > *f["mu1ptcut"]) {
-                    muMaxPt = f["selLeptons_pt"][i];
+                if (m("selLeptons_pt",i) > muMaxPt &&  m("selLeptons_pt",i) > m("mu1ptcut")) {
+                    muMaxPt = m("selLeptons_pt",i);
                     *in["muInd1"] = i;
-                } else if (*in["muInd1"]>-1 && f["selLeptons_pt"][i] > muMax2Pt
-                  && (in["selLeptons_charge"][i]*in["selLeptons_charge"][*in["muInd1"]]) < 0) {
-                    muMax2Pt = f["selLeptons_pt"][i];
+                } else if (mInt("muInd1")>-1 && m("selLeptons_pt",i) > muMax2Pt
+                  && (mInt("selLeptons_charge",i)*mInt("selLeptons_charge",mInt("muInd1"))) < 0) {
+                    muMax2Pt = m("selLeptons_pt",i);
                     *in["muInd2"] = i;
                 }
             }
         }
-        if (*in["muInd1"] == -1 || *in["muInd2"] == -1) selectEvent = false;
+        if (mInt("muInd1") == -1 || mInt("muInd2") == -1) selectEvent = false;
     } else {
         std::cout<<"nLep is not 1 or 2 "<<nLep<<" - fail it."<<std::endl;
         selectEvent = false;
@@ -2058,18 +2149,18 @@ bool VHbbAnalysis::MuonSelection(int nLep){
 int VHbbAnalysis::UpdatedVType() {
 
     m("Vtype_new");
-    *f["Vtype_new"] = *in["Vtype"];
+    *f["Vtype_new"] = mInt("Vtype");
 
     // muon channels are good
-    if (*in["Vtype"] == 0 || *in["Vtype"] == 2) {
+    if (mInt("Vtype") == 0 || mInt("Vtype") == 2) {
         return *in["Vtype"];
     }
 
     // collect good electrons
     std::vector<int> good_electrons;
-    for (int i = 0; i < *ui["nElectron"]; i++) {
-        if (f["Electron_pt"][i] > 15
-            && b["Electron_mvaSpring16GP_WP90"][i] > 0)
+    for (int i = 0; i < mInt("nElectron"); i++) {
+        if (m("Electron_pt",i) > 15
+            && m("Electron_mvaSpring16GP_WP90",i) > 0)
         {
             good_electrons.push_back(i);
         }
@@ -2077,10 +2168,10 @@ int VHbbAnalysis::UpdatedVType() {
 
     // check for Vtype 1
     if (good_electrons.size() >= 2) {
-        if (f["Electron_pt"][good_electrons[0]] > 20) {
-            int ele0_charge = in["Electron_charge"][good_electrons[0]];
+        if (m("Electron_pt",good_electrons[0]) > 20) {
+            int ele0_charge = mInt("Electron_charge",good_electrons[0]);
             for (int i=1; i<good_electrons.size(); i++) {
-                if (ele0_charge * in["Electron_charge"][good_electrons[i]] < 0) {
+                if (ele0_charge * mInt("Electron_charge",good_electrons[i]) < 0) {
                     *f["Vtype_new"] = 1;
                     return 1;
                 }
@@ -2092,12 +2183,12 @@ int VHbbAnalysis::UpdatedVType() {
     }
 
     // can still be Wenu channel
-    if (*in["Vtype"] == 3) {
+    if (mInt("Vtype") == 3) {
         return 3;
     }
 
     // is Vtype 4 but shouldn't be?
-    if (*in["Vtype"] == 4 && good_electrons.size()) {
+    if (mInt("Vtype") == 4 && good_electrons.size()) {
         *f["Vtype_new"] = 5;
         return 5;
     }
@@ -2118,21 +2209,21 @@ bool VHbbAnalysis::PassVTypeAndTrigger(int vtype) {
     if(debug>10000) std::cout<<"dataYear doICHEP sampleIndex "<<*f["dataYear"]<<" "<<*f["doICHEP"]<<" "<<*in["sampleIndex"]<<std::endl;
     //FIXME configure for different channels
     //TODO it would be nicer to reverse the logic ie. if (trg1 || trg2 || trg3) {return true;} else if ....
-    if (*f["dataYear"] == 2015) {
+    if (m("dataYear") == 2015) {
         // for 2015 V21 ntuples
-        if (*in["HLT_BIT_HLT_Ele23_WPLoose_Gsf_v"] != 1
-            && *in["HLT_BIT_HLT_IsoMu20_v"] != 1
-            && *in["HLT_BIT_HLT_IsoTkMu20_v"] != 1
+        if (mInt("HLT_BIT_HLT_Ele23_WPLoose_Gsf_v") != 1
+            && mInt("HLT_BIT_HLT_IsoMu20_v") != 1
+            && mInt("HLT_BIT_HLT_IsoTkMu20_v") != 1
            ) {
             return false;
         }
-    } else if (*f["dataYear"] == 2016 && *f["doICHEP"] == 1) {
+    } else if (m("dataYear") == 2016 && m("doICHEP") == 1) {
         // for 2016 V22 ntuples there is no MC HLT simulation we can use, have to just apply the data trigger efficiency
-        if (*in["sampleIndex"] == 0) {
+        if (mInt("sampleIndex") == 0) {
             // regular triggers for 2016 data, but none applied to MC
-            if (*in["HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v"] != 1
-                && *in["HLT_BIT_HLT_IsoMu22_v"] != 1
-                && *in["HLT_BIT_HLT_IsoTkMu22_v"] != 1
+            if (mInt("HLT_BIT_HLT_Ele27_eta2p1_WPLoose_Gsf_v") != 1
+                && mInt("HLT_BIT_HLT_IsoMu22_v") != 1
+                && mInt("HLT_BIT_HLT_IsoTkMu22_v") != 1
                ) {
                 return false;
             }
@@ -2140,55 +2231,60 @@ bool VHbbAnalysis::PassVTypeAndTrigger(int vtype) {
     } else if (m("dataYear") == 2016) {
         // 0-lepton
         if (vtype == 4
-            && m("HLT_PFMET110_PFMHT110_IDTight")     != 1
-            && m("HLT_PFMET120_PFMHT120_IDTight")     != 1
-            && m("HLT_PFMET170_NoiseCleaned")         != 1
-            && m("HLT_PFMET170_BeamHaloCleaned")      != 1
-            && m("HLT_PFMET170_HBHECleaned")          != 1
+            && mInt("HLT_PFMET110_PFMHT110_IDTight")     != 1
+            && mInt("HLT_PFMET120_PFMHT120_IDTight")     != 1
+            && mInt("HLT_PFMET170_NoiseCleaned")         != 1
+            && mInt("HLT_PFMET170_BeamHaloCleaned")      != 1
+            && mInt("HLT_PFMET170_HBHECleaned")          != 1
            ) {
             return false;
         }
         // 1-lepton
         if ((vtype == 2 || vtype == 3)
-            && m("HLT_Ele27_eta2p1_WPTight_Gsf")!= 1
-            && m("HLT_IsoMu24")                 != 1
-            && m("HLT_IsoTkMu24")               != 1
+            && mInt("HLT_Ele27_eta2p1_WPTight_Gsf")!= 1
+            && mInt("HLT_IsoMu24")                 != 1
+            && mInt("HLT_IsoTkMu24")               != 1
            ) {
             return false;
         }
         // 2-lepton
         if ((vtype == 0 || vtype == 1)
-            && m("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL")          != 1
-            && m("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ")       != 1
-            && m("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL")        != 1
-            && m("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ")     != 1
-            && m("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") != 1
+            && mInt("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL")          != 1
+            && mInt("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ")       != 1
+            && mInt("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL")        != 1
+            && mInt("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ")     != 1
+            && mInt("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") != 1
            ) {
             return false;
         }
-    } else if (*f["dataYear"] == 2017) {
+    } else if (m("dataYear") == 2017) {
         // 0-lepton
         if (vtype == 4
-            && *b["HLT_PFMET110_PFMHT110_IDTight"] != 1
-            && *b["HLT_PFMETTypeOne120_PFMHT120_IDTight"] != 1
+            && mInt("HLT_PFMET110_PFMHT110_IDTight") != 1
+            && mInt("HLT_PFMETTypeOne120_PFMHT120_IDTight") != 1
            ) {
             return false;
         }
         // 1-lepton
         if ((vtype == 2 || vtype == 3)
-            && *b["HLT_Ele32_WPTight_Gsf_L1DoubleEG"] != 1
-            && *b["HLT_Ele32_WPTight_Gsf"] != 1
-            && *b["HLT_IsoMu24"] != 1
+            && mInt("HLT_Ele32_WPTight_Gsf_L1DoubleEG") != 1
+            && mInt("HLT_IsoMu24") != 1
            ) {
             return false;
         }
         // 2-lepton
         if ((vtype == 0 || vtype == 1)
-            && *b["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL"] != 1
-            && *b["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"] != 1
+            && mInt("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8") != 1
+            && mInt("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL") != 1
            ) {
             return false;
         }
+       // if ((vtype == 0 || vtype == 1)
+       //     && *b["HLT_IsoMu27"] != 1
+       //     && *b["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"] != 1
+       //    ) {
+       //     return false;
+        //}
     } else {
         std::cout<<"What is this?  Run 1?  Run 3?  2018? "<<std::endl;
     }
@@ -2198,26 +2294,26 @@ bool VHbbAnalysis::PassVTypeAndTrigger(int vtype) {
 std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     std::pair<int,int> pair(-1,-1);
 
-    for(int i=0; i<*in["nJet"]; i++){
-        if(in["Jet_puId"][i] > 0
-            && f["Jet_bReg"][i]>*f["j1ptCut"]
-            && f["Jet_btagCSVV2"][i]>*f["j1ptCSV"]&&fabs(f["Jet_eta"][i])<=*f["JetEtaCut"]) {
+    for(int i=0; i<mInt("nJet"); i++){
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>m("j1ptCut")
+            && m("Jet_btagCSVV2",i)>m("j1ptCSV")&&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
             if( pair.first == -1 ) {
                 pair.first = i;
-            } else if(f["Jet_bReg"][pair.first]<f["Jet_pt"][i]){
+            } else if(m("Jet_bReg",pair.first)<m("Jet_pt",i)){
                 pair.first = i;
             }
         }
     }
 
-    for(int i=0; i<*in["nJet"]; i++){
+    for(int i=0; i<mInt("nJet"); i++){
         if(i==pair.first) continue;
-        if(in["Jet_puId"][i] > 0
-            && f["Jet_bReg"][i]>*f["j2ptCut"]
-            && f["Jet_btagCSVV2"][i]>*f["j2ptCSV"]&&fabs(f["Jet_eta"][i])<*f["JetEtaCut"]) {
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>m("j2ptCut")
+            && m("Jet_btagCSVV2",i)>m("j2ptCSV")&&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
             if( pair.second == -1 ) {
                 pair.second = i;
-            } else if(f["Jet_bReg"][pair.second]<f["Jet_pt"][i]){
+            } else if(m("Jet_bReg",pair.second)<m("Jet_pt",i)){
                 pair.second = i;
             }
         }
@@ -2230,33 +2326,70 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
 std::pair<int,int> VHbbAnalysis::HighestCSVBJets(float j1ptCut, float j2ptCut){
     std::pair<int,int> pair(-1,-1);
 
-    for(int i=0; i<*in["nJet"]; i++){
-        if(in["Jet_puId"][i] > 0
-            && f["Jet_bReg"][i]>j1ptCut
-            &&fabs(f["Jet_eta"][i])<=*f["JetEtaCut"]) {
+    for(int i=0; i<mInt("nJet"); i++){
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j1ptCut
+            &&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
             if( pair.first == -1 ) {
                 pair.first = i;
-            } else if(f["Jet_btagCSVV2"][pair.first]<f["Jet_btagCSVV2"][i]){
+            } else if(m("Jet_btagCSVV2",pair.first)<m("Jet_btagCSVV2",i)){
                 pair.first = i;
             }
         }
     }
 
-    for(int i=0; i<*in["nJet"]; i++){
+    for(int i=0; i<mInt("nJet"); i++){
         if(i==pair.first) continue;
-        if(in["Jet_puId"][i] > 0
-            && f["Jet_bReg"][i]>j2ptCut
-            &&fabs(f["Jet_eta"][i])<*f["JetEtaCut"]) {
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j2ptCut
+            &&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
             if( pair.second == -1 ) {
                 pair.second = i;
-            } else if(f["Jet_btagCSVV2"][pair.second]<f["Jet_btagCSVV2"][i]){
+            } else if(m("Jet_btagCSVV2",pair.second)<m("Jet_btagCSVV2",i)){
                 pair.second = i;
             }
         }
     }
 
     // different pt threshold can set the highest CSV value into pair.second
-    if (pair.first > -1 && pair.second > -1 && f["Jet_btagCSVV2"][pair.first] < f["Jet_btagCSVV2"][pair.second]) {
+    if (pair.first > -1 && pair.second > -1 && m("Jet_btagCSVV2",pair.first) < m("Jet_btagCSVV2",pair.second)) {
+        pair = std::make_pair(pair.second, pair.first);
+    }
+
+    return pair;
+}
+
+
+std::pair<int,int> VHbbAnalysis::HighestCMVABJets(float j1ptCut, float j2ptCut){
+    std::pair<int,int> pair(-1,-1);
+
+    for(int i=0; i<mInt("nJet"); i++){
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j1ptCut
+            &&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
+            if( pair.first == -1 ) {
+                pair.first = i;
+            } else if(m("Jet_btagCMVA",pair.first)<m("Jet_btagCMVA",i)){
+                pair.first = i;
+            }
+        }
+    }
+
+    for(int i=0; i<mInt("nJet"); i++){
+        if(i==pair.first) continue;
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j2ptCut
+            &&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
+            if( pair.second == -1 ) {
+                pair.second = i;
+            } else if(m("Jet_btagCMVA",pair.second)<m("Jet_btagCMVA",i)){
+                pair.second = i;
+            }
+        }
+    }
+
+    // different pt threshold can set the highest CMVA value into pair.second
+    if (pair.first > -1 && pair.second > -1 && m("Jet_btagCMVA",pair.first) < m("Jet_btagCMVA",pair.second)) {
         pair = std::make_pair(pair.second, pair.first);
     }
 
@@ -2268,19 +2401,19 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
 
     // dont implement the btag CSV cuts until we've already selected the highest pT(jj) jets
     double maxPtJJ = 0.;
-    for (int i=0; i<*in["nJet"]; i++) {
-        if(in["Jet_puId"][i] > 0
-            && f["Jet_bReg"][i]>*f["j1ptCut"]
-            && fabs(f["Jet_eta"][i])<*f["JetEtaCut"]) {
+    for (int i=0; i<mInt("nJet"); i++) {
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>m("j1ptCut")
+            && fabs(m("Jet_eta",i))<m("JetEtaCut")) {
             TLorentzVector jet1;
-            jet1.SetPtEtaPhiM(f["Jet_bReg"][i],f["Jet_eta"][i],f["Jet_phi"][i],f["Jet_mass"][i] * (f["Jet_bReg"][i] / f["Jet_pt"][i] ) );
-            for (int j=0; j<*in["nJet"]; j++) {
+            jet1.SetPtEtaPhiM(m("Jet_bReg",i),m("Jet_eta",i),m("Jet_phi",i),m("Jet_mass",i) * (m("Jet_bReg",i) / m("Jet_pt",i) ) );
+            for (int j=0; j<mInt("nJet"); j++) {
                 if (i == j) continue;
-                if(in["Jet_puId"][j] > 0
-                    && f["Jet_bReg"][j]>*f["j2ptCut"]
-                    && fabs(f["Jet_eta"][j])<*f["JetEtaCut"]) {
+                if(mInt("Jet_puId",j) > 0
+                    && m("Jet_bReg",j)>m("j2ptCut")
+                    && fabs(m("Jet_eta",j))<m("JetEtaCut")) {
                     TLorentzVector jet2;
-                    jet2.SetPtEtaPhiM(f["Jet_bReg"][j],f["Jet_eta"][j],f["Jet_phi"][j],f["Jet_mass"][j] * (f["Jet_bReg"][j] / f["Jet_pt"][j] ) );
+                    jet2.SetPtEtaPhiM(m("Jet_bReg",j),m("Jet_eta",j),m("Jet_phi",j),m("Jet_mass",j) * (m("Jet_bReg",j) / m("Jet_pt",j) ) );
                     TLorentzVector jj = jet1 + jet2;
                     double ptJJ = jj.Pt();
                     if (ptJJ >= maxPtJJ) {
@@ -2292,7 +2425,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
                                 std::cout<<"ptJJ = "<<ptJJ<<std::endl;
                                 std::cout<<"maxPtJJ = "<<maxPtJJ<<std::endl;
                             }
-                            if (f["Jet_btagCSVV2"][j] > f["Jet_btagCSVV2"][i]) {
+                            if (m("Jet_btagCSVV2",j) > m("Jet_btagCSVV2",i)) {
                             //if (f["Jet_bReg"][j] > f["Jet_pt"][i]) {
                                 pair.first = j;
                                 pair.second = i;
@@ -2313,8 +2446,16 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
         }
     }
     // important to cut on CSV here to kill TTbar
-    if (f["Jet_btagCSVV2"][pair.first] < *f["j1ptCSV"]) pair.first = -1;
-    if (f["Jet_btagCSVV2"][pair.second] < *f["j2ptCSV"]) pair.second = -1;
+    if(pair.first != -1){
+        if (m("Jet_btagCSVV2",pair.first) < m("j1ptCSV")) {
+            pair.first = -1;
+        }
+    }
+    if(pair.second != -1){
+        if (m("Jet_btagCSVV2",pair.second) < m("j2ptCSV")) {
+            pair.second = -1;
+        }
+    }
     return pair;
 }
 
@@ -2352,15 +2493,15 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
     //else
     // find closest jet to the given lepton
     float thisPT=0;
-    for (int i=0; i<*in["nJet"]; i++) {
+    for (int i=0; i<mInt("nJet"); i++) {
         if(regPT){
-            thisPT=f["Jet_bReg"][i];
+            thisPT=m("Jet_bReg",i);
         } else {
-            thisPT=f["Jet_pt"][i];
+            thisPT=m("Jet_pt",i);
         }
-        if (thisPT< 30 || f["Jet_btagCSVV2"][i] < 0.5) continue; // only consider jets with some minimal preselection
+        if (thisPT< 30 || m("Jet_btagCSVV2",i) < 0.5) continue; // only consider jets with some minimal preselection
         TLorentzVector j;
-        j.SetPtEtaPhiM(thisPT, f["Jet_eta"][i], f["Jet_phi"][i], f["Jet_mass"][i] * (f["Jet_bReg"][i] / f["Jet_pt"][i] )  );
+        j.SetPtEtaPhiM(thisPT, m("Jet_eta",i), m("Jet_phi",i), m("Jet_mass",i) * (m("Jet_bReg",i) / m("Jet_pt",i) )  );
         double d1 = j.DeltaR(Obj);
         if (d1 <= minDR) {
             minDR = d1;
@@ -2369,11 +2510,11 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
     }
     if (ObjClosestIndex!=-1) {
         if(regPT){
-            thisPT=f["Jet_bReg"][ObjClosestIndex];
-            Obj2.SetPtEtaPhiM(thisPT, f["Jet_eta"][ObjClosestIndex], f["Jet_phi"][ObjClosestIndex], f["Jet_mass"][ObjClosestIndex] * (thisPT / f["Jet_pt"][ObjClosestIndex] ) );
+            thisPT=m("Jet_bReg",ObjClosestIndex);
+            Obj2.SetPtEtaPhiM(thisPT, m("Jet_eta",ObjClosestIndex), m("Jet_phi",ObjClosestIndex), m("Jet_mass",ObjClosestIndex) * (thisPT / m("Jet_pt",ObjClosestIndex) ) );
         } else {
-            thisPT=f["Jet_pt"][ObjClosestIndex];
-            Obj2.SetPtEtaPhiM(thisPT, f["Jet_eta"][ObjClosestIndex], f["Jet_phi"][ObjClosestIndex], f["Jet_mass"][ObjClosestIndex]);
+            thisPT=m("Jet_pt",ObjClosestIndex);
+            Obj2.SetPtEtaPhiM(thisPT, m("Jet_eta",ObjClosestIndex), m("Jet_phi",ObjClosestIndex), m("Jet_mass",ObjClosestIndex));
         }
     } else return -999;
 
@@ -2386,14 +2527,14 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
         // try top = lep + jet + met
         // two-particle Mt = sqrt(Et**2 - pt**2)
         TLorentzVector MET;
-        MET.SetPtEtaPhiM(*f["MET_pt"],0.,*f["MET_phi"],0.);
+        MET.SetPtEtaPhiM(m("MET_pt"),0.,m("MET_phi"),0.);
         TLorentzVector Obj_transverse, Obj2_transverse; // can only consider transverse (x-y plane) 4-vector components if using MET
         Obj_transverse.SetPxPyPzE(Obj.Px(),Obj.Py(),0,TMath::Sqrt(TMath::Power(Obj.M(),2) + TMath::Power(Obj.Pt(),2)));
         Obj2_transverse.SetPxPyPzE(Obj2.Px(),Obj2.Py(),0,TMath::Sqrt(TMath::Power(Obj2.M(),2) + TMath::Power(Obj2.Pt(),2)));
         Top = Obj_transverse + Obj2_transverse + MET;
     }else if (useMET==2) {
         TLorentzVector MET;
-        MET.SetPtEtaPhiM(*f["MET_pt"],0.,*f["MET_phi"],0.);
+        MET.SetPtEtaPhiM(m("MET_pt"),0.,m("MET_phi"),0.);
         TLorentzVector lep, jet;
         if (isJet) {
             lep = Obj2;
@@ -2898,76 +3039,74 @@ float VHbbAnalysis::getVPtCorrFactorDown(float V_pt) {
 
 
 void VHbbAnalysis::smearJets(float JERScale) {
-    for (int i=0; i<*in["nJet"]; i++) {
-        float corr_nominal = f["Jet_corr_JER"][i];
+    for (int i=0; i<mInt("nJet"); i++) {
+        float corr_nominal = mInt("Jet_corr_JER",i);
         if (corr_nominal == -99) { continue; }
         //std::cout<<"original smearing correction: "<<corr_nominal<<std::endl;
-        f["Jet_corr_JER"][i] = 1 + JERScale * (f["Jet_corr_JER"][i]-1);
-        f["Jet_corr_JERUp"][i] = 1 + JERScale * (f["Jet_corr_JERUp"][i]-1);
-        f["Jet_corr_JERDown"][i] = 1 + JERScale * (f["Jet_corr_JERDown"][i]-1);
+        f["Jet_corr_JER"][i] = 1 + JERScale * (m("Jet_corr_JER",i)-1);
+        f["Jet_corr_JERUp"][i] = 1 + JERScale * (m("Jet_corr_JERUp",i)-1);
+        f["Jet_corr_JERDown"][i] = 1 + JERScale * (m("Jet_corr_JERDown",i)-1);
         //std::cout<<"smearing jet "<<JERScale<<" times the nominal JER by factor "<<(f["Jet_corr_JER"][i] / corr_nominal)<<std::endl;
         //std::cout<<"Jet_pt = "<<f["Jet_pt"][i]<<std::endl;
-        f["Jet_pt"][i] = f["Jet_pt"][i] * ( f["Jet_corr_JER"][i] / corr_nominal);
+        f["Jet_pt"][i] = m("Jet_pt",i) * ( m("Jet_corr_JER",i) / corr_nominal);
         // std::cout<<"Re-smeared jet_pt = "<<f["Jet_pt"][i]<<std::endl;
 
         // re-evaluate jet energy regression on re-smeared jets
         //std::cout<<"Jet_pt_reg was: "<<f["Jet_pt_reg"][i]<<std::endl;
-        f["Jet_pt_reg_Heppy"][i] = f["Jet_bReg"][i];
+        f["Jet_pt_reg_Heppy"][i] = m("Jet_bReg",i);
         f["Jet_bReg"][i] = evaluateRegression(i);
         //std::cout<<"now it has been re-evaluated to: "<<f["Jet_pt_reg"][i]<<std::endl;
     }
 }
 
 float VHbbAnalysis::evaluateRegression(int i) {
-    if (f["Jet_bReg"][i] == -99) { return -99; }
-    *f["hJets_pt_0"] = float(f["Jet_pt"][i]);
-    *f["hJets_eta_0"] = float(f["Jet_eta"][i]);
+    if (m("Jet_bReg",i) == -99) { return -99; }
+    *f["hJets_pt_0"] = m("Jet_pt",i);
+    *f["hJets_eta_0"] = m("Jet_eta",i);
     TLorentzVector tmp;
-    tmp.SetPtEtaPhiM(f["Jet_pt"][i],f["Jet_eta"][i],f["Jet_phi"][i],f["Jet_mass"][i]);
+    tmp.SetPtEtaPhiM(m("Jet_pt",i),m("Jet_eta",i),m("Jet_phi",i),m("Jet_mass",i));
     *f["hJets_mt_0"] = tmp.Mt();
     //std::cout<<"4-vector Mt() is "<<tmp.Mt()<<std::endl;
     float mt = TMath::Sqrt( TMath::Power(tmp.Et(),2) - TMath::Power(tmp.Pt(),2) );
     //std::cout<<"by-hand Mt is "<<mt<<std::endl;
     //*f["hJets_mt_0"] = mt;
-    *f["hJets_leadTrackPt_0"] = float(f["Jet_leadTrackPt"][i]);
+    *f["hJets_leadTrackPt_0"] = m("Jet_leadTrackPt",i);
 
-    if (f["Jet_leptonPtRel"][i] > 0) {
-        *f["hJets_leptonPtRel_0"] = float(f["Jet_leptonPtRel"][i]);
+    if (m("Jet_leptonPtRel",i) > 0) {
+        *f["hJets_leptonPtRel_0"] = m("Jet_leptonPtRel",i);
     } else {
         *f["hJets_leptonPtRel_0"] = 0.;
     }
 
-    if (f["Jet_leptonPt"][i] > 0) {
-        *f["hJets_leptonPt_0"] = float(f["Jet_leptonPt"][i]);
+    if (m("Jet_leptonPt",i) > 0) {
+        *f["hJets_leptonPt_0"] = m("Jet_leptonPt",i);
     } else {
         *f["hJets_leptonPt_0"] =  0.;
     }
-    if (f["Jet_leptonDeltaR"][i] > 0) {
-        *f["hJets_leptonDeltaR_0"] = float(f["Jet_leptonDeltaR"][i]);
+    if (m("Jet_leptonDeltaR",i) > 0) {
+        *f["hJets_leptonDeltaR_0"] = m("Jet_leptonDeltaR",i);
     } else {
         *f["hJets_leptonDeltaR_0"] = 0.;
     }
 
-    *f["hJets_neHEF_0"] = float(f["Jet_neHEF"][i]);
-    *f["hJets_neEmEF_0"] = float(f["Jet_neEmEF"][i]);
-    *f["hJets_vtxMass_0"] = float(f["Jet_vtxMass"][i]);
-    *f["hJets_vtxPt_0"] = float(f["Jet_vtxPt"][i]);
+    *f["hJets_neHEF_0"] = m("Jet_neHEF",i);
+    *f["hJets_neEmEF_0"] = m("Jet_neEmEF",i);
+    *f["hJets_vtxMass_0"] = m("Jet_vtxMass",i);
+    *f["hJets_vtxPt_0"] = m("Jet_vtxPt",i);
 
-    if (f["Jet_vtx3DVal"][i] > 0) {
-        *f["hJets_vtx3dL_0"] = f["Jet_vtx3DVal"][i];
+    if (m("Jet_vtx3DVal",i) > 0) {
+        *f["hJets_vtx3dL_0"] = m("Jet_vtx3DVal",i);
     }else {
         *f["hJets_vtx3dL_0"] = 0.;
     }
-    *f["hJets_vtxNtracks_0"] = float(f["Jet_vtxNtracks"][i]);
+    *f["hJets_vtxNtracks_0"] = m("Jet_vtxNtracks",i);
     //*f["hJets_vtx3deL_0"] = f["Jet_vtx3DSig"][i];
-    if (f["Jet_vtx3DSig"][i] > 0) {
-        *f["hJets_vtx3deL_0"] = f["Jet_vtx3DVal"][i] / f["Jet_vtx3DSig"][i];
+    if (m("Jet_vtx3DSig",i) > 0) {
+        *f["hJets_vtx3deL_0"] = m("Jet_vtx3DVal",i) / m("Jet_vtx3DSig",i);
     }else {
         *f["hJets_vtx3deL_0"] = 0;
     }
-    //*f["nPVs_f"] = (float) *in["nPVs"];
-    //PrintBDTInfoValues(jet1EnergyRegression);
-    return jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtmethod)[0];
+    return EvaluateRegression(bdtInfos["bdt_bjetreg"]);
 
 }
 
@@ -2981,14 +3120,14 @@ void VHbbAnalysis::SetupFactorizedJECs(std::string variation) {
 
     if (!foundVar) return;
 
-    for (int j=0; j < *in["nJet"]; j++) {
-        float Jet_corr_var = f["Jet_corr_" + variation][j];
-        float corr_nominal = f["Jet_corr"][j];
+    for (int j=0; j < mInt("nJet"); j++) {
+        float Jet_corr_var = m("Jet_corr_" + variation,j);
+        float corr_nominal = m("Jet_corr",j);
         float scaleShift = Jet_corr_var / corr_nominal;
         f["Jet_corr_"+variation+"_ratio"][j] = scaleShift;
-        float Jet_pt_nom = f["Jet_pt"][j];
+        float Jet_pt_nom = m("Jet_pt",j);
         float Jet_pt_reg_nom = evaluateRegression(j); // probably safer to re-evaluate the nominal in case there is any residual bias in re-implementating of reg.
-        f["Jet_pt"][j] = f["Jet_pt"][j] * scaleShift;
+        f["Jet_pt"][j] = m("Jet_pt",j) * scaleShift;
         float Jet_pt_reg_var = evaluateRegression(j); // re-evaluate regression on top of variation
         f["Jet_pt"][j] = Jet_pt_nom;
         f["Jet_pt_reg_corr"+variation+"_ratio"][j] = Jet_pt_reg_var / Jet_pt_reg_nom;

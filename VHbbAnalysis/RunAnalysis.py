@@ -194,6 +194,12 @@ else:
         cp %s/../AnalysisDict.so .
         cp -r %s/*.txt . ''' % (os.getcwd(),os.getcwd(),os.getcwd(),runfile,os.getcwd(),os.getcwd())
 
+
+    #Set a few variables that we will need to identify the correct CMSSW release to source from cvmfs
+    scram_arch = os.environ['SCRAM_ARCH']
+    cmssw_version = os.environ['CMSSW_BASE'].split('/')[-1]
+    patch_rel = 'cmssw-patch' if 'patch' in cmssw_version else 'cmssw'
+
     condor_runscript_text = '''
 
         #!/bin/bash
@@ -209,7 +215,7 @@ else:
         # Set up environment
         echo "setting up the environment"
         #cd %s/..
-        cd /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw-patch/CMSSW_7_6_3_patch2/src
+        cd /cvmfs/cms.cern.ch/%s/cms/%s/%s/src
         source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval `scramv1 runtime -sh`
         #source env.sh
@@ -237,7 +243,7 @@ else:
         ###xrdcp -f $ORIG_DIR/$4 root://cmseos.fnal.gov//store/user/sbc01/VHbbAnalysisNtuples/%s/$2
         %s
         rm $ORIG_DIR/$4
-        echo "all done!" ''' % (os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), copy_string, runfile, runfile, jobName, xrdcp_string )
+        echo "all done!" ''' % (os.getcwd(),scram_arch,patch_rel,cmssw_version, os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), os.getcwd(), copy_string, runfile, runfile, jobName, xrdcp_string )
 
     condor_runscript_text_desy = '''
 
@@ -254,7 +260,7 @@ else:
         cp -r %s $tmp_dir
 
         echo "setting up the environment"
-        cd /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw-patch/CMSSW_7_6_3_patch2/src
+        cd /cvmfs/cms.cern.ch/%s/cms/%s/%s/src
         source /cvmfs/cms.cern.ch/cmsset_default.sh
         eval `scramv1 runtime -sh`
         echo "echo PATH:"
@@ -278,7 +284,7 @@ else:
         rm -r $tmp_dir
 
         echo "all done!"
-    ''' % (' '.join(inputs_to_transfer), runfile, runfile, xrdcp_string, xrdcp_string)
+    ''' % (' '.join(inputs_to_transfer), scram_arch, patch_rel, cmssw_version, runfile, runfile, xrdcp_string, xrdcp_string)
 
     runscript = open("%s/condor_runscript.sh" % (jobName) , "w")
     runscript.write(condor_runscript_text_desy if site=='DESY' else condor_runscript_text)

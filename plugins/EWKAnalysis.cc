@@ -570,20 +570,40 @@ void EWKAnalysis::FinishEvent(){
     *f["Jet2_qgl"] = f["Jet_qgl"][*in["JetInd2"]];
     //*f["nPVs_f"] = (float) *in["nPVs"];
 
-    if(debug>5000) {std::cout<<"Evaluating BDT..."<<std::endl; }
-    for (unsigned int i=0; i<bdtInfos.size(); i++) {
-     
-        BDTInfo tmpBDT = bdtInfos[i];
+    if (f.count("bdt_1lep")>0) {
         if(debug>5000) {
-            PrintBDTInfoValues(tmpBDT);
-            std::cout<<"BDT evaluates to: "<<tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod)<<std::endl;
+            std::cout<<"Evaluating BDT..."<<std::endl;
+            PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
+            std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
         }
-        std::string bdtname(tmpBDT.bdtname);
+        std::string bdtname(bdtInfos["bdt_1lep"]->bdtname);
         if (cursyst->name != "nominal") {
             bdtname.append("_");
             bdtname.append(cursyst->name);
         }
-        *f[bdtname] = tmpBDT.reader->EvaluateMVA(tmpBDT.bdtmethod);
+        if (m("doVPtReweighting") > 0) {
+            float V_pt_nom = m("V_pt");
+            *f["V_pt"] = m("V_pt_VPtCorrUp");
+            *f[bdtname+"_VPtCorrUp"] = EvaluateMVA(bdtInfos["bdt_1lep"]);
+            *f["V_pt"] = m("V_pt_VPtCorrDown");
+            *f[bdtname+"_VPtCorrDown"] = EvaluateMVA(bdtInfos["bdt_1lep"]);
+            *f["V_pt"] = V_pt_nom;
+        }
+        *f[bdtname] = EvaluateMVA(bdtInfos["bdt_1lep"]);
+    }
+    for(std::map<std::string,BDTInfo*>::iterator iterBDT=bdtInfos.begin();
+          iterBDT!=bdtInfos.end(); iterBDT++){
+     
+        if(debug>5000) {
+            PrintBDTInfoValues(iterBDT->second);
+            std::cout<<"BDT evaluates to: "<<EvaluateMVA(iterBDT->second)<<std::endl;
+        }
+        std::string bdtname(iterBDT->second->bdtname);
+        if (cursyst->name != "nominal") {
+            bdtname.append("_");
+            bdtname.append(cursyst->name);
+        }
+        *f[bdtname] = EvaluateMVA(iterBDT->second);
     }
 
     if (*in["sampleIndex"]!=0) {
@@ -931,8 +951,7 @@ float EWKAnalysis::evaluateRegression(int i) {
             }
             //*f["nPVs_f"] = (float) *in["nPVs"];
             //PrintBDTInfoValues(jet1EnergyRegression);
-            return jet1EnergyRegression.reader->EvaluateRegression(jet1EnergyRegression.bdtmethod)[0];
-
+            return EvaluateRegression(bdtInfos["bdt_bjetreg"]);
 }
 
 float EWKAnalysis::getQGLCorr_q(float x) {

@@ -238,6 +238,8 @@ type=6  name=Jet_hadronFlavour                max=100     lengthBranch=nJet  onl
 ##type=7  name=Jet_bTagWeightLFDown             max=100     lengthBranch=nJet
 ##type=7  name=Jet_ctagVsB                      max=100     lengthBranch=nJet
 
+type=2  name=SA5
+
 type=0  name=nFatJet
 type=7  name=FatJet_btagHbb                   max=10
 type=7  name=FatJet_eta                       max=10
