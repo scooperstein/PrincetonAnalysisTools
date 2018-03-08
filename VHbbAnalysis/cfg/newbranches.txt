@@ -7,10 +7,12 @@ type=2  name=MetTkMetDPhi
 type=1  name=nGenStatus2bHad
 type=1  name=hJetInd1
 type=1  name=hJetInd1_bestCSV
+type=1  name=hJetInd1_bestCMVA
 type=1  name=hJetInd1_highestPt
 type=1  name=hJetInd1_highestPtJJ
 type=1  name=hJetInd2
 type=1  name=hJetInd2_bestCSV
+type=1  name=hJetInd2_bestCMVA
 type=1  name=hJetInd2_highestPt
 type=1  name=hJetInd2_highestPtJJ
 type=1  name=elInd1
