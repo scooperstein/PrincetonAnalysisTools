@@ -26,6 +26,7 @@ type=7  name=GenJet_pt                          max=20  onlyMC=1
 type=7  name=GenJet_eta                         max=20  onlyMC=1
 type=7  name=GenJet_phi                         max=20  onlyMC=1
 type=7  name=GenJet_mass                        max=20  onlyMC=1
+type=1  name=GenJet_hadronFlavour               max=20  onlyMC=1
 
 type=2  name=LHE_Nc  onlyMC=1
 
@@ -47,10 +48,15 @@ type=2  name=LHE_Nc  onlyMC=1
 #type=7  name=GenHiggsBoson_phi                  max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
 #type=7  name=GenHiggsBoson_mass                 max=10  onlyMC=1 lengthBranch=nGenHiggsBoson
 
-type=1  name=nGenPart                                    onlyMC=1
-type=7  name=GenPart_pt                          max=200  onlyMC=1
-type=7  name=GenPart_eta                         max=200  onlyMC=1
-type=7  name=GenPart_phi                         max=200  onlyMC=1
+#type=1  name=nGenPart                                    onlyMC=1
+#type=7  name=GenPart_pt                          max=200  onlyMC=1
+#type=7  name=GenPart_eta                         max=200  onlyMC=1
+#type=7  name=GenPart_phi                         max=200  onlyMC=1
+#type=6  name=GenPart_statusFlags                 max=200  onlyMC=1
+#type=6  name=GenPart_status                      max=200  onlyMC=1
+#type=6  name=GenPart_pdgId                       max=200  onlyMC=1
+#type=6  name=GenPart_genPartIdxMother            max=200  onlyMC=1
+#type=7  name=GenPart_mass                        max=200  onlyMC=1
 
 type=0  name=nElectron
 type=7  name=Electron_pt                    max=20    lengthBranch=nElectron
@@ -207,6 +213,8 @@ type=7  name=SoftActivityJetHT               max=50
 type=1 name=SoftActivityJetNjets10 
 type=1 name=SoftActivityJetNjets5 
 type=1 name=SoftActivityJetNjets2 
+type=2 name=SA5
+type=2 name=SA_Ht
 
 ##type=7  name=Jet_rawPt                        max=100     lengthBranch=nJet
 ###type=7  name=Jet_eta                          max=100     lengthBranch=nJet
@@ -227,7 +235,7 @@ type=1 name=SoftActivityJetNjets2
 ###type=7  name=Jet_vtxPt                        max=100     lengthBranch=nJet
 ###type=7  name=Jet_phi                          max=100     lengthBranch=nJet
 ##type=6  name=Jet_mcFlavour                    max=100     lengthBranch=nJet  onlyMC=1
-##type=6  name=Jet_hadronFlavour                max=100     lengthBranch=nJet  onlyMC=1
+type=6  name=Jet_hadronFlavour                max=100     lengthBranch=nJet  onlyMC=1
 ##type=7  name=Jet_btagCSVV0                    max=100     lengthBranch=nJet
 ##type=7  name=Jet_btagnew                      max=100     lengthBranch=nJet
 ##type=7  name=Jet_btagCMVAV2                   max=100     lengthBranch=nJet

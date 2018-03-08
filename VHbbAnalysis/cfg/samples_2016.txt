@@ -1,5 +1,7 @@
-prefix=/store/group/lpchbb/VHbbNanoPostProc/VHbbPostNano2016_V1/
-
+prefix=/store/group/lpchbb/VHbbNanoPostProc/VHbbPostNano2016_V1_dataRerun/
+prefix_desy=/pnfs/desy.de/cms/tier2/store/user/htholen/VHbbPostNano2016_V1_dataRerun/
+prefix_cern=/store/group/phys_higgs/hbb/ntuples/VHbbPostNano2016_V1_dataRerun/
+prefix_fnal=/store/group/lpchbb/VHbbNanoPostProc/VHbbPostNano2016_V1_dataRerun/
 
 #DATA
 name=Run2016BToG_DoubleEle_ReMiniAOD  dir=DoubleEG/              type=0 xsec=1 lepFlav=1

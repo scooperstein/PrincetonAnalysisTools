@@ -14,7 +14,7 @@ type=2  name=j2ptCut            val=30
 type=2  name=j1ptCSV            val=0.898
 type=2  name=j2ptCSV            val=0.5
 type=2  name=j1etaCut           val=2.5
-type=2  name=j2etaCut           val=2.5
+type=2  name=JetEtaCut          val=2.5
 
 type=2  name=JetPtPresel        val=30
 type=2  name=LepPtPresel        val=20
