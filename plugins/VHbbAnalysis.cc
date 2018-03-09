@@ -1222,15 +1222,10 @@ bool VHbbAnalysis::Analyze() {
 
 
 void VHbbAnalysis::FinishEvent() {
-    
-    for(std::map<std::string,BDTInfo*>::iterator itBDTInfo=bdtInfos.begin(); itBDTInfo!=bdtInfos.end(); itBDTInfo++){
-        *f[itBDTInfo->second->bdtname] = -2;
-    }
 
     // b tag weights
     *f["bTagWeight"] = 1.0; // we still need a default value of this even if we don't evaluate it
     if (bTagCalibReader) {
-
         if (debug>101) std::cout<<"evaluating btag scale factors"<<std::endl;
 
         // TODO uncertainties
@@ -1316,22 +1311,25 @@ void VHbbAnalysis::FinishEvent() {
             *f["weight_PU"] = m("puWeight");
             //TEMPORARY SOLUTION: REMEMBER TO FIX IT BACK ONCE weightUP/DOWN WILL BE IN NANOAOD
             //  *f["weight_PUUp"] = m("puWeightUp") / m("puWeight");
-	    *f["weight_PUUp"] = m("puWeight");
-	    //  *f["weight_PUDown"] = m("puWeightDown") / m("puWeight");
+            *f["weight_PUUp"] = m("puWeight");
+            //  *f["weight_PUDown"] = m("puWeightDown") / m("puWeight");
             *f["weight_PUDown"] = m("puWeight");
-        }
-        else {
+        } else {
             //*f["weight_PU"] = *f["puWeight"];
             //*f["weight_PU"]=ReWeightMC(int(*f["nTrueInt"])+0.5); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PU"]=puWeight_ichep(int(m("nTrueInt"))); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PUUp"]=(puWeight_ichep_up(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PUDown"]=(puWeight_ichep_down(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
         }
+
+        // FIXME no nGenTop or nGenVbosons
+
         //if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
         //    // only apply to Z/W+jet samples
         //    *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("GenVbosons_pdgId",0));
         //    *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("GenVbosons_pt",0), m("Vtype"), mInt("GenVbosons_pdgId",0));
-	//}
+
+        //}
     } else {
         *f["weight_PU"]=1;
         *f["weight_PUUp"]=1;
@@ -1712,50 +1710,56 @@ void VHbbAnalysis::FinishEvent() {
     //*f["H_mass_f"] = (float) *f["H_mass"];
     //*f["H_pt_f"] = (float) *f["H_pt"];
     //*f["V_pt_f"] = (float) *f["V_pt"];
-    *f["hJets_btagCSV_0"] = (float) m("Jet_btagCSVV2",mInt("hJetInd1"));
-    *f["hJets_btagCSV_1"] = (float) m("Jet_btagCSVV2",mInt("hJetInd2"));
-    //*f["HVdPhi_f"] = (float) *f["HVdPhi"];
-    *f["H_dEta"] = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
+    
+    // Compute specialize variables per channel
+    // mostly BDT inputs, but also validation variables or potential new inputs for BDT
 
-    //*f["hJets_mt_0"] = HJ1.Mt();
-    //*f["hJets_mt_1"] = HJ2.Mt();
-    //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);
-    //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
-    *f["hJets_pt_0"] = (float) m("Jet_bReg",mInt("hJetInd1"));
-    *f["hJets_pt_1"] = (float) m("Jet_bReg",mInt("hJetInd2"));
-    //*f["MET_sumEt_f"] = (float) *f["MET_sumEt"]; // is this the right variable??
-    *f["nAddJet_f"] = (float) mInt("nAddJets252p9_puid");
-    *f["nAddLep_f"] = (float) mInt("nAddLeptons");
-    *f["isWenu_f"] = (float) mInt("isWenu");
-    *f["isWmunu_f"] = (float) mInt("isWmunu");
-    //*f["softActivityVH_njets5_f"] = (float) mInt("SoftActivityJetNjets5");
-    *f["softActivityVH_njets5_f"] = (float) m("SA5");
+    if(mInt("isWenu") || mInt("isWmunu")) {
+        *f["hJets_btagCSV_0"] = (float) m("Jet_btagCSVV2",mInt("hJetInd1"));
+        *f["hJets_btagCSV_1"] = (float) m("Jet_btagCSVV2",mInt("hJetInd2"));
+        //*f["HVdPhi_f"] = (float) *f["HVdPhi"];
+        *f["H_dEta"] = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
 
-    if (f.count("bdt_1lep")>0) {
-        if(debug>5000) {
-            std::cout<<"Evaluating BDT..."<<std::endl;
-            PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
-            std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
-        }
-        std::vector<std::string> bdtNames;
-        bdtNames.clear();
-        thisBDTInfo = bdtInfos.find("bdt_1lep");
-        if(thisBDTInfo != bdtInfos.end()){
-            bdtNames.push_back("bdt_1lep");
-        }
-        
-        thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
-        if(thisBDTInfo != bdtInfos.end()){
-            bdtNames.push_back("bdt_1lep_vzbb");
-        }
+        //*f["hJets_mt_0"] = HJ1.Mt();
+        //*f["hJets_mt_1"] = HJ2.Mt();
+        //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);
+        //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
+        *f["hJets_pt_0"] = (float) m("Jet_bReg",mInt("hJetInd1"));
+        *f["hJets_pt_1"] = (float) m("Jet_bReg",mInt("hJetInd2"));
+        //*f["MET_sumEt_f"] = (float) *f["MET_sumEt"]; // is this the right variable??
+        *f["nAddJet_f"] = (float) mInt("nAddJets252p9_puid");
+        *f["nAddLep_f"] = (float) mInt("nAddLeptons");
+        *f["isWenu_f"] = (float) mInt("isWenu");
+        *f["isWmunu_f"] = (float) mInt("isWmunu");
+        //*f["softActivityVH_njets5_f"] = (float) mInt("SoftActivityJetNjets5");
+        *f["softActivityVH_njets5_f"] = (float) m("SA5");
 
-        for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
-            std::string bdtname(bdtNames[iBDT]);
-            if (cursyst->name != "nominal") {
-                bdtname.append("_");
-                bdtname.append(cursyst->name);
+        if (f.count("bdt_1lep")>0) {
+            if(debug>5000) {
+                std::cout<<"Evaluating BDT..."<<std::endl;
+                PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
+                std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
             }
-            *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
+            std::vector<std::string> bdtNames;
+            bdtNames.clear();
+            thisBDTInfo = bdtInfos.find("bdt_1lep");
+            if(thisBDTInfo != bdtInfos.end()){
+                bdtNames.push_back("bdt_1lep");
+            }
+            
+            thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
+            if(thisBDTInfo != bdtInfos.end()){
+                bdtNames.push_back("bdt_1lep_vzbb");
+            }
+
+            for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
+                std::string bdtname(bdtNames[iBDT]);
+                if (cursyst->name != "nominal") {
+                    bdtname.append("_");
+                    bdtname.append(cursyst->name);
+                }
+                *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
+            }
         }
     }
 
@@ -1792,6 +1796,7 @@ void VHbbAnalysis::FinishEvent() {
     }
 
     // add control sample fitted scale factor (already computed)
+    // FIXME beautify later.  maybe put into scale factor container?
     *f["CS_SF"] = 1.0;
     if (mInt("sampleIndex")==2200 || mInt("sampleIndex")==4400 || mInt("sampleIndex")==4500 || mInt("sampleIndex")==4600 || mInt("sampleIndex")==4700 || mInt("sampleIndex")==4800 || mInt("sampleIndex")==4900 || mInt("sampleIndex") == 48100 || mInt("sampleIndex") == 49100 || mInt("sampleIndex")==4100 || mInt("sampleIndex")==4200 || mInt("sampleIndex")==4300) {
         *f["CS_SF"] = m("SF_Wj0b");
@@ -1815,16 +1820,14 @@ void VHbbAnalysis::FinishEvent() {
             if (m("do2015") == 1) {
                 // used for 2015 analysis
                 *f["Lep_SF"] = m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_IdCutTight",mInt("lepInd1")) * m("selLeptons_SF_HLT_RunD4p3",mInt("lepInd1"));
-            }
-            else if (*f["doICHEP"] == 1) {
+            } else if (m("dataYear") == 2016 && *f["doICHEP"] == 1) {
                 // for 2016 analysis
                 // old V23 prescription
                 //*f["Lep_SF"] = f["SF_MuIDLoose"][*in["lepInd1"]] * f["SF_MuIsoTight"][*in["lepInd1"]] * (0.0673 * f["SF_SMuTrig_Block1"][*in["lepInd1"]] + 0.9327 * f["SF_SMuTrig_Block2"][*in["lepInd1"]] );
 
                 *f["Lep_SF"] = m("selLeptons_SF_IdCutTight",mInt("lepInd1")) * m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_trk_eta",mInt("lepInd1")) * (0.945*m("selLeptons_SF_HLT_RunD4p3",mInt("lepInd1")) + 0.055*m("selLeptons_SF_HLT_RunD4p2",mInt("lepInd1")))  ;
 
-            }
-            else {
+            } else if(m("dataYear") == 2016) {
                 //*f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd"]] ) ;
                 *f["Lep_SF"] = ( (20.1/36.4) * m("SF_MuIDTightBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuIDTightGH",mInt("lepInd1"))) * ( (20.1/36.4) * m("SF_MuIsoTightBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuIsoTightGH",mInt("lepInd1")) ) *  ( (20.1/36.4) * m("SF_MuTriggerBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuTriggerGH",mInt("lepInd1"))) * ( (20.1/36.4) * m("SF_MuTrackerBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuTrackerGH",mInt("lepInd1")));
                 *f["Lep_SFUp"] = ( (20.1/36.4) * (m("SF_MuIDTightBCDEF",mInt("lepInd1")) + m("SF_MuIDTightBCDEF_err",mInt("lepInd1"))) + (16.3/36.4) * (m("SF_MuIDTightGH",mInt("lepInd1")) + m("SF_MuIDTightGH_err",mInt("lepInd1"))) ) * ( (20.1/36.4) * (m("SF_MuIsoTightBCDEF",mInt("lepInd1")) + m("SF_MuIsoTightBCDEF_err",mInt("lepInd1")) ) + (16.3/36.4) * (m("SF_MuIsoTightGH",mInt("lepInd1")) + m("SF_MuIsoTightGH_err",mInt("lepInd1"))) ) *  ( (20.1/36.4) * (m("SF_MuTriggerBCDEF",mInt("lepInd1")) + m("SF_MuTriggerBCDEF_err",mInt("lepInd1")) )+ (16.3/36.4) * (m("SF_MuTriggerGH",mInt("lepInd1"))) + m("SF_MuTriggerGH_err",mInt("lepInd1"))) * ( (20.1/36.4) * (m("SF_MuTrackerBCDEF",mInt("lepInd1")) + m("SF_MuTrackerBCDEF_err",mInt("lepInd1")))+ (16.3/36.4) * (m("SF_MuTrackerGH",mInt("lepInd1")) + m("SF_MuTrackerGH_err",mInt("lepInd1")) ));
@@ -1832,19 +1835,16 @@ void VHbbAnalysis::FinishEvent() {
                 *f["Lep_SFDown"] = ( (20.1/36.4) * (m("SF_MuIDTightBCDEF",mInt("lepInd1")) - m("SF_MuIDTightBCDEF_err",mInt("lepInd1"))) + (16.3/36.4) * (m("SF_MuIDTightGH",mInt("lepInd1")) - m("SF_MuIDTightGH_err",mInt("lepInd1"))) ) * ( (20.1/36.4) * (m("SF_MuIsoTightBCDEF",mInt("lepInd1")) - m("SF_MuIsoTightBCDEF_err",mInt("lepInd1")) ) + (16.3/36.4) * (m("SF_MuIsoTightGH",mInt("lepInd1")) - m("SF_MuIsoTightGH_err",mInt("lepInd1"))) ) *  ( (20.1/36.4) * (m("SF_MuTriggerBCDEF",mInt("lepInd1")) - m("SF_MuTriggerBCDEF_err",mInt("lepInd1")) )+ (16.3/36.4) * (m("SF_MuTriggerGH",mInt("lepInd1"))) - m("SF_MuTriggerGH_err",mInt("lepInd1"))) * ( (20.1/36.4) * (m("SF_MuTrackerBCDEF",mInt("lepInd1")) - m("SF_MuTrackerBCDEF_err",mInt("lepInd1")))+ (16.3/36.4) * (m("SF_MuTrackerGH",mInt("lepInd1")) - m("SF_MuTrackerGH_err",mInt("lepInd1")) ));
                 *f["Lep_SFDown"] = m("Lep_SFDown") / m("Lep_SF");
             }
-        }
-        else if (mInt("isWenu") == 1) {
+        } else if (mInt("isWenu") == 1) {
            if (m("do2015") == 1) {
                // used for 2015 analysis
                *f["Lep_SF"] = m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_IdMVATight",mInt("lepInd1")) * m("SF_HLT_Ele23_WPLoose",mInt("lepInd1"));
-           }
-           else if (m("doICHEP") ==1) {
+           } else if (m("dataYear") == 2016 && m("doICHEP") ==1) {
                // for 2016 analysis
                // old for V23
                //*f["Lep_SF"] =   f["SF_ElIdMVATrigWP80"][*in["lepInd1"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd1"]];
                *f["Lep_SF"] = m("SF_ElIdMVATrigWP80",mInt("lepInd1")) * m("EffHLT_Ele27_WPLoose_Eta2p1",mInt("lepInd1")) * m("SF_egammaEffi_tracker",mInt("lepInd1"));
-           }
-           else {
+           } else if(m("dataYear") == 2016){
                *f["Lep_SF"] = m("SF_SingleElTrigger",mInt("lepInd1")) * m("SF_ElIdIso",mInt("lepInd1")) *  m("SF_egammaEffi_tracker",mInt("lepInd1"));
                *f["Lep_SFUp"] = (m("SF_SingleElTrigger",mInt("lepInd1")) + m("SF_SingleElTrigger_err",mInt("lepInd1")) )* (m("SF_ElIdIso",mInt("lepInd1")) + m("SF_ElIdIso_err",mInt("lepInd1")) ) *  (m("SF_egammaEffi_tracker",mInt("lepInd1")) + m("SF_egammaEffi_tracker_err",mInt("lepInd1")) );
                 *f["Lep_SFUp"] = m("Lep_SFUp") / m("Lep_SF");
@@ -1874,11 +1874,13 @@ void VHbbAnalysis::FinishEvent() {
 
         if (m("doCutFlow")>0 && m("cutFlow")<5) {
             // lepton scale factor calculation will break for some events in the cutflow before lepton selection
-            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK");
+            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("weight_ptQCD") * m("weight_ptEWK");
+        } else {
+            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
         }
-        *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
-
+        
         // Add NLO to LO W+jet re-weighting from Z(ll)H(bb)
+        // FIXME need a flag for LO vs NLO
         float deta_bb = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
         int sampleIndex = mInt("sampleIndex");
         float WJetNLOWeight = 1.0;
@@ -1908,13 +1910,6 @@ void VHbbAnalysis::FinishEvent() {
         outputTree->Fill();
     }
 
-    if(debug>100) std::cout<<"Ending FinishEvent()"<<std::endl;
-    // FIXME nominal must be last
-    if(cursyst->name=="nominal"){
-        ofile->cd();
-        if (debug>10000) std::cout<<"filling output tree"<<std::endl;
-        outputTree->Fill();
-    }
     return;
 }
 

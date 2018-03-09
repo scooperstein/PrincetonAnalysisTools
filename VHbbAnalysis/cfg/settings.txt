@@ -9,7 +9,7 @@ type=2  name=doOnlySignalRegion val=0
 type=2  name=onlyEvenEvents     val=0
 type=2  name=onlyOddEvents      val=0
 type=2  name=do2015             val=0
-type=2  name=dataYear           val=2016
+type=2  name=dataYear           val=2017
 type=2  name=doReg              val=1
 type=2  name=smearJets          val=0
 type=2  name=JERScale           val=1.0

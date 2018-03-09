@@ -141,6 +141,7 @@ public :
     double          EvalDeltaR(double eta0, double phi0, double eta1, double phi1);
     double          EvalDeltaPhi(double phi0, double phi1);
     void            SetupBDT(BDTInfo* bdtInfo);
+    void            InitializeBDTVariables(BDTInfo* bdtInfo);
     void            SetBDTVariables(BDTInfo* bdtInfo);
     float           EvaluateMVA(BDTInfo* bdtInfo);
     float           EvaluateRegression(BDTInfo* bdtInfo);

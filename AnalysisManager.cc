@@ -558,6 +558,10 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     nbytes += nb;
 
                     if (!doSkim) {
+                        // set bdt inputs and output to std value before evaluating/saving the event
+                        for(std::map<std::string,BDTInfo*>::iterator itBDTInfo=bdtInfos.begin(); itBDTInfo!=bdtInfos.end(); itBDTInfo++){
+                            InitializeBDTVariables(itBDTInfo->second);
+                        }
 
                         cursyst=&(systematics[iSyst]);
                         if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
@@ -685,6 +689,18 @@ void AnalysisManager::SetupBDT(BDTInfo* bdtInfo) {
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo->bdtname<<std::endl;
     //bdtInfo->reader->BookMVA(bdtInfo->bdtmethod, bdtInfo->xmlFile);
     bdtInfo->BookMVA();
+}
+
+void AnalysisManager::InitializeBDTVariables(BDTInfo* bdtInfo){
+    for (unsigned int i=0; i < bdtInfo->bdtVars.size(); i++) {
+        BDTVariable bdtvar = bdtInfo->bdtVars[i];
+        std::string thisVar("bdtInput_");
+        thisVar.append(bdtInfo->bdtname);
+        thisVar.append("_");
+        thisVar.append(bdtvar.localVarName);
+        *f[thisVar]=-99;
+    }
+    *f[bdtInfo->bdtname] = -99;
 }
 
 void AnalysisManager::SetBDTVariables(BDTInfo* bdtInfo){
