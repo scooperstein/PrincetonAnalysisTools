@@ -30,12 +30,20 @@ type=2  name=j2ptCut_1lepchan   val=25
 type=2  name=j2ptCut_2lepchan   val=20
 type=2  name=j2ptCut            val=25
 
-type=2  name=j1ptCSV_0lepchan   val=0.9432
-type=2  name=j1ptCSV_1lepchan   val=0.9432
-type=2  name=j1ptCSV_2lepchan   val=-0.5884
-type=2  name=j1ptCSV            val=-0.5884
-type=2  name=j2ptCSV            val=-0.5884
+type=2  name=j1ptBtag_0lepchan   val=0.9432
+type=2  name=j1ptBtag_1lepchan   val=0.9432
+type=2  name=j1ptBtag_2lepchan   val=-0.5884
+type=2  name=j1ptBtag            val=-0.5884
+type=2  name=j2ptBtag            val=-0.5884
 type=2  name=JetEtaCut          val=2.5
+
+#use the following dictionary: 0. => DeepCSV, 1. => CMVA, 2. => CSV
+type=2  name=taggerType         val=0.
+
+#define the correct loose (L), medium (M) and tight (T) working point (WP) associated to the chosen tagger
+type=2  name=tagWPL             val=0.1522
+type=2  name=tagWPM             val=0.4941
+type=2  name=tagWPT             val=0.8001
 
 type=2  name=JetPtPresel        val=20
 type=2  name=LepPtPresel        val=20
