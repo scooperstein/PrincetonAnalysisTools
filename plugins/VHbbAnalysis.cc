@@ -550,8 +550,7 @@ bool VHbbAnalysis::Analyze() {
 
 
     // channel specific selection and vector boson reconstruction
-    TLorentzVector V, GenBJ1, GenBJ2, GenBJJ;
-    TLorentzVector W_withNuFromMWCon;
+    TLorentzVector V, W_withNuFromMWCon;
 
     if (mInt("isZee") == 1 || mInt("isZmm") == 1) {
         TLorentzVector lep1, lep2;
@@ -700,252 +699,6 @@ bool VHbbAnalysis::Analyze() {
         *f["HVdEta_4MET"] = fabs(Hbb.Eta() -  W_withNuFromMWCon.Eta());
     }
 
-
-//                                                                    _|
-//        _|_|_|    _|_|    _|_|_|      _|_|    _|  _|_|    _|_|_|  _|_|_|_|    _|_|    _|  _|_|
-//      _|    _|  _|_|_|_|  _|    _|  _|_|_|_|  _|_|      _|    _|    _|      _|    _|  _|_|
-//      _|    _|  _|        _|    _|  _|        _|        _|    _|    _|      _|    _|  _|
-//        _|_|_|    _|_|_|  _|    _|    _|_|_|  _|          _|_|_|      _|_|    _|_|    _|
-//            _|
-//        _|_|
-
-    // Compare gen kinematics for b jets for signal vs. ttbar
-    if (mInt("sampleIndex") != 0) {
-        //first check for Higgs bosons:
-        int mother_index=-1;
-        int dau1_index=-1;
-        int dau2_index=-1;
-        int top_index_1=-1;
-        int top_index_2=-1;
-        for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
-            //Check for Higgs boson and make sure it's the last copy -> 8192 = 2^13, 13th bit is IsLastCopy flag:
-            if(fabs(mInt("GenPart_pdgId",indGP))==25 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
-                mother_index=indGP;
-            }
-        }
-        if(mother_index!=-1){
-            for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
-                //Find b-quarks with a Higgs mother
-                if(mInt("GenPart_genPartIdxMother",indGP)==mother_index && fabs(mInt("GenPart_pdgId",indGP))==5){
-                    if(dau1_index>-1 && dau2_index>-1){
-                        std::cout<<"This isn't supposed to happen!"<<std::endl;
-                    }else if(dau1_index>-1){
-                        dau2_index=indGP;
-                    }else{
-                        dau1_index=indGP;
-                    }
-                }
-            }
-        } else { //can also check for top quarks...
-            for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
-                if(fabs(mInt("GenPart_pdgId",indGP))==6 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
-                    if(top_index_1>-1&&top_index_2>-1){
-                        std::cout<<"This isn't supposed to happen!"<<std::endl;
-                    } else if(top_index_1>-1){
-                        top_index_2=indGP;
-                    } else {
-                        top_index_1=indGP; 
-                    }
-                }
-            }
-            if(top_index_1!=-1){
-                for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
-                    if(mInt("GenPart_genPartIdxMother",indGP)==top_index_1 && fabs(mInt("GenPart_pdgId",indGP))==5) dau1_index=indGP;
-                }
-            }
-            if(top_index_2!=-1){
-                for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
-                    if(mInt("GenPart_genPartIdxMother", indGP)==top_index_2 && fabs(mInt("GenPart_pdgId",indGP))==5){
-                        if(dau1_index>-1) dau2_index=indGP;
-                        else dau1_index=indGP;
-                    }
-                }
-            }
-        }
-        if(dau1_index>-1){
-            GenBJ1.SetPtEtaPhiM(m("GenPart_pt",dau1_index),m("GenPart_eta",dau1_index),m("GenPart_phi",dau1_index),4.2); //Mass only stored in nano if > 10 GeV
-        }
-        if(dau2_index>-1){
-            GenBJ2.SetPtEtaPhiM(m("GenPart_pt",dau2_index),m("GenPart_eta",dau2_index),m("GenPart_phi",dau2_index),4.2);
-        }
-
-     
-       *f["GenBJ1_pt"] = GenBJ1.Pt();
-       *f["GenBJ1_eta"] = GenBJ1.Eta();
-       *f["GenBJ1_phi"] = GenBJ1.Phi();
-       *f["GenBJ1_mass"] = GenBJ1.M();
-       *f["GenBJ2_pt"] = GenBJ2.Pt();
-       *f["GenBJ2_eta"] = GenBJ2.Eta();
-       *f["GenBJ2_phi"] = GenBJ2.Phi();
-       *f["GenBJ2_mass"] = GenBJ2.M();
-
-       GenBJJ = GenBJ1 + GenBJ2;
-       *f["GenBJJ_pt"] = GenBJJ.Pt();
-       *f["GenBJJ_eta"] = GenBJJ.Eta();
-       *f["GenBJJ_phi"] = GenBJJ.Phi();
-       *f["GenBJJ_mass"] = GenBJJ.M();
-       *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
-       *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
-       *f["GenBJJ_dEta"] = fabs(GenBJ1.Eta() - GenBJ2.Eta());
-
-
-       TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
-       double minDR1 = 999;
-       double minDR2 = 999;
-       double minSecDR2 = 999; //second closest gen lepton to second jet
-       double part_mass=0.;
-       int GenLepIndex1 = -1; // index of the lepton closest to jet 1
-       int GenLepIndex2 = -1; // index of the lepton closest to jet 2
-       int GenLepSecIndex2 = -1; // index of the lepton second closest to jet 2
-       for (int i = 0; i < mInt("nGenPart"); i++) {
-           //Continue if not a final-state electron or muon which is either prompt or from a tau decay.
-           if(!((fabs(mInt("GenPart_pdgId",i))==11||fabs(mInt("GenPart_pdgId",i))==13)&& mInt("GenPart_status",i)==1 && ((mInt("GenPart_statusFlags",i)&1)==1 || (mInt("GenPart_statusFlags",i)&32)==32  ))) continue;
-           TLorentzVector gl;
-           if(fabs(mInt("GenPart_pdgId",i))==11) part_mass=0.000511;
-           if(fabs(mInt("GenPart_pdgId",i))==13) part_mass=0.105;
-           gl.SetPtEtaPhiM(m("GenPart_pt",i), m("GenPart_eta",i), m("GenPart_phi",i),part_mass);
-           double DR1 = gl.DeltaR(GenBJ1);
-           double DR2 = gl.DeltaR(GenBJ2);
-
-           if (DR1 <= minDR1) {
-               minDR1 = DR1;
-               GenLepIndex1 = i;
-           }
-
-           if (DR2 <= minDR2) {
-               minSecDR2 = minDR2;
-               GenLepSecIndex2 = GenLepIndex2;
-               minDR2 = DR2;
-               GenLepIndex2 = i;
-           } else if (DR2 < minSecDR2) {
-               minSecDR2 = DR2;
-               GenLepSecIndex2 = i;
-           }
-       }
-
-       if (GenLepIndex1 == GenLepIndex2) {
-           // don't allow us to use the same lepton for each jet
-            GenLepIndex2 = GenLepSecIndex2;
-       }
-
-       *in["GenLepIndex1"] = GenLepIndex1;
-       *in["GenLepIndex2"] = GenLepIndex2;
-
-        if (GenLepIndex1 != -1) {
-            if(fabs(mInt("GenPart_pdgId",GenLepIndex1))==11) part_mass=0.000511;
-            if(fabs(mInt("GenPart_pdgId",GenLepIndex1))==13) part_mass=0.105;
-            GenLep1.SetPtEtaPhiM(m("GenPart_pt",GenLepIndex1), m("GenPart_eta",GenLepIndex1), m("GenPart_phi",GenLepIndex1),part_mass);
-            *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
-            *f["GenLep_GenBJ1_dEta"] = fabs(GenLep1.Eta() - GenBJ1.Eta());
-            *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
-
-            // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
-            TLorentzVector GenTop1 = GenLep1 + GenBJ1;
-            *f["GenTop1_mass"] = GenTop1.M();
-        } else {
-            *f["GenLep_GenBJ1_dR"] = -999;
-            *f["GenLep_GenBJ1_dEta"] = -999;
-            *f["GenLep_GenBJ1_dPhi"] = -999;
-            *f["GenTop1_mass"] = -999;
-        }
-
-        if (GenLepIndex2 != -1) {
-            if(fabs(mInt("GenPart_pdgId",GenLepIndex2))==11) part_mass=0.000511;
-            if(fabs(mInt("GenPart_pdgId",GenLepIndex2))==13) part_mass=0.105;
-            GenLep2.SetPtEtaPhiM(m("GenPart_pt",GenLepIndex2), m("GenPart_eta",GenLepIndex2), m("GenPart_phi",GenLepIndex2),part_mass);
-            *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
-            *f["GenLep_GenBJ2_dEta"] = (GenLep2.Eta(), GenBJ2.Eta());
-            *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
-
-           // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
-            TLorentzVector GenTop2 = GenLep2 + GenBJ2;
-            *f["GenTop2_mass"] = GenTop2.M();
-        } else {
-            *f["GenLep_GenBJ2_dR"] = -999;
-            *f["GenLep_GenBJ2_dEta"] = -999;
-            *f["GenLep_GenBJ2_dPhi"] = -999;
-            *f["GenTop2_mass"] = -999;
-        }
-
-        // construct Gen W
-        int w_index_1=-1;
-        int w_index_2=-1;
-        TLorentzVector GenW1, GenW2;
-        for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
-            //Check for W boson and make sure it's the last copy -> 8192 = 2^13, 13th bit is IsLastCopy flag:
-            if(fabs(mInt("GenPart_pdgId",indGP))==24 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
-                if(w_index_1>-1&&w_index_2>-1){
-                    std::cout<<"This isn't supposed to happen!"<<std::endl;
-                } else if(w_index_1>-1){
-                    w_index_2=indGP;
-                } else w_index_1=indGP;
-            }
-        } 
-        if(w_index_1>-1){
-            GenW1.SetPtEtaPhiM(m("GenPart_pt",w_index_1), m("GenPart_eta",w_index_1), m("GenPart_phi",w_index_1), m("GenPart_mass",w_index_1));
-            *f["GenW_GenBJJ_dPhi"] = GenW1.DeltaPhi(GenBJJ);
-            *f["GenW_GenBJJ_dEta"] = fabs(GenW1.Eta() - GenBJJ.Eta());
-            // grab both W's in ttbar events
-            if (w_index_2>-1){
-                GenW2.SetPtEtaPhiM(m("GenPart_pt",w_index_2), m("GenPart_eta",w_index_2), m("GenPart_phi",w_index_2), m("GenPart_mass",w_index_2));
-            }
-        } else {
-            *f["GenW_GenBJJ_dPhi"] = -999;
-            *f["GenW_GenBJJ_dEta"] = -999;
-        }
-
-        std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
-        if(w_index_1>-1||w_index_2>-1){       
-            for (int i = 0; i < mInt("nGenPart"); i++) {
-                if( ( (w_index_1 > -1 && mInt("GenPart_genPartIdxMother",i)==w_index_1) ||(w_index_2>-1 && mInt("GenPart_genPartIdxMother",i)==w_index_2) ) && fabs(mInt("GenPart_pdgId",i))>=1&&fabs(mInt("GenPart_pdgId",i))<=6){
-                    TLorentzVector v;
-                    v.SetPtEtaPhiM(m("GenPart_pt",i), m("GenPart_eta",i), m("GenPart_phi",i), 0.); //FIXME could try to do something better here...
-                    genWQuarks.push_back(v);
-                }
-            }
-        }
-
-        //int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
-        // Match Jets with Gen B Jets from Higgs/Tops
-        for (int i = 0; i < mInt("nJet"); i++) {
-            in["Jet_genJetMatchId"][i] = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 if matched to jet from hadronic W decay
-            TLorentzVector Jet;
-            Jet.SetPtEtaPhiM(m("Jet_bReg",i), m("Jet_eta",i), m("Jet_phi",i), m("Jet_mass",i) * (m("Jet_bReg",i) / m("Jet_pt",i)));
-
-            //double dR1 = Jet.DeltaR(GenHJ1);
-            //double dR2 = Jet.DeltaR(GenHJ2);
-            double dR1 = 999;
-            if (GenBJ1.Pt() > 0) dR1 = Jet.DeltaR(GenBJ1);
-            double dR2 = 999;
-            if (GenBJ2.Pt() > 0) dR2 = Jet.DeltaR(GenBJ2);
-
-            // try to match the jet to one of the jets from hadronic W decay
-            double dR3 = 999;
-            for (int j = 0; j < (int) genWQuarks.size(); j++) {
-                double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[j]);
-                if (Jet_genWQuarkDR < dR3) {
-                    dR3 = Jet_genWQuarkDR;
-                }
-            }
-
-            f["Jet_genWQuarkDR"][i] = dR3;
-            if (dR3 < std::min(dR1, dR2) && dR3 < 0.5) {
-                in["Jet_genJetMatchId"][i] = 3;
-            } else if (dR1 <= dR2 && dR1 < 0.5) {
-                in["Jet_genJetMatchId"][i] = 1;
-            } else if (dR2 < 0.5) {
-                in["Jet_genJetMatchId"][i] = 2;
-            }
-
-            f["Jet_genHJetMinDR"][i] = std::min(dR1, dR2);
-
-            if (i == mInt("hJetInd1")) {
-                *f["hJet1_matchedMinDR"] = m("Jet_genHJetMinDR",i);
-            } else if (i == mInt("hJetInd2")) {
-                *f["hJet2_matchedMinDR"] = m("Jet_genHJetMinDR",i);
-            }
-        }
-    }
 
     if (debug > 1000) std::cout << "counting additional jets and leptons" << std::endl;
 
@@ -1256,6 +1009,299 @@ bool VHbbAnalysis::Analyze() {
 
 void VHbbAnalysis::FinishEvent() {
 
+
+//                                                                    _|
+//        _|_|_|    _|_|    _|_|_|      _|_|    _|  _|_|    _|_|_|  _|_|_|_|    _|_|    _|  _|_|
+//      _|    _|  _|_|_|_|  _|    _|  _|_|_|_|  _|_|      _|    _|    _|      _|    _|  _|_|
+//      _|    _|  _|        _|    _|  _|        _|        _|    _|    _|      _|    _|  _|
+//        _|_|_|    _|_|_|  _|    _|    _|_|_|  _|          _|_|_|      _|_|    _|_|    _|
+//            _|
+//        _|_|
+
+    // Compare gen kinematics for b jets for signal vs. ttbar
+    if (mInt("sampleIndex") != 0) {
+        //first check for Higgs bosons:
+        TLorentzVector GenBJ1, GenBJ2, GenBJJ;
+        int mother_index=-1;
+        int dau1_index=-1;
+        int dau2_index=-1;
+        int top_index_1=-1;
+        int top_index_2=-1;
+        *in["nGenTop"] = 0;
+        *in["nGenVbosons"] = 0;
+        *f["LeadGenVBoson_pt"] = 0.;
+        *in["LeadGenVBoson_pdgId"] = 0;
+        for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+            //Check for Higgs boson and make sure it's the last copy -> 8192 = 2^13, 13th bit is IsLastCopy flag:
+            if(fabs(mInt("GenPart_pdgId",indGP))==25 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
+                mother_index=indGP;
+            }
+        }
+        if(mother_index!=-1){
+            for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                //Find b-quarks with a Higgs mother
+                if(mInt("GenPart_genPartIdxMother",indGP)==mother_index && fabs(mInt("GenPart_pdgId",indGP))==5){
+                    if(dau1_index>-1 && dau2_index>-1){
+                        std::cout<<"This isn't supposed to happen!"<<std::endl;
+                    }else if(dau1_index>-1){
+                        dau2_index=indGP;
+                    }else{
+                        dau1_index=indGP;
+                    }
+                }
+            }
+        } else { //can also check for top quarks...
+            for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                if(fabs(mInt("GenPart_pdgId",indGP))==6 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
+                    *in["nGenTop"]=mInt("nGenTop")+1;
+                    if(top_index_1>-1&&top_index_2>-1){
+                        std::cout<<"This isn't supposed to happen!"<<std::endl;
+                    } else if(top_index_1>-1){
+                        top_index_2=indGP;
+                    } else {
+                        top_index_1=indGP; 
+                    }
+                }
+            }
+            if(top_index_1!=-1){
+                for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                    if(mInt("GenPart_genPartIdxMother",indGP)==top_index_1 && fabs(mInt("GenPart_pdgId",indGP))==5) dau1_index=indGP;
+                }
+            }
+            if(top_index_2!=-1){
+                for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+                    if(mInt("GenPart_genPartIdxMother", indGP)==top_index_2 && fabs(mInt("GenPart_pdgId",indGP))==5){
+                        if(dau1_index>-1) dau2_index=indGP;
+                        else dau1_index=indGP;
+                    }
+                }
+            }
+        }
+        if(dau1_index>-1){
+            GenBJ1.SetPtEtaPhiM(m("GenPart_pt",dau1_index),m("GenPart_eta",dau1_index),m("GenPart_phi",dau1_index),4.2); //Mass only stored in nano if > 10 GeV
+        }
+        if(dau2_index>-1){
+            GenBJ2.SetPtEtaPhiM(m("GenPart_pt",dau2_index),m("GenPart_eta",dau2_index),m("GenPart_phi",dau2_index),4.2);
+        }
+
+     
+       *f["GenBJ1_pt"] = GenBJ1.Pt();
+       *f["GenBJ1_eta"] = GenBJ1.Eta();
+       *f["GenBJ1_phi"] = GenBJ1.Phi();
+       *f["GenBJ1_mass"] = GenBJ1.M();
+       *f["GenBJ2_pt"] = GenBJ2.Pt();
+       *f["GenBJ2_eta"] = GenBJ2.Eta();
+       *f["GenBJ2_phi"] = GenBJ2.Phi();
+       *f["GenBJ2_mass"] = GenBJ2.M();
+
+       GenBJJ = GenBJ1 + GenBJ2;
+       *f["GenBJJ_pt"] = GenBJJ.Pt();
+       *f["GenBJJ_eta"] = GenBJJ.Eta();
+       *f["GenBJJ_phi"] = GenBJJ.Phi();
+       *f["GenBJJ_mass"] = GenBJJ.M();
+       *f["GenBJJ_dPhi"] = GenBJ2.DeltaPhi(GenBJ1);
+       *f["GenBJJ_dR"] = GenBJ2.DeltaR(GenBJ1);
+       *f["GenBJJ_dEta"] = fabs(GenBJ1.Eta() - GenBJ2.Eta());
+
+
+       TLorentzVector GenLep1, GenLep2; // closest gen lep to either jet1 or jet2. Sometimes these could be the same lepton.
+       double minDR1 = 999;
+       double minDR2 = 999;
+       double minSecDR2 = 999; //second closest gen lepton to second jet
+       double part_mass=0.;
+       int GenLepIndex1 = -1; // index of the lepton closest to jet 1
+       int GenLepIndex2 = -1; // index of the lepton closest to jet 2
+       int GenLepSecIndex2 = -1; // index of the lepton second closest to jet 2
+       std::vector<int> VBosonIndices;
+       VBosonIndices.clear();
+       std::vector<int> LeptonIndices;
+       LeptonIndices.clear();
+       for (int i = 0; i< mInt("nGenPart"); i++){
+           if((fabs(mInt("GenPart_pdgId",i))==24) && (mInt("GenPart_statusFlags",i) & 8192)==8192 ){
+               VBosonIndices.push_back(i);
+           }
+           if((fabs(mInt("GenPart_pdgId",i))==23) && (mInt("GenPart_statusFlags",i) & 8192)==8192 ){
+               VBosonIndices.push_back(i);
+           }
+       }
+       *in["nGenVbosons"] = VBosonIndices.size();
+       if(VBosonIndices.size()==0 && (mInt("sampleIndex")==23 || mInt("sampleIndex")==61 || mInt("sampleIndex")==62 || mInt("sampleIndex")==63 || mInt("sampleIndex")==64 || mInt("sampleIndex")==65 || mInt("sampleIndex")==66 || mInt("sampleIndex")==67 || mInt("sampleIndex")==68 || mInt("sampleIndex")==69 || mInt("sampleIndex")==70 || mInt("sampleIndex")==71 || mInt("sampleIndex")==72 || mInt("sampleIndex")==73 || mInt("sampleIndex")==74 || mInt("sampleIndex")==75 || mInt("sampleIndex")==76 || mInt("sampleIndex")==77 ||mInt("sampleIndex")==230) ){ 
+          for (int i = 0; i<mInt("nGenPart"); i++){
+              if((fabs(mInt("GenPart_pdgId",i))>=11 && fabs(mInt("GenPart_pdgId",i))<=16 && mInt("GenPart_status",i)==1 && (mInt("GenPart_statusFlags",i)&1)==1) || (fabs(mInt("GenPart_pdgId",i))==15 && (mInt("GenPart_statusFlags",i)&1)==1 && (mInt("GenPart_statusFlags",i)&2)==2) ){ 
+                 LeptonIndices.push_back(i);
+              }
+          }
+       } 
+       if (LeptonIndices.size()>1){
+           std::sort(LeptonIndices.begin(),LeptonIndices.end(),[=](const int i1, const int i2){
+                return f["GenPart_pt"][i1] > f["GenPart_pt"][i2];
+           });
+           TLorentzVector lep1,lep2;
+           lep1.SetPtEtaPhiM(m("GenPart_pt",LeptonIndices.at(0)),m("GenPart_eta",LeptonIndices.at(0)),m("GenPart_phi",LeptonIndices.at(0)),m("GenPart_mass",LeptonIndices.at(0)));
+           lep2.SetPtEtaPhiM(m("GenPart_pt",LeptonIndices.at(1)),m("GenPart_eta",LeptonIndices.at(1)),m("GenPart_phi",LeptonIndices.at(1)),m("GenPart_mass",LeptonIndices.at(1)));
+           *f["LeadGenVBoson_pt"] = (lep1+lep2).Pt();
+           *in["LeadGenVBoson_pdgId"] = 23;
+           *in["nGenVbosons"] = 1;
+       }
+       if (VBosonIndices.size()>0){
+           std::sort(VBosonIndices.begin(),VBosonIndices.end(),[=](const int i1, const int i2){
+               return f["GenPart_pt"][i1] > f["GenPart_pt"][i2];
+           });
+           *f["LeadGenVBoson_pt"] = m("GenPart_pt",VBosonIndices.at(0));
+           *in["LeadGenVBoson_pdgId"] = m("GenPart_pdgId",VBosonIndices.at(0));
+           if(VBosonIndices.size()==1 && (mInt("sampleIndex")==34 || mInt("sampleIndex")==35 || mInt("sampleIndex")==36 || mInt("sampleIndex")==37 || mInt("sampleIndex")==350 || mInt("sampleIndex")==360 || 
+              (mInt("sampleIndex")>=370 && mInt("sampleIndex")<=379))) *in["nGenVbosons"]=2; // Hack to make sure EWK/QCD reweighting doesn't get applied to diboson samples
+       }       
+       for (int i = 0; i < mInt("nGenPart"); i++) {
+           //Continue if not a final-state electron or muon which is either prompt or from a tau decay.
+           if(!((fabs(mInt("GenPart_pdgId",i))==11||fabs(mInt("GenPart_pdgId",i))==13)&& mInt("GenPart_status",i)==1 && ((mInt("GenPart_statusFlags",i)&1)==1 || (mInt("GenPart_statusFlags",i)&32)==32  ))) continue;
+           TLorentzVector gl;
+           if(fabs(mInt("GenPart_pdgId",i))==11) part_mass=0.000511;
+           if(fabs(mInt("GenPart_pdgId",i))==13) part_mass=0.105;
+           gl.SetPtEtaPhiM(m("GenPart_pt",i), m("GenPart_eta",i), m("GenPart_phi",i),part_mass);
+           double DR1 = gl.DeltaR(GenBJ1);
+           double DR2 = gl.DeltaR(GenBJ2);
+
+           if (DR1 <= minDR1) {
+               minDR1 = DR1;
+               GenLepIndex1 = i;
+           }
+
+           if (DR2 <= minDR2) {
+               minSecDR2 = minDR2;
+               GenLepSecIndex2 = GenLepIndex2;
+               minDR2 = DR2;
+               GenLepIndex2 = i;
+           } else if (DR2 < minSecDR2) {
+               minSecDR2 = DR2;
+               GenLepSecIndex2 = i;
+           }
+       }
+
+       if (GenLepIndex1 == GenLepIndex2) {
+           // don't allow us to use the same lepton for each jet
+            GenLepIndex2 = GenLepSecIndex2;
+       }
+
+       *in["GenLepIndex1"] = GenLepIndex1;
+       *in["GenLepIndex2"] = GenLepIndex2;
+
+        if (GenLepIndex1 != -1) {
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex1))==11) part_mass=0.000511;
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex1))==13) part_mass=0.105;
+            GenLep1.SetPtEtaPhiM(m("GenPart_pt",GenLepIndex1), m("GenPart_eta",GenLepIndex1), m("GenPart_phi",GenLepIndex1),part_mass);
+            *f["GenLep_GenBJ1_dR"] = GenLep1.DeltaR(GenBJ1);
+            *f["GenLep_GenBJ1_dEta"] = fabs(GenLep1.Eta() - GenBJ1.Eta());
+            *f["GenLep_GenBJ1_dPhi"] = GenLep1.DeltaPhi(GenBJ1);
+
+            // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+            TLorentzVector GenTop1 = GenLep1 + GenBJ1;
+            *f["GenTop1_mass"] = GenTop1.M();
+        } else {
+            *f["GenLep_GenBJ1_dR"] = -999;
+            *f["GenLep_GenBJ1_dEta"] = -999;
+            *f["GenLep_GenBJ1_dPhi"] = -999;
+            *f["GenTop1_mass"] = -999;
+        }
+
+        if (GenLepIndex2 != -1) {
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex2))==11) part_mass=0.000511;
+            if(fabs(mInt("GenPart_pdgId",GenLepIndex2))==13) part_mass=0.105;
+            GenLep2.SetPtEtaPhiM(m("GenPart_pt",GenLepIndex2), m("GenPart_eta",GenLepIndex2), m("GenPart_phi",GenLepIndex2),part_mass);
+            *f["GenLep_GenBJ2_dR"] = GenLep2.DeltaR(GenBJ2);
+            *f["GenLep_GenBJ2_dEta"] = (GenLep2.Eta(), GenBJ2.Eta());
+            *f["GenLep_GenBJ2_dPhi"] = GenLep2.DeltaPhi(GenBJ2);
+
+           // try to reconstruct the top mass, although we've lost the neutrino so it will be shifted left
+            TLorentzVector GenTop2 = GenLep2 + GenBJ2;
+            *f["GenTop2_mass"] = GenTop2.M();
+        } else {
+            *f["GenLep_GenBJ2_dR"] = -999;
+            *f["GenLep_GenBJ2_dEta"] = -999;
+            *f["GenLep_GenBJ2_dPhi"] = -999;
+            *f["GenTop2_mass"] = -999;
+        }
+
+        // construct Gen W
+        int w_index_1=-1;
+        int w_index_2=-1;
+        TLorentzVector GenW1, GenW2;
+        for(int indGP=0; indGP<mInt("nGenPart"); indGP++){
+            //Check for W boson and make sure it's the last copy -> 8192 = 2^13, 13th bit is IsLastCopy flag:
+            if(fabs(mInt("GenPart_pdgId",indGP))==24 && (mInt("GenPart_statusFlags",indGP) & 8192)==8192 ) {
+                if(w_index_1>-1&&w_index_2>-1){
+                    std::cout<<"This isn't supposed to happen!"<<std::endl;
+                } else if(w_index_1>-1){
+                    w_index_2=indGP;
+                } else w_index_1=indGP;
+            }
+        } 
+        if(w_index_1>-1){
+            GenW1.SetPtEtaPhiM(m("GenPart_pt",w_index_1), m("GenPart_eta",w_index_1), m("GenPart_phi",w_index_1), m("GenPart_mass",w_index_1));
+            *f["GenW_GenBJJ_dPhi"] = GenW1.DeltaPhi(GenBJJ);
+            *f["GenW_GenBJJ_dEta"] = fabs(GenW1.Eta() - GenBJJ.Eta());
+            // grab both W's in ttbar events
+            if (w_index_2>-1){
+                GenW2.SetPtEtaPhiM(m("GenPart_pt",w_index_2), m("GenPart_eta",w_index_2), m("GenPart_phi",w_index_2), m("GenPart_mass",w_index_2));
+            }
+        } else {
+            *f["GenW_GenBJJ_dPhi"] = -999;
+            *f["GenW_GenBJJ_dEta"] = -999;
+        }
+
+        std::vector<TLorentzVector> genWQuarks; // gen quarks from hadronic gen W decay
+        if(w_index_1>-1||w_index_2>-1){       
+            for (int i = 0; i < mInt("nGenPart"); i++) {
+                if( ( (w_index_1 > -1 && mInt("GenPart_genPartIdxMother",i)==w_index_1) ||(w_index_2>-1 && mInt("GenPart_genPartIdxMother",i)==w_index_2) ) && fabs(mInt("GenPart_pdgId",i))>=1&&fabs(mInt("GenPart_pdgId",i))<=6){
+                    TLorentzVector v;
+                    v.SetPtEtaPhiM(m("GenPart_pt",i), m("GenPart_eta",i), m("GenPart_phi",i), 0.); //FIXME could try to do something better here...
+                    genWQuarks.push_back(v);
+                }
+            }
+        }
+
+        //int nSelectedJetsMatched = 0; // count the number (0, 1, 2) of selected jets matched to the real bottom quarks
+        // Match Jets with Gen B Jets from Higgs/Tops
+        for (int i = 0; i < mInt("nJet"); i++) {
+            in["Jet_genJetMatchId"][i] = 0; // 0 if no gen match, 1 for pt-leading b-jet, 2 for pt sub-leading b-jet, 3 if matched to jet from hadronic W decay
+            TLorentzVector Jet;
+            Jet.SetPtEtaPhiM(m("Jet_bReg",i), m("Jet_eta",i), m("Jet_phi",i), m("Jet_mass",i) * (m("Jet_bReg",i) / m("Jet_pt",i)));
+
+            //double dR1 = Jet.DeltaR(GenHJ1);
+            //double dR2 = Jet.DeltaR(GenHJ2);
+            double dR1 = 999;
+            if (GenBJ1.Pt() > 0) dR1 = Jet.DeltaR(GenBJ1);
+            double dR2 = 999;
+            if (GenBJ2.Pt() > 0) dR2 = Jet.DeltaR(GenBJ2);
+
+            // try to match the jet to one of the jets from hadronic W decay
+            double dR3 = 999;
+            for (int j = 0; j < (int) genWQuarks.size(); j++) {
+                double Jet_genWQuarkDR = Jet.DeltaR(genWQuarks[j]);
+                if (Jet_genWQuarkDR < dR3) {
+                    dR3 = Jet_genWQuarkDR;
+                }
+            }
+
+            f["Jet_genWQuarkDR"][i] = dR3;
+            if (dR3 < std::min(dR1, dR2) && dR3 < 0.5) {
+                in["Jet_genJetMatchId"][i] = 3;
+            } else if (dR1 <= dR2 && dR1 < 0.5) {
+                in["Jet_genJetMatchId"][i] = 1;
+            } else if (dR2 < 0.5) {
+                in["Jet_genJetMatchId"][i] = 2;
+            }
+
+            f["Jet_genHJetMinDR"][i] = std::min(dR1, dR2);
+
+            if (i == mInt("hJetInd1")) {
+                *f["hJet1_matchedMinDR"] = m("Jet_genHJetMinDR",i);
+            } else if (i == mInt("hJetInd2")) {
+                *f["hJet2_matchedMinDR"] = m("Jet_genHJetMinDR",i);
+            }
+        }
+    }
+
     // b tag weights
     *f["bTagWeight"] = 1.0; // we still need a default value of this even if we don't evaluate it
     if (bTagCalibReader) {
@@ -1287,6 +1333,7 @@ void VHbbAnalysis::FinishEvent() {
         }
         *f["bTagWeight"] = bTagWeight;
     }
+
 
     //if (bool(*f["doCutFlow"])) {
     //    ofile->cd();
@@ -1352,15 +1399,11 @@ void VHbbAnalysis::FinishEvent() {
             *f["weight_PUUp"]=(puWeight_ichep_up(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PUDown"]=(puWeight_ichep_down(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
         }
-
-        // FIXME no nGenTop or nGenVbosons
-
-        //if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
-        //    // only apply to Z/W+jet samples
-        //    *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("GenVbosons_pdgId",0));
-        //    *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("GenVbosons_pt",0), m("Vtype"), mInt("GenVbosons_pdgId",0));
-
-        //}
+        if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
+            // only apply to Z/W+jet samples
+            *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("LeadGenVBoson_pdgId"));
+            *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("LeadGenVBoson_pt"), m("Vtype"), mInt("LeadGenVBoson_pdgId"));
+	}
     } else {
         *f["weight_PU"]=1;
         *f["weight_PUUp"]=1;
@@ -3186,3 +3229,4 @@ void VHbbAnalysis::SetupFactorizedJECs(std::string variation) {
     }
 
 }
+

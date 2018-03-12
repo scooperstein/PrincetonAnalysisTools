@@ -5,6 +5,10 @@ type=2  name=minMetjDPhi
 type=2  name=MetTkMetDPhi
 
 type=1  name=nGenStatus2bHad
+type=1  name=nGenVbosons
+type=2  name=LeadGenVBoson_pt
+type=1  name=LeadGenVBoson_pdgId
+type=1  name=nGenTop
 type=1  name=hJetInd1
 type=1  name=hJetInd1_bestCSV
 type=1  name=hJetInd1_bestCMVA
