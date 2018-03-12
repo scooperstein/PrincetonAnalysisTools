@@ -558,6 +558,10 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                     nbytes += nb;
 
                     if (!doSkim) {
+                        // set bdt inputs and output to std value before evaluating/saving the event
+                        for(std::map<std::string,BDTInfo*>::iterator itBDTInfo=bdtInfos.begin(); itBDTInfo!=bdtInfos.end(); itBDTInfo++){
+                            InitializeBDTVariables(itBDTInfo->second);
+                        }
 
                         cursyst=&(systematics[iSyst]);
                         if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
@@ -571,29 +575,29 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                         }
                         if(select || (cursyst->name=="nominal" && anyPassing)){
                             if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                            //for (int i=0; i < scaleFactors.size(); i++) {
-                            //    SFContainer sf = scaleFactors[i];
-                            //    float sf_err = 0.0;
-                            //    if (cursample->sampleNum != 0) {
-                            //        for (int j=0; j < *in[sf.length]; j++) {
-                            //            if (sf.binning.find("abs") == -1) {
-                            //                f[sf.branchname][j] = sf.getScaleFactor(f[sf.branches[0]][j], f[sf.branches[1]][j], sf_err);
-                            //            }
-                            //            else {
-                            //                 f[sf.branchname][j] = sf.getScaleFactor(fabs(f[sf.branches[0]][j]), fabs(f[sf.branches[1]][j]), sf_err);
-                            //            }
-                            //            f[Form("%s_err",sf.branchname.c_str())][j] = sf_err;
-                            //        }
-                            //    }
-                            //    else {
-                            //        // data event, scale factor should just be 1.0
-                            //        for (int j=0; j < *in[sf.length]; j++) {
-                            //            f[sf.branchname][j] = 1.0;
-                            //            f[Form("%s_err",sf.branchname.c_str())][j] = 0.0;
-                            //        }
-                            //    }
-                            //
-                            //}
+                            for (int i=0; i < scaleFactors.size(); i++) {
+                                SFContainer sf = scaleFactors[i];
+                                float sf_err = 0.0;
+                                if (cursample->sampleNum != 0) {
+                                    for (int j=0; j < mInt(sf.length); j++) {
+                                        if (sf.binning.find("abs") == -1) {
+                                            f[sf.branchname][j] = sf.getScaleFactor(m(sf.branches[0],j) , m(sf.branches[1],j), sf_err);
+                                        }
+                                        else {
+                                            f[sf.branchname][j] = sf.getScaleFactor(fabs(m(sf.branches[0],j)) , fabs(m(sf.branches[1],j)), sf_err);
+                                        }
+                                        f[Form("%s_err",sf.branchname.c_str())][j] = sf_err;
+                                    }
+                                }
+                                else {
+                                    // data event, scale factor should just be 1.0
+                                    for (int j=0; j < mInt(sf.length); j++) {
+                                        f[sf.branchname][j] = 1.0;
+                                        f[Form("%s_err",sf.branchname.c_str())][j] = 0.0;
+                                    }
+                                }
+                            
+                            }
                             FinishEvent();
                             if(cursyst->name=="nominal") saved++;
                         }
@@ -685,6 +689,18 @@ void AnalysisManager::SetupBDT(BDTInfo* bdtInfo) {
     std::cout<<"booking MVA for bdt with name...  "<<bdtInfo->bdtname<<std::endl;
     //bdtInfo->reader->BookMVA(bdtInfo->bdtmethod, bdtInfo->xmlFile);
     bdtInfo->BookMVA();
+}
+
+void AnalysisManager::InitializeBDTVariables(BDTInfo* bdtInfo){
+    for (unsigned int i=0; i < bdtInfo->bdtVars.size(); i++) {
+        BDTVariable bdtvar = bdtInfo->bdtVars[i];
+        std::string thisVar("bdtInput_");
+        thisVar.append(bdtInfo->bdtname);
+        thisVar.append("_");
+        thisVar.append(bdtvar.localVarName);
+        *f[thisVar]=-99;
+    }
+    *f[bdtInfo->bdtname] = -99;
 }
 
 void AnalysisManager::SetBDTVariables(BDTInfo* bdtInfo){

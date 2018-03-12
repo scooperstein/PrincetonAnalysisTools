@@ -24,10 +24,35 @@ void VHbbAnalysis::InitAnalysis() {
     return;
 }
 
+//Member of VHbbAnalysis that convert the tagger type specified in the settings_2016.txt into the corresponding string
+void VHbbAnalysis::SetTaggerName( float taggerType ){
+ 
+  std::string name; 
+
+  if( m("taggerType")==0 ){ 
+    name.append("Jet_btagDeepB");
+  }else if(  m("taggerType")==1 ){
+    name.append("Jet_btagCMVA");
+  }else if( m("taggerType")==2 ){
+    name.append("Jet_btagCSVV2");
+  }else{
+    std::cout << "Invalid tagger type, setting the tagger name to its defauld value: CMVA" << std::endl;
+      name.append("Jet_btagCMVA");
+  }
+  
+  taggerName = name;
+
+}
+
+
 // Check if events pass preselection.
 // Returns true for events passing the preselection and false otherwise.
 bool VHbbAnalysis::Preselection() {
+ 
     bool doCutFlowInPresel = int(m("doCutFlow")) < 0;
+
+    //Set the b-tagger
+    SetTaggerName(m("taggerType"));
 
     if (m("onlyEvenEvents") && m("onlyOddEvents")) {
         std::cout << "Cannot set both onlyEvenEvents and onlyOddEvents to true!!" << std::endl;
@@ -109,7 +134,6 @@ bool VHbbAnalysis::Preselection() {
     //        f["Jet_btagCSVV2"][i] = f["Jet_btagCMVA"][i];
     //    }
 
-
     if (m("smearJets")) {
         for (int i = 0; i < mInt("nJet"); i++) {
             float JERScale = m("JERScale"); // apply JER smearing x times the nominal smearing amount
@@ -182,6 +206,11 @@ bool VHbbAnalysis::Analyze() {
     bool doOnlySignalRegion = bool(m("doOnlySignalRegion"));
     *in["controlSample"] = 0;
     *in["cutFlow"] = 0;
+
+
+    // Retrieve b-tagger working points
+    float taggerWP_T = m("tagWPT"), taggerWP_M = m("tagWPM"), taggerWP_L = m("tagWPL");
+
 
     // move fast requirements to the front
     if (debug > 1000) std::cout << "Imposing json and trigger requirements" << std::endl;
@@ -376,21 +405,25 @@ bool VHbbAnalysis::Analyze() {
     }
 
     // keep track of each jet selection method separately
-    float j1ptCut, j2ptCut, j1ptCSV;
+    float j1ptCut, j2ptCut, j1ptBtag;
     if (mInt("isZnn")) {
         j1ptCut = m("j1ptCut_0lepchan");
         j2ptCut = m("j2ptCut_0lepchan");
-        j1ptCSV = m("j1ptCSV_0lepchan");
+        j1ptBtag = m("j1ptBtag_0lepchan");
     } else if (mInt("isWmunu") || mInt("isWenu")) {
         j1ptCut = m("j1ptCut_1lepchan");
         j2ptCut = m("j2ptCut_1lepchan");
-        j1ptCSV = m("j1ptCSV_1lepchan");
+        j1ptBtag = m("j1ptBtag_1lepchan");
     } else if (mInt("isZmm") || mInt("isZee")) {
         j1ptCut = m("j1ptCut_2lepchan");
         j2ptCut = m("j2ptCut_2lepchan");
-        j1ptCSV = m("j1ptCSV_2lepchan");
+        j1ptBtag = m("j1ptBtag_2lepchan");
     }
 
+    // for the moment keep also the old function to fill the branches declared in newbranches.txt
+    std::pair<int,int> bjets_bestDeepCSV = HighestDeepCSVBJets(j1ptCut, j2ptCut);
+    *in["hJetInd1_bestDeepCSV"] = bjets_bestDeepCSV.first;
+    *in["hJetInd2_bestDeepCSV"] = bjets_bestDeepCSV.second;
     std::pair<int,int> bjets_bestCMVA = HighestCMVABJets(j1ptCut, j2ptCut);
     *in["hJetInd1_bestCMVA"] = bjets_bestCMVA.first;
     *in["hJetInd2_bestCMVA"] = bjets_bestCMVA.second;
@@ -405,13 +438,13 @@ bool VHbbAnalysis::Analyze() {
     *in["hJetInd2_highestPtJJ"] = bjets_highestPtJJ.second;
 
     // the jet selection algorithm we actually use for the rest of the analysis chain
-    std::pair<int,int> bjets = HighestCMVABJets(j1ptCut, j2ptCut);
-
-    // put CMVA cuts out of selection functions
-    if (bjets.first != -1 && bjets.second != -1) {
-        if (m("Jet_btagCMVA",bjets.first) < j1ptCSV) {
+    std::pair<int, int> bjets_bestTagger =  HighestTaggerValueBJets(j1ptCut, j2ptCut, taggerName);
+ 
+   // put B-Tagger cuts out of selection functions
+    if (bjets_bestTagger.first != -1 && bjets_bestTagger.second != -1) {
+        if (m(taggerName,bjets_bestTagger.first) < j1ptBtag) {
             *in["controlSample"] = -1;
-        } else if (m("Jet_btagCMVA",bjets.second) < m("j2ptCSV")) {  // 2nd jet CSV is the same in all SR's
+        } else if (m(taggerName,bjets_bestTagger.second) < m("j2ptBtag")) {  // 2nd jet B-Tagged is the same in all SR's
             *in["controlSample"] = -1;
         }
     }
@@ -419,16 +452,17 @@ bool VHbbAnalysis::Analyze() {
         return false;
     }
 
-    if (bjets.first == -1) {
+
+    if (bjets_bestTagger.first == -1) {
         if (int(m("doBoost")) == 0) {
             return false;  // TODO this must be the same for signal and control regions?
         }
         *in["hJetInd1"] = 0;
     } else {
-        *in["hJetInd1"] = bjets.first;
+        *in["hJetInd1"] = bjets_bestTagger.first;
     }
 
-    if (bjets.second == -1) {
+    if (bjets_bestTagger.second == -1) {
         if (int(m("doBoost")) == 0) {
             return false;  // TODO this must be the same for signal and control regions?
             *in["hJetInd2"] = 1;
@@ -438,14 +472,14 @@ bool VHbbAnalysis::Analyze() {
             *in["hJetInd2"] = 0;
         }
     } else {
-        *in["hJetInd2"] = bjets.second;
+        *in["hJetInd2"] = bjets_bestTagger.second;
     }
 
     if (int(m("doBoost")) != 0) {
         // need to do some filtering on b-tagging for events that we won't use in the boosted analysis
         // (i.e. there is no fat jet) or file size for W+jets is ridiculous for boosted analysis
         if (mInt("nFatJet") < 1) {
-            if (m("Jet_btagCMVA",mInt("hJetInd1")) < m("j1ptCSV") || m("Jet_btagCMVA",mInt("hJetInd2")) < m("j2ptCSV")) {
+            if (m(taggerName,mInt("hJetInd1")) < m("j1ptBtag") || m(taggerName,mInt("hJetInd2")) < m("j2ptBtag")) {
                 return false;  // TODO this must be the same for signal and control regions?
             }
         }
@@ -469,11 +503,11 @@ bool VHbbAnalysis::Analyze() {
         std::cout << "nJet = " << mInt("nJet") << std::endl;
         std::cout << "hJetInd1 = " << mInt("hJetInd1") << std::endl;
         std::cout << "hJetInd2 = " << mInt("hJetInd2") << std::endl;
-        std::cout << "found two bjets with pt and CSV "
+        std::cout << "found two bjets with pt and "<< taggerName << ": "
                   << m("Jet_bReg",mInt("hJetInd1")) << " "
-                  << m("Jet_btagCSVV2",mInt("hJetInd1")) << " "
+                  << m(taggerName,mInt("hJetInd1")) << " "
                   << m("Jet_bReg",mInt("hJetInd2")) << " "
-                  << m("Jet_btagCSVV2",mInt("hJetInd2")) << " "
+               	  << m(taggerName,mInt("hJetInd2")) << " "
                   << std::endl;
     }
 
@@ -949,7 +983,7 @@ bool VHbbAnalysis::Analyze() {
                         *f[Form("AddJets%i%s_puid_leadJet_pt", ptCuts[i], eta_cut.c_str())] = maxPt;
                         *f[Form("AddJets%i%s_puid_leadJet_eta", ptCuts[i], eta_cut.c_str())] = m("Jet_eta",k);
                         *f[Form("AddJets%i%s_puid_leadJet_phi", ptCuts[i], eta_cut.c_str())] = m("Jet_phi",k);
-                        *f[Form("AddJets%i%s_puid_leadJet_btagCSV", ptCuts[i], eta_cut.c_str())] = m("Jet_btagCSVV2",k);
+                      	*f[Form("AddJets%i%s_puid_leadJet_btagged", ptCuts[i], eta_cut.c_str())] = m(taggerName,k);
                     }
                 }
             }
@@ -1050,11 +1084,11 @@ bool VHbbAnalysis::Analyze() {
 
     // Control Samples
     float absDeltaPhiHiggsMet = m("HVdPhi");   // fabs(EvalDeltaPhi(*f["HCMVAV2_reg_phi"], *f["V_phi"]));
-    float higgsJet1CMVA = m("Jet_btagCMVA",mInt("hJetInd1"));
-    float higgsJet2CMVA = m("Jet_btagCMVA",mInt("hJetInd2"));
-    float minCSVA = std::min(higgsJet1CMVA, higgsJet2CMVA);
-    float maxCSVA = std::max(higgsJet1CMVA, higgsJet2CMVA);
-    float CSVAL = -0.5884, CSVAM = 0.4432, CSVAT = 0.9432;
+    float higgsJet1BTagged = m(taggerName,mInt("hJetInd1"));
+    float higgsJet2BTagged = m(taggerName,mInt("hJetInd2"));
+    float minBTagged = std::min(higgsJet1BTagged, higgsJet2BTagged);
+    float maxBTagged = std::max(higgsJet1BTagged, higgsJet2BTagged);
+
     float V_mass = m("V_mass"), H_mass = m("H_mass");
 
 
@@ -1071,7 +1105,7 @@ bool VHbbAnalysis::Analyze() {
         // Higgs Jet Cuts
         && m("Jet_bReg",mInt("hJetInd1")) > 60
         && m("Jet_bReg",mInt("hJetInd2")) > 35
-        && higgsJet2CMVA > CSVAL
+        && higgsJet2BTagged > taggerWP_L
         && fabs(m("Jet_eta",mInt("hJetInd1"))) < 2.4
         && fabs(m("Jet_eta",mInt("hJetInd2"))) < 2.4
         //&& in["Jet_id"][*in["hJetInd1"]] >= 4
@@ -1095,7 +1129,7 @@ bool VHbbAnalysis::Analyze() {
         if (mInt("isWmunu") || mInt("isWenu")) {
             // FIXME nselLeptons needs to be replaced
             //if (minAbsDeltaPhiHiggsJetsMet < 1.57 && *in["nselLeptons"] >= 1 && higgsJet1CMVA > CSVAM && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
-            if (minAbsDeltaPhiHiggsJetsMet < 1.57 && higgsJet1CMVA > CSVAM && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
+            if (minAbsDeltaPhiHiggsJetsMet < 1.57 && higgsJet1BTagged > taggerWP_M && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
                 *in["controlSample"] = 1; // TTbar Control Sample Index
             }
         // } else if (*f["Vtype"] == 4) {
@@ -1104,9 +1138,9 @@ bool VHbbAnalysis::Analyze() {
             // FIXME nselLeptons needs to be replaced
             //if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && *in["nselLeptons"] == 0 && absDeltaPhiHiggsMet > 2) {
             if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && absDeltaPhiHiggsMet > 2) {
-                if (higgsJet1CMVA < CSVAM && nJetsCentral <= 3) {
+	        if (higgsJet1BTagged < taggerWP_M && nJetsCentral <= 3) {
                     *in["controlSample"] = 2; // Z+Light Control Sample Index
-                } else if (higgsJet1CMVA > CSVAT && nJetsCentral == 2 && vetoHiggsMassWindow) {
+                }else if (higgsJet1BTagged > taggerWP_T && nJetsCentral == 2 && vetoHiggsMassWindow) {
                     *in["controlSample"] = 3; // Z+bb Control Sample Index
                 }
             }
@@ -1134,7 +1168,6 @@ bool VHbbAnalysis::Analyze() {
         && m("H_pt") > m("hptcut_1lepchan")
     );
 
-    float maxCSV = std::max(m("Jet_btagCSVV2",mInt("hJetInd1")), m("Jet_btagCSVV2",mInt("hJetInd2")));
 
     // htJet30 is not currenty in nanoAOD, need to calculate it
     *f["htJet30"] = 0.;
@@ -1155,19 +1188,19 @@ bool VHbbAnalysis::Analyze() {
     }
 
     if (base1LepCSSelection) {
-        if (maxCSV > CSVAT){ //ttbar or W+HF
+        if (maxBTagged > taggerWP_T){ //ttbar or W+HF
             if (mInt("nAddJets252p9_puid") > 1.5) { //ttbar
                 *in["controlSample"] = 11;
             } else if (mInt("nAddJets252p9_puid") < 0.5 && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+HF // remove mass window so we can use the same ntuple for VV, just be careful that we always avoid overlap with SR
                 *in["controlSample"] = 13;
             }
-        } else if (maxCSV > CSVAL && maxCSV < CSVAM && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+LF
+        }else if (maxBTagged > taggerWP_L && maxBTagged < taggerWP_M && m("MET_pt")/sqrt(m("htJet30")) > 2.) { //W+LF
             *in["controlSample"] = 12;
         }
 
         if (mInt("sampleIndex") == 0 && debug>10) {
             std::cout << "data CS event " << mInt("controlSample")
-                      << " maxCSV " << maxCSV
+	              << " maxBTagged " << maxBTagged
                       << " nAddJets252p9_puid " << mInt("nAddJets252p9_puid")
                       << " MET_pt " << m("MET_pt")
                       << " MET_sumEt " << m("MET_sumEt")
@@ -1185,22 +1218,22 @@ bool VHbbAnalysis::Analyze() {
 
     if (base2LepCSSelection) {
         if (////////////////////////// ttbar
-            maxCSVA > CSVAT
-            && minCSVA > CSVAL
+            maxBTagged > taggerWP_T
+            && minBTagged > taggerWP_L
             && (V_mass > 10 && (V_mass < 75 || V_mass > 120))
         ) {
             *in["controlSample"] = 21;
         } else if (/////////////////// Z + LF
-            maxCSVA < CSVAL
-            && minCSVA < CSVAL
+	    maxBTagged < taggerWP_L
+            && minBTagged < taggerWP_L
             && absDeltaPhiHiggsMet > 2.5
             && (V_mass > 75 && V_mass < 105)
             && (H_mass > 90 && H_mass <= 150)
         ) {
             *in["controlSample"] = 22;
         } else if (/////////////////// Z + HF
-            maxCSVA > CSVAT
-            && minCSVA > CSVAL
+	    maxBTagged > taggerWP_T
+            && minBTagged > taggerWP_L
             && m("MET_pt") < 60
             && absDeltaPhiHiggsMet > 2.5
             && (V_mass > 85 && V_mass <= 97)
@@ -1222,14 +1255,10 @@ bool VHbbAnalysis::Analyze() {
 
 
 void VHbbAnalysis::FinishEvent() {
-    
-    for(std::map<std::string,BDTInfo*>::iterator itBDTInfo=bdtInfos.begin(); itBDTInfo!=bdtInfos.end(); itBDTInfo++){
-        *f[itBDTInfo->second->bdtname] = -2;
-    }
 
     // b tag weights
+    *f["bTagWeight"] = 1.0; // we still need a default value of this even if we don't evaluate it
     if (bTagCalibReader) {
-
         if (debug>101) std::cout<<"evaluating btag scale factors"<<std::endl;
 
         // TODO uncertainties
@@ -1242,6 +1271,7 @@ void VHbbAnalysis::FinishEvent() {
                 && fabs(m("Jet_eta", i))<=m("JetEtaCut"))
             {
                 int hadron_flav = mInt("Jet_hadronFlavour", i);
+               
                 auto flav = (hadron_flav==5) ? BTagEntry::FLAV_B :
                             (hadron_flav==4) ? BTagEntry::FLAV_C :
                             BTagEntry::FLAV_UDSG;
@@ -1250,7 +1280,8 @@ void VHbbAnalysis::FinishEvent() {
                     flav,
                     fabs(m("Jet_eta", i)),
                     m("Jet_pt", i),
-                    m("Jet_btagDeepB", i)
+                    m(taggerName, i)
+
                 );
             }
         }
@@ -1311,22 +1342,25 @@ void VHbbAnalysis::FinishEvent() {
             *f["weight_PU"] = m("puWeight");
             //TEMPORARY SOLUTION: REMEMBER TO FIX IT BACK ONCE weightUP/DOWN WILL BE IN NANOAOD
             //  *f["weight_PUUp"] = m("puWeightUp") / m("puWeight");
-	    *f["weight_PUUp"] = m("puWeight");
-	    //  *f["weight_PUDown"] = m("puWeightDown") / m("puWeight");
+            *f["weight_PUUp"] = m("puWeight");
+            //  *f["weight_PUDown"] = m("puWeightDown") / m("puWeight");
             *f["weight_PUDown"] = m("puWeight");
-        }
-        else {
+        } else {
             //*f["weight_PU"] = *f["puWeight"];
             //*f["weight_PU"]=ReWeightMC(int(*f["nTrueInt"])+0.5); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PU"]=puWeight_ichep(int(m("nTrueInt"))); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PUUp"]=(puWeight_ichep_up(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
             *f["weight_PUDown"]=(puWeight_ichep_down(int(m("nTrueInt")))) / m("weight_PU"); // it is now a float (continuous distribution?) so we round to the nearest int
         }
-        if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
-            // only apply to Z/W+jet samples
-            *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("GenVbosons_pdgId",0));
-            *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("GenVbosons_pt",0), m("Vtype"), mInt("GenVbosons_pdgId",0));
-	}
+
+        // FIXME no nGenTop or nGenVbosons
+
+        //if (mInt("nGenTop")==0 && mInt("nGenVbosons")>0) {
+        //    // only apply to Z/W+jet samples
+        //    *f["weight_ptQCD"]=ptWeightQCD(mInt("nGenVbosons"), m("LHE_HT"), mInt("GenVbosons_pdgId",0));
+        //    *f["weight_ptEWK"]=ptWeightEWK(mInt("nGenVbosons"), m("GenVbosons_pt",0), m("Vtype"), mInt("GenVbosons_pdgId",0));
+
+        //}
     } else {
         *f["weight_PU"]=1;
         *f["weight_PUUp"]=1;
@@ -1707,50 +1741,54 @@ void VHbbAnalysis::FinishEvent() {
     //*f["H_mass_f"] = (float) *f["H_mass"];
     //*f["H_pt_f"] = (float) *f["H_pt"];
     //*f["V_pt_f"] = (float) *f["V_pt"];
-    *f["hJets_btagCSV_0"] = (float) m("Jet_btagCSVV2",mInt("hJetInd1"));
-    *f["hJets_btagCSV_1"] = (float) m("Jet_btagCSVV2",mInt("hJetInd2"));
-    //*f["HVdPhi_f"] = (float) *f["HVdPhi"];
-    *f["H_dEta"] = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
+    
+    if(mInt("isWenu") || mInt("isWmunu")) {
 
-    //*f["hJets_mt_0"] = HJ1.Mt();
-    //*f["hJets_mt_1"] = HJ2.Mt();
-    //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);
-    //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
-    *f["hJets_pt_0"] = (float) m("Jet_bReg",mInt("hJetInd1"));
-    *f["hJets_pt_1"] = (float) m("Jet_bReg",mInt("hJetInd2"));
-    //*f["MET_sumEt_f"] = (float) *f["MET_sumEt"]; // is this the right variable??
-    *f["nAddJet_f"] = (float) mInt("nAddJets252p9_puid");
-    *f["nAddLep_f"] = (float) mInt("nAddLeptons");
-    *f["isWenu_f"] = (float) mInt("isWenu");
-    *f["isWmunu_f"] = (float) mInt("isWmunu");
-    //*f["softActivityVH_njets5_f"] = (float) mInt("SoftActivityJetNjets5");
-    *f["softActivityVH_njets5_f"] = (float) m("SA5");
+        *f["hJets_btagged_0"] = (float) m(taggerName,mInt("hJetInd1"));
+        *f["hJets_btagged_1"] = (float) m(taggerName,mInt("hJetInd2"));
 
-    if (f.count("bdt_1lep")>0) {
-        if(debug>5000) {
-            std::cout<<"Evaluating BDT..."<<std::endl;
-            PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
-            std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
-        }
-        std::vector<std::string> bdtNames;
-        bdtNames.clear();
-        thisBDTInfo = bdtInfos.find("bdt_1lep");
-        if(thisBDTInfo != bdtInfos.end()){
-            bdtNames.push_back("bdt_1lep");
-        }
-        
-        thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
-        if(thisBDTInfo != bdtInfos.end()){
-            bdtNames.push_back("bdt_1lep_vzbb");
-        }
+        *f["H_dEta"] = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
 
-        for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
-            std::string bdtname(bdtNames[iBDT]);
-            if (cursyst->name != "nominal") {
-                bdtname.append("_");
-                bdtname.append(cursyst->name);
+        //*f["hJets_mt_0"] = HJ1.Mt();
+        //*f["hJets_mt_1"] = HJ2.Mt();
+        //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);
+        //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
+        *f["hJets_pt_0"] = (float) m("Jet_bReg",mInt("hJetInd1"));
+        *f["hJets_pt_1"] = (float) m("Jet_bReg",mInt("hJetInd2"));
+        //*f["MET_sumEt_f"] = (float) *f["MET_sumEt"]; // is this the right variable??
+        *f["nAddJet_f"] = (float) mInt("nAddJets252p9_puid");
+        *f["nAddLep_f"] = (float) mInt("nAddLeptons");
+        *f["isWenu_f"] = (float) mInt("isWenu");
+        *f["isWmunu_f"] = (float) mInt("isWmunu");
+        //*f["softActivityVH_njets5_f"] = (float) mInt("SoftActivityJetNjets5");
+        *f["softActivityVH_njets5_f"] = (float) m("SA5");
+
+        if (f.count("bdt_1lep")>0) {
+            if(debug>5000) {
+                std::cout<<"Evaluating BDT..."<<std::endl;
+                PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
+                std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
             }
-            *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
+            std::vector<std::string> bdtNames;
+            bdtNames.clear();
+            thisBDTInfo = bdtInfos.find("bdt_1lep");
+            if(thisBDTInfo != bdtInfos.end()){
+                bdtNames.push_back("bdt_1lep");
+            }
+            
+            thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
+            if(thisBDTInfo != bdtInfos.end()){
+                bdtNames.push_back("bdt_1lep_vzbb");
+            }
+
+            for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
+                std::string bdtname(bdtNames[iBDT]);
+                if (cursyst->name != "nominal") {
+                    bdtname.append("_");
+                    bdtname.append(cursyst->name);
+                }
+                *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
+            }
         }
     }
 
@@ -1787,6 +1825,7 @@ void VHbbAnalysis::FinishEvent() {
     }
 
     // add control sample fitted scale factor (already computed)
+    // FIXME beautify later.  maybe put into scale factor container?
     *f["CS_SF"] = 1.0;
     if (mInt("sampleIndex")==2200 || mInt("sampleIndex")==4400 || mInt("sampleIndex")==4500 || mInt("sampleIndex")==4600 || mInt("sampleIndex")==4700 || mInt("sampleIndex")==4800 || mInt("sampleIndex")==4900 || mInt("sampleIndex") == 48100 || mInt("sampleIndex") == 49100 || mInt("sampleIndex")==4100 || mInt("sampleIndex")==4200 || mInt("sampleIndex")==4300) {
         *f["CS_SF"] = m("SF_Wj0b");
@@ -1810,16 +1849,14 @@ void VHbbAnalysis::FinishEvent() {
             if (m("do2015") == 1) {
                 // used for 2015 analysis
                 *f["Lep_SF"] = m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_IdCutTight",mInt("lepInd1")) * m("selLeptons_SF_HLT_RunD4p3",mInt("lepInd1"));
-            }
-            else if (*f["doICHEP"] == 1) {
+            } else if (m("dataYear") == 2016 && *f["doICHEP"] == 1) {
                 // for 2016 analysis
                 // old V23 prescription
                 //*f["Lep_SF"] = f["SF_MuIDLoose"][*in["lepInd1"]] * f["SF_MuIsoTight"][*in["lepInd1"]] * (0.0673 * f["SF_SMuTrig_Block1"][*in["lepInd1"]] + 0.9327 * f["SF_SMuTrig_Block2"][*in["lepInd1"]] );
 
                 *f["Lep_SF"] = m("selLeptons_SF_IdCutTight",mInt("lepInd1")) * m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_trk_eta",mInt("lepInd1")) * (0.945*m("selLeptons_SF_HLT_RunD4p3",mInt("lepInd1")) + 0.055*m("selLeptons_SF_HLT_RunD4p2",mInt("lepInd1")))  ;
 
-            }
-            else {
+            } else if(m("dataYear") == 2016) {
                 //*f["Lep_SF"] = ( (20.1/36.4) * f["SF_MuIDTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIDTightGH"][*in["lepInd"]]) * ( (20.1/36.4) * f["SF_MuIsoTightBCDEF"][*in["lepInd"]] + (16.3/36.4) * f["SF_MuIsoTightGH"][*in["lepInd"]] ) ;
                 *f["Lep_SF"] = ( (20.1/36.4) * m("SF_MuIDTightBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuIDTightGH",mInt("lepInd1"))) * ( (20.1/36.4) * m("SF_MuIsoTightBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuIsoTightGH",mInt("lepInd1")) ) *  ( (20.1/36.4) * m("SF_MuTriggerBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuTriggerGH",mInt("lepInd1"))) * ( (20.1/36.4) * m("SF_MuTrackerBCDEF",mInt("lepInd1")) + (16.3/36.4) * m("SF_MuTrackerGH",mInt("lepInd1")));
                 *f["Lep_SFUp"] = ( (20.1/36.4) * (m("SF_MuIDTightBCDEF",mInt("lepInd1")) + m("SF_MuIDTightBCDEF_err",mInt("lepInd1"))) + (16.3/36.4) * (m("SF_MuIDTightGH",mInt("lepInd1")) + m("SF_MuIDTightGH_err",mInt("lepInd1"))) ) * ( (20.1/36.4) * (m("SF_MuIsoTightBCDEF",mInt("lepInd1")) + m("SF_MuIsoTightBCDEF_err",mInt("lepInd1")) ) + (16.3/36.4) * (m("SF_MuIsoTightGH",mInt("lepInd1")) + m("SF_MuIsoTightGH_err",mInt("lepInd1"))) ) *  ( (20.1/36.4) * (m("SF_MuTriggerBCDEF",mInt("lepInd1")) + m("SF_MuTriggerBCDEF_err",mInt("lepInd1")) )+ (16.3/36.4) * (m("SF_MuTriggerGH",mInt("lepInd1"))) + m("SF_MuTriggerGH_err",mInt("lepInd1"))) * ( (20.1/36.4) * (m("SF_MuTrackerBCDEF",mInt("lepInd1")) + m("SF_MuTrackerBCDEF_err",mInt("lepInd1")))+ (16.3/36.4) * (m("SF_MuTrackerGH",mInt("lepInd1")) + m("SF_MuTrackerGH_err",mInt("lepInd1")) ));
@@ -1827,19 +1864,16 @@ void VHbbAnalysis::FinishEvent() {
                 *f["Lep_SFDown"] = ( (20.1/36.4) * (m("SF_MuIDTightBCDEF",mInt("lepInd1")) - m("SF_MuIDTightBCDEF_err",mInt("lepInd1"))) + (16.3/36.4) * (m("SF_MuIDTightGH",mInt("lepInd1")) - m("SF_MuIDTightGH_err",mInt("lepInd1"))) ) * ( (20.1/36.4) * (m("SF_MuIsoTightBCDEF",mInt("lepInd1")) - m("SF_MuIsoTightBCDEF_err",mInt("lepInd1")) ) + (16.3/36.4) * (m("SF_MuIsoTightGH",mInt("lepInd1")) - m("SF_MuIsoTightGH_err",mInt("lepInd1"))) ) *  ( (20.1/36.4) * (m("SF_MuTriggerBCDEF",mInt("lepInd1")) - m("SF_MuTriggerBCDEF_err",mInt("lepInd1")) )+ (16.3/36.4) * (m("SF_MuTriggerGH",mInt("lepInd1"))) - m("SF_MuTriggerGH_err",mInt("lepInd1"))) * ( (20.1/36.4) * (m("SF_MuTrackerBCDEF",mInt("lepInd1")) - m("SF_MuTrackerBCDEF_err",mInt("lepInd1")))+ (16.3/36.4) * (m("SF_MuTrackerGH",mInt("lepInd1")) - m("SF_MuTrackerGH_err",mInt("lepInd1")) ));
                 *f["Lep_SFDown"] = m("Lep_SFDown") / m("Lep_SF");
             }
-        }
-        else if (mInt("isWenu") == 1) {
+        } else if (mInt("isWenu") == 1) {
            if (m("do2015") == 1) {
                // used for 2015 analysis
                *f["Lep_SF"] = m("selLeptons_SF_IsoTight",mInt("lepInd1")) * m("selLeptons_SF_IdMVATight",mInt("lepInd1")) * m("SF_HLT_Ele23_WPLoose",mInt("lepInd1"));
-           }
-           else if (m("doICHEP") ==1) {
+           } else if (m("dataYear") == 2016 && m("doICHEP") ==1) {
                // for 2016 analysis
                // old for V23
                //*f["Lep_SF"] =   f["SF_ElIdMVATrigWP80"][*in["lepInd1"]] * f["SF_HLT_Ele23_WPLoose"][*in["lepInd1"]];
                *f["Lep_SF"] = m("SF_ElIdMVATrigWP80",mInt("lepInd1")) * m("EffHLT_Ele27_WPLoose_Eta2p1",mInt("lepInd1")) * m("SF_egammaEffi_tracker",mInt("lepInd1"));
-           }
-           else {
+           } else if(m("dataYear") == 2016){
                *f["Lep_SF"] = m("SF_SingleElTrigger",mInt("lepInd1")) * m("SF_ElIdIso",mInt("lepInd1")) *  m("SF_egammaEffi_tracker",mInt("lepInd1"));
                *f["Lep_SFUp"] = (m("SF_SingleElTrigger",mInt("lepInd1")) + m("SF_SingleElTrigger_err",mInt("lepInd1")) )* (m("SF_ElIdIso",mInt("lepInd1")) + m("SF_ElIdIso_err",mInt("lepInd1")) ) *  (m("SF_egammaEffi_tracker",mInt("lepInd1")) + m("SF_egammaEffi_tracker_err",mInt("lepInd1")) );
                 *f["Lep_SFUp"] = m("Lep_SFUp") / m("Lep_SF");
@@ -1850,8 +1884,8 @@ void VHbbAnalysis::FinishEvent() {
                *f["LepFail_SF"] = 1.0;
                *f["LepFail_SFUp"] = 1.0;
                *f["LepFail_SFDown"] = 1.0;
-               if (*in["nselLeptons"] > 1) {
-                   for (int i=0; i < mInt("nselLeptons"); i++) {
+               if (mInt("nElectron") > 1) {
+                   for (int i=0; i < mInt("nElectron"); i++) {
                        if (i == mInt("lepInd1")) continue;
                        *f["LepFail_SF"] = m("SF_EleVeto",i);
                        *f["LepFail_SFUp"] = m("SF_EleVeto",i) + m("SF_EleVeto_err",i);
@@ -1866,65 +1900,16 @@ void VHbbAnalysis::FinishEvent() {
                //*f["Lep_SF"] = 1.0;
            }
         }
-        // in V23 for 2016 they changed the names of all the btag weights x.x
-        if (m("do2015") != 1) {
-            if (int(m("doCMVA")) == 0) {
-                *f["bTagWeight"] = m("btagWeightCSV");
-                *f["bTagWeight_JESUp"] = m("btagWeightCSV_up_jes");
-                *f["bTagWeight_JESDown"] = m("btagWeightCSV_down_jes");
-                *f["bTagWeight_HFUp"] = m("btagWeightCSV_up_hf");
-                *f["bTagWeight_HFDown"] = m("btagWeightCSV_down_hf");
-                *f["bTagWeight_LFUp"] = m("btagWeightCSV_up_lf");
-                *f["bTagWeight_LFDown"] = m("btagWeightCSV_down_lf");
-                *f["bTagWeight_HFStats1Up"] = m("btagWeightCSV_up_hfstats1");
-                *f["bTagWeight_HFStats1Down"] = m("btagWeightCSV_down_hfstats1");
-                *f["bTagWeight_LFStats1Up"] = m("btagWeightCSV_up_lfstats1");
-                *f["bTagWeight_LFStats1Down"] = m("btagWeightCSV_down_lfstats1");
-                *f["bTagWeight_HFStats2Up"] = m("btagWeightCSV_up_hfstats2");
-                *f["bTagWeight_HFStats2Down"] = m("btagWeightCSV_down_hfstats2");
-                *f["bTagWeight_LFStats2Up"] = m("btagWeightCSV_up_lfstats2");
-                *f["bTagWeight_LFStats2Down"] = m("btagWeightCSV_down_lfstats2");
-                *f["bTagWeight_cErr1Up"] = m("btagWeightCSV_up_cferr1");
-                *f["bTagWeight_cErr1Down"] = m("btagWeightCSV_down_cferr1");
-                *f["bTagWeight_cErr2Up"] = m("btagWeightCSV_up_cferr2");
-                *f["bTagWeight_cErr2Down"] = m("btagWeightCSV_down_cferr2");
-            }
-            else {
-                *f["bTagWeight"] = m("btagWeightCMVAV2");
-                *f["bTagWeight_JESUp"] = m("btagWeightCMVAV2_up_jes");
-                *f["bTagWeight_JESDown"] = m("btagWeightCMVAV2_down_jes");
-                *f["bTagWeight_HFUp"] = m("btagWeightCMVAV2_up_hf");
-                *f["bTagWeight_HFDown"] = m("btagWeightCMVAV2_down_hf");
-                *f["bTagWeight_LFUp"] = m("btagWeightCMVAV2_up_lf");
-                *f["bTagWeight_LFDown"] = m("btagWeightCMVAV2_down_lf");
-                *f["bTagWeight_HFStats1Up"] = m("btagWeightCMVAV2_up_hfstats1");
-                *f["bTagWeight_HFStats1Down"] = m("btagWeightCMVAV2_down_hfstats1");
-                *f["bTagWeight_LFStats1Up"] = m("btagWeightCMVAV2_up_lfstats1");
-                *f["bTagWeight_LFStats1Down"] = m("btagWeightCMVAV2_down_lfstats1");
-                *f["bTagWeight_HFStats2Up"] = m("btagWeightCMVAV2_up_hfstats2");
-                *f["bTagWeight_HFStats2Down"] = m("btagWeightCMVAV2_down_hfstats2");
-                *f["bTagWeight_LFStats2Up"] = m("btagWeightCMVAV2_up_lfstats2");
-                *f["bTagWeight_LFStats2Down"] = m("btagWeightCMVAV2_down_lfstats2");
-                *f["bTagWeight_cErr1Up"] = m("btagWeightCMVAV2_up_cferr1");
-                *f["bTagWeight_cErr1Down"] = m("btagWeightCMVAV2_down_cferr1");
-                *f["bTagWeight_cErr2Up"] = m("btagWeightCMVAV2_up_cferr2");
-                *f["bTagWeight_cErr2Down"] = m("btagWeightCMVAV2_down_cferr2");
-            }
-        }
 
         if (m("doCutFlow")>0 && m("cutFlow")<5) {
             // lepton scale factor calculation will break for some events in the cutflow before lepton selection
-            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK");
+            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("weight_ptQCD") * m("weight_ptEWK");
+        } else {
+            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
         }
-        else if (m("do2015")==1 || m("doICHEP")==1){
-            *f["weight"] = m("weight") * m("weight_PU") * m("bTagWeight") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
-        }
-        else {
-            // bTagWeight is broken in V25 Heppy ntuples
-            *f["weight"] = m("weight") * m("weight_PU") * m("CS_SF") * m("weight_ptQCD") * m("weight_ptEWK") * m("Lep_SF");
-        }
-
+        
         // Add NLO to LO W+jet re-weighting from Z(ll)H(bb)
+        // FIXME need a flag for LO vs NLO
         float deta_bb = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
         int sampleIndex = mInt("sampleIndex");
         float WJetNLOWeight = 1.0;
@@ -1954,13 +1939,6 @@ void VHbbAnalysis::FinishEvent() {
         outputTree->Fill();
     }
 
-    if(debug>100) std::cout<<"Ending FinishEvent()"<<std::endl;
-    // FIXME nominal must be last
-    if(cursyst->name=="nominal"){
-        ofile->cd();
-        if (debug>10000) std::cout<<"filling output tree"<<std::endl;
-        outputTree->Fill();
-    }
     return;
 }
 
@@ -2297,7 +2275,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
     for(int i=0; i<mInt("nJet"); i++){
         if(mInt("Jet_puId",i) > 0
             && m("Jet_bReg",i)>m("j1ptCut")
-            && m("Jet_btagCSVV2",i)>m("j1ptCSV")&&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
+            && m("Jet_btagCSVV2",i)>m("j1ptBtag")&&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
             if( pair.first == -1 ) {
                 pair.first = i;
             } else if(m("Jet_bReg",pair.first)<m("Jet_pt",i)){
@@ -2310,7 +2288,7 @@ std::pair<int,int> VHbbAnalysis::HighestPtBJets(){
         if(i==pair.first) continue;
         if(mInt("Jet_puId",i) > 0
             && m("Jet_bReg",i)>m("j2ptCut")
-            && m("Jet_btagCSVV2",i)>m("j2ptCSV")&&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
+            && m("Jet_btagCSVV2",i)>m("j2ptBtag")&&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
             if( pair.second == -1 ) {
                 pair.second = i;
             } else if(m("Jet_bReg",pair.second)<m("Jet_pt",i)){
@@ -2396,6 +2374,80 @@ std::pair<int,int> VHbbAnalysis::HighestCMVABJets(float j1ptCut, float j2ptCut){
     return pair;
 }
 
+std::pair<int,int> VHbbAnalysis::HighestDeepCSVBJets(float j1ptCut, float j2ptCut){
+    std::pair<int,int> pair(-1,-1);
+
+    for(int i=0; i<mInt("nJet"); i++){
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j1ptCut
+            &&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
+            if( pair.first == -1 ) {
+                pair.first = i;
+            } else if(m("Jet_btagDeepB",pair.first)<m("Jet_btagDeepB",i)){
+                pair.first = i;
+            }
+        }
+    }
+
+    for(int i=0; i<mInt("nJet"); i++){
+        if(i==pair.first) continue;
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j2ptCut
+            &&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
+            if( pair.second == -1 ) {
+                pair.second = i;
+            } else if(m("Jet_btagDeepB",pair.second)<m("Jet_btagDeepB",i)){
+                pair.second = i;
+            }
+        }
+    }
+
+    // different pt threshold can set the highest CMVA value into pair.second
+    if (pair.first > -1 && pair.second > -1 && m("Jet_btagDeepB",pair.first) < m("Jet_btagDeepB",pair.second)) {
+        pair = std::make_pair(pair.second, pair.first);
+    }
+
+    return pair;
+}
+
+
+//New function that should cover all tagger possibilities
+std::pair<int,int> VHbbAnalysis::HighestTaggerValueBJets(float j1ptCut, float j2ptCut, std::string taggerName){
+    std::pair<int,int> pair(-1,-1);
+
+    for(int i=0; i<mInt("nJet"); i++){
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j1ptCut
+            &&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
+            if( pair.first == -1 ) {
+                pair.first = i;
+            } else if(m(taggerName,pair.first)<m(taggerName,i)){
+                pair.first = i;
+            }
+        }
+    }
+
+    for(int i=0; i<mInt("nJet"); i++){
+        if(i==pair.first) continue;
+        if(mInt("Jet_puId",i) > 0
+            && m("Jet_bReg",i)>j2ptCut
+            &&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
+            if( pair.second == -1 ) {
+                pair.second = i;
+            } else if(m(taggerName,pair.second)<m(taggerName,i)){
+                pair.second = i;
+            }
+        }
+    }
+
+    // different pt threshold can set the highest CMVA value into pair.second
+    if (pair.first > -1 && pair.second > -1 && m(taggerName,pair.first) < m(taggerName,pair.second)) {
+        pair = std::make_pair(pair.second, pair.first);
+    }
+
+    return pair;
+}
+
 std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
     std::pair<int,int> pair(-1,-1);
 
@@ -2447,12 +2499,12 @@ std::pair<int,int> VHbbAnalysis::HighestPtJJBJets(){
     }
     // important to cut on CSV here to kill TTbar
     if(pair.first != -1){
-        if (m("Jet_btagCSVV2",pair.first) < m("j1ptCSV")) {
+        if (m("Jet_btagCSVV2",pair.first) < m("j1ptBtag")) {
             pair.first = -1;
         }
     }
     if(pair.second != -1){
-        if (m("Jet_btagCSVV2",pair.second) < m("j2ptCSV")) {
+        if (m("Jet_btagCSVV2",pair.second) < m("j2ptBtag")) {
             pair.second = -1;
         }
     }
@@ -2499,7 +2551,7 @@ double VHbbAnalysis::GetRecoTopMass(TLorentzVector Obj, bool isJet, int useMET, 
         } else {
             thisPT=m("Jet_pt",i);
         }
-        if (thisPT< 30 || m("Jet_btagCSVV2",i) < 0.5) continue; // only consider jets with some minimal preselection
+        if (thisPT< 30 || m(taggerName,i) < 0.5) continue; // only consider jets with some minimal preselection
         TLorentzVector j;
         j.SetPtEtaPhiM(thisPT, m("Jet_eta",i), m("Jet_phi",i), m("Jet_mass",i) * (m("Jet_bReg",i) / m("Jet_pt",i) )  );
         double d1 = j.DeltaR(Obj);

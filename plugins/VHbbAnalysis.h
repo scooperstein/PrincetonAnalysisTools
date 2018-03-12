@@ -25,6 +25,9 @@ class VHbbAnalysis : public AnalysisManager {
         virtual void FinishEvent();
         virtual void TermAnalysis();
 
+	std::string taggerName;
+	void SetTaggerName(float taggerType);
+		
         std::pair<int,int> HighestPtGoodElectronsOppCharge(float min_pt, float max_rel_iso, float idcut);
         std::pair<int,int> HighestPtGoodMuonsOppCharge(float min_pt, float max_rel_iso);
         bool ElectronSelection(int);
@@ -36,6 +39,8 @@ class VHbbAnalysis : public AnalysisManager {
         float puWeight_ichep_up(int i=0);
         float puWeight_ichep_down(int i=0);
         std::pair<int,int> HighestPtBJets();
+        std::pair<int,int> HighestTaggerValueBJets(float j1ptCut, float j2ptCut, std::string taggerName);
+        std::pair<int,int> HighestDeepCSVBJets(float j1ptCut, float j2ptCut);
         std::pair<int,int> HighestCMVABJets(float j1ptCut, float j2ptCut);
         std::pair<int,int> HighestCSVBJets(float j1ptCut, float j2ptCut);
         std::pair<int,int> HighestPtJJBJets();
