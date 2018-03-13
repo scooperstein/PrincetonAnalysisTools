@@ -1,0 +1,24 @@
+# isSpec 1 -> Spectator variable
+# isSpec 0 -> Variable used in BDT training
+
+bdtmethod=BDT
+bdtname=CMS_vhbb_BDT_Zll_HighPT_13TeV
+xmlFile=aux/TMVA_13TeV_VHbb_2lepHighPT_HIG16044_BDT.weights.xml
+
+name=HCMVAV2_reg_mass                                                     lname=H_mass             isEx=1 isSpec=0 order=1
+name=HCMVAV2_reg_pt                                                       lname=H_pt               isEx=1 isSpec=0 order=2
+name=VHbb::deltaPhi(HCMVAV2_reg_phi,V_new_phi)                            lname=HVdPhi             isEx=0 isSpec=0 order=3
+name=Jet_btagCMVAV2_0                                                     lname=hJets_btagged_0    isEx=0 isSpec=0 order=4
+name=Jet_btagCMVAV2_1                                                     lname=hJets_btagged_1    isEx=0 isSpec=0 order=5
+name=hJetCMVAV2_pt_reg_0                                                  lname=hJets_pt_0         isEx=0 isSpec=0 order=6
+name=hJetCMVAV2_pt_reg_1                                                  lname=hJets_pt_1         isEx=0 isSpec=0 order=7
+name=V_new_mass                                                           lname=V_mass             isEx=0 isSpec=0 order=8
+name=REPLACEMENTFORNADDJETEXPRESS                                         lname=nAddJets_2lep      isEx=0 isSpec=0 order=9
+name=V_new_pt                                                             lname=V_pt               isEx=1 isSpec=0 order=10
+name=(HCMVAV2_reg_pt/V_new_pt)                                            lname=jjVPtRatio         isEx=0 isSpec=0 order=11
+name=abs(Jet_eta[hJCMVAV2idx[0]]-Jet_eta[hJCMVAV2idx[1]])                 lname=HJ1_HJ2_dEta       isEx=0 isSpec=0 order=12
+name=softActivityVH_njets5                                                lname=SA5                isEx=1 isSpec=0 order=13
+name=VHbb::deltaR(HCMVAV2_reg_eta,HCMVAV2_reg_phi,V_new_eta,V_new_phi)    lname=HVdR               isEx=0 isSpec=0 order=14
+name=met_pt                                                               lname=MET_pt             isEx=1 isSpec=0 order=15
+
+

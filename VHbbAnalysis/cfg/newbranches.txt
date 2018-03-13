@@ -90,8 +90,11 @@ type=2  name=isWmunu_f
 type=2  name=V_mt
 type=2  name=HVdPhi
 type=2  name=HVdEta
+type=2  name=HVdR
 type=2  name=HVdEta_4MET
-type=2  name=H_dEta
+type=2  name=HJ1_HJ2_dPhi
+type=2  name=HJ1_HJ2_dEta
+type=2  name=HJ1_HJ2_dR
 type=2  name=JJEtaBal
 type=2  name=H_mass
 type=2  name=H_mass_noreg
@@ -119,6 +122,8 @@ type=2  name=AddJets252p9_puid_leadJet_btagged
 type=1  name=nAddLeptons
 type=2  name=nAddLep_f
 type=2  name=nAddJet_f
+
+type=2  name=nAddJets_2lep
 
 type=2  name=naJetsPassingCuts
 #type=2  name=BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4
@@ -163,6 +168,8 @@ type=2  name=met_pt_JECDown_ratio
 
 type=2  name=hJets_btagged_0
 type=2  name=hJets_btagged_1
+type=2  name=hJets_leadingPt
+type=2  name=hJets_subleadingPt
 type=2  name=hJets_pt_0
 type=2  name=hJets_pt_1
 
@@ -183,8 +190,6 @@ type=2  name=H_dPhi_reg
 type=2  name=H_dEta_reg
 type=2  name=Jet1_regWeight
 type=2  name=Jet2_regWeight
-
-type=2  name=softActivityVH_njets5_f
 
 type=2  name=VPtCorrFactor
 type=2  name=VPtCorrFactorUp
@@ -248,9 +253,6 @@ type=2  name=Top1_mass_highestPtJJ_regPT_wMET
 type=2  name=Top1_mass_highestPtJJ_regPT_w4MET
 #type=2  name=Top2_mass
 type=2  name=Top2_mass_hadW
-type=2  name=HJ1_HJ2_dPhi
-type=2  name=HJ1_HJ2_dEta
-type=2  name=HJ1_HJ2_dR
 type=2  name=HJ2_minJetDR1
 type=2  name=HJ2_minJetDR2
 type=2  name=HJ2_WJet1_dPhi

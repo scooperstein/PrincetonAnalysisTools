@@ -22,6 +22,7 @@ name=WminusH130_powheg        dir=WminusH_HToBB_WToLNu_M130_13TeV_powheg_pythia8
 name=WplusH125_herwig         dir=WplusH_HToBB_WToLNu_M125_13TeV_powheg_herwigpp/  type=-12510   xsec=0.165  
 name=WminusH125_herwig        dir=WminusH_HToBB_WToLNu_M125_13TeV_powheg_herwigpp/ type=-12511   xsec=0.105
 #name=ZH125_ZLL_powheg         dir=ZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8/        type=-12502   xsec=0.01496
+name=ZH120_ZLL_powheg         dir=ZH_HToBB_ZToLL_M120_13TeV_powheg_pythia8/        type=-12002   xsec=0.019046
 name=ZH125_ZLL_herwig         dir=ZH_HToBB_ZToLL_M125_13TeV_powheg_herwigpp/       type=-12512   xsec=0.01496
 #name=ggZH125_ZLL_powheg       dir=ggZH_HToBB_ZToLL_M125_13TeV_powheg_pythia8/      type=-12503   xsec=0.00241
 name=ggZH125_ZLL_herwig       dir=ggZH_HToBB_ZToLL_M125_13TeV_powheg_herwigpp/     type=-12513   xsec=0.00241

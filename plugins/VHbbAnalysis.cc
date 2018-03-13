@@ -695,6 +695,7 @@ bool VHbbAnalysis::Analyze() {
     *f["jjVPtRatio"] = m("H_pt") / m("V_pt");
     *f["HVdPhi"] = fabs(Hbb.DeltaPhi(V));
     *f["HVdEta"] = fabs(Hbb.Eta() - V.Eta());
+    *f["HVdR"]   = Hbb.DeltaR(V);
     if (mInt("isWmunu") == 1 || mInt("isWenu") == 1) {
         *f["HVdEta_4MET"] = fabs(Hbb.Eta() -  W_withNuFromMWCon.Eta());
     }
@@ -1785,47 +1786,74 @@ void VHbbAnalysis::FinishEvent() {
     //*f["H_pt_f"] = (float) *f["H_pt"];
     //*f["V_pt_f"] = (float) *f["V_pt"];
     
-    if(mInt("isWenu") || mInt("isWmunu")) {
+    // General BDT inputs
 
-        *f["hJets_btagged_0"] = (float) m(taggerName,mInt("hJetInd1"));
-        *f["hJets_btagged_1"] = (float) m(taggerName,mInt("hJetInd2"));
+    *f["hJets_btagged_0"] = (float) m(taggerName,mInt("hJetInd1"));
+    *f["hJets_btagged_1"] = (float) m(taggerName,mInt("hJetInd2"));
 
-        *f["H_dEta"] = fabs(m("Jet_eta",mInt("hJetInd1")) - m("Jet_eta",mInt("hJetInd2")));
+    //*f["hJets_mt_0"] = HJ1.Mt();
+    //*f["hJets_mt_1"] = HJ2.Mt();
+    //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);
+    //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
+    *f["hJets_pt_0"] = (float) m("Jet_bReg",mInt("hJetInd1"));
+    *f["hJets_pt_1"] = (float) m("Jet_bReg",mInt("hJetInd2"));
+    *f["hJets_leadingPt"]    = std::max(*f["hJets_pt_0"],*f["hJets_pt_1"]);
+    *f["hJets_subleadingPt"] = std::min(*f["hJets_pt_0"],*f["hJets_pt_1"]);
+    
 
-        //*f["hJets_mt_0"] = HJ1.Mt();
-        //*f["hJets_mt_1"] = HJ2.Mt();
-        //*f["H_dR"] = (float) HJ1.DeltaR(HJ2);
-        //*f["absDeltaPullAngle"] = 0.; //FIXME what is this in the new ntuples??
-        *f["hJets_pt_0"] = (float) m("Jet_bReg",mInt("hJetInd1"));
-        *f["hJets_pt_1"] = (float) m("Jet_bReg",mInt("hJetInd2"));
-        //*f["MET_sumEt_f"] = (float) *f["MET_sumEt"]; // is this the right variable??
-        *f["nAddJet_f"] = (float) mInt("nAddJets252p9_puid");
-        *f["nAddLep_f"] = (float) mInt("nAddLeptons");
-        *f["isWenu_f"] = (float) mInt("isWenu");
-        *f["isWmunu_f"] = (float) mInt("isWmunu");
-        //*f["softActivityVH_njets5_f"] = (float) mInt("SoftActivityJetNjets5");
-        *f["softActivityVH_njets5_f"] = (float) m("SA5");
-
-        if (f.count("bdt_1lep")>0) {
-            if(debug>5000) {
+    // Channel specific BDT inputs
+   
+    if(mInt("isZnn")) {
+        if(debug>10000) {
+            std::cout<<"setting up bdt inputs for isZnn"<<std::endl;
+        }
+        std::vector<std::string> bdtNames;
+        bdtNames.clear();
+        thisBDTInfo = bdtInfos.find("bdt_0lep");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_0lep");
+            if(debug>10000) {
                 std::cout<<"Evaluating BDT..."<<std::endl;
-                PrintBDTInfoValues(bdtInfos["bdt_1lep"]);
-                std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_1lep"])<<std::endl;
+                PrintBDTInfoValues(bdtInfos["bdt_0lep"]);
+                std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos["bdt_0lep"])<<std::endl;
             }
-            std::vector<std::string> bdtNames;
-            bdtNames.clear();
-            thisBDTInfo = bdtInfos.find("bdt_1lep");
-            if(thisBDTInfo != bdtInfos.end()){
-                bdtNames.push_back("bdt_1lep");
-            }
-            
-            thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
-            if(thisBDTInfo != bdtInfos.end()){
-                bdtNames.push_back("bdt_1lep_vzbb");
+        }
+        thisBDTInfo = bdtInfos.find("bdt_0lep_vzbb");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_0lep_vzbb");
+        }
+       
+        if(bdtNames.size()>0){
+            //loop through jets for best of other variables
+            *f["otherJetsBestBtag"]    = -99;
+            *f["otherJetsHighestPt"]   = -99;
+            *f["minDPhiFromOtherJets"] = 99; 
+            for(int iJet=0; iJet<mInt("nJet"); iJet++){
+                if(iJet==mInt("hJetInd1")) continue;
+                if(iJet==mInt("hJetInd2")) continue;
+                if(mInt("Jet_lepFilter",iJet)==0) continue;
+                if(mInt("Jet_puId",iJet) > 0 && m("Jet_bReg",iJet)>25){
+                    if(*f["otherJetsBestBtag"]< m(taggerName,iJet)){
+                        *f["otherJetsBestBtag"]=m(taggerName,iJet);
+                    }
+                    if(*f["otherJetsHighestPt"]< m("Jet_bReg",iJet)){
+                        *f["otherJetsHighestPt"]=m("Jet_bReg",iJet);
+                    }
+                }
+                if(mInt("Jet_puId",iJet)>3 && m("Jet_bReg",iJet)>30){
+                    if(*f["minDPhiFromOtherJets"]>fabs(EvalDeltaPhi(m("V_phi"), m("Jet_phi",iJet)))){
+                        *f["minDPhiFromOtherJets"]=fabs(EvalDeltaPhi(m("V_phi"), m("Jet_phi",iJet)));
+                    }
+                }
             }
 
             for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
                 std::string bdtname(bdtNames[iBDT]);
+                if(debug>5000) {
+                    std::cout<<"Evaluating BDT... "<<bdtNames[iBDT]<<std::endl;
+                    PrintBDTInfoValues(bdtInfos[bdtNames[iBDT]]);
+                    std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos[bdtNames[iBDT]])<<std::endl;
+                }
                 if (cursyst->name != "nominal") {
                     bdtname.append("_");
                     bdtname.append(cursyst->name);
@@ -1833,8 +1861,98 @@ void VHbbAnalysis::FinishEvent() {
                 *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
             }
         }
+
+    } else if(mInt("isWenu") || mInt("isWmunu")) {
+        *f["nAddJet_f"] = (float) mInt("nAddJets252p9_puid");
+        *f["nAddLep_f"] = (float) mInt("nAddLeptons");
+        *f["isWenu_f"] = (float) mInt("isWenu");
+        *f["isWmunu_f"] = (float) mInt("isWmunu");
+
+        std::vector<std::string> bdtNames;
+        bdtNames.clear();
+        thisBDTInfo = bdtInfos.find("bdt_1lep");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_1lep");
+        }
+        thisBDTInfo = bdtInfos.find("bdt_1lep_vzbb");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_1lep_vzbb");
+        }
+
+        if(bdtNames.size()>0){
+            for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
+                std::string bdtname(bdtNames[iBDT]);
+                if(debug>5000) {
+                    std::cout<<"Evaluating BDT... "<<bdtNames[iBDT]<<std::endl;
+                    PrintBDTInfoValues(bdtInfos[bdtNames[iBDT]]);
+                    std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos[bdtNames[iBDT]])<<std::endl;
+                }
+                if (cursyst->name != "nominal") {
+                    bdtname.append("_");
+                    bdtname.append(cursyst->name);
+                }
+                *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
+            }
+        }
+    } else if(mInt("isZee") || mInt("isZmm")) {
+
+        std::vector<std::string> bdtNames;
+        bdtNames.clear();
+        thisBDTInfo = bdtInfos.find("bdt_2lep_highPt");
+        if(thisBDTInfo != bdtInfos.end()){
+            if(m("V_pt")>=150){
+                bdtNames.push_back("bdt_2lep_highPt");
+            }
+        }
+        thisBDTInfo = bdtInfos.find("bdt_2lep_lowPt");
+        if(thisBDTInfo != bdtInfos.end()){
+            if(m("V_pt")<150){
+                bdtNames.push_back("bdt_2lep_lowPt");
+            }
+        }
+        thisBDTInfo = bdtInfos.find("bdt_2lep_vzbb");
+        if(thisBDTInfo != bdtInfos.end()){
+            bdtNames.push_back("bdt_2lep_vzbb");
+        }
+
+
+        if(bdtNames.size()>0){
+            for(int iJet=0; iJet<mInt("nJet"); iJet++){
+                if(iJet==mInt("hJetInd1")) continue;
+                if(iJet==mInt("hJetInd2")) continue;
+                if(mInt("Jet_lepFilter",iJet)==0) continue;
+                if(mInt("Jet_puId",iJet)==7 && m("Jet_bReg",iJet)>30 && abs(m("Jet_eta",iJet))<2.4 ){
+                    *f["nAddJets_2lep"]=m("nAddJets_2lep")+1;
+                }
+            }
+            for(unsigned int iBDT=0; iBDT<bdtNames.size(); iBDT++){
+                std::string bdtname(bdtNames[iBDT]);
+                if(debug>5000) {
+                    std::cout<<"Evaluating BDT... "<<bdtNames[iBDT]<<std::endl;
+                    PrintBDTInfoValues(bdtInfos[bdtNames[iBDT]]);
+                    std::cout<<"BDT evaluates to: "<<EvaluateMVA(bdtInfos[bdtNames[iBDT]])<<std::endl;
+                }
+                if (cursyst->name != "nominal") {
+                    bdtname.append("_");
+                    bdtname.append(cursyst->name);
+                }
+                *f[bdtInfos[bdtNames[iBDT]]->bdtname] = EvaluateMVA(bdtInfos[bdtNames[iBDT]]);
+            }
+        }
+    } else {
+        std::cout << mInt("Vtype") << " "
+                  << mInt("isZnn") << " "
+                  << mInt("isWmunu") << " "
+                  << mInt("isWenu") << " "
+                  << mInt("isZmm") << " "
+                  << mInt("isZee") << " "
+                  << mInt("controlSample")
+                  << std::endl;
+        std::cout<<"ALL CHANNELS APPEAR TO BE FALSE"<<std::endl;
     }
 
+
+    // FIXME For the code to be meaningful it should go far earlier.
     if (f.count("bdt_bjetreg")>0) {
         if(debug>10000) {
             std::cout<<"Evaluating the Jet Energy Regression..."<<std::endl;
