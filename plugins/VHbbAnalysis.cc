@@ -330,7 +330,7 @@ bool VHbbAnalysis::Analyze() {
             *in["controlSample"] = -1;
         }
     } else if (mInt("Vtype") == 4) {
-            bool passMetFilters;
+        bool passMetFilters;
         if (m("dataYear")==2016){
                 passMetFilters = 
                 ( m("Flag_goodVertices")
