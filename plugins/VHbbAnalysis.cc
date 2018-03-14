@@ -870,7 +870,7 @@ bool VHbbAnalysis::Analyze() {
 
 
     // 0-lepton
-    bool  base0LepCSSelection= (
+    bool base0LepCSSelection= (
         // Vector Boson Cuts
         // (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
         (mInt("isWmunu") || mInt("isWenu") ||mInt("isZnn"))
@@ -899,17 +899,18 @@ bool VHbbAnalysis::Analyze() {
         && m("Flag_HBHENoiseIsoFilter")
         && m("Flag_EcalDeadCellTriggerPrimitiveFilter")
     );
+
     if(m("dataYear") == 2017){
             base0LepCSSelection = (base0LepCSSelection
             && m("Flag_BadPFMuonFilter")
             && m("Flag_BadChargedCandidateFilter")
             && m("Flag_ecalBadCalibFilter"));
     }
+
     if(mInt("sampleIndex")==0){//Data
         base0LepCSSelection = base0LepCSSelection&&m("Flag_eeBadSCFilter"); 
     }
     
-
     if (base0LepCSSelection) {
         // if (*f["Vtype"] == 2 || *f["Vtype"] == 3) {
         if (mInt("isWmunu") || mInt("isWenu")) {
