@@ -91,7 +91,7 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch, int doSkim) 
         // one entry in Runs tree per input NanoAOD file
         int nNanoInputFiles = Runs->GetEntries();
         for (int i=0; i < nNanoInputFiles; i++) {
-            Runs->GetEntry(0);
+            Runs->GetEntry(i);
             std::cout<<fname<<" genEventCount: "<<genEventCount<<std::endl;
             CountWeighted->SetBinContent(1,CountWeighted->GetBinContent(1)+genEventCount);
             processedEvents += genEventCount;
