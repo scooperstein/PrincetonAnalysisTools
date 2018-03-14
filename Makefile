@@ -10,7 +10,7 @@ AnalysisDict.cxx: HelperClasses/SampleContainer.h HelperClasses/InfoStructs.h He
 	rootcint -f $@ -c $^
 
 AnalysisDict.so: AnalysisDict.cxx HelperClasses/SampleContainer.cc HelperClasses/BDTInfo.cc HelperClasses/BDTVariable.cc HelperClasses/SystematicContainer.cc HelperClasses/SFContainer.cc AnalysisManager.cc plugins/VHbbAnalysis.cc plugins/VHbbTrigger.cc plugins/EWKAnalysis.cc HelperClasses/EquationSolver.h HelperClasses/BTagCalibrationStandalone.cpp
-	g++ -shared -fPIC -o $@ ${ROOTFLAGS} ${ROOTLIBS} -lTMVA -I${HOMEDIR} $^
+	g++ -shared -fPIC -Wall -Werror -o $@ ${ROOTFLAGS} ${ROOTLIBS} -lTMVA -I${HOMEDIR} $^
 
 clean: 
 	rm AnalysisDict.cxx

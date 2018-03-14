@@ -909,7 +909,7 @@ float EWKAnalysis::evaluateRegression(int i) {
             tmp.SetPtEtaPhiM(f["Jet_pt"][i],f["Jet_eta"][i],f["Jet_phi"][i],f["Jet_mass"][i]);
             *f["Jet1_mt"] = tmp.Mt();
             //std::cout<<"4-vector Mt() is "<<tmp.Mt()<<std::endl;
-            float mt = TMath::Sqrt( TMath::Power(tmp.Et(),2) - TMath::Power(tmp.Pt(),2) );
+            //float mt = TMath::Sqrt( TMath::Power(tmp.Et(),2) - TMath::Power(tmp.Pt(),2) );
             //std::cout<<"by-hand Mt is "<<mt<<std::endl;
             //*f["Jet1_mt"] = mt;
             *f["Jet1_leadTrackPt"] = float(f["Jet_leadTrackPt"][i]);
@@ -995,7 +995,7 @@ TLorentzVector EWKAnalysis::getNu4Momentum(const TLorentzVector& TLepton, const 
   double a2 = TMath::Power(a,2);
   double b  = (TMath::Power(Lepton.Energy(),2.)*(MisET2) - TMath::Power(mu,2.))/(TMath::Power(Lepton.Energy(),2) - TMath::Power(Lepton.Pz(),2));
   double pz1(0),pz2(0),pznu(0);
-  int nNuSol(0);
+  //int nNuSol(0);
 
   //math::XYZTLorentzVector p4nu_rec;
   TLorentzVector p4nu_rec;
@@ -1017,7 +1017,7 @@ TLorentzVector EWKAnalysis::getNu4Momentum(const TLorentzVector& TLepton, const 
     double root = sqrt(a2-b);
     pz1 = a + root;
     pz2 = a - root;
-    nNuSol = 2;
+    //nNuSol = 2;
 
     //if(usePzPlusSolutions_)pznu = pz1;    
     //if(usePzMinusSolutions_)pznu = pz2;
