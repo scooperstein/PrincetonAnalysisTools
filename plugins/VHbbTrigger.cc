@@ -407,7 +407,7 @@ bool VHbbTrigger::PassEleHLT(float ptCut, std::string WP, std::vector<std::strin
     bool passL1=false;
 
 
-    for(int iL1=0; iL1<L1seeds.size(); iL1++){
+    for(unsigned iL1=0; iL1<L1seeds.size(); iL1++){
         if(L1seeds[iL1]=="noseed"){
             passL1=true;
             if(debug>100000) std::cout<<"no seed required--passing l1"<<std::endl;
@@ -489,7 +489,7 @@ bool VHbbTrigger::PassElePlusJetHLT(std::vector<std::string> L1seeds, float elPt
     if(debug>10000) std::cout<<"look for hlt electron"<<std::endl;
     bool passL1 = false;
     if(debug>10000) std::cout<<"size of l1 seeds "<<L1seeds.size()<<std::endl;
-    for(int iL1=0; iL1<L1seeds.size(); iL1++){
+    for(unsigned iL1=0; iL1<L1seeds.size(); iL1++){
         if(debug>10000) std::cout<<"iL1 "<<iL1<<" "<<L1seeds[iL1]<<std::endl;
         if(*b[L1seeds[iL1]]) {
             passL1=true;

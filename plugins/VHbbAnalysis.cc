@@ -2309,7 +2309,7 @@ int VHbbAnalysis::UpdatedVType() {
     if (good_electrons.size() >= 2) {
         if (m("Electron_pt",good_electrons[0]) > 20) {
             int ele0_charge = mInt("Electron_charge",good_electrons[0]);
-            for (int i=1; i<good_electrons.size(); i++) {
+            for (unsigned i=1; i<good_electrons.size(); i++) {
                 if (ele0_charge * mInt("Electron_charge",good_electrons[i]) < 0) {
                     *f["Vtype_new"] = 1;
                     return 1;
@@ -3088,7 +3088,7 @@ TLorentzVector VHbbAnalysis::getNu4Momentum(const TLorentzVector& TLepton, const
     double a2 = TMath::Power(a,2);
     double b  = (TMath::Power(Lepton.Energy(),2.)*(MisET2) - TMath::Power(mu,2.))/(TMath::Power(Lepton.Energy(),2) - TMath::Power(Lepton.Pz(),2));
     double pz1(0),pz2(0),pznu(0);
-    int nNuSol(0);
+    // int nNuSol(0);
 
     //math::XYZTLorentzVector p4nu_rec;
     TLorentzVector p4nu_rec;
@@ -3110,7 +3110,7 @@ TLorentzVector VHbbAnalysis::getNu4Momentum(const TLorentzVector& TLepton, const
         double root = sqrt(a2-b);
         pz1 = a + root;
         pz2 = a - root;
-        nNuSol = 2;
+        //nNuSol = 2;
 
         //if(usePzPlusSolutions_)pznu = pz1;
         //if(usePzMinusSolutions_)pznu = pz2;
@@ -3166,16 +3166,16 @@ TLorentzVector VHbbAnalysis::getNu4Momentum(const TLorentzVector& TLepton, const
         //std::cout<<"a "<<EquationA << " b " << EquationB  <<" c "<< EquationC <<" d "<< EquationD << std::endl;
 
         //if(usePxMinusSolutions_){
-          for( int i =0; i< (int)solutions.size();++i){
-          if(solutions[i]<0 ) continue;
-          double p_x = (solutions[i]*solutions[i]-mW*mW)/(4*pxlep);
-          double p_y = ( mW*mW*pylep + 2*pxlep*pylep*p_x -mW*ptlep*solutions[i])/(2*pxlep*pxlep);
-          double Delta2 = (p_x-metpx)*(p_x-metpx)+(p_y-metpy)*(p_y-metpy);
-
-                //std::cout<<"intermediate solution1 met x "<<metpx << " min px " << p_x  <<" met y "<<metpy <<" min py "<< p_y << std::endl;
-
-               //std::cout<<"solution1 met x "<<metpx << " min px " << minPx  <<" met y "<<metpy <<" min py "<< minPy << std::endl;
-          }
+//          for( int i =0; i< (int)solutions.size();++i){
+//          if(solutions[i]<0 ) continue;
+//          double p_x = (solutions[i]*solutions[i]-mW*mW)/(4*pxlep);
+//          double p_y = ( mW*mW*pylep + 2*pxlep*pylep*p_x -mW*ptlep*solutions[i])/(2*pxlep*pxlep);
+//          double Delta2 = (p_x-metpx)*(p_x-metpx)+(p_y-metpy)*(p_y-metpy);
+//
+//                //std::cout<<"intermediate solution1 met x "<<metpx << " min px " << p_x  <<" met y "<<metpy <<" min py "<< p_y << std::endl;
+//
+//               //std::cout<<"solution1 met x "<<metpx << " min px " << minPx  <<" met y "<<metpy <<" min py "<< minPy << std::endl;
+//          }
         //}
 
 
@@ -3280,7 +3280,7 @@ float VHbbAnalysis::evaluateRegression(int i) {
     tmp.SetPtEtaPhiM(m("Jet_pt",i),m("Jet_eta",i),m("Jet_phi",i),m("Jet_mass",i));
     *f["hJets_mt_0"] = tmp.Mt();
     //std::cout<<"4-vector Mt() is "<<tmp.Mt()<<std::endl;
-    float mt = TMath::Sqrt( TMath::Power(tmp.Et(),2) - TMath::Power(tmp.Pt(),2) );
+    //float mt = TMath::Sqrt( TMath::Power(tmp.Et(),2) - TMath::Power(tmp.Pt(),2) );
     //std::cout<<"by-hand Mt is "<<mt<<std::endl;
     //*f["hJets_mt_0"] = mt;
     *f["hJets_leadTrackPt_0"] = m("Jet_leadTrackPt",i);

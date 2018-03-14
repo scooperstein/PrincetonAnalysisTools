@@ -9,10 +9,10 @@ public:
     std::string name;
     int type;                 // uint, int, float, double, bool, etc
     int length;               // for arrays only    
-    std::string lengthBranch; // name of the branch e.g. nJets
+    bool onlyMC;              // only get branch for MC
     std::string prov;         // origin of branch:  existing or new
     float val;                // for settings tree... val is static
-    bool onlyMC;              // only get branch for MC
+    std::string lengthBranch; // name of the branch e.g. nJets
 
     BranchInfo(std::string _name, int _type, int _length=-1, int _onlyMC=0, std::string _prov="existing", float _val=-999, std::string _lengthBranch="");
 
@@ -22,9 +22,9 @@ inline BranchInfo::BranchInfo(std::string _name, int _type, int _length, int _on
     name(_name),
     type(_type),
     length(_length),
+    onlyMC(_onlyMC),
     prov(_prov),
     val(_val),
-    onlyMC(_onlyMC),
     lengthBranch(_lengthBranch)
 {
 }
