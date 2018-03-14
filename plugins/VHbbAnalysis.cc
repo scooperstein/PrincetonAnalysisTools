@@ -870,7 +870,7 @@ bool VHbbAnalysis::Analyze() {
 
 
     // 0-lepton
-    bool base0LepCSSelection= (
+    bool base0LepCSSelection = (
         // Vector Boson Cuts
         // (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
         (mInt("isWmunu") || mInt("isWenu") ||mInt("isZnn"))
