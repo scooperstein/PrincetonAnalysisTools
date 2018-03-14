@@ -88,10 +88,14 @@ inline void SampleContainer::AddFile(const char* fname,int isBatch, int doSkim) 
         TTree *Runs = (TTree*) file->Get("Runs");
         Long64_t genEventCount = 0;
         Runs->SetBranchAddress("genEventCount",&genEventCount);
-        Runs->GetEntry(0);
-        std::cout<<fname<<" genEventCount: "<<genEventCount<<std::endl;
-        CountWeighted->SetBinContent(1,CountWeighted->GetBinContent(1)+genEventCount);
-        processedEvents += genEventCount;
+        // one entry in Runs tree per input NanoAOD file
+        int nNanoInputFiles = Runs->GetEntries();
+        for (int i=0; i < nNanoInputFiles; i++) {
+            Runs->GetEntry(i);
+            std::cout<<fname<<" genEventCount: "<<genEventCount<<std::endl;
+            CountWeighted->SetBinContent(1,CountWeighted->GetBinContent(1)+genEventCount);
+            processedEvents += genEventCount;
+        }
         file->Close();
     }
     
