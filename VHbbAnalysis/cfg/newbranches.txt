@@ -122,6 +122,7 @@ type=2  name=AddJets252p9_puid_leadJet_btagged
 type=1  name=nAddLeptons
 type=2  name=nAddLep_f
 type=2  name=nAddJet_f
+type=1  name=nVetoLeptons
 
 type=2  name=nAddJets_2lep
 

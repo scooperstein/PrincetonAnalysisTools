@@ -330,12 +330,30 @@ bool VHbbAnalysis::Analyze() {
             *in["controlSample"] = -1;
         }
     } else if (mInt("Vtype") == 4) {
+            bool passMetFilters;
+        if (m("dataYear")==2016){
+                passMetFilters = 
+                ( m("Flag_goodVertices")
+                && m("Flag_globalTightHalo2016Filter")
+                && m("Flag_HBHENoiseFilter")
+                && m("Flag_HBHENoiseIsoFilter")
+                && m("Flag_EcalDeadCellTriggerPrimitiveFilter")); 
+        } else if (m("dataYear")==2017){         
+                passMetFilters = 
+                ( m("Flag_goodVertices")
+                && m("Flag_globalTightHalo2016Filter")
+                && m("Flag_HBHENoiseFilter")
+                && m("Flag_HBHENoiseIsoFilter")
+                && m("Flag_EcalDeadCellTriggerPrimitiveFilter")
+                && m("Flag_BadPFMuonFilter")
+                && m("Flag_BadChargedCandidateFilter")
+                && m("Flag_ecalBadCalibFilter")); 
+        }
+        if(mInt("sampleIndex")==0){//Data
+            passMetFilters = passMetFilters&&m("Flag_eeBadSCFilter");
+        }
         if (m("MET_pt") > m("metcut_0lepchan")
-            && m("Flag_goodVertices")
-            && m("Flag_globalTightHalo2016Filter")
-            && m("Flag_HBHENoiseFilter")
-            && m("Flag_HBHENoiseIsoFilter")
-            && m("Flag_EcalDeadCellTriggerPrimitiveFilter")) {
+            && passMetFilters) {
             *in["isZnn"] = 1;
         } else {
             *in["controlSample"] = -1;
@@ -715,6 +733,8 @@ bool VHbbAnalysis::Analyze() {
 
     // count the number of additional leptons and jets, then cut on this number
     int nAddLep = 0;
+    //nVetoLeptons replicating nselLeptons which was used as a veto that was used for the 0-lepton channel in the 2016 analysis, added for sync purposes
+    int nVetoLeptons = 0;
 
     // 15 to 30 by 1 GeV, 1.5 to 3 w/ 0.1 in eta
     //std::vector<int> ptCuts = {15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35};
@@ -747,6 +767,7 @@ bool VHbbAnalysis::Analyze() {
 
     // count additional leptons (check both collections, which are exclusive)
     for (int i = 0; i < mInt("nMuon"); i++) {
+        if(m("Muon_pt",i) > 4.5 && fabs(m("Muon_eta",i)) < 2.4 && m("Muon_pfRelIso04_all",i) < 0.4 && fabs(m("Muon_dz",i))<0.2 && fabs(m("Muon_dxy",i))<0.05 ) nVetoLeptons++;
         if (i == mInt("muInd1")) continue; // don't look at the lepton we've selected from the W
         if (i == mInt("muInd2")) continue; // don't look at the lepton we've selected from the Z
         if (m("Muon_pt",i) > 15 && fabs(m("Muon_eta",i)) < 2.5 && m("Muon_pfRelIso04_all",i) < 0.1) {
@@ -755,6 +776,7 @@ bool VHbbAnalysis::Analyze() {
     }
 
     for (int i = 0; i < mInt("nElectron"); i++) {
+        if(m("Electron_pt",i) > 6.5 && fabs(m("Electron_eta",i))<2.5 && m("Electron_pfRelIso03_all",i) < 0.4 && fabs(m("Electron_dz",i))<0.2 && fabs(m("Electron_dxy",i))<0.05 && m("Electron_lostHits",i)<1.0) nVetoLeptons++;
         if (i == mInt("elInd1")) continue; // don't look at the lepton we've selected from the W
         if (i == mInt("elInd2")) continue; // don't look at the lepton we've selected from the Z
         if (m("Electron_pt",i) > 15 && fabs(m("Electron_eta",i)) < 2.5 && m("Electron_pfRelIso03_all",i) < 0.1) {
@@ -764,6 +786,7 @@ bool VHbbAnalysis::Analyze() {
 
 
     *in["nAddLeptons"] = nAddLep;
+    *in["nVetoLeptons"] = nVetoLeptons;
     if ((mInt("isZnn") || mInt("isWmunu") || mInt("isWenu")) && nAddLep >= m("nAddLeptonsCut")) {
         *in["controlSample"] = -1;
     } else if (sel && mInt("controlSample") > -1) {
@@ -847,98 +870,71 @@ bool VHbbAnalysis::Analyze() {
 
 
     // 0-lepton
-    bool base0LepCSSelection; 
-    if(m("dataYear")==2016){
-        base0LepCSSelection= (
-            // Vector Boson Cuts
-            // (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
-            (mInt("isWmunu") || mInt("isWenu") ||mInt("isZnn"))
-            && mInt("cutFlow") >= 2
-            && m("V_pt") > 170
-            // Higgs Boson Cuts
-            && H_mass < 500
-            //&& *f["HCMVAV2_pt"] > 120 CP REMOVED
-            // Higgs Jet Cuts
-            && m("Jet_bReg",mInt("hJetInd1")) > 60
-            && m("Jet_bReg",mInt("hJetInd2")) > 35
-            && higgsJet2BTagged > taggerWP_L
-            && fabs(m("Jet_eta",mInt("hJetInd1"))) < 2.4
-            && fabs(m("Jet_eta",mInt("hJetInd2"))) < 2.4
-            //&& in["Jet_id"][*in["hJetInd1"]] >= 4
-            //&& in["Jet_id"][*in["hJetInd2"]] >= 4
-            && mInt("Jet_puId",mInt("hJetInd1")) >= 4
-            && mInt("Jet_puId",mInt("hJetInd2")) >= 4
-            // Leading Jet Cuts
-            //&& in["Jet_id"][0] >= 4
-            && mInt("Jet_puId",0) >= 4
-            // MET Filters
-            && m("Flag_goodVertices")
-            && m("Flag_globalTightHalo2016Filter")
-            && m("Flag_HBHENoiseFilter")
-            && m("Flag_HBHENoiseIsoFilter")
-            && m("Flag_EcalDeadCellTriggerPrimitiveFilter")
-        );
-        if(mInt("sampleIndex")==0){//Data
-            base0LepCSSelection = base0LepCSSelection&&m("Flag_eeBadSCfilter"); 
-        }
-    }
-    if(m("dataYear")==2017){
-        base0LepCSSelection= (
-            // Vector Boson Cuts
-            // (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
-            (mInt("isWmunu") || mInt("isWenu") ||mInt("isZnn"))
-            && mInt("cutFlow") >= 2
-            && m("V_pt") > 170
-            // Higgs Boson Cuts
-            && H_mass < 500
-            //&& *f["HCMVAV2_pt"] > 120 CP REMOVED
-            // Higgs Jet Cuts
-            && m("Jet_bReg",mInt("hJetInd1")) > 60
-            && m("Jet_bReg",mInt("hJetInd2")) > 35
-            && higgsJet2BTagged > taggerWP_L
-            && fabs(m("Jet_eta",mInt("hJetInd1"))) < 2.4
-            && fabs(m("Jet_eta",mInt("hJetInd2"))) < 2.4
-            //&& in["Jet_id"][*in["hJetInd1"]] >= 4
-            //&& in["Jet_id"][*in["hJetInd2"]] >= 4
-            && mInt("Jet_puId",mInt("hJetInd1")) >= 4
-            && mInt("Jet_puId",mInt("hJetInd2")) >= 4
-            // Leading Jet Cuts
-            //&& in["Jet_id"][0] >= 4
-            && mInt("Jet_puId",0) >= 4
-            // MET Filters
-            && m("Flag_goodVertices")
-            && m("Flag_globalTightHalo2016Filter")
-            && m("Flag_HBHENoiseFilter")
-            && m("Flag_HBHENoiseIsoFilter")
-            && m("Flag_EcalDeadCellTriggerPrimitiveFilter")
+    bool  base0LepCSSelection= (
+        // Vector Boson Cuts
+        // (*f["Vtype"] == 2 || *f["Vtype"] == 3 || *f["Vtype"] == 4)
+        (mInt("isWmunu") || mInt("isWenu") ||mInt("isZnn"))
+        && mInt("cutFlow") >= 2
+        && m("V_pt") > 170
+        // Higgs Boson Cuts
+        && H_mass < 500
+        //&& *f["HCMVAV2_pt"] > 120 CP REMOVED
+        // Higgs Jet Cuts
+        && m("Jet_bReg",mInt("hJetInd1")) > 60
+        && m("Jet_bReg",mInt("hJetInd2")) > 35
+        && higgsJet2BTagged > taggerWP_L
+        && fabs(m("Jet_eta",mInt("hJetInd1"))) < 2.4
+        && fabs(m("Jet_eta",mInt("hJetInd2"))) < 2.4
+        //&& in["Jet_id"][*in["hJetInd1"]] >= 4
+        //&& in["Jet_id"][*in["hJetInd2"]] >= 4
+        && mInt("Jet_puId",mInt("hJetInd1")) >= 4
+        && mInt("Jet_puId",mInt("hJetInd2")) >= 4
+        // Leading Jet Cuts
+        //&& in["Jet_id"][0] >= 4
+        && mInt("Jet_puId",0) >= 4
+        // MET Filters
+        && m("Flag_goodVertices")
+        && m("Flag_globalTightHalo2016Filter")
+        && m("Flag_HBHENoiseFilter")
+        && m("Flag_HBHENoiseIsoFilter")
+        && m("Flag_EcalDeadCellTriggerPrimitiveFilter")
+    );
+    if(m("dataYear") == 2017){
+            base0LepCSSelection = (base0LepCSSelection
             && m("Flag_BadPFMuonFilter")
             && m("Flag_BadChargedCandidateFilter")
-            && m("Flag_ecalBadCalibFilter")
-        );
-        if(mInt("sampleIndex")==0){//Data
-            base0LepCSSelection = base0LepCSSelection&&m("Flag_eeBadSCfilter"); 
-        }
+            && m("Flag_ecalBadCalibFilter"));
     }
-
+    if(mInt("sampleIndex")==0){//Data
+        base0LepCSSelection = base0LepCSSelection&&m("Flag_eeBadSCFilter"); 
+    }
+    
 
     if (base0LepCSSelection) {
         // if (*f["Vtype"] == 2 || *f["Vtype"] == 3) {
         if (mInt("isWmunu") || mInt("isWenu")) {
-            // FIXME nselLeptons needs to be replaced
-            //if (minAbsDeltaPhiHiggsJetsMet < 1.57 && *in["nselLeptons"] >= 1 && higgsJet1CMVA > CSVAM && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
             if (minAbsDeltaPhiHiggsJetsMet < 1.57 && higgsJet1BTagged > taggerWP_M && nJetsCentral >= 4 && absDeltaPhiHiggsMet > 2) {
                 *in["controlSample"] = 1; // TTbar Control Sample Index
             }
         // } else if (*f["Vtype"] == 4) {
         } else if (mInt("isZnn")) {
             bool vetoHiggsMassWindow = m("H_mass") < 60 || m("H_mass") > 160;
-            // FIXME nselLeptons needs to be replaced
-            //if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && *in["nselLeptons"] == 0 && absDeltaPhiHiggsMet > 2) {
-            if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && absDeltaPhiHiggsMet > 2) {
-	        if (higgsJet1BTagged < taggerWP_M && nJetsCentral <= 3) {
-                    *in["controlSample"] = 2; // Z+Light Control Sample Index
-                }else if (higgsJet1BTagged > taggerWP_T && nJetsCentral == 2 && vetoHiggsMassWindow) {
-                    *in["controlSample"] = 3; // Z+bb Control Sample Index
+            // NOTE cut on nVetoLeptons exists for sync purposes only and needs to be re-evaluated for 2017.
+            if(m("dataYear")==2016){
+                if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && absDeltaPhiHiggsMet > 2 && mInt("nVetoLeptons")==0) {
+	            if (higgsJet1BTagged < taggerWP_M && nJetsCentral <= 3) {
+                        *in["controlSample"] = 2; // Z+Light Control Sample Index
+                    }else if (higgsJet1BTagged > taggerWP_T && nJetsCentral == 2 && vetoHiggsMassWindow) {
+                        *in["controlSample"] = 3; // Z+bb Control Sample Index
+                    }
+                }
+            } else if (m("dataYear")==2017){
+                if (nJetsCloseToMet == 0 && absDeltaPhiMetTrackMet < 0.5 && absDeltaPhiHiggsMet > 2 ) {
+	            if (higgsJet1BTagged < taggerWP_M && nJetsCentral <= 3) {
+                        *in["controlSample"] = 2; // Z+Light Control Sample Index
+                    }else if (higgsJet1BTagged > taggerWP_T && nJetsCentral == 2 && vetoHiggsMassWindow) {
+                        *in["controlSample"] = 3; // Z+bb Control Sample Index
+                    }
                 }
             }
         }
