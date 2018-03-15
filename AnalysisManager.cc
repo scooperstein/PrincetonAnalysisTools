@@ -533,7 +533,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
 
                 GetEarlyEntries(jentry, cursample->sampleNum==0);
                 bool anyPassing=false;
-                for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                for(unsigned iSyst=0; iSyst<systematics.size(); iSyst++){
                     cursyst=&(systematics[iSyst]);
                     if (cursample->sampleNum == 0 && cursyst->name != "nominal") continue;
                     //ApplySystematics(true);
@@ -553,7 +553,7 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                 //nbytes += nb;
 
                 anyPassing=false;
-                for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+                for(unsigned iSyst=0; iSyst<systematics.size(); iSyst++){
                     nb = fChain->GetEntry(jentry);
                     nbytes += nb;
 
@@ -575,14 +575,14 @@ void AnalysisManager::Loop(std::string sampleName, std::string filename, std::st
                         }
                         if(select || (cursyst->name=="nominal" && anyPassing)){
                             if(debug>1000) std::cout<<"selected event; Finishing"<<std::endl;
-                            for (int i=0; i < scaleFactors.size(); i++) {
+                            for (unsigned i=0; i < scaleFactors.size(); i++) {
                                 SFContainer sf = scaleFactors[i];
                                 float sf_err = 0.0;
                                 if (cursample->sampleNum != 0) {
                                     for (int j=0; j < mInt(sf.length); j++) {
-                                        if (sf.binning.find("abs") == -1) {
-                                            f[sf.branchname][j] = sf.getScaleFactor(m(sf.branches[0],j) , m(sf.branches[1],j), sf_err);
-                                        }
+                                        if (sf.binning.find("abs") < 0) {  
+					    f[sf.branchname][j] = sf.getScaleFactor(m(sf.branches[0],j) , m(sf.branches[1],j), sf_err);
+				        }
                                         else {
                                             f[sf.branchname][j] = sf.getScaleFactor(fabs(m(sf.branches[0],j)) , fabs(m(sf.branches[1],j)), sf_err);
                                         }
@@ -726,9 +726,9 @@ float AnalysisManager::EvaluateRegression(BDTInfo* bdtInfo){
 
 void AnalysisManager::SetupSystematicsBranches(){
     std::cout<<"loop through systematics "<<systematics.size()<<std::endl;
-    for(int iSyst=0; iSyst<systematics.size(); iSyst++){
+    for(unsigned iSyst=0; iSyst<systematics.size(); iSyst++){
         std::cout<<"syst name "<<systematics[iSyst].name<<std::endl;
-        for(int iBrnch=0; iBrnch<systematics[iSyst].branchesToEdit.size(); iBrnch++){
+        for(unsigned iBrnch=0; iBrnch<systematics[iSyst].branchesToEdit.size(); iBrnch++){
             std::string newName(systematics[iSyst].branchesToEdit[iBrnch]);
             newName.append("_");
             newName.append(systematics[iSyst].name);
@@ -762,7 +762,7 @@ void AnalysisManager::SetupSystematicsBranches(){
 // applies scales to floats and doubles (and arrays)
 // smearing can be added; other types can be added.
 void AnalysisManager::ApplySystematics(bool early){
-    for(int iBrnch=0; iBrnch<cursyst->branchesToEdit.size(); iBrnch++){
+    for(unsigned iBrnch=0; iBrnch<cursyst->branchesToEdit.size(); iBrnch++){
         //std::cout<<"iBrnch "<<iBrnch<<std::endl;
         std::string oldBranchName(cursyst->branchesToEdit[iBrnch]);
         BranchInfo* existingBranchInfo = branchInfos[oldBranchName.c_str()];

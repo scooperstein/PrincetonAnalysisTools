@@ -12,7 +12,7 @@ bdt_1lep=cfg/bdt_1lep.txt
 bdt_2lep_highPt=cfg/bdt_2lep_highPt.txt
 bdt_2lep_lowPt=cfg/bdt_2lep_lowPt.txt
 
-#bdt_0lep_vzbb=cfg/bdt_0lep_vzbb.txt
+bdt_0lep_vzbb=cfg/bdt_0lep_vzbb.txt
 bdt_1lep_vzbb=cfg/bdt_1lep_vzbb.txt
 #bdt_2lep_highPt_vzbb=cfg/bdt_2lep_highPt_vzbb.txt
 #bdt_2lep_lowPt_vzbb=cfg/bdt_2lep_lowPt_vzbb.txt

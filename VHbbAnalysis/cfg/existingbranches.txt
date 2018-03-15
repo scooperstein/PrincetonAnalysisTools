@@ -8,7 +8,11 @@ type=4  name=Flag_goodVertices
 type=4  name=Flag_globalTightHalo2016Filter
 type=4  name=Flag_HBHENoiseFilter
 type=4  name=Flag_HBHENoiseIsoFilter
+type=4  name=Flag_BadPFMuonFilter
+type=4  name=Flag_BadChargedCandidateFilter
 type=4  name=Flag_EcalDeadCellTriggerPrimitiveFilter
+type=4  name=Flag_ecalBadCalibFilter
+type=4  name=Flag_eeBadSCFilter
 
 #type=1  name=nPVs
 type=2  name=fixedGridRhoFastjetAll
@@ -56,8 +60,11 @@ type=0  name=nElectron
 type=7  name=Electron_pt                    max=20    lengthBranch=nElectron
 type=7  name=Electron_eta                   max=20    lengthBranch=nElectron
 type=7  name=Electron_phi                   max=20    lengthBranch=nElectron
+type=7  name=Electron_dxy                   max=20    lengthBranch=nElectron
+type=7  name=Electron_dz                    max=20    lengthBranch=nElectron
 type=7  name=Electron_mass                  max=20    lengthBranch=nElectron
 type=7  name=Electron_pfRelIso03_all        max=20    lengthBranch=nElectron
+type=6  name=Electron_lostHits              max=20    lengthBranch=nElectron
 type=9  name=Electron_mvaSpring16GP_WP80    max=20    lengthBranch=nElectron
 type=9  name=Electron_mvaSpring16GP_WP90    max=20    lengthBranch=nElectron
 type=6  name=Electron_charge                max=20    lengthBranch=nElectron
@@ -66,6 +73,8 @@ type=0  name=nMuon
 type=7  name=Muon_pt                        max=20    lengthBranch=nMuon
 type=7  name=Muon_eta                       max=20    lengthBranch=nMuon
 type=7  name=Muon_phi                       max=20    lengthBranch=nMuon
+type=7  name=Muon_dxy                       max=20    lengthBranch=nMuon
+type=7  name=Muon_dz                        max=20    lengthBranch=nMuon
 type=7  name=Muon_mass                      max=20    lengthBranch=nMuon
 type=7  name=Muon_pfRelIso04_all            max=20    lengthBranch=nMuon
 type=9  name=Muon_mediumId                  max=20    lengthBranch=nMuon

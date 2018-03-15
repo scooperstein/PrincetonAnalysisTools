@@ -1,5 +1,0 @@
-name=ZH125_powheg           dir=/eos/cms/store/user/scoopers/SkimmedHeppyNtuples/V25_VHbb_test_skim/ZH125_powheg/           type=-12502   xsec=0.0535 
-name=WminusH125_powheg      dir=/eos/cms/store/user/scoopers/SkimmedHeppyNtuples/V25_VHbb_test_skim/WminusH125_powheg/        type=-12501   xsec=0.101
-name=WplusH125_powheg       dir=/eos/cms/store/user/scoopers/SkimmedHeppyNtuples/V25_VHbb_test_skim/WplusH125_powheg/       type=-12500   xsec=0.159
-name=HZNuNu125              dir=/eos/cms/store/user/scoopers/SkimmedHeppyNtuples/V25_VHbb_test_skim/HZNuNu125/   type=-12503   xsec=0.1
-
