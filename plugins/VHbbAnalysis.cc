@@ -2372,7 +2372,7 @@ bool VHbbAnalysis::PassVTypeAndTrigger(int vtype) {
         if (vtype == 4
             && mInt("HLT_PFMET110_PFMHT110_IDTight")     != 1
             && mInt("HLT_PFMET120_PFMHT120_IDTight")     != 1
-            && mInt("HLT_PFMET170_NoiseCleaned")         != 1
+            //&& mInt("HLT_PFMET170_NoiseCleaned")         != 1
             && mInt("HLT_PFMET170_BeamHaloCleaned")      != 1
             && mInt("HLT_PFMET170_HBHECleaned")          != 1
            ) {
@@ -2577,7 +2577,7 @@ std::pair<int,int> VHbbAnalysis::HighestTaggerValueBJets(float j1ptCut, float j2
     std::pair<int,int> pair(-1,-1);
 
     for(int i=0; i<mInt("nJet"); i++){
-        if(mInt("Jet_puId",i) > 0
+        if(m("Jet_lepFilter",i) && mInt("Jet_puId",i) > 0
             && m("Jet_bReg",i)>j1ptCut
             &&fabs(m("Jet_eta",i))<=m("JetEtaCut")) {
             if( pair.first == -1 ) {
@@ -2590,7 +2590,7 @@ std::pair<int,int> VHbbAnalysis::HighestTaggerValueBJets(float j1ptCut, float j2
 
     for(int i=0; i<mInt("nJet"); i++){
         if(i==pair.first) continue;
-        if(mInt("Jet_puId",i) > 0
+        if(m("Jet_lepFilter",i) && mInt("Jet_puId",i) > 0
             && m("Jet_bReg",i)>j2ptCut
             &&fabs(m("Jet_eta",i))<m("JetEtaCut")) {
             if( pair.second == -1 ) {

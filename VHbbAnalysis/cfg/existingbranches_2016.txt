@@ -167,6 +167,7 @@ type=6  name=Muon_charge                    max=20    lengthBranch=nMuon
 #type=6  name=vLeptons_eleMVArawSpring15NonTrig  max=20
 #type=6  name=vLeptons_eleMVAIdSpring15NonTrig     max=20
 
+type=7  name=hJidx                  max=2
 type=2  name=H_mass
 type=2  name=H_pt
 #type=2  name=V_pt
