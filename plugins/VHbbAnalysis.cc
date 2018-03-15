@@ -350,7 +350,7 @@ bool VHbbAnalysis::Analyze() {
                 && m("Flag_ecalBadCalibFilter")); 
         }
         if(mInt("sampleIndex")==0){//Data
-            passMetFilters = passMetFilters&&m("Flag_eeBadSCFilter");
+            passMetFilters = passMetFilters&&m("Flag_eeBadScFilter");
         }
         if (m("MET_pt") > m("metcut_0lepchan")
             && passMetFilters) {
@@ -908,7 +908,7 @@ bool VHbbAnalysis::Analyze() {
     }
 
     if(mInt("sampleIndex")==0){//Data
-        base0LepCSSelection = base0LepCSSelection&&m("Flag_eeBadSCFilter"); 
+        base0LepCSSelection = base0LepCSSelection&&m("Flag_eeBadScFilter"); 
     }
     
     if (base0LepCSSelection) {

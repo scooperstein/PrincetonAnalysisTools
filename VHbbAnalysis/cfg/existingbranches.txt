@@ -12,7 +12,7 @@ type=4  name=Flag_BadPFMuonFilter
 type=4  name=Flag_BadChargedCandidateFilter
 type=4  name=Flag_EcalDeadCellTriggerPrimitiveFilter
 type=4  name=Flag_ecalBadCalibFilter
-type=4  name=Flag_eeBadSCFilter
+type=4  name=Flag_eeBadScFilter
 
 #type=1  name=nPVs
 type=2  name=fixedGridRhoFastjetAll
