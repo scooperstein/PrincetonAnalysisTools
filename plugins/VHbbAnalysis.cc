@@ -2579,7 +2579,7 @@ bool VHbbAnalysis::PassVTypeAndTrigger(int vtype) {
         if (vtype == 4
             && mInt("HLT_PFMET110_PFMHT110_IDTight")     != 1
             && mInt("HLT_PFMET120_PFMHT120_IDTight")     != 1
-            //&& mInt("HLT_PFMET170_NoiseCleaned")         != 1
+            && mInt("HLT_PFMET170_NoiseCleaned")         != 1
             && mInt("HLT_PFMET170_BeamHaloCleaned")      != 1
             && mInt("HLT_PFMET170_HBHECleaned")          != 1
            ) {
