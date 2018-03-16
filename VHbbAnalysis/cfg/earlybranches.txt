@@ -19,6 +19,10 @@ type=7  name=Jet_btagCSVV2                    max=100     lengthBranch=nJet
 type=7  name=Jet_btagCMVA                     max=100     lengthBranch=nJet
 type=2  name=V_pt
 
+type=0  name=nFatJet
+type=7  name=FatJet_pt                        max=10     lengthBranch=nFatJet
+
+
 type=1  name=nGenPart                                    onlyMC=1
 type=7  name=GenPart_pt                          max=200  onlyMC=1
 type=7  name=GenPart_eta                         max=200  onlyMC=1

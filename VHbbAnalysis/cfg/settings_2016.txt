@@ -13,7 +13,7 @@ type=2  name=dataYear           val=2016
 type=2  name=doReg              val=1
 type=2  name=smearJets          val=0
 type=2  name=JERScale           val=1.0
-type=2  name=doBoost            val=0
+type=2  name=doBoost            val=1
 type=2  name=doCMVA             val=1
 type=2  name=doICHEP            val=0
 type=2  name=reReg              val=0

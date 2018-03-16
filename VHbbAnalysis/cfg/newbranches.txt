@@ -4,6 +4,9 @@
 type=2  name=minMetjDPhi
 type=2  name=MetTkMetDPhi
 
+type=4  name=twoResolvedJets
+type=4  name=oneMergedJet
+
 type=1  name=nGenStatus2bHad
 type=1  name=nGenVbosons
 type=2  name=LeadGenVBoson_pt
@@ -27,6 +30,7 @@ type=1  name=muInd1
 type=1  name=muInd2
 type=1  name=lepInd1
 type=1  name=lepInd2
+type=1  name=boostedBBIndex  
 type=1  name=nHJetsMatched
 type=1  name=eventClass
 type=2  name=lepMetDPhi
@@ -92,6 +96,7 @@ type=2  name=HVdPhi
 type=2  name=HVdEta
 type=2  name=HVdR
 type=2  name=HVdEta_4MET
+type=2  name=jjVPtRatio
 type=2  name=HJ1_HJ2_dPhi
 type=2  name=HJ1_HJ2_dEta
 type=2  name=HJ1_HJ2_dR
@@ -104,7 +109,6 @@ type=2  name=H_pt_highestPt
 type=2  name=H_pt_highestPtJJ
 type=2  name=H_pt_bestCSV
 
-type=2  name=jjVPtRatio
 type=2  name=CS_SF
 type=2  name=Lep_SF
 type=2  name=Lep_SFUp
@@ -191,6 +195,29 @@ type=2  name=H_dPhi_reg
 type=2  name=H_dEta_reg
 type=2  name=Jet1_regWeight
 type=2  name=Jet2_regWeight
+
+type=2  name=nLooseBtagsDR0p8            
+type=2  name=nLooseBtagsDR1p0            
+type=2  name=nLooseBtagsDR1p5            
+type=2  name=nFatJets200                 
+type=2  name=nJets30_0lep
+type=2  name=nJets30_2lep
+type=2  name=nJets25_dR06                     
+
+type=2  name=FatJetCand_pt               
+type=2  name=FatJetCand_tau21                 
+type=2  name=FatJetCand_tau32                 
+type=2  name=FatJetCand_doubleB              
+type=2  name=FatJetCand_Msoftdrop_corrected  
+type=2  name=FatJetCand_tau1
+type=2  name=FatJetCand_tau2
+type=2  name=FatJetCand_tau3
+
+type=2  name=FatJetVdPhi
+type=2  name=FatJetVdEta
+type=2  name=FatJetVdR
+type=2  name=FatJetVPtRatio
+
 
 type=2  name=VPtCorrFactor
 type=2  name=VPtCorrFactorUp

@@ -1,0 +1,20 @@
+# isSpec 1 -> Spectator variable
+# isSpec 0 -> Variable used in BDT training
+
+bdtmethod=BDT
+bdtname=CMS_vhbb_BDT_Znn_Boosted_13TeV
+xmlFile=aux/TMVA_13TeV_VHbb_0lep_boosted_BDT.weights.xml
+
+name=softActivityVH_njets5                                                                                                                    lname=SA5                             isEx=1 isSpec=0 order=1
+name=softActivityVH_HT                                                                                                                        lname=SA_Ht                           isEx=1 isSpec=0 order=2
+name=V_new_pt                                                                                                                                 lname=V_pt                            isEx=1 isSpec=0 order=3
+name=Sum$((TVector2::Phi_mpi_pi(FatjetAK08ungroomed_phi[0]-Jet_phi)**2+(FatjetAK08ungroomed_eta[0]-Jet_eta)**2)>0.64&&Jet_btagCMVAV2>-0.5884) lname=nLooseBtagsDR0p8                isEx=0 isSpec=0 order=4
+name=Sum$((TVector2::Phi_mpi_pi(FatjetAK08ungroomed_phi[0]-Jet_phi)**2+(FatjetAK08ungroomed_eta[0]-Jet_eta)**2)>1&&Jet_btagCMVAV2>-0.5884)    lname=nLooseBtagsDR1p0                isEx=0 isSpec=0 order=5
+name=Sum$(FatjetAK08ungroomed_pt>200&&abs(FatjetAK08ungroomed_eta)<2.4)                                                                       lname=nFatJets200                     isEx=0 isSpec=0 order=6
+name=Sum$(Jet_pt>30&&abs(Jet_eta)<2.4&&Jet_puId>3)                                                                                           lname=nJets30_0lep                    isEx=0 isSpec=0 order=7
+name=abs(TVector2::Phi_mpi_pi(FatjetAK08ungroomed_phi[0]-V_new_phi))                                                                          lname=FatJetVdPhi                     isEx=0 isSpec=0 order=8
+name=FatjetAK08ungroomed_pt[0]                                                                                                                lname=FatJetCand_pt                   isEx=0 isSpec=0 order=9
+name=FatjetAK08ungroomed_puppi_tau2[0]/FatjetAK08ungroomed_puppi_tau1[0]                                                                      lname=FatJetCand_tau21                isEx=0 isSpec=0 order=10
+name=FatjetAK08ungroomed_bbtag[0]                                                                                                             lname=FatJetCand_doubleB              isEx=0 isSpec=0 order=11
+name=FatjetAK08ungroomed_puppi_msoftdrop[0]*FatjetAK08ungroomed_puppi_TheaCorr[0]                                                             lname=FatJetCand_Msoftdrop_corrected  isEx=0 isSpec=0 order=12
+

@@ -25,9 +25,9 @@ class VHbbAnalysis : public AnalysisManager {
         virtual void FinishEvent();
         virtual void TermAnalysis();
 
-	std::string taggerName;
-	void SetTaggerName(float taggerType);
-		
+        std::string taggerName;
+        void SetTaggerName(float taggerType);
+
         std::pair<int,int> HighestPtGoodElectronsOppCharge(float min_pt, float max_rel_iso, float idcut);
         std::pair<int,int> HighestPtGoodMuonsOppCharge(float min_pt, float max_rel_iso);
         bool ElectronSelection(int);
@@ -55,6 +55,15 @@ class VHbbAnalysis : public AnalysisManager {
         void  smearJets(float JERScale=1.0);
         float evaluateRegression(int i=0);
         void SetupFactorizedJECs(std::string variation="nominal");
+
+        void FatJetSelection();
+        void BoostedSelection();
+        void ComputeBoostedVariables();
+        bool atLeastOnePreselFatJet;
+
+        TLorentzVector Hbb;
+        TLorentzVector fatJetCand;
+        TLorentzVector V;
 };
 
 #endif // ANALYSISTOOLS_PLUGINS_VHBBANALYSIS_H_

@@ -1,0 +1,23 @@
+# isSpec 1 -> Spectator variable
+# isSpec 0 -> Variable used in BDT training
+
+bdtmethod=BDT
+bdtname=CMS_vzbb_BDT_Znn_13TeV
+xmlFile=aux/TMVA_13TeV_VZbb_0lep_HIG16044_BDT.weights.xml
+
+name=HCMVAV2_reg_mass                                                                                  lname=H_mass                 isEx=1 isSpec=0 order=1
+name=HCMVAV2_reg_pt                                                                                    lname=H_pt                   isEx=1 isSpec=0 order=2
+name=abs(TVector2::Phi_mpi_pi(HCMVAV2_reg_phi-V_new_phi))                                              lname=HVdPhi                 isEx=0 isSpec=0 order=3
+name=V_new_pt                                                                                          lname=V_pt                   isEx=1 isSpec=0 order=4
+name=(Jet_eta[hJCMVAV2idx[0]]-Jet_eta[hJCMVAV2idx[1]])                                                 lname=HJ1_HJ2_dEta           isEx=0 isSpec=0 order=5
+name=Jet_btagCMVAV2[hJCMVAV2idx[0]]                                                                    lname=hJets_btagged_0        isEx=0 isSpec=0 order=6
+name=Jet_btagCMVAV2[hJCMVAV2idx[1]]                                                                    lname=hJets_btagged_1        isEx=0 isSpec=0 order=7
+name=softActivityVH_njets5                                                                             lname=SA5                    isEx=1 isSpec=0 order=8
+name=TVector2::Phi_mpi_pi(Jet_phi[hJCMVAV2idx[0]]-Jet_phi[hJCMVAV2idx[1]])                             lname=HJ1_HJ2_dPhi           isEx=0 isSpec=0 order=9
+name=max(hJetCMVAV2_pt_reg_0,hJetCMVAV2_pt_reg_1)                                                      lname=hJets_leadingPt        isEx=0 isSpec=0 order=10
+name=min(hJetCMVAV2_pt_reg_0,hJetCMVAV2_pt_reg_1)                                                      lname=hJets_subleadingPt     isEx=0 isSpec=0 order=11
+name=Max$(Jet_btagCMVAV2[aJCMVAV2idx])                                                                 lname=otherJetsBestBtag      isEx=0 isSpec=0 order=12
+name=Max$(Jet_pt[aJCMVAV2idx])                                                                         lname=otherJetsHighestPt     isEx=0 isSpec=0 order=13
+#name=MinIf$(abs(TVector2::Phi_mpi_pi(Jet_phi-V_new_phi))-3.1415,Jet_pt&gt;30&amp;&amp;Jet_puId&gt;=4)  lname=minDPhiFromOtherJets   isEx=0 isSpec=0 order=14
+name=MinIf$(abs(TVector2::Phi_mpi_pi(Jet_phi-V_new_phi))-3.1415,Jet_pt>30&&Jet_puId>3)                 lname=minDPhiFromOtherJets   isEx=0 isSpec=0 order=14
+
