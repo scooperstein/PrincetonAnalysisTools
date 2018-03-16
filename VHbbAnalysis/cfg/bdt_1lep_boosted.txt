@@ -1,0 +1,19 @@
+# isSpec 1 -> Spectator variable
+# isSpec 0 -> Variable used in BDT training
+
+bdtmethod=BDT
+bdtname=CMS_vhbb_BDT_Wln_Boosted_13TeV
+xmlFile=aux/TMVA_13TeV_VHbb_1lep_boosted_BDT.weights.xml
+
+name=V_pt                                                                                         lname=V_pt                              isEx=1           isSpec=0 order=1 
+name=FatjetAK08ungroomed_highestbb_bbtag                                                          lname=FatJetCand_doubleB                isEx=0           isSpec=0 order=2   
+name=FatjetAK08ungroomed_highestbb_pt                                                             lname=FatJetCand_pt                     isEx=0           isSpec=0 order=3   
+name=FatjetAK08ungroomed_highestbb_tau3                                                           lname=FatJetCand_tau3                   isEx=0           isSpec=0 order=4   
+name=FatjetAK08ungroomed_highestbb_tau2                                                           lname=FatJetCand_tau2                   isEx=0           isSpec=0 order=5   
+name=FatjetAK08ungroomed_highestbb_tau1                                                           lname=FatJetCand_tau1                   isEx=0           isSpec=0 order=6   
+name=FatjetAK08ungroomed_highestbb_tau2/FatjetAK08ungroomed_highestbb_tau1                        lname=FatJetCand_tau21                  isEx=0           isSpec=0 order=7   
+name=FatjetAK08ungroomed_highestbb_tau3/FatjetAK08ungroomed_highestbb_tau2                        lname=FatJetCand_tau32                  isEx=0           isSpec=0 order=8   
+name=FatjetAK08ungroomed_highestbb_msoftdrop                                                      lname=FatJetCand_Msoftdrop_corrected    isEx=0           isSpec=0 order=9   
+name=abs(FatjetAK08ungroomed_highestbb_V_dPhi)                                                    lname=FatJetVdPhi                       isEx=0           isSpec=0 order=10  
+name=HJ1_HJ2_dR                                                                                   lname=HJ1_HJ2_dR                        isEx=0           isSpec=0 order=11  
+name=Sum$(Jet_pt>25.&&abs(Jet_eta)<2.5&&Jet_puId>0&&Jet_id>0&&Jet_FatjetAK08ungroomed_dR>0.6)     lname=nJets25_dR06                      isEx=0           isSpec=0 order=12

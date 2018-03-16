@@ -181,10 +181,10 @@ void AnalysisManager::InitChain(std::string filename)
 }
 
 
-void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov, std::string lengthBranch){
+void AnalysisManager::SetupBranch(std::string name, int type, int length, int onlyMC, std::string prov, std::string lengthBranch, int allowMissingBranch){
     branches[name] = new TBranch;
     if(debug>10000) std::cout<<"new TBranch"<<std::endl;
-    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov,-999.,lengthBranch);
+    branchInfos[name] = new BranchInfo(name,type,length,onlyMC,prov,-999.,lengthBranch, allowMissingBranch);
     if(debug>10000) std::cout<<"new BranchInfo"<<std::endl;
 
     // Only 0-9 are setup with types for the moment.
@@ -396,9 +396,14 @@ void AnalysisManager::GetEarlyEntries(Long64_t entry, bool isData){
     for(std::map<std::string,BranchInfo*>::iterator ibranch=branchInfos.begin();
             ibranch!=branchInfos.end(); ++ibranch){
         if(ibranch->second->prov == "early" && !(isData && ibranch->second->onlyMC)) {
-            if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
-            branches[ibranch->first]->GetEntry(entry);
-            if(debug>100000) std::cout<<"Got entry for early branch "<<ibranch->first<<std::endl;
+            if(fChain->GetBranchStatus((ibranch->first).c_str())){
+                if(debug>100000) std::cout<<"Getting entry for early branch "<<ibranch->first<<std::endl;
+                branches[ibranch->first]->GetEntry(entry);
+                if(debug>100000) std::cout<<"Got entry for early branch "<<ibranch->first<<std::endl;
+            } else if (!(ibranch->second->allowMissingBranch)){
+               std::cout<<"Branch "<<ibranch->first<<" is missing and allowMissingBranch is not set. Exiting..."<<std::endl;
+               std::exit(0);
+            }
         }
     }
 }

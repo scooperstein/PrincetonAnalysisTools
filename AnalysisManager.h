@@ -112,7 +112,7 @@ public :
     Long64_t        LoadTree(Long64_t entry);
     void            InitChain(std::string filename);
 
-    void            SetupBranch(std::string name, int type, int length=-1, int onlyMC=0, std::string prov="existing", std::string lengthBranch="");
+    void            SetupBranch(std::string name, int type, int length=-1, int onlyMC=0, std::string prov="existing", std::string lengthBranch="", int allowMissingBranch=0);
     void            SetupNewBranch(std::string name, int type, int length=-1, bool newmem=true, std::string treetype="output", float val=-999);
     void            SetNewBranches();
     void            ResetBranches();

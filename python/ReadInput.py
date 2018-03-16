@@ -127,15 +127,15 @@ def ReadTextFile(filename, filetype, samplesToRun="", filesToRun=[], isBatch=0, 
                 print "getting early branches"
             for branch in branches:
                 if am.debug>10:
-                    print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4])
+                    print(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4], branches[branch][5])
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "early", branches[branch][4], branches[branch][5])
         else:
             print "There are no early branches in the config file."
 
         if settings.has_key("existingbranches"):
             branches=ReadTextFile(settings["existingbranches"], "branchlist",list())
             for branch in branches:
-                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "existing", branches[branch][4])
+                am.SetupBranch(branch,branches[branch][0], branches[branch][1], branches[branch][3], "existing", branches[branch][4], branches[branch][5])
         else:
             print "There are no existing branches in the config file."
 
@@ -391,6 +391,7 @@ def MakeBranchMap(lines):
         val=-999
         onlyMC=0
         lengthBranch=""
+        allowMissingBranch=0
 
         for item in line.split():
             name,value = item.split("=")
@@ -408,8 +409,10 @@ def MakeBranchMap(lines):
                 if debug>1000:
                     print "FOUND LENGTH BRANCH",value
                 lengthBranch=str(value)
+            if name.find("allowMissingBranch") is 0:
+                allowMissingBranch=int(value)
 
-        branches[branchname]= [branchtype,arraylength,val,onlyMC,lengthBranch]
+        branches[branchname]= [branchtype,arraylength,val,onlyMC,lengthBranch,allowMissingBranch]
 
     return branches
 

@@ -13,7 +13,7 @@ type=2  name=dataYear           val=2017
 type=2  name=doReg              val=1
 type=2  name=smearJets          val=0
 type=2  name=JERScale           val=1.0
-type=2  name=doBoost            val=0
+type=2  name=doBoost            val=1
 type=2  name=doCMVA             val=1
 type=2  name=doICHEP            val=0
 type=2  name=reReg              val=0
@@ -36,6 +36,17 @@ type=2  name=j1ptBtag_2lepchan   val=-0.5884
 type=2  name=j1ptBtag            val=-0.5884
 type=2  name=j2ptBtag            val=-0.5884
 type=2  name=JetEtaCut          val=2.5
+
+type=2  name=fatJetPtCut_0lepchan         val=250
+type=2  name=fatJetBBTaggerCut_0lepchan   val=0.6
+type=2  name=tau2OverTau1Cut_0lepchan     val=0.65
+type=2  name=fatJetPtCut_1lepchan         val=300
+type=2  name=fatJetBBTaggerCut_1lepchan   val=0.8
+type=2  name=tau2OverTau1Cut_1lepchan     val=0.65
+type=2  name=fatJetPtCut_2lepchan         val=250
+type=2  name=fatJetBBTaggerCut_2lepchan   val=0.3
+type=2  name=tau2OverTau1Cut_2lepchan     val=10
+
 
 #use the following dictionary: 0. => DeepCSV, 1. => CMVA, 2. => CSV
 type=2  name=taggerType         val=0.

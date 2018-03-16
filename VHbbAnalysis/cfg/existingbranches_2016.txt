@@ -9,7 +9,7 @@ type=4  name=Flag_globalTightHalo2016Filter
 type=4  name=Flag_HBHENoiseFilter
 type=4  name=Flag_HBHENoiseIsoFilter
 type=4  name=Flag_EcalDeadCellTriggerPrimitiveFilter
-type=4  name=Flag_eeBadSCFilter
+type=4  name=Flag_eeBadScFilter
 
 #type=1  name=nPVs
 type=2  name=fixedGridRhoFastjetAll
